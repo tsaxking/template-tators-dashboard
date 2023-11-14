@@ -251,10 +251,10 @@ app.final<{
         body: req.method == 'post' ? JSON.stringify((() => {
             let { body } = req;
             body = JSON.parse(JSON.stringify(body)) as {
-    $$files?: any;
-    password?: string;
-    confirmPassword?: string;
-};
+        $$files?: any;
+        password?: string;
+        confirmPassword?: string;
+    };
             delete body?.password;
             delete body?.confirmPassword;
             delete body?.$$files;

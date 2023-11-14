@@ -1,5 +1,4 @@
 import Filter from 'npm:bad-words';
-import { Status } from '../utilities/status.ts';
 import { Req, Res, Next, ServerFunction } from "../structure/app.ts";
 
 const filter = new Filter();
