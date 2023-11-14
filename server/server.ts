@@ -14,9 +14,9 @@ import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
 import { uuid } from "./utilities/uuid.ts";
-import 'npm:@total-typescript/ts-reset';
+// import 'npm:@total-typescript/ts-reset';
 
-const port = +env.PORT || 3000;
+const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
 
 
@@ -27,7 +27,7 @@ export const app = new App(port, domain, {
     // onConnection: (socket) => {
         // log('New connection:', socket.id);
     // },
-    ioPort: +env.SOCKET_PORT || port + 1
+    ioPort: +(env.SOCKET_PORT || port + 1)
 });
 
 
@@ -48,6 +48,10 @@ app.post('/test-stream', (req, res) => {
 
 app.post('/test', (req, res, next) => {
     res.sendStatus('test:success');
+});
+
+app.post('/ping', (req, res) => {
+    res.send('pong');
 });
 
 app.post('/test-validation', validate({
@@ -197,8 +201,6 @@ app.get('/*', (req, res, next) => {
 
     next();
 });
-
-
 
 app.route('/admin', admin);
 
