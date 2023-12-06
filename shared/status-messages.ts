@@ -488,6 +488,12 @@ export const messages: {
     code: 400,
     instructions: ''
 },
+    'server:unknown-server-error': {
+    message: 'There was an unknown error. If this persists, please contact an administrator/developer.',
+    color: 'danger',
+    code: 500,
+    instructions: ''
+},
     'skills:added': {
     message: 'Skill added',
     color: 'success',
@@ -634,6 +640,7 @@ export type StatusId = 'account:already-logged-in'
 	| 'roles:not-found'
 	| 'roles:removed'
 	| 'server:invalid-data'
+	| 'server:unknown-server-error'
 	| 'skills:added'
 	| 'skills:has-skill'
 	| 'skills:invalid-skill'
@@ -750,7 +757,8 @@ export type RolesStatusId = 'added'
 	| 'removed';
 
 
-export type ServerStatusId = 'invalid-data';
+export type ServerStatusId = 'invalid-data'
+	| 'unknown-server-error';
 
 
 export type SkillsStatusId = 'added'
