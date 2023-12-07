@@ -5,10 +5,23 @@ import { EventEmitter } from "../shared/event-emitter.ts";
 import { getTemplateSync, saveTemplateSync } from "./utilities/files.ts";
 import path from 'node:path';
 import env, { __root, __templates } from "./utilities/env.ts";
+import fs from 'node:fs';
 
 log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
 log('V8 version:', Deno.version.v8);
+
+if (!fs.existsSync(
+    path.resolve(
+        __templates, './entries'
+    )
+)) {
+    Deno.mkdirSync(
+        path.resolve(
+            __templates, './entries'
+        )
+    );
+}
 
 /**
  * Description placeholder

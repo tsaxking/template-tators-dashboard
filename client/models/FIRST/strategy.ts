@@ -50,6 +50,8 @@ type FromType = {
  * @implements {FIRST}
  */
 export class Strategy extends Cache<StrategyUpdateData> {
+    public static current?: Strategy = undefined;
+
     /**
      * Map of all Strategy objects
      * @date 10/9/2023 - 6:52:30 PM
@@ -161,5 +163,11 @@ export class Strategy extends Cache<StrategyUpdateData> {
     public destroy() {
         Strategy.cache.delete(this.data.id);
         super.destroy();
+    }
+
+
+    public select(): void {
+        Strategy.current = this;
+        Strategy.emit('select', this);
     }
 };
