@@ -33,6 +33,8 @@ type FIRSTTeamEventData = {
  * @implements {FIRST}
  */
 export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
+    public static current?: FIRSTTeam = undefined;
+
     /**
      * Map of all FIRSTTeam objects
      * @date 10/9/2023 - 6:55:03 PM
@@ -235,6 +237,12 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     public destroy() {
         FIRSTTeam.cache.delete(this.tba.team_number);
         super.destroy();
+    }
+
+
+    public select(): void {
+        FIRSTTeam.current = this;
+        FIRSTTeam.emit('select', this);
     }
 }
 

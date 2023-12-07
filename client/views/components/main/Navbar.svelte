@@ -1,4 +1,6 @@
 <script lang="ts">
+    import YearSelect from './YearSelect.svelte';
+    import EventSelect from './EventSelect.svelte';
     import { capitalize, fromSnakeCase } from '../../../../shared/text';
     export let title: string;
     export let navItems: string[] = [];
@@ -59,6 +61,8 @@
         {/if}
     </a>
 
+    <YearSelect></YearSelect>
+    <EventSelect></EventSelect>
 
     <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="navbarDropdown" id="navbarDropdown">
         {#each accountLinks as link}

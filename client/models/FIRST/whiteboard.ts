@@ -22,6 +22,9 @@ type WhiteboardUpdateData = {};
  * @implements {FIRST}
  */
 export class Whiteboard extends Cache<WhiteboardUpdateData> {
+    public static current?: Whiteboard = undefined;
+
+
     /**
      * Cache for all {@link Whiteboard} objects
      * @date 10/9/2023 - 6:58:43 PM
@@ -62,5 +65,11 @@ export class Whiteboard extends Cache<WhiteboardUpdateData> {
     public destroy() {
         Whiteboard.cache.delete(this.data.id);
         super.destroy();
+    }
+
+
+    public select(): void {
+        Whiteboard.current = this;
+        Whiteboard.emit('select', this);
     }
 }

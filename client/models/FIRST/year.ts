@@ -25,6 +25,23 @@ type YearUpdateData = {
  */
 export class FIRSTYear extends Cache<YearUpdateData> {
     /**
+     * The currently selected year
+     * @date 10/9/2023 - 6:59:50 PM
+     *
+     * @static
+     * @type {FIRSTYear}
+     */
+    public static current?: FIRSTYear = undefined;
+
+
+    public static select(year: number): FIRSTYear | undefined {
+        const y = FIRSTYear.cache.get(year);
+        if (y) y.select();
+        else console.error('No year found:', year);
+        return y;
+    }
+
+    /**
      * Cache for all {@link FIRSTYear} objects
      * @date 10/9/2023 - 6:59:50 PM
      *
@@ -84,5 +101,10 @@ export class FIRSTYear extends Cache<YearUpdateData> {
     public destroy() {
         FIRSTYear.cache.delete(this.year);
         super.destroy();
+    }
+
+    public select(): void {
+        FIRSTYear.current = this;
+        FIRSTYear.emit('select', this);
     }
 };

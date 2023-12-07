@@ -31,6 +31,7 @@ type FIRSTMatchEventData = {
  * @typedef {FIRSTMatch}
  */
 export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
+    public static current?: FIRSTMatch = undefined;
 
     /**
      * Map of all FIRSTMatch objects
@@ -157,5 +158,10 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     public destroy() {
         FIRSTMatch.cache.delete(this.tba.key);
         super.destroy();
+    }
+
+    public select(): void {
+        FIRSTMatch.current = this;
+        FIRSTMatch.emit('select', this);
     }
 };
