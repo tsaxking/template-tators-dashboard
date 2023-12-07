@@ -132,7 +132,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      * @readonly
      * @type {FIRSTTeam[]}
      */
-    get teams(): FIRSTTeam[] {
+    get teams(): [FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam] {
         const [red1, red2, red3] = this.tba.alliances.red.team_keys;
         const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
 
@@ -145,7 +145,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             throw new Error('Some teams are undefined');
         }
 
-        return teams as FIRSTTeam[];
+        return teams as [FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam];
     }
 
 
