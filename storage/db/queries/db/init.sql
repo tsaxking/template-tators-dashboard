@@ -220,7 +220,7 @@ CREATE TABLE IF NOT EXISTS MatchComments (
 );
 
 
-CREATE TABLE ScoutingQuestionSections (
+CREATE TABLE IF NOT EXISTS ScoutingQuestionSections (
     name TEXT NOT NULL UNIQUE,
     multiple INTEGER NOT NULL DEFAULT 0 -- 0 = there cannot be multiple answers for a submission
 );
@@ -228,7 +228,7 @@ CREATE TABLE ScoutingQuestionSections (
 
 
 -- Group of questions
-CREATE TABLE ScoutingQuestionGroups (
+CREATE TABLE IF NOT EXISTS ScoutingQuestionGroups (
     id TEXT PRIMARY KEY,
     eventKey TEXT NOT NULL,
     section TEXT NOT NULL, -- section name
@@ -237,7 +237,7 @@ CREATE TABLE ScoutingQuestionGroups (
     FOREIGN KEY (section) REFERENCES ScoutingQuestionSections(name)
 );
 
-CREATE TABLE ScoutingQuestions (
+CREATE TABLE IF NOT EXISTS ScoutingQuestions (
     id TEXT PRIMARY KEY,
     question TEXT NOT NULL,
     key TEXT NOT NULL,
@@ -247,7 +247,7 @@ CREATE TABLE ScoutingQuestions (
     FOREIGN KEY (groupId) REFERENCES ScoutingQuestionGroups(id)
 );
 
-CREATE TABLE ScoutingAnswers (
+CREATE TABLE IF NOT EXISTS ScoutingAnswers (
     id TEXT PRIMARY KEY,
     questionId TEXT NOT NULL,
     answer TEXT NOT NULL,
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS TBARequests (
     url TEXT PRIMARY KEY,
     response TEXT, -- JSON
     updated INTEGER NOT NULL, -- Date of last update (in ms)
-    update INTEGER NOT NULL DEFAULT 0
+    'update' INTEGER NOT NULL DEFAULT 0
 );
 
 

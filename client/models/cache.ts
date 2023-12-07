@@ -1,14 +1,12 @@
 import { EventEmitter } from '../../shared/event-emitter';
 
-
-
 /**
  * Global updates for all caches
  * @date 10/12/2023 - 1:04:42 PM
  *
  * @typedef {Updates}
  */
-type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*';
+type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*' | 'select';
 
 /**
  * Cache is a class which allows you to store data in memory and listen for updates

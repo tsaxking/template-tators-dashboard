@@ -30,6 +30,7 @@ type FIRSTEventData = {
  * @typedef {FIRSTEvent}
  */
 export class FIRSTEvent extends Cache<FIRSTEventData> {
+    public static current?: FIRSTEvent = undefined;
     
     /**
      * Map of all FIRSTEvent objects
@@ -134,7 +135,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         this.$cache.set('teams', r.data);
         r.onUpdate((data) => {
             this.$cache.set('teams', data);
-            this.$emitter.emit('update-teams', data);
+            this.emit('update-teams', data);
         }, 1000 * 60 * 10 * 24);
 
         return r.data;
@@ -196,6 +197,11 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         const c = this.$cache.get('properties');
         if (!c) console.error('You likely did not call render() on this event before accessing properties. This is a bug that must be fixed.');
         return c as EventProperties|undefined;
+    }
+
+    select(): void {
+        FIRSTEvent.current = this;
+        FIRSTEvent.emit('select', this);
     }
 };
 
