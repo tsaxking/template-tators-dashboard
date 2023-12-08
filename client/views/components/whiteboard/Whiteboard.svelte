@@ -12,6 +12,8 @@
         const wb = await m.getWhiteboard();
         board = new WhiteboardCache(wb, ctx);
     });
+
+    board.on('update', (state) => {});
 </script>
 
 <ButtonGroup>

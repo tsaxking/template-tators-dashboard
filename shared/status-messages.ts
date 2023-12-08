@@ -566,6 +566,18 @@ export const messages: {
     code: 500,
     instructions: 'Please try again.'
 },
+    'whiteboard:created': {
+    message: 'Whiteboard created successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'whiteboard:deleted': {
+    message: 'Whiteboard deleted successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'whiteboard:match-not-found': {
     message: 'The match for the selected whiteboard was not found, please try again using different parameters',
     color: 'danger',
@@ -576,6 +588,12 @@ export const messages: {
     message: 'Whiteboard was not found',
     color: 'danger',
     code: 404,
+    instructions: ''
+},
+    'whiteboard:update': {
+    message: 'Whiteboard updated successfully',
+    color: 'success',
+    code: 200,
     instructions: ''
 }
 };
@@ -671,8 +689,11 @@ export type StatusId = 'account:already-logged-in'
 	| 'test:fail'
 	| 'test:success'
 	| 'unknown:error'
+	| 'whiteboard:created'
+	| 'whiteboard:deleted'
 	| 'whiteboard:match-not-found'
 	| 'whiteboard:not-found'
+	| 'whiteboard:update'
 ;
 
 export type AccountStatusId = 'already-logged-in'
@@ -728,6 +749,9 @@ export type FilesStatusId = 'invalid'
 	| 'no-files'
 	| 'too-large'
 	| 'uploaded';
+
+
+export type MatchStatusId = 'not-found';
 
 
 export type MatchcommentsStatusId = 'delete'
@@ -803,8 +827,8 @@ export type TestStatusId = 'fail'
 export type UnknownStatusId = 'error';
 
 
-export type WhiteboardStatusId = 'match-not-found'
-	| 'not-found';
-
-
-export type MatchStatusId = 'not-found';
+export type WhiteboardStatusId = 'deleted'
+	| 'match-not-found'
+	| 'not-found'
+	| 'update'
+	| 'created';

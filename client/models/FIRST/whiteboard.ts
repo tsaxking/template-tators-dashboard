@@ -1,6 +1,7 @@
 import { Whiteboard as WhiteboardObj } from "../../../shared/db-types-extended";
 import { Cache } from "../cache";
 import { Whiteboard as WB, WhiteboardState } from "../whiteboard/whiteboard";
+import { socket } from '../../utilities/socket';
 
 /**
  * Events that are emitted by a {@link WhiteboardCache} object
@@ -8,7 +9,9 @@ import { Whiteboard as WB, WhiteboardState } from "../whiteboard/whiteboard";
  *
  * @typedef {WhiteboardUpdateData}
  */
-type WhiteboardUpdateData = {};
+type WhiteboardUpdateData = {
+    'update': WhiteboardState[];
+};
 
 
 
@@ -81,3 +84,11 @@ export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
         WhiteboardCache.emit('select', this);
     }
 }
+
+
+
+socket.on('whiteboard:update', (data: WhiteboardObj) => {});
+
+socket.on('whiteboard:created', (data: WhiteboardObj) => {});
+
+socket.on('whiteboard:deleted', (id: string) => {});
