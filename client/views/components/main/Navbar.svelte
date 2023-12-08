@@ -1,6 +1,6 @@
 <script lang="ts">
-    import YearSelect from './YearSelect.svelte';
-    import EventSelect from './EventSelect.svelte';
+    import YearSelect from './GlobalYearSelect.svelte';
+    import EventSelect from './GlobalEventSelect.svelte';
     import { capitalize, fromSnakeCase } from '../../../../shared/text';
     export let title: string;
     export let navItems: string[] = [];

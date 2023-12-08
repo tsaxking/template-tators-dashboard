@@ -12,8 +12,8 @@ import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
-import { uuid } from "./utilities/uuid.ts";
 import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
+import './utilities/tba/tba.ts';
 
 console.log('Platform:', os.platform());
 
