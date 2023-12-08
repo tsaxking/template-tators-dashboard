@@ -10,7 +10,7 @@
     "type-route": "deno run --allow-all ./scripts/type-route.ts",
     "discord": "deno run --allow-all --unstable ./server/utilities/discord/discord.ts",
     "test": "deno test --allow-all --unstable --no-check ./scripts/test.ts -- --default",
-    "tba": "deno run --allow-all --unstable ./scripts/tba.ts"
+    "tba": "deno task init && deno run --allow-all --unstable ./scripts/tba-update.ts"
   },
   "compilerOptions": {
     // "noexplicitAny": false,
