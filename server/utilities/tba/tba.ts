@@ -76,7 +76,6 @@ let interval: number | undefined = undefined;
 const update = () => {
     TBA.get<TBAEvent[]>(`/team/frc2122/events/${new Date().getFullYear()}/simple`)
         .then((events) => {
-            log(events);
             if (!events) return;
             const now = Date.now();
 
@@ -87,7 +86,7 @@ const update = () => {
                 return Math.abs(aDate - now) - Math.abs(bDate - now);
             });
 
-            console.log('Closest event:', closest);
+            console.log('Closest event:', closest.key);
 
             if (interval) clearInterval(interval);
 
@@ -115,7 +114,7 @@ const update = () => {
         .catch(error);
 }
 
-if (Deno.args.includes('--update')) {
+if (Deno.args.includes('--update-interval')) {
     setInterval(update, 1000 * 60 * 60 * 24);
     update();
 }

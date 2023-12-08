@@ -14,8 +14,20 @@ export const saveEvent = async (eventKey: string) => {
         eventKey
     });
 
-    if (exists) log('Event already exists in database!');
-    else {
+    if (exists) {
+        if (Deno.args.includes('--force') && Deno.args.includes('--tba-task')) {
+            DB.unsafe.run(`DELETE FROM Teams WHERE eventKey = ?`, eventKey);
+            DB.unsafe.run(`DELETE FROM Matches WHERE eventKey = ?`, eventKey);
+            DB.unsafe.run(`DELETE FROM Events WHERE eventKey = ?`, eventKey);
+            DB.run('events/new-event', {
+                eventKey,
+                flipX: false,
+                flipY: false
+            });
+        } else {
+            log('Event already exists in database!');
+        }
+    } else {
         DB.run('events/new-event', {
             eventKey,
             flipX: false,
@@ -39,7 +51,13 @@ export const saveMatches = async (eventKey: string) => {
     let saved = 0;
     for (const match of matches) {
         // check if match exists
-        if (existingMatches?.some(m => m.matchNumber === match.match_number && m.compLevel === match.comp_level)) continue;
+        if (existingMatches?.some(m => m.matchNumber === match.match_number && m.compLevel === match.comp_level)) {
+            if (Deno.args.includes('--force') && Deno.args.includes('--tba-task')) {
+                DB.unsafe.run(`DELETE FROM matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?`, eventKey, match.match_number, match.comp_level);
+            } else {
+                continue;
+            }
+        }
 
         DB.run('matches/new', {
             id: uuid(),
@@ -67,7 +85,13 @@ export const saveTeams = async (eventKey: string) => {
     let saved = 0;
     for (const team of teams) {
         // check if team exists
-        if (existingTeams?.some(t => t.number === team.team_number)) continue;
+        if (existingTeams?.some(t => t.number === team.team_number)) {
+            if (Deno.args.includes('--force') && Deno.args.includes('--tba-task')) {
+                DB.unsafe.run(`DELETE FROM teams WHERE eventKey = ? AND number = ?`, eventKey, team.team_number);
+            } else {
+                continue;
+            }
+        }
 
         DB.run('teams/new', {
             number: team.team_number,
@@ -83,22 +107,40 @@ export const saveTeams = async (eventKey: string) => {
     }
 }
 
-
+const updateYear = async (year: number) => {
+    const events = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${year}/simple`);
+    if (Array.isArray(events)) {
+        for (const event of events) {
+            await saveEvent(event.key);
+        }
+    }
+}
 
 // if running from command line
-if (Deno.args.includes('--update')) {
+if (Deno.args.includes('--update') && Deno.args.includes('--tba-task')) {
+    if (Deno.args.includes('--force')) {
+        log('Forcing updates... This will reset all existing data for the event(s) being updated! (Including matches and teams)');
+        const res = prompt('Are you sure you want to continue? (y/n)');
+        if (res !== 'y') {
+            error('Aborting update!');
+            Deno.exit();
+        }
+    }
+
     const eventKey = Deno.args[Deno.args.indexOf('--update') + 1];
     if (eventKey) {
-        if (eventKey === 'all') {
-            const events = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${new Date().getFullYear()}/simple`);
-            if (Array.isArray(events)) {
-                for (const event of events) {
-                    await saveEvent(event.key);
-                }
+        if (eventKey === 'now') {
+            const year = new Date().getFullYear();
+            await updateYear(year);
+        } else if (eventKey === 'all') {
+            const year = new Date().getFullYear();
+            for (let y = year; y >= 2007; y--) {
+                updateYear(y);
             }
-        }
-        else {
+        } else {
             saveEvent(eventKey);
         }
+    } else {
+        error('No event key specified!');
     }
 }

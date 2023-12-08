@@ -7,7 +7,6 @@
 //     constructor(public readonly data: TBAEvent) {};
 
 
-
 //     async getTeams() {
 //         const { key } = this.data;
 
