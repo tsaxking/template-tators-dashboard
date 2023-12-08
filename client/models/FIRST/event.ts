@@ -202,6 +202,11 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         FIRSTEvent.current = this;
         FIRSTEvent.emit('select', this);
     }
+
+    select(): void {
+        FIRSTEvent.current = this;
+        FIRSTEvent.emit('select', this);
+    }
 };
 
 socket.on('event:update-properties', (eventKey: string, properties: EventProperties) => {
