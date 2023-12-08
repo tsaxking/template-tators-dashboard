@@ -25,6 +25,7 @@ export type CustomMatch = {
     eventKey: string;
     matchNumber: number;
     compLevel: CompLevel;
+    name: string | null;
 
     red1: number;
     red2: number;
