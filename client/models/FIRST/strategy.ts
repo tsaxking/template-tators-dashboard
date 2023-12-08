@@ -2,7 +2,7 @@ import { CompLevel, Strategy as StrategyObj, Whiteboard as WhiteboardObj } from 
 import { EventEmitter } from "../../../shared/event-emitter";
 import { RetrieveStreamEventEmitter } from "../../utilities/requests";
 import { ServerRequest } from "../../utilities/requests";
-import { Whiteboard } from "./whiteboard";
+import { WhiteboardCache } from "./whiteboard";
 import { Cache } from "../cache";
 
 /**
@@ -114,13 +114,13 @@ export class Strategy extends Cache<StrategyUpdateData> {
      * @date 10/9/2023 - 6:52:29 PM
      *
      * @public
-     * @returns {RetrieveStreamEventEmitter<Whiteboard>}
+     * @returns {RetrieveStreamEventEmitter<WhiteboardCache>}
      */
-    public getWhiteboards(): RetrieveStreamEventEmitter<Whiteboard> {
+    public getWhiteboards(): RetrieveStreamEventEmitter<WhiteboardCache> {
         if (this.$cache.has('strategy')) {
-            const res = this.$cache.get('strategy') as Whiteboard[];
+            const res = this.$cache.get('strategy') as WhiteboardCache[];
 
-            const em = new RetrieveStreamEventEmitter<Whiteboard>();
+            const em = new RetrieveStreamEventEmitter<WhiteboardCache>();
 
             res.forEach(s => em.emit('chunk', s));
 
@@ -128,12 +128,12 @@ export class Strategy extends Cache<StrategyUpdateData> {
         }
 
         const em = ServerRequest
-            .retrieveStream<Whiteboard>(
+            .retrieveStream<WhiteboardCache>(
                 '/api/strategy/whiteboards', 
                 {
                     whiteboardId: this.data.whiteboardId
                 }, 
-                (s) => new Whiteboard(JSON.parse(s) as WhiteboardObj)
+                (s) => new WhiteboardCache(JSON.parse(s) as WhiteboardObj)
             );
 
 

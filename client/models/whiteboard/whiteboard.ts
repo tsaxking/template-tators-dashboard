@@ -2,6 +2,7 @@ import { Color } from "../../submodules/colors/color";
 import { StateStack } from "../../../shared/statestack";
 import { Point2D } from "../../submodules/calculations/src/linear-algebra/point";
 import { Canvas } from "../canvas/canvas";
+import { ServerRequest } from "../../utilities/requests";
 
 
 export type Path = {
@@ -35,7 +36,6 @@ export class WhiteboardState {
             }
             ctx.stroke();
         }
-
     }
 
     toJSON(): string {
@@ -46,13 +46,13 @@ export class WhiteboardState {
     }
 }
 
-
 export class Whiteboard {
-    static build(states: WhiteboardState[], ctx: CanvasRenderingContext2D) {
+    static build(states: WhiteboardState[], ctx: CanvasRenderingContext2D): Whiteboard {
         const wb = new Whiteboard(ctx);
         for (const state of states) {
             wb.stack.add(state);
         }
+        return wb;
     }
 
     public readonly stack: StateStack<WhiteboardState> = new StateStack<WhiteboardState>(new WhiteboardState());
@@ -60,8 +60,9 @@ export class Whiteboard {
     public currentColor: Color = Color.fromName('black');
 
     constructor(public readonly ctx: CanvasRenderingContext2D) {
-        this.stack.on('change', () => {
-            this.canvas.add(this.stack.current!.data);
+        this.stack.on('change', (state) => {
+            this.canvas.clear();
+            this.canvas.add(state.data);
         });
         this.canvas = new Canvas(ctx);
         this.setListeners();
@@ -158,5 +159,28 @@ export class Whiteboard {
 
     animate() {
         return this.canvas.animate();
+    }
+
+
+    undo() {
+        return this.stack.prev();
+    }
+
+    redo() {
+        return this.stack.next();
+    }
+
+    clear() {
+        const state = new WhiteboardState();
+        this.stack.add(state);
+    }
+
+    save() {
+        const state = this.stack.current;
+        if (!state) return;
+        const json = state.data.toJSON();
+        ServerRequest.post('/api/whiteboard', {
+            json
+        });
     }
 }

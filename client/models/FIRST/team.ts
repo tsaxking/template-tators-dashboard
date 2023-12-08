@@ -115,6 +115,18 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         return res?.watchPriority || 0;
     }
 
+
+    public async getInfo(): Promise<Team> {
+        const res = await ServerRequest.post<Team>('/api/teams/properties', {
+            teamKey: this.tba.key,
+            eventKey: this.event.tba.key
+        });
+
+        if (res) this.$cache.set('info', res);
+
+        return res;
+    }
+
     /**
      * Streams the match scouting for this team
      * Returns an emitter that emits chunks of the match scouting

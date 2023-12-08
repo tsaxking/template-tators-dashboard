@@ -1,4 +1,4 @@
-import { CompLevel, Event as EventProperties, MatchScouting, Team, RetrievedMatchScouting, MatchScoutingComments, ScoutingAnswer, RetrievedScoutingAnswer, Strategy as StrategyObj } from "../../../shared/db-types-extended";
+import { CompLevel, Event as EventProperties, MatchScouting, Team, RetrievedMatchScouting, MatchScoutingComments, ScoutingAnswer, RetrievedScoutingAnswer, Strategy as StrategyObj, Whiteboard as WhiteboardObj, Match as MatchObj } from "../../../shared/db-types-extended";
 import { EventEmitter } from "../../../shared/event-emitter";
 import { TBAEvent, TBAMatch, TBATeam } from "../../../shared/tba";
 import { RetrieveStreamEventEmitter, ServerRequest } from "../../utilities/requests";
@@ -95,7 +95,27 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         return em;
     }
 
+    public async getInfo(): Promise<MatchObj> {
+        return new Promise<MatchObj>((res, rej) => {
+            let info = this.$cache.get('info');
+            if (info) return res(info);
+
+            ServerRequest.post<MatchObj>('/api/matches/info', {
+                eventKey: this.event.tba.key,
+                matchNumber: this.tba.match_number,
+                compLevel: this.tba.comp_level
+            }, {
+                cached: true
+            }).then((data) => {
+                this.$cache.set('info', data);
+                res(data);
+            }).catch(rej);
+        });
+    }
+
     /**
+     * 
+     * 
      * Retrieves the match scouting for this match in an object with the team number as the key
      * @date 10/9/2023 - 6:39:41 PM
      *
@@ -123,6 +143,16 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
             return acc;
         }, {} as { [teamNumber: number]: RetrievedMatchScouting });
+    }
+
+    async getWhiteboard(): Promise<WhiteboardObj> {
+        return ServerRequest.post<WhiteboardObj>('/api/whiteboard/from-match', {
+            eventKey: this.event.tba.key,
+            matchNumber: this.tba.match_number,
+            compLevel: this.tba.comp_level
+        }, {
+            cached: true
+        });
     }
 
     /**

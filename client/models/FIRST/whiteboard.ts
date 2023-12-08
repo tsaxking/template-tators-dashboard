@@ -1,9 +1,9 @@
 import { Whiteboard as WhiteboardObj } from "../../../shared/db-types-extended";
-import { EventEmitter } from "../../../shared/event-emitter";
 import { Cache } from "../cache";
+import { Whiteboard as WB, WhiteboardState } from "../whiteboard/whiteboard";
 
 /**
- * Events that are emitted by a {@link Whiteboard} object
+ * Events that are emitted by a {@link WhiteboardCache} object
  * @date 10/9/2023 - 6:58:43 PM
  *
  * @typedef {WhiteboardUpdateData}
@@ -18,25 +18,30 @@ type WhiteboardUpdateData = {};
  *
  * @export
  * @class Whiteboard
- * @typedef {Whiteboard}
+ * @typedef {WhiteboardCache}
  * @implements {FIRST}
  */
-export class Whiteboard extends Cache<WhiteboardUpdateData> {
-    public static current?: Whiteboard = undefined;
+export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
+    public static current?: WhiteboardCache = undefined;
 
 
     /**
-     * Cache for all {@link Whiteboard} objects
+     * Cache for all {@link WhiteboardCache} objects
      * @date 10/9/2023 - 6:58:43 PM
      *
      * @public
      * @static
      * @readonly
-     * @type {Map<string, Whiteboard>}
+     * @type {Map<string, WhiteboardCache>}
      */
-    public static readonly cache: Map<string, Whiteboard> = new Map<string, Whiteboard>();
+    public static readonly cache: Map<string, WhiteboardCache> = new Map<string, WhiteboardCache>();
 
 
+
+
+
+
+    public readonly board: WB;
 
 
     /**
@@ -46,11 +51,14 @@ export class Whiteboard extends Cache<WhiteboardUpdateData> {
      * @constructor
      * @param {WhiteboardObj} data
      */
-    constructor(public readonly data: WhiteboardObj) {
+    constructor(public readonly data: WhiteboardObj, ctx: CanvasRenderingContext2D) {
         super();
-        if (!Whiteboard.cache.has(data.id)) {
-            Whiteboard.cache.set(data.id, this);
+        if (!WhiteboardCache.cache.has(data.id)) {
+            WhiteboardCache.cache.set(data.id, this);
         }
+
+        const b = JSON.parse(data.board) as WhiteboardState[];
+        this.board = WB.build(b, ctx);
     }
 
 
@@ -63,13 +71,13 @@ export class Whiteboard extends Cache<WhiteboardUpdateData> {
      * @public
      */
     public destroy() {
-        Whiteboard.cache.delete(this.data.id);
+        WhiteboardCache.cache.delete(this.data.id);
         super.destroy();
     }
 
 
     public select(): void {
-        Whiteboard.current = this;
-        Whiteboard.emit('select', this);
+        WhiteboardCache.current = this;
+        WhiteboardCache.emit('select', this);
     }
 }

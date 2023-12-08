@@ -444,7 +444,7 @@ export type Queries = {
 
     // ▀█▀ ██▀ ▄▀▄ █▄ ▄█ ▄▀▀ 
     //  █  █▄▄ █▀█ █ ▀ █ ▄█▀ 
-    'teams/all': [
+    'teams/from-event': [
         [{
             eventKey: string
         }],
