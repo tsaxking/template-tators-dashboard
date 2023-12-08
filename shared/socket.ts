@@ -44,4 +44,7 @@ export type SocketEvent =
 	| 'strategy:new'
 	| 'test:success'
 	| 'test:test'
+	| 'whiteboard:created'
+	| 'whiteboard:deleted'
+	| 'whiteboard:update'
 ;

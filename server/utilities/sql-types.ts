@@ -871,7 +871,7 @@ export type Queries = {
 
     // // ▀█▀ ██▄ ▄▀▄ █▀▄ ██▀ ▄▀▄ █ █ ██▀ ▄▀▀ ▀█▀ ▄▀▀ 
     // //  █  █▄█ █▀█ █▀▄ █▄▄ ▀▄█ ▀▄█ █▄▄ ▄█▀  █  ▄█▀ 
-    'tba/new': [
+    'tba/new': [ // will auto update if already exists
         [{
             url: string;
             response: string; // json
@@ -885,15 +885,6 @@ export type Queries = {
             url: string
         }],
         TBARequest
-    ],
-    'tba/update': [
-        [{
-            url: string;
-            response: string; // json
-            updated: number; 
-            update: 0 | 1;
-        }],
-        unknown
     ],
 
 
