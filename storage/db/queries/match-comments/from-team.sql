@@ -1,0 +1,1 @@
+SELECT * FROM MatchComments WHERE team = :team AND eventKey = :eventKey;
