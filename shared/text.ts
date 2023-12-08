@@ -37,7 +37,6 @@ export const fromCamelCase = (str: string): string => str.replace(/([A-Z])/g, (g
  */
 export const fromSnakeCase = (str: string, del: string = '_'): string => str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
 
-
 export const streamDelimiter = '<';
 
 export const abbreviate = (string: string, length: number = 10): string => {
