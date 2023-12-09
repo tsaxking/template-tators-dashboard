@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS Permissions (
 
 CREATE TABLE IF NOT EXISTS Version (
     version INTEGER NOT NULL
+    -- changed to major, minor, patch in 1-0-1.sql
 );
 
 
@@ -116,9 +117,7 @@ CREATE TABLE IF NOT EXISTS Events (
 CREATE TABLE IF NOT EXISTS Teams (
     number INTEGER NOT NULL UNIQUE,
     eventKey TEXT NOT NULL,
-    watchPriority INTEGER NOT NULL DEFAULT 0, -- 0 - 10
-
-    FOREIGN KEY (eventKey) REFERENCES Events(eventKey)
+    watchPriority INTEGER NOT NULL DEFAULT 0 -- 0 - 10
 );
 
 
@@ -128,9 +127,7 @@ CREATE TABLE IF NOT EXISTS Matches (
     id TEXT PRIMARY KEY,
     eventKey TEXT NOT NULL,
     matchNumber INTEGER NOT NULL,
-    compLevel TEXT NOT NULL,
-
-    FOREIGN KEY (eventKey) REFERENCES Events(eventKey)
+    compLevel TEXT NOT NULL
 );
 
 
@@ -145,15 +142,8 @@ CREATE TABLE IF NOT EXISTS CustomMatches (
     red3 INTEGER NOT NULL, 
     blue1 INTEGER NOT NULL,
     blue2 INTEGER NOT NULL,
-    blue3 INTEGER NOT NULL,
-
-    FOREIGN KEY (eventKey) REFERENCES Events(eventKey),
-    FOREIGN KEY (red1) REFERENCES Teams(number),
-    FOREIGN KEY (red2) REFERENCES Teams(number),
-    FOREIGN KEY (red3) REFERENCES Teams(number),
-    FOREIGN KEY (blue1) REFERENCES Teams(number),
-    FOREIGN KEY (blue2) REFERENCES Teams(number),
-    FOREIGN KEY (blue3) REFERENCES Teams(number)
+    blue3 INTEGER NOT NULL
+    -- added name column in 1-0-2.sql
 );
 
 
@@ -164,59 +154,38 @@ CREATE TABLE IF NOT EXISTS Whiteboards (
     name TEXT NOT NULL,
     matchId TEXT, -- NULL if no match (custom whiteboard)
     customMatchId TEXT, -- NULL if no custom match (match whiteboard)
-    board TEXT NOT NULL DEFAULT '[]', -- JSON array of objects for canvas
-    FOREIGN KEY (eventKey) REFERENCES Events(eventKey),
-    FOREIGN KEY (matchId) REFERENCES Matches(id),
-    FOREIGN KEY (customMatchId) REFERENCES CustomMatch(id)
+    board TEXT NOT NULL DEFAULT '[]' -- JSON array of objects for canvas
 );
 
 
 CREATE TABLE IF NOT EXISTS MatchScouting (
     id TEXT PRIMARY KEY,
-    matchId TEXT NOT NULL,
+    matchId TEXT NOT NULL, -- removed NOT NULL in 1-0-4.sql in case of prescouting
     team INTEGER NOT NULL,
-    scoutId TEXT NOT NULL, -- account id
+    scoutId TEXT NOT NULL, -- account id of scout, removed NOT NULL in 1-0-4.sql in case of prescouting
     scoutGroup INTEGER NOT NULL, -- 0 thru 5
-    time INTEGER NOT NULL, -- time of submission (in ms)
-    prescouting INTEGER NOT NULL DEFAULT 0, -- 0 = not prescouting, 1 = prescouting
-
-    -- Auto
-
-
-    -- Teleop
-
-
-    -- Endgame
-
-
-    -- Misc
+    time INTEGER NOT NULL, -- time of submission (in ms), changed to TEXT in 1-0-4.sql
+    prescouting INTEGER NOT NULL DEFAULT 0, -- changed to TEXT in 1-0-4.sql for event key. Renamed to preScouting
 
 
 
-    trace TEXT NOT NULL DEFAULT '[]', -- JSON array of objects
-
-
-    FOREIGN KEY (matchId) REFERENCES Matches(id),
-    FOREIGN KEY (team) REFERENCES Teams(number),
-    FOREIGN KEY (scoutId) REFERENCES Accounts(id)
+    trace TEXT NOT NULL DEFAULT '[]' -- JSON array of objects
 );
 
 
-
+-- Renamed to TeamComments in 1-0-4.sql
 CREATE TABLE IF NOT EXISTS MatchComments (
     id TEXT PRIMARY KEY,
-    matchId TEXT NOT NULL,
+    matchId TEXT NOT NULL, -- now matchScoutingId
     accountId TEXT NOT NULL,
     team INTEGER NOT NULL,
     comment TEXT NOT NULL,
-    time INTEGER NOT NULL, -- time of submission (in ms)
-    FOREIGN KEY (matchId) REFERENCES Matches(id),
-    FOREIGN KEY (accountId) REFERENCES Accounts(id),
-    FOREIGN KEY (team) REFERENCES Teams(number)
+    time INTEGER NOT NULL -- time of submission (in ms)
+    -- added type column in 1-0-4.sql
 );
 
 
-CREATE TABLE ScoutingQuestionSections (
+CREATE TABLE IF NOT EXISTS ScoutingQuestionSections (
     name TEXT NOT NULL UNIQUE,
     multiple INTEGER NOT NULL DEFAULT 0 -- 0 = there cannot be multiple answers for a submission
 );
@@ -224,39 +193,36 @@ CREATE TABLE ScoutingQuestionSections (
 
 
 -- Group of questions
-CREATE TABLE ScoutingQuestionGroups (
+CREATE TABLE IF NOT EXISTS ScoutingQuestionGroups (
     id TEXT PRIMARY KEY,
     eventKey TEXT NOT NULL,
-    section TEXT NOT NULL, -- section name
-    name TEXT NOT NULL,
-    FOREIGN KEY (eventKey) REFERENCES Events(eventKey),
-    FOREIGN KEY (section) REFERENCES ScoutingQuestionSections(name)
+    section TEXT NOT NULL, -- section name (references ScoutingQuestionSections)
+    name TEXT NOT NULL
 );
 
-CREATE TABLE ScoutingQuestions (
+CREATE TABLE IF NOT EXISTS ScoutingQuestions (
     id TEXT PRIMARY KEY,
     question TEXT NOT NULL,
     key TEXT NOT NULL,
     description TEXT NOT NULL,
     type TEXT NOT NULL, -- boolean/number/text/textarea etc.
-    groupId TEXT NOT NULL, -- group id
-    FOREIGN KEY (groupId) REFERENCES ScoutingQuestionGroups(id)
+    groupId TEXT NOT NULL -- group id
 );
 
-CREATE TABLE ScoutingAnswers (
+-- Added table for select/checkbox/radio etc. options in 1-0-4.sql
+
+CREATE TABLE IF NOT EXISTS ScoutingAnswers (
     id TEXT PRIMARY KEY,
     questionId TEXT NOT NULL,
     answer TEXT NOT NULL,
-    teamNumber INTEGER NOT NULL,
-    FOREIGN KEY (questionId) REFERENCES ScoutingQuestions(id),
-    FOREIGN KEY (teamNumber) REFERENCES Teams(number)
+    teamNumber INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS TBARequests (
     url TEXT PRIMARY KEY,
     response TEXT, -- JSON
     updated INTEGER NOT NULL, -- Date of last update (in ms)
-    update INTEGER NOT NULL DEFAULT 0
+    'update' INTEGER NOT NULL DEFAULT 0
 );
 
 
@@ -271,8 +237,7 @@ CREATE TABLE IF NOT EXISTS Checklists (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     eventKey TEXT NOT NULL,
-    description TEXT NOT NULL,
-    FOREIGN KEY (eventKey) REFERENCES Events(eventKey)
+    description TEXT NOT NULL
 );
 
 
@@ -280,16 +245,13 @@ CREATE TABLE IF NOT EXISTS ChecklistQuestions (
     id TEXT PRIMARY KEY,
     checklistId TEXT NOT NULL,
     question TEXT NOT NULL,
-    interval INTEGER NOT NULL, -- positive integer for how often the question should be asked (in matches)
-    FOREIGN KEY (checklistId) REFERENCES Checklists(id)
+    interval INTEGER NOT NULL -- positive integer for how often the question should be asked (in matches)
 );
 
 
 CREATE TABLE IF NOT EXISTS ChecklistAssignments (
     checklistId TEXT NOT NULL,
-    accountId TEXT NOT NULL,
-    FOREIGN KEY (checklistId) REFERENCES Checklists(id),
-    FOREIGN KEY (accountId) REFERENCES Accounts(id)
+    accountId TEXT NOT NULL
 );
 
 -- Only need to record that someone responded, not what they responded with (it's always yes)
@@ -297,10 +259,7 @@ CREATE TABLE IF NOT EXISTS ChecklistAnswers (
     id TEXT PRIMARY KEY,
     accountId TEXT NOT NULL, -- the account may not be the one assigned to the checklist
     questionId TEXT NOT NULL,
-    matchId TEXT NOT NULL,
-    FOREIGN KEY (questionId) REFERENCES ChecklistQuestions(id),
-    FOREIGN KEY (matchId) REFERENCES Matches(id),
-    FOREIGN KEY (accountId) REFERENCES Accounts(id)
+    matchId TEXT NOT NULL
 );
 
 
@@ -312,12 +271,7 @@ CREATE TABLE Alliances (
     eventKey TEXT NOT NULL,
     team1 INTEGER NOT NULL,
     team2 INTEGER NOT NULL,
-    team3 INTEGER NOT NULL,
-
-    FOREIGN KEY (eventKey) REFERENCES Events(eventKey),
-    FOREIGN KEY (team1) REFERENCES Teams(number),
-    FOREIGN KEY (team2) REFERENCES Teams(number),
-    FOREIGN KEY (team3) REFERENCES Teams(number)
+    team3 INTEGER NOT NULL
 );
 
 
@@ -344,13 +298,7 @@ CREATE TABLE IF NOT EXISTS Strategy (
 
     -- Misc
 
-    comment TEXT NOT NULL,
-
-
-    FOREIGN KEY (whiteboardId) REFERENCES Whiteboards(id),
-    FOREIGN KEY (matchId) REFERENCES Matches(id),
-    FOREIGN KEY (customMatchId) REFERENCES CustomMatch(id),
-    FOREIGN KEY (createdBy) REFERENCES Accounts(id)
+    comment TEXT NOT NULL
 );
 
 -- END OF FIRST ROBOTICS

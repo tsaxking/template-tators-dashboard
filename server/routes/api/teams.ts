@@ -45,3 +45,15 @@ router.post('/pit-scouting', validate({
 
     res.stream(scouting.map(s => JSON.stringify(s)));
 });
+
+router.post('/all-from-event', validate({
+    eventKey: (v: any) => typeof v === 'string'
+}), (req, res) => {
+    const { eventKey } = req.body;
+
+    const teams = DB.all('teams/from-event', {
+        eventKey
+    });
+
+    res.stream(teams.map(t => JSON.stringify(t)));
+});
