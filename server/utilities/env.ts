@@ -80,6 +80,5 @@ console.log(Colors.FgGreen, 'Loading environment variables...', Colors.Reset);
     }
 // }
 
-console.log(Colors.FgGreen, 'Environment variables loaded!', Colors.Reset);
 
 export default env;

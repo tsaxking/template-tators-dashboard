@@ -1,38 +1,27 @@
 <script lang="ts">
+    import { FIRSTEvent } from "../../models/FIRST/event";
     import NavTabs from "../components/bootstrap/NavTabs.svelte";
     import CreateScoutingSections from "../components/scouting/CreateScoutingSections.svelte";
 
 
-    type ScoutingQuestionGroup = {
-        id: string;
-        eventKey: string;
-        name: string;
-    };
+    let event: FIRSTEvent;
 
-    type ScoutingQuestion = {
-        id: string;
-        question: string;
-        type: 'text' | 'number' | 'boolean' | 'select' | 'checkbox' | 'radio' | 'textarea';
-        section: string;
-        key: string;
-        description: string;
-        group: string; // id of the group
-    }
+    FIRSTEvent.on('select', (e: FIRSTEvent) => event = e);
 
-    
     type Type = {
         name: string;
-        groups: ScoutingQuestionGroup[];
-        questions: ScoutingQuestion[];
+        groups: string[];
+        questions: string[];
     }
 
-    export let event: any;
-    export let types: Type[] = [];
-    export let active: string = '';
+    let types: Type[] = [];
 
     const save = (type: Type) => () => {
         console.log(type);
     }
+
+    let active: string = '';
+
 </script>
 
 <div class="container-fluid">
@@ -42,7 +31,7 @@
     {#each types as type}
         {#if type.name === active}
             <div class="row">
-                <CreateScoutingSections name={type.name} eventKey={event?.key} bind:groups={type.groups} bind:questions={type.questions} on:save={save(type)}></CreateScoutingSections>
+                <!-- <CreateScoutingSections name={type.name} eventKey={event?.tba.key} bind:groups={type.groups} bind:questions={type.questions} on:save={save(type)}></CreateScoutingSections> -->
             </div>
         {/if}
     {/each}

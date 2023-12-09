@@ -1,13 +1,12 @@
-import { Event as EventProperties } from "../../../shared/db-types-extended";
-import { EventEmitter } from "../../../shared/event-emitter";
+import { Event as EventProperties, Match, Team } from "../../../shared/db-types-extended";
 import { TBAEvent, TBAMatch, TBATeam } from "../../../shared/tba";
 import { ServerRequest } from "../../utilities/requests";
 import { TBA, TBAResponse } from "../../utilities/tba";
 import { FIRSTMatch } from "./match";
 import { FIRSTTeam } from "./team";
 import { socket } from '../../utilities/socket';
-import { Cache } from "../cache";
-
+import { Cache, Updates } from "../cache";
+import { EventEmitter } from "../../../shared/event-emitter";
 /**
  * All events that are emitted by a {@link FIRSTEvent} object
  * @date 10/9/2023 - 6:36:17 PM
@@ -30,6 +29,22 @@ type FIRSTEventData = {
  * @typedef {FIRSTEvent}
  */
 export class FIRSTEvent extends Cache<FIRSTEventData> {
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+
+
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+        FIRSTEvent.$emitter.on(event, callback);
+    }
+
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+        FIRSTEvent.$emitter.off(event, callback);
+    }
+
+
+    public static emit<K extends Updates>(event: K, data: any): void {
+        FIRSTEvent.$emitter.emit(event, data);
+    }
+    public static current?: FIRSTEvent = undefined;
     
     /**
      * Map of all FIRSTEvent objects
@@ -79,6 +94,12 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     async getMatches(): Promise<FIRSTMatch[]> {
         const c = this.$cache.get('matches');
         if (c) return c as FIRSTMatch[];
+
+
+        const serverStream = ServerRequest.retrieveStream<Match>('/api/matches/all-from-event', {
+            eventKey: this.tba.key
+        }, JSON.parse);
+
         const r = await TBA.get<TBAMatch[]>(`/event/${this.tba.key}/matches`).then((res) => {
             res.data.sort((a, b) => {
                 const levels = ['qm', 'ef', 'qf', 'sf', 'f'];
@@ -100,6 +121,12 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             }
         });
 
+        serverStream.on('chunk', (match) => {
+            const m = r.data.find(_m => _m.tba.match_number === match.matchNumber && _m.tba.comp_level === match.compLevel);
+            if (!m) return;
+            m.$cache.set('info', match);
+        });
+
         this.$cache.set('matches', r.data);
         r.onUpdate((data: FIRSTMatch[]) => {
             this.$cache.set('matches', data);
@@ -117,6 +144,11 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     async getTeams(): Promise<FIRSTTeam[]> {
         const c = this.$cache.get('teams');
         if (c) return c as FIRSTTeam[];
+
+        const serverStream = ServerRequest.retrieveStream<Team>('/api/teams/all-from-event', {
+            eventKey: this.tba.key
+        }, JSON.parse);
+
         const r = await TBA.get<TBATeam[]>(`/event/${this.tba.key}/teams`).then((res) => {
             res.data.sort((a, b) => a.team_number - b.team_number);
 
@@ -131,10 +163,16 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             }
         });
 
+        serverStream.on('chunk', (team) => {
+            const t = r.data.find(_t => _t.tba.team_number === team.number);
+            if (!t) return;
+            t.$cache.set('info', team);
+        });
+
         this.$cache.set('teams', r.data);
         r.onUpdate((data) => {
             this.$cache.set('teams', data);
-            this.$emitter.emit('update-teams', data);
+            this.emit('update-teams', data);
         }, 1000 * 60 * 10 * 24);
 
         return r.data;
@@ -158,7 +196,10 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         return p;
     }
 
-
+    async getTeam(teamNumber: number): Promise<FIRSTTeam | undefined> {
+        const teams = await this.getTeams();
+        return teams.find(t => t.tba.team_number === teamNumber);
+    }
 
 
 
@@ -171,31 +212,9 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         super.destroy();
     }
 
-    /**
-     * Returns the matches for this event
-     */
-    get matches(): FIRSTMatch[] {
-        const c = this.$cache.get('matches');
-        if (!c) console.warn('You likely did not call render() on this event before accessing matches, or there are no matches for this event posted yet');
-        return c?.data ?? [];
-    }
-
-    /**
-     * Returns the teams for this event
-     */
-    get teams(): FIRSTTeam[] {
-        const c = this.$cache.get('teams');
-        if (!c) console.warn('You likely did not call render() on this event before accessing teams, or there are no teams for this event posted yet');
-        return c?.data ?? [];
-    }
-
-    /**
-     * Returns the properties for this event
-     */
-    get properties(): EventProperties|undefined {
-        const c = this.$cache.get('properties');
-        if (!c) console.error('You likely did not call render() on this event before accessing properties. This is a bug that must be fixed.');
-        return c as EventProperties|undefined;
+    select(): void {
+        FIRSTEvent.current = this;
+        FIRSTEvent.emit('select', this);
     }
 };
 

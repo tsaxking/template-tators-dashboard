@@ -292,6 +292,12 @@ export const messages: {
     code: 200,
     instructions: ''
 },
+    'match:not-found': {
+    message: 'Match was not found',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
     'match-comments:delete': {
     message: 'Match comment deleted',
     color: 'success',
@@ -561,6 +567,36 @@ export const messages: {
     color: 'danger',
     code: 500,
     instructions: 'Please try again.'
+},
+    'whiteboard:created': {
+    message: 'Whiteboard created successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'whiteboard:deleted': {
+    message: 'Whiteboard deleted successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'whiteboard:match-not-found': {
+    message: 'The match for the selected whiteboard was not found, please try again using different parameters',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'whiteboard:not-found': {
+    message: 'Whiteboard was not found',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'whiteboard:update': {
+    message: 'Whiteboard updated successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
 }
 };
 
@@ -613,6 +649,7 @@ export type StatusId = 'account:already-logged-in'
 	| 'match-comments:new'
 	| 'match-scouting:delete'
 	| 'match-scouting:new'
+	| 'match:not-found'
 	| 'member:accepted'
 	| 'member:add-skill'
 	| 'member:already-member'
@@ -654,6 +691,11 @@ export type StatusId = 'account:already-logged-in'
 	| 'test:fail'
 	| 'test:success'
 	| 'unknown:error'
+	| 'whiteboard:created'
+	| 'whiteboard:deleted'
+	| 'whiteboard:match-not-found'
+	| 'whiteboard:not-found'
+	| 'whiteboard:update'
 ;
 
 export type AccountStatusId = 'already-logged-in'
@@ -697,8 +739,8 @@ export type AdminStatusId = 'invalid-key';
 
 
 export type DiscordStatusId = 'account-linked'
-	| 'link-expired'
-	| 'invalid-link';
+	| 'invalid-link'
+	| 'link-expired';
 
 
 export type EventStatusId = 'update-properties';
@@ -709,6 +751,9 @@ export type FilesStatusId = 'invalid'
 	| 'no-files'
 	| 'too-large'
 	| 'uploaded';
+
+
+export type MatchStatusId = 'not-found';
 
 
 export type MatchcommentsStatusId = 'delete'
@@ -782,3 +827,10 @@ export type TestStatusId = 'fail'
 
 
 export type UnknownStatusId = 'error';
+
+
+export type WhiteboardStatusId = 'deleted'
+	| 'match-not-found'
+	| 'not-found'
+	| 'update'
+	| 'created';

@@ -6,7 +6,7 @@ import { TBA, TBAResponse } from "../../utilities/tba";
 import { FIRSTMatch } from "./match";
 import { socket } from '../../utilities/socket';
 import { FIRSTEvent } from "./event";
-import { Cache } from "../cache";
+import { Cache, Updates } from "../cache";
 
 
 /**
@@ -33,6 +33,27 @@ type FIRSTTeamEventData = {
  * @implements {FIRST}
  */
 export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+
+
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+        FIRSTTeam.$emitter.on(event, callback);
+    }
+
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+        FIRSTTeam.$emitter.off(event, callback);
+    }
+
+
+    public static emit<K extends Updates>(event: K, data: any): void {
+        FIRSTTeam.$emitter.emit(event, data);
+    }
+
+
+
+
+    public static current?: FIRSTTeam = undefined;
+
     /**
      * Map of all FIRSTTeam objects
      * @date 10/9/2023 - 6:55:03 PM
@@ -111,6 +132,18 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         if (res) this.$cache.set('watch-priority', res.watchPriority);
 
         return res?.watchPriority || 0;
+    }
+
+
+    public async getInfo(): Promise<Team> {
+        const res = await ServerRequest.post<Team>('/api/teams/properties', {
+            teamKey: this.tba.key,
+            eventKey: this.event.tba.key
+        });
+
+        if (res) this.$cache.set('info', res);
+
+        return res;
     }
 
     /**
@@ -235,6 +268,12 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     public destroy() {
         FIRSTTeam.cache.delete(this.tba.team_number);
         super.destroy();
+    }
+
+
+    public select(): void {
+        FIRSTTeam.current = this;
+        FIRSTTeam.emit('select', this);
     }
 }
 

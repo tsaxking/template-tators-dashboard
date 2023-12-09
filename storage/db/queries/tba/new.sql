@@ -2,10 +2,13 @@ INSERT INTO TBARequests (
     url,
     response,
     updated,
-    update
+    'update'
 ) VALUES (
     :url,
     :response,
     :updated,
     :update
-);
+) ON CONFLICT (url) DO UPDATE SET
+    response = :response,
+    updated = :updated,
+    'update' = :update
