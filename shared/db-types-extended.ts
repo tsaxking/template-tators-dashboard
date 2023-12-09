@@ -54,16 +54,6 @@ export type Whiteboard = {
     customMatchId?: string;
 }
 
-export type MatchScouting = {
-    id: string;
-    matchId: string;
-    team: number;
-    scoutId: string;
-    scoutGroup: string;
-    time: number;
-    preScouting: string;
-    trace: string // json array
-};
 
 export type MatchScoutingComments = {
     id: string;
@@ -157,6 +147,16 @@ export type Strategy = {
 }
 
 
+export type MatchScouting = {
+    id: string;
+    matchId: string;
+    team: number;
+    scoutId: string;
+    scoutGroup: string;
+    time: number;
+    preScouting: 0 | 1;
+    trace: string // json array
+};
 
 export type RetrievedMatchScouting = {
     id: string;

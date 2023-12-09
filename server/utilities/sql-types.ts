@@ -618,14 +618,13 @@ export type Queries = {
         [{
             id: string
         }],
-        MatchScouting
+        RetrievedMatchScouting
     ],
     'match-scouting/from-match': [
         [{
             matchId: string;
-            eventKey: string;
         }],
-        MatchScouting
+        RetrievedMatchScouting
     ],
     'match-scouting/from-team': [
         [{
@@ -639,20 +638,20 @@ export type Queries = {
             scoutId: string;
             eventKey: string;
         }],
-        MatchScouting
+        RetrievedMatchScouting
     ],
     'match-scouting/from-scout-group': [
         [{
             scoutGroup: string;
             eventKey: string;
         }],
-        MatchScouting
+        RetrievedMatchScouting
     ],
     'match-scouting/from-event': [
         [{
             eventKey: string;
         }],
-        MatchScouting
+        RetrievedMatchScouting
     ],
     'match-scouting/update': [
         [{

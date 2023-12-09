@@ -7,7 +7,7 @@ import { socket } from '../../utilities/socket';
 import { FIRSTEvent } from "./event";
 import { FIRSTTeam } from "./team";
 import { Strategy } from "./strategy";
-import { Cache } from "../cache";
+import { Cache, Updates } from "../cache";
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -31,6 +31,24 @@ type FIRSTMatchEventData = {
  * @typedef {FIRSTMatch}
  */
 export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+
+
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+        FIRSTMatch.$emitter.on(event, callback);
+    }
+
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+        FIRSTMatch.$emitter.off(event, callback);
+    }
+
+
+    public static emit<K extends Updates>(event: K, data: any): void {
+        FIRSTMatch.$emitter.emit(event, data);
+    }
+
+
+    
     public static current?: FIRSTMatch = undefined;
 
     /**

@@ -19,6 +19,7 @@
         const { detail: teamNumber } = e;
         const team = (await FIRSTEvent.current.getTeams()).find(t => t.tba.team_number === +teamNumber);
         if (team) team.select();
+        else console.error(`Team ${teamNumber} not found`);
     };
 
 </script>

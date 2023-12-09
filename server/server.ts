@@ -216,7 +216,9 @@ app.route('/admin', admin);
 
 
 
-
+app.get('/home', (req, res, next) => {
+    res.redirect('/user/robot-display');
+});
 
 app.get('/user/*', Account.isSignedIn,  (req, res, next) => {
     res.sendTemplate('entries/user');

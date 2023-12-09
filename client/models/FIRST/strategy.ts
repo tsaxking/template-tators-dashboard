@@ -3,7 +3,7 @@ import { EventEmitter } from "../../../shared/event-emitter";
 import { RetrieveStreamEventEmitter } from "../../utilities/requests";
 import { ServerRequest } from "../../utilities/requests";
 import { WhiteboardCache } from "./whiteboard";
-import { Cache } from "../cache";
+import { Cache, Updates } from "../cache";
 
 /**
  * Events that are emitted by a {@link Strategy} object
@@ -50,6 +50,25 @@ type FromType = {
  * @implements {FIRST}
  */
 export class Strategy extends Cache<StrategyUpdateData> {
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+
+
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+        Strategy.$emitter.on(event, callback);
+    }
+
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+        Strategy.$emitter.off(event, callback);
+    }
+
+
+    public static emit<K extends Updates>(event: K, data: any): void {
+        Strategy.$emitter.emit(event, data);
+    }
+
+
+
+
     public static current?: Strategy = undefined;
 
     /**
@@ -116,7 +135,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
      * @public
      * @returns {RetrieveStreamEventEmitter<WhiteboardCache>}
      */
-    public getWhiteboards(): RetrieveStreamEventEmitter<WhiteboardCache> {
+    public getWhiteboards(ctx: CanvasRenderingContext2D): RetrieveStreamEventEmitter<WhiteboardCache> {
         if (this.$cache.has('strategy')) {
             const res = this.$cache.get('strategy') as WhiteboardCache[];
 
@@ -133,7 +152,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
                 {
                     whiteboardId: this.data.whiteboardId
                 }, 
-                (s) => new WhiteboardCache(JSON.parse(s) as WhiteboardObj)
+                (s) => new WhiteboardCache(JSON.parse(s) as WhiteboardObj, ctx)
             );
 
 
