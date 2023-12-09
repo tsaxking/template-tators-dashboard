@@ -8,7 +8,7 @@
     let team: FIRSTTeam;
 
     FIRSTTeam.on('select', (t: FIRSTTeam) => team = t);
-
+    
 </script>
 
 <!-- Select the robot here, this will trigger FIRSTTeam:select -->
