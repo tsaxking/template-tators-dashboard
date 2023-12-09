@@ -6,7 +6,7 @@ import { TBA, TBAResponse } from "../../utilities/tba";
 import { FIRSTMatch } from "./match";
 import { socket } from '../../utilities/socket';
 import { FIRSTEvent } from "./event";
-import { Cache } from "../cache";
+import { Cache, Updates } from "../cache";
 
 
 /**
@@ -33,6 +33,25 @@ type FIRSTTeamEventData = {
  * @implements {FIRST}
  */
 export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+
+
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+        FIRSTTeam.$emitter.on(event, callback);
+    }
+
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+        FIRSTTeam.$emitter.off(event, callback);
+    }
+
+
+    public static emit<K extends Updates>(event: K, data: any): void {
+        FIRSTTeam.$emitter.emit(event, data);
+    }
+
+
+
+
     public static current?: FIRSTTeam = undefined;
 
     /**

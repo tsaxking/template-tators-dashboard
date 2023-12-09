@@ -1,12 +1,33 @@
-import { join } from "path";
 import { CustomMatch as CustomMatchObj } from "../../../shared/db-types-extended";
-import { Cache } from "../cache";
+import { Cache, Updates } from "../cache";
+import { EventEmitter } from "../../../shared/event-emitter";
 import { FIRSTTeam } from "./team";
 import { FIRSTEvent } from "./event";
 
 type CustomMatchEventData = {};
 
 export class CustomMatch extends Cache<CustomMatchEventData> {
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+
+
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+        CustomMatch.$emitter.on(event, callback);
+    }
+
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+        CustomMatch.$emitter.off(event, callback);
+    }
+
+
+    public static emit<K extends Updates>(event: K, data: any): void {
+        CustomMatch.$emitter.emit(event, data);
+    }
+
+
+
+
+
+
     public static current?: CustomMatch = undefined;
     /**
      * Map of all FIRSTMatch objects

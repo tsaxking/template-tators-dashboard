@@ -2,6 +2,7 @@
     import YearSelect from './GlobalYearSelect.svelte';
     import EventSelect from './GlobalEventSelect.svelte';
     import { capitalize, fromSnakeCase } from '../../../../shared/text';
+    import { ServerRequest } from '../../../utilities/requests';
     export let title: string;
     export let navItems: string[] = [];
 
@@ -15,6 +16,11 @@
         picture?: string,
         phoneNumber?: string
     };
+
+
+    ServerRequest.post('/account/get-account').then(res => {
+        account = res as any;
+    });
 
     export let accountLinks: (string|null)[] = [];
 </script>
@@ -49,7 +55,10 @@
         </ul>
     </div>
     <div class="me-3">
-        <slot></slot>
+        <YearSelect></YearSelect>
+    </div>
+    <div class="me-3">
+        <EventSelect></EventSelect>
     </div>
 
     <a class="nav-link dropdown-toggle me-3" href="#navbarDropdown" id="navbarDropdown-link" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -61,8 +70,6 @@
         {/if}
     </a>
 
-    <YearSelect></YearSelect>
-    <EventSelect></EventSelect>
 
     <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="navbarDropdown" id="navbarDropdown">
         {#each accountLinks as link}

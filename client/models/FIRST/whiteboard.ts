@@ -1,7 +1,8 @@
 import { Whiteboard as WhiteboardObj } from "../../../shared/db-types-extended";
-import { Cache } from "../cache";
+import { Cache, Updates } from "../cache";
 import { Whiteboard as WB, WhiteboardState } from "../whiteboard/whiteboard";
 import { socket } from '../../utilities/socket';
+import { EventEmitter } from "../../../shared/event-emitter";
 
 /**
  * Events that are emitted by a {@link WhiteboardCache} object
@@ -25,6 +26,25 @@ type WhiteboardUpdateData = {
  * @implements {FIRST}
  */
 export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+
+
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+        WhiteboardCache.$emitter.on(event, callback);
+    }
+
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+        WhiteboardCache.$emitter.off(event, callback);
+    }
+
+
+    public static emit<K extends Updates>(event: K, data: any): void {
+        WhiteboardCache.$emitter.emit(event, data);
+    }
+
+
+
+
     public static current?: WhiteboardCache = undefined;
 
 

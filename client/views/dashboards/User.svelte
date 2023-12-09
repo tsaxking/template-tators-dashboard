@@ -16,7 +16,7 @@
         }]
     }];
 
-    let active: string = getOpenPage();
+    let active: string = 'Robot Display';
     const domain = 'tatorscout.org'
 
     const openPage = ({ detail }) => {

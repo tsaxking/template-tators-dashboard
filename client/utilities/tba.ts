@@ -50,7 +50,7 @@ export class TBA {
 
             class IntervalEmitter {
                 interval: NodeJS.Timeout;
-                callbacks: Callback[];
+                callbacks: Callback[] = [];
 
                 constructor(private readonly time: number) {
                     this.interval = setInterval(async() => {

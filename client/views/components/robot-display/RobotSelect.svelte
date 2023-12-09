@@ -6,7 +6,10 @@
     let value = '';
     let options: string[] = [];
 
-    FIRSTTeam.on('select', (team: FIRSTTeam) => value = team.tba.team_number.toString());
+    FIRSTTeam.on('select', (team: FIRSTTeam) => {
+        value = team.tba.team_number.toString();
+        team = team;
+    });
 
     const update = async (teams: FIRSTTeam[]) => {
         options = teams.map(t => t.tba.team_number.toString());
@@ -26,7 +29,11 @@
             const team = teams.find(t => t.tba.team_number === +teamNumber);
             if (team) {
                 team.select();
+            } else {
+                console.error(`Team ${teamNumber} not found`);
             }
+        } else {
+            console.error(`Teams not found`);
         }
     }
 </script>
@@ -34,7 +41,3 @@
 
 
 <Select bind:options bind:value on:change={handleChange}></Select>
-
-
-
-

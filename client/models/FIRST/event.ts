@@ -1,13 +1,12 @@
 import { Event as EventProperties, Match, Team } from "../../../shared/db-types-extended";
-import { EventEmitter } from "../../../shared/event-emitter";
 import { TBAEvent, TBAMatch, TBATeam } from "../../../shared/tba";
 import { ServerRequest } from "../../utilities/requests";
 import { TBA, TBAResponse } from "../../utilities/tba";
 import { FIRSTMatch } from "./match";
 import { FIRSTTeam } from "./team";
 import { socket } from '../../utilities/socket';
-import { Cache } from "../cache";
-
+import { Cache, Updates } from "../cache";
+import { EventEmitter } from "../../../shared/event-emitter";
 /**
  * All events that are emitted by a {@link FIRSTEvent} object
  * @date 10/9/2023 - 6:36:17 PM
@@ -30,6 +29,21 @@ type FIRSTEventData = {
  * @typedef {FIRSTEvent}
  */
 export class FIRSTEvent extends Cache<FIRSTEventData> {
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+
+
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+        FIRSTEvent.$emitter.on(event, callback);
+    }
+
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+        FIRSTEvent.$emitter.off(event, callback);
+    }
+
+
+    public static emit<K extends Updates>(event: K, data: any): void {
+        FIRSTEvent.$emitter.emit(event, data);
+    }
     public static current?: FIRSTEvent = undefined;
     
     /**

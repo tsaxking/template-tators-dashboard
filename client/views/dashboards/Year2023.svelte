@@ -109,8 +109,8 @@
         }
     ];
 
-    let active: string =  /* getOpenPage() || */ groups[0]?.pages[0]?.name;
-    active = 'scouting-checklist';
+    let active: string = getOpenPage();
+    // active = 'scouting-checklist';
 
 
     
@@ -129,109 +129,13 @@
         // 'contact',
         // null
     ];
-
-
-    export let event: TBAEvent;
-    export let events: TBAEvent[] = [];
-
-    // CreateScoutingQuestions
-    export let scoutingTypes = ['Pit', 'Pre', 'Mechanical', 'Electrical'].map(t => ({
-            name: t + ' Scouting',
-            groups: [],
-            questions: []
-        }));
-    export let activeScoutingPage: string = 'Pit Scouting';
-
-    const selectEvent = (e: any) => {
-        const ev = events.find(ev => ev.key === e.target.value);
-
-
-        if (ev) {
-            event = ev;
-        } else {
-            console.error('Event not found');
-        }
-
-        
-        TBA.get<TBATeam[]>(`/event/${event.key}/teams`).then((e) => {
-            teams = e.data.map(team => ({
-                number: team.team_number,
-                name: team.nickname,
-                // TODO: undo randomization
-                required: ['mechanical', 'electrical', 'pit', 'picture'].filter(_ => {
-                    // randomize
-                    return Math.random() > 0.5;
-                })
-            }));
-        });
-
-        TBA.get<TBAMatch[]>(`/event/${event.key}/matches`).then((e) => {
-            console.log(e.data)
-            matches = e.data.map(match => ({
-                number: match.match_number,
-                compLevel: match.comp_level,
-                teams: match.alliances.red.team_keys.concat(match.alliances.blue.team_keys).map(team => parseInt(team.slice(3)))
-            }));
-        });
-    }
-
-    const getEvents = (year: number) => {
-        const setEvents = (e: TBAEvent[]) => {
-            e.sort((a, b) => {
-                const now = new Date();
-
-                const aStart = new Date(a.start_date);
-                const bStart = new Date(b.start_date);
-
-                const aEnd = new Date(a.end_date);
-                const bEnd = new Date(b.end_date);
-
-                const aStartDiff = Math.abs(now.getTime() - aStart.getTime());
-                const bStartDiff = Math.abs(now.getTime() - bStart.getTime());
-
-                const aEndDiff = Math.abs(now.getTime() - aEnd.getTime());
-                const bEndDiff = Math.abs(now.getTime() - bEnd.getTime());
-
-                const aDiff = Math.min(aStartDiff, aEndDiff);
-                const bDiff = Math.min(bStartDiff, bEndDiff);
-
-                return aDiff - bDiff;
-            });
-
-            events = e;
-
-            selectEvent({
-                target: {
-                    value: e[0].key
-                }
-            });
-        }
-
-        TBA.get<TBAEvent[]>(`/team/frc2122/events/${year}`, true)
-            .then((e) => {
-                e.onUpdate(setEvents, 1000 * 60 * 60 * 20); // update every day
-                setEvents(e.data);
-            })
-            .catch(console.error);
-    }
-
-    const selectYear = (e: any) => getEvents(e.target.value);
-
-    selectYear({
-        target: {
-            value: new Date().getFullYear()
-        }
-    });
-
-    let teams = [];
-    let matches = [];
 </script>
 
 
 
 
 <Main title="Team Tators" {groups} on:openPage={openPage} {active} {navItems} {accountLinks}>
-    <div slot="nav" class="d-flex">
+    <!-- <div slot="nav" class="d-flex">
         <select class="form-control" name="year" on:change={selectYear} style="width: min-content;">
             {#each new Array(new Date().getFullYear() - 2006).fill(0).map((_, i) => 2007 + i).reverse() as year}
                 <option value={year}>{year}</option>
@@ -242,21 +146,16 @@
                 <option value={event.key}>{abbreviate(event.name, 15)}</option>
             {/each}
         </select>
-    </div>
+    </div> -->
 
 
     <Page {active} {domain} title='robot-display'>
         <RobotDisplay></RobotDisplay>
     </Page>
     <Page {active} {domain} title='create-scouting-questions'>
-        <CreateScoutingQuestions 
-            bind:event={event} 
-            bind:active={activeScoutingPage} 
-            bind:types={scoutingTypes}
-        >
-        </CreateScoutingQuestions>
+        <CreateScoutingQuestions />
     </Page>
     <Page {active} {domain} title='scouting-checklist'>
-        <ScoutingChecklist bind:teams={teams} bind:matches={matches}></ScoutingChecklist>
+        <ScoutingChecklist />
     </Page>
 </Main>

@@ -6,7 +6,7 @@ import { EventEmitter } from '../../shared/event-emitter';
  *
  * @typedef {Updates}
  */
-type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*' | 'select';
+export type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*' | 'destroy' | 'select';
 
 /**
  * Cache is a class which allows you to store data in memory and listen for updates
@@ -29,58 +29,6 @@ type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*' | 's
  * @typedef {Cache}
  */
 export class Cache<data = {}> {
-    /**
-     * Event emitter for global updates (create, update, delete, archive, restore, etc.)
-     * @date 10/12/2023 - 1:04:42 PM
-     *
-     * @private
-     * @static
-     * @readonly
-     * @type {EventEmitter<Updates>}
-     */
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
-
-    /**
-     * Add a listener for global updates
-     * @date 10/12/2023 - 1:04:42 PM
-     *
-     * @public
-     * @static
-     * @template {Updates} K
-     * @param {K} event
-     * @param {(data: any) => void} callback
-     */
-    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
-        Cache.$emitter.on(event, callback);
-    }
-
-    /**
-     * Remove a listener for global updates
-     * @date 10/12/2023 - 1:04:42 PM
-     *
-     * @public
-     * @static
-     * @template {Updates} K
-     * @param {K} event
-     * @param {?(data: any) => void} [callback]
-     */
-    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
-        Cache.$emitter.off(event, callback);
-    }
-
-    /**
-     * Emit a global update
-     * @date 10/12/2023 - 1:04:42 PM
-     *
-     * @public
-     * @static
-     * @template {Updates} K
-     * @param {K} event
-     * @param {*} data
-     */
-    public static emit<K extends Updates>(event: K, data: any): void {
-        Cache.$emitter.emit(event, data);
-    }
 
     /**
      * Cache for storing data (any)
