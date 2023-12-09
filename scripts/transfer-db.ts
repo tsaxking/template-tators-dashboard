@@ -29,7 +29,7 @@ const test = (): boolean => {
 }
 
 
-const db = new Database('./scripts/old.db');
+let db: Database;
 
 const transferAccounts = () => {
     type A = {
@@ -828,6 +828,8 @@ export const transfer = () => {
         log('The database has already been transferred! Nothing has changed :)');
         return;
     }
+
+    db = new Database('./scripts/old.db');
 
     makeBackup(DB.db);
     run(transferMatchScouting);
