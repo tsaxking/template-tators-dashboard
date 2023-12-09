@@ -9,10 +9,7 @@ import { Match } from "../shared/db-types-extended.ts";
 import { error, log } from "../server/utilities/terminal-logging.ts";
 
 
-if (!fs.existsSync(path.resolve(__root, './scripts/old.db'))) {
-    console.log('No old database found. Please place the old database in ./scripts/old.db');
-    Deno.exit(0);
-}
+
 
 
 const parse = <T>(str: string) => {
@@ -827,6 +824,11 @@ export const transfer = () => {
     if (test()) {
         log('The database has already been transferred! Nothing has changed :)');
         return;
+    }
+
+    if (!fs.existsSync(path.resolve(__root, './scripts/old.db'))) {
+        console.log('No old database found. Please place the old database in ./scripts/old.db');
+        Deno.exit(0);
     }
 
     db = new Database('./scripts/old.db');
