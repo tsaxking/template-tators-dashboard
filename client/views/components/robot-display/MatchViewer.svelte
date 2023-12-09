@@ -5,3 +5,5 @@
     export let team: FIRSTTeam;
 
 </script>
+
+<p>{team.tba.team_number}</p>

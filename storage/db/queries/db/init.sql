@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS Permissions (
 
 CREATE TABLE IF NOT EXISTS Version (
     version INTEGER NOT NULL
+    -- changed to major, minor, patch in 1-0-1.sql
 );
 
 
@@ -142,6 +143,7 @@ CREATE TABLE IF NOT EXISTS CustomMatches (
     blue1 INTEGER NOT NULL,
     blue2 INTEGER NOT NULL,
     blue3 INTEGER NOT NULL
+    -- added name column in 1-0-2.sql
 );
 
 
@@ -158,23 +160,12 @@ CREATE TABLE IF NOT EXISTS Whiteboards (
 
 CREATE TABLE IF NOT EXISTS MatchScouting (
     id TEXT PRIMARY KEY,
-    matchId TEXT NOT NULL,
+    matchId TEXT NOT NULL, -- removed NOT NULL in 1-0-4.sql in case of prescouting
     team INTEGER NOT NULL,
-    scoutId TEXT NOT NULL, -- account id
+    scoutId TEXT NOT NULL, -- account id of scout, removed NOT NULL in 1-0-4.sql in case of prescouting
     scoutGroup INTEGER NOT NULL, -- 0 thru 5
-    time INTEGER NOT NULL, -- time of submission (in ms)
-    prescouting INTEGER NOT NULL DEFAULT 0, -- 0 = not prescouting, 1 = prescouting
-
-    -- Auto
-
-
-    -- Teleop
-
-
-    -- Endgame
-
-
-    -- Misc
+    time INTEGER NOT NULL, -- time of submission (in ms), changed to TEXT in 1-0-4.sql
+    prescouting INTEGER NOT NULL DEFAULT 0, -- changed to TEXT in 1-0-4.sql for event key. Renamed to preScouting
 
 
 
@@ -182,14 +173,15 @@ CREATE TABLE IF NOT EXISTS MatchScouting (
 );
 
 
-
+-- Renamed to TeamComments in 1-0-4.sql
 CREATE TABLE IF NOT EXISTS MatchComments (
     id TEXT PRIMARY KEY,
-    matchId TEXT NOT NULL,
+    matchId TEXT NOT NULL, -- now matchScoutingId
     accountId TEXT NOT NULL,
     team INTEGER NOT NULL,
     comment TEXT NOT NULL,
     time INTEGER NOT NULL -- time of submission (in ms)
+    -- added type column in 1-0-4.sql
 );
 
 
@@ -204,7 +196,7 @@ CREATE TABLE IF NOT EXISTS ScoutingQuestionSections (
 CREATE TABLE IF NOT EXISTS ScoutingQuestionGroups (
     id TEXT PRIMARY KEY,
     eventKey TEXT NOT NULL,
-    section TEXT NOT NULL, -- section name
+    section TEXT NOT NULL, -- section name (references ScoutingQuestionSections)
     name TEXT NOT NULL
 );
 
@@ -216,6 +208,8 @@ CREATE TABLE IF NOT EXISTS ScoutingQuestions (
     type TEXT NOT NULL, -- boolean/number/text/textarea etc.
     groupId TEXT NOT NULL -- group id
 );
+
+-- Added table for select/checkbox/radio etc. options in 1-0-4.sql
 
 CREATE TABLE IF NOT EXISTS ScoutingAnswers (
     id TEXT PRIMARY KEY,
