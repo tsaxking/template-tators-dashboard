@@ -192,7 +192,6 @@ try {
 }
 // }
 
-console.log(Colors.FgGreen, 'Environment variables loaded!', Colors.Reset);
 
 
 
