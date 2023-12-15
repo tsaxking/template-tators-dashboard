@@ -1,0 +1,1 @@
+DELETE FROM DiscordAccount WHERE key = :key;
