@@ -11,12 +11,12 @@ log('Typescript version:', Deno.version.typescript);
 log('V8 version:', Deno.version.v8);
 
 if (!fs.existsSync(
-    path.resolve(
+    resolve(
         __templates, './entries'
     )
 )) {
     Deno.mkdirSync(
-        path.resolve(
+        resolve(
             __templates, './entries'
         )
     );
