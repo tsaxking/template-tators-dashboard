@@ -1,8 +1,7 @@
-import env, { __root } from "./utilities/env.ts";
+import env, { __root, resolve } from "./utilities/env.ts";
 import { log } from "./utilities/terminal-logging.ts";
 import { App, ResponseStatus } from "./structure/app/app.ts";
 import { Session } from "./structure/sessions.ts";
-import * as path from 'node:path';
 import { getJSONSync, log as serverLog } from "./utilities/files.ts";
 import { homeBuilder } from "./utilities/page-builder.ts";
 import Account from "./structure/accounts.ts";
@@ -71,10 +70,10 @@ app.use('/*', (req, res, next) => {
     next();
 });
 
-app.static('/client', path.resolve(__root, './client'));
-app.static('/public', path.resolve(__root, './public'));
-app.static('/dist', path.resolve(__root, './dist'));
-app.static('/uploads', path.resolve(__root, './uploads'));
+app.static('/client', resolve(__root, './client'));
+app.static('/public', resolve(__root, './public'));
+app.static('/dist', resolve(__root, './dist'));
+app.static('/uploads', resolve(__root, './uploads'));
 
 app.use('/*', Session.middleware());
 
@@ -85,11 +84,11 @@ app.post('/socket-url', (req, res, next) => {
 });
 
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.resolve(__root, './public/pictures/logo-square.png'));
+    res.sendFile(resolve(__root, './public/pictures/logo-square.png'));
 });
 
 app.get('/robots.txt', (req, res) => {
-    res.sendFile(path.resolve(__root, './public/pictures/robots.jpg'));
+    res.sendFile(resolve(__root, './public/pictures/robots.jpg'));
 });
 
 function stripHtml(body: any) {
