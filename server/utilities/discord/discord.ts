@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits, SlashCommandBuilder } from 'npm:discord.js';
 import env from "../env.ts";
 import Ping from './commands/ping.ts';
+import Connect from './commands/account-connect.ts'
 
 export type Command = {
     name: string;
@@ -10,7 +11,8 @@ export type Command = {
 }
 
 const commands: Command[] = [
-    Ping
+    Ping,
+    Connect
 ];
 
 export const client = new Client({

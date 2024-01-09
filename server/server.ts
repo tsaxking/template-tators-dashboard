@@ -13,6 +13,7 @@ import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
 import { retrieveStream } from "./middleware/stream.ts";
 import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
+import './utilities/tba/tba.ts';
 
 console.log('Platform:', os.platform());
 
@@ -221,7 +222,9 @@ app.route('/admin', admin);
 
 
 
-
+app.get('/home', (req, res, next) => {
+    res.redirect('/user/robot-display');
+});
 
 app.get('/user/*', Account.isSignedIn,  (req, res, next) => {
     res.sendTemplate('entries/user');
@@ -257,10 +260,10 @@ app.final<{
         body: req.method == 'post' ? JSON.stringify((() => {
             let { body } = req;
             body = JSON.parse(JSON.stringify(body)) as {
-    $$files?: any;
-    password?: string;
-    confirmPassword?: string;
-};
+        $$files?: any;
+        password?: string;
+        confirmPassword?: string;
+    };
             delete body?.password;
             delete body?.confirmPassword;
             delete body?.$$files;
