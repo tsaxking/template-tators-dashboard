@@ -238,6 +238,30 @@ export const messages: {
     code: 400,
     instructions: ''
 },
+    'discord:account-linked': {
+    message: 'Your discord account has been linked to this account',
+    color: 'success',
+    code: 200,
+    instructions: 'youcannowuseteamtatorsdiscordcommands'
+},
+    'discord:invalid-link': {
+    message: 'This discord link is invalid. You must generate a valid link using /connect',
+    color: 'danger',
+    code: 400,
+    instructions: 'useconnectinthediscordserver'
+},
+    'discord:link-expired': {
+    message: 'This discord link has expired, please try again.',
+    color: 'danger',
+    code: 400,
+    instructions: 'pleasetryagain'
+},
+    'event:update-properties': {
+    message: 'Event properties updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'files:invalid': {
     message: 'Invalid file',
     color: 'danger',
@@ -264,6 +288,36 @@ export const messages: {
 },
     'files:uploaded': {
     message: 'File uploaded',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'match:not-found': {
+    message: 'Match was not found',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'match-comments:delete': {
+    message: 'Match comment deleted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'match-comments:new': {
+    message: 'Match comment saved',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'match-scouting:delete': {
+    message: 'Deleted Match Scouting',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'match-scouting:new': {
+    message: 'Match scouting submitted',
     color: 'success',
     code: 200,
     instructions: ''
@@ -394,6 +448,18 @@ export const messages: {
     code: 401,
     instructions: ''
 },
+    'pit-scouting:delete': {
+    message: 'Pit Scouting Submission has been deleted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'pit-scouting:new': {
+    message: 'Pit Scouting Submitted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'profanity': {
     message: 'Profanity detected',
     color: 'danger',
@@ -472,6 +538,18 @@ export const messages: {
     code: 400,
     instructions: 'Please try again.'
 },
+    'strategy:delete': {
+    message: 'Strategy deleted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'strategy:new': {
+    message: 'Strategy submitted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'test:fail': {
     message: 'This test failed',
     color: 'danger',
@@ -489,6 +567,36 @@ export const messages: {
     color: 'danger',
     code: 500,
     instructions: 'Please try again.'
+},
+    'whiteboard:created': {
+    message: 'Whiteboard created successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'whiteboard:deleted': {
+    message: 'Whiteboard deleted successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'whiteboard:match-not-found': {
+    message: 'The match for the selected whiteboard was not found, please try again using different parameters',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'whiteboard:not-found': {
+    message: 'Whiteboard was not found',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'whiteboard:update': {
+    message: 'Whiteboard updated successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
 }
 };
 
@@ -528,11 +636,20 @@ export type StatusId = 'account:already-logged-in'
 	| 'account:username-taken'
 	| 'account:verified'
 	| 'admin:invalid-key'
+	| 'discord:account-linked'
+	| 'discord:invalid-link'
+	| 'discord:link-expired'
+	| 'event:update-properties'
 	| 'files:invalid'
 	| 'files:invalid-extension'
 	| 'files:no-files'
 	| 'files:too-large'
 	| 'files:uploaded'
+	| 'match-comments:delete'
+	| 'match-comments:new'
+	| 'match-scouting:delete'
+	| 'match-scouting:new'
+	| 'match:not-found'
 	| 'member:accepted'
 	| 'member:add-skill'
 	| 'member:already-member'
@@ -554,6 +671,8 @@ export type StatusId = 'account:already-logged-in'
 	| 'permissions:forbidden'
 	| 'permissions:invalid'
 	| 'permissions:unauthorized'
+	| 'pit-scouting:delete'
+	| 'pit-scouting:new'
 	| 'profanity'
 	| 'roles:added'
 	| 'roles:invalid-role'
@@ -567,9 +686,16 @@ export type StatusId = 'account:already-logged-in'
 	| 'skills:not-found'
 	| 'skills:removed'
 	| 'spam:detected'
+	| 'strategy:delete'
+	| 'strategy:new'
 	| 'test:fail'
 	| 'test:success'
 	| 'unknown:error'
+	| 'whiteboard:created'
+	| 'whiteboard:deleted'
+	| 'whiteboard:match-not-found'
+	| 'whiteboard:not-found'
+	| 'whiteboard:update'
 ;
 
 export type AccountStatusId = 'already-logged-in'
@@ -612,11 +738,30 @@ export type AccountStatusId = 'already-logged-in'
 export type AdminStatusId = 'invalid-key';
 
 
+export type DiscordStatusId = 'account-linked'
+	| 'invalid-link'
+	| 'link-expired';
+
+
+export type EventStatusId = 'update-properties';
+
+
 export type FilesStatusId = 'invalid'
 	| 'invalid-extension'
 	| 'no-files'
 	| 'too-large'
 	| 'uploaded';
+
+
+export type MatchStatusId = 'not-found';
+
+
+export type MatchcommentsStatusId = 'delete'
+	| 'new';
+
+
+export type MatchscoutingStatusId = 'delete'
+	| 'new';
 
 
 export type MemberStatusId = 'accepted'
@@ -646,6 +791,10 @@ export type PermissionsStatusId = 'error'
 	| 'unauthorized';
 
 
+export type PitscoutingStatusId = 'delete'
+	| 'new';
+
+
 export type ProfanityStatusId = 'undefined';
 
 
@@ -669,8 +818,19 @@ export type SkillsStatusId = 'added'
 export type SpamStatusId = 'detected';
 
 
+export type StrategyStatusId = 'delete'
+	| 'new';
+
+
 export type TestStatusId = 'fail'
 	| 'success';
 
 
 export type UnknownStatusId = 'error';
+
+
+export type WhiteboardStatusId = 'deleted'
+	| 'match-not-found'
+	| 'not-found'
+	| 'update'
+	| 'created';
