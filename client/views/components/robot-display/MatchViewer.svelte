@@ -2,8 +2,8 @@
     import { FIRSTTeam } from "../../../models/FIRST/team";
 
 
-    export let team: FIRSTTeam;
+    export let team: FIRSTTeam | undefined = undefined;
 
 </script>
 
-<p>{team.tba.team_number}</p>
+<p>{team?.tba.team_number}</p>
