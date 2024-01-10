@@ -1,20 +1,21 @@
-import { Color } from "../../submodules/colors/color";
-import { StateStack } from "../../../shared/statestack";
-import { Point2D } from "../../submodules/calculations/src/linear-algebra/point";
-import { Canvas } from "../canvas/canvas";
-import { ServerRequest } from "../../utilities/requests";
-
+import { Color } from '../../submodules/colors/color';
+import { StateStack } from '../../../shared/statestack';
+import { Point2D } from '../../submodules/calculations/src/linear-algebra/point';
+import { Canvas } from '../canvas/canvas';
+import { ServerRequest } from '../../utilities/requests';
 
 export type Path = {
     color: Color;
     points: Point2D[];
-}
+};
 
 export class WhiteboardState {
     static fromJSON(json: string): WhiteboardState | undefined {
         try {
             const obj = JSON.parse(json) as any;
-            if (!obj.initPositions || !obj.states) throw new Error('Invalid JSON: ' + json);
+            if (!obj.initPositions || !obj.states) {
+                throw new Error('Invalid JSON: ' + json);
+            }
             const state = new WhiteboardState();
             // state.initPositions = obj.initPositions;
             state.paths = obj.paths;
@@ -41,13 +42,16 @@ export class WhiteboardState {
     toJSON(): string {
         return JSON.stringify({
             // initPositions: this.initPositions,
-            paths: this.paths
+            paths: this.paths,
         });
     }
 }
 
 export class Whiteboard {
-    static build(states: WhiteboardState[], ctx: CanvasRenderingContext2D): Whiteboard {
+    static build(
+        states: WhiteboardState[],
+        ctx: CanvasRenderingContext2D,
+    ): Whiteboard {
         const wb = new Whiteboard(ctx);
         for (const state of states) {
             wb.stack.add(state);
@@ -55,7 +59,9 @@ export class Whiteboard {
         return wb;
     }
 
-    public readonly stack: StateStack<WhiteboardState> = new StateStack<WhiteboardState>(new WhiteboardState());
+    public readonly stack: StateStack<WhiteboardState> = new StateStack<
+        WhiteboardState
+    >(new WhiteboardState());
     public readonly canvas: Canvas;
     public currentColor: Color = Color.fromName('black');
 
@@ -67,7 +73,6 @@ export class Whiteboard {
         this.canvas = new Canvas(ctx);
         this.setListeners();
     }
-
 
     get width() {
         return this.ctx.canvas.width;
@@ -95,14 +100,14 @@ export class Whiteboard {
 
             this.stack.current?.data.paths.push({
                 color: this.currentColor,
-                points: [[x, y]]
+                points: [[x, y]],
             });
-        }
+        };
 
         const move = (e: MouseEvent | TouchEvent) => {
             if (!drawing) return;
             const [x, y] = this.getMousePos(e);
-            
+
             const state = this.stack.current;
             if (!state) return; // this shouldn't happen, but it's for typescript
 
@@ -112,7 +117,7 @@ export class Whiteboard {
             if (!currentPath) return; // this shouldn't happen, but it's for typescript
 
             currentPath.points.push([x, y]);
-        }
+        };
 
         const end = (e: MouseEvent | TouchEvent) => {
             drawing = false;
@@ -130,7 +135,7 @@ export class Whiteboard {
             const s = WhiteboardState.fromJSON(state.data.toJSON());
             if (!s) return;
             this.stack.add(s);
-        }
+        };
 
         this.ctx.canvas.addEventListener('mousedown', start);
         this.ctx.canvas.addEventListener('touchstart', start);
@@ -149,7 +154,7 @@ export class Whiteboard {
         const { clientX, clientY } = e instanceof MouseEvent ? e : e.touches[0];
         return [
             (clientX - left) / this.width,
-            (clientY - top) / this.height
+            (clientY - top) / this.height,
         ] as Point2D;
     }
 
@@ -160,7 +165,6 @@ export class Whiteboard {
     animate() {
         return this.canvas.animate();
     }
-
 
     undo() {
         return this.stack.prev();
@@ -180,7 +184,7 @@ export class Whiteboard {
         if (!state) return;
         const json = state.data.toJSON();
         ServerRequest.post('/api/whiteboard', {
-            json
+            json,
         });
     }
 }

@@ -1,13 +1,28 @@
-import { CompLevel, Event as EventProperties, MatchScouting, Team, RetrievedMatchScouting, MatchScoutingComments, ScoutingAnswer, RetrievedScoutingAnswer, Strategy as StrategyObj, Whiteboard as WhiteboardObj, Match as MatchObj } from "../../../shared/db-types-extended";
-import { EventEmitter } from "../../../shared/event-emitter";
-import { TBAEvent, TBAMatch, TBATeam } from "../../../shared/tba";
-import { RetrieveStreamEventEmitter, ServerRequest } from "../../utilities/requests";
-import { TBA, TBAResponse } from "../../utilities/tba";
+import {
+    CompLevel,
+    Event as EventProperties,
+    Match as MatchObj,
+    MatchScouting,
+    MatchScoutingComments,
+    RetrievedMatchScouting,
+    RetrievedScoutingAnswer,
+    ScoutingAnswer,
+    Strategy as StrategyObj,
+    Team,
+    Whiteboard as WhiteboardObj,
+} from '../../../shared/db-types-extended';
+import { EventEmitter } from '../../../shared/event-emitter';
+import { TBAEvent, TBAMatch, TBATeam } from '../../../shared/tba';
+import {
+    RetrieveStreamEventEmitter,
+    ServerRequest,
+} from '../../utilities/requests';
+import { TBA, TBAResponse } from '../../utilities/tba';
 import { socket } from '../../utilities/socket';
-import { FIRSTEvent } from "./event";
-import { FIRSTTeam } from "./team";
-import { Strategy } from "./strategy";
-import { Cache, Updates } from "../cache";
+import { FIRSTEvent } from './event';
+import { FIRSTTeam } from './team';
+import { Strategy } from './strategy';
+import { Cache, Updates } from '../cache';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -20,8 +35,6 @@ type FIRSTMatchEventData = {
     'match-scouting': RetrievedMatchScouting;
 };
 
-
-
 /**
  * Represents a FIRST match
  * @date 10/9/2023 - 6:39:41 PM
@@ -31,24 +44,28 @@ type FIRSTMatchEventData = {
  * @typedef {FIRSTMatch}
  */
 export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
+        Updates
+    >();
 
-
-    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+    public static on<K extends Updates>(
+        event: K,
+        callback: (data: any) => void,
+    ): void {
         FIRSTMatch.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+    public static off<K extends Updates>(
+        event: K,
+        callback?: (data: any) => void,
+    ): void {
         FIRSTMatch.$emitter.off(event, callback);
     }
-
 
     public static emit<K extends Updates>(event: K, data: any): void {
         FIRSTMatch.$emitter.emit(event, data);
     }
 
-
-    
     public static current?: FIRSTMatch = undefined;
 
     /**
@@ -60,8 +77,10 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      * @readonly
      * @type {Map<string, FIRSTMatch>}
      */
-    public static readonly cache: Map<string, FIRSTMatch> = new Map<string, FIRSTMatch>();
-
+    public static readonly cache: Map<string, FIRSTMatch> = new Map<
+        string,
+        FIRSTMatch
+    >();
 
     /**
      * Creates an instance of FIRSTMatch.
@@ -71,12 +90,18 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      * @param {TBAMatch} tba
      * @param {FIRSTEvent} event
      */
-    constructor(public readonly tba: TBAMatch, public readonly event: FIRSTEvent) {
+    constructor(
+        public readonly tba: TBAMatch,
+        public readonly event: FIRSTEvent,
+    ) {
         super();
-        this.teams.forEach(t => {
+        this.teams.forEach((t) => {
             t.on('match-scouting', async () => {
                 const scouting = await this.getMatchScouting();
-                this.$emitter.emit('match-scouting', scouting[t.tba.team_number]);
+                this.$emitter.emit(
+                    'match-scouting',
+                    scouting[t.tba.team_number],
+                );
             });
         });
     }
@@ -95,7 +120,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
             const em = new RetrieveStreamEventEmitter<Strategy>();
 
-            res.forEach(s => em.emit('chunk', s));
+            res.forEach((s) => em.emit('chunk', s));
 
             return em;
         }
@@ -103,7 +128,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         const em = Strategy.from('match', {
             eventKey: this.event.tba.key,
             matchNumber: this.tba.match_number,
-            compLevel: this.tba.comp_level
+            compLevel: this.tba.comp_level,
         });
 
         em.on('complete', (data) => {
@@ -121,9 +146,9 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             ServerRequest.post<MatchObj>('/api/matches/info', {
                 eventKey: this.event.tba.key,
                 matchNumber: this.tba.match_number,
-                compLevel: this.tba.comp_level
+                compLevel: this.tba.comp_level,
             }, {
-                cached: true
+                cached: true,
             }).then((data) => {
                 this.$cache.set('info', data);
                 res(data);
@@ -132,8 +157,8 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * Retrieves the match scouting for this match in an object with the team number as the key
      * @date 10/9/2023 - 6:39:41 PM
      *
@@ -143,13 +168,16 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         }>}
      */
     async getMatchScouting(): Promise<{
-        [teamNumber: number]: RetrievedMatchScouting
+        [teamNumber: number]: RetrievedMatchScouting;
     }> {
-        const scouting = await Promise.all(this.teams.map(t => {
+        const scouting = await Promise.all(this.teams.map((t) => {
             return new Promise<RetrievedMatchScouting>((res, rej) => {
                 t.getMatchScouting()
                     .on('complete', (matches) => {
-                        const match = matches.find(m => m.compLevel === this.tba.comp_level && m.matchNumber === this.tba.match_number);
+                        const match = matches.find((m) =>
+                            m.compLevel === this.tba.comp_level &&
+                            m.matchNumber === this.tba.match_number
+                        );
                         if (match) res(match);
                         else rej(new Error('Match not found'));
                     });
@@ -167,9 +195,9 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         return ServerRequest.post<WhiteboardObj>('/api/whiteboard/from-match', {
             eventKey: this.event.tba.key,
             matchNumber: this.tba.match_number,
-            compLevel: this.tba.comp_level
+            compLevel: this.tba.comp_level,
         }, {
-            cached: true
+            cached: true,
         });
     }
 
@@ -180,22 +208,39 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      * @readonly
      * @type {FIRSTTeam[]}
      */
-    get teams(): [FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam] {
+    get teams(): [
+        FIRSTTeam,
+        FIRSTTeam,
+        FIRSTTeam,
+        FIRSTTeam,
+        FIRSTTeam,
+        FIRSTTeam,
+    ] {
         const [red1, red2, red3] = this.tba.alliances.red.team_keys;
         const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
 
-        const teams = [ 
-            red1, red2, red3,
-            blue1, blue2, blue3
-        ].map(t => FIRSTTeam.cache.get(+t.replace('frc', '')));
+        const teams = [
+            red1,
+            red2,
+            red3,
+            blue1,
+            blue2,
+            blue3,
+        ].map((t) => FIRSTTeam.cache.get(+t.replace('frc', '')));
 
-        if (teams.some(t => !t)) {
+        if (teams.some((t) => !t)) {
             throw new Error('Some teams are undefined');
         }
 
-        return teams as [FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam];
+        return teams as [
+            FIRSTTeam,
+            FIRSTTeam,
+            FIRSTTeam,
+            FIRSTTeam,
+            FIRSTTeam,
+            FIRSTTeam,
+        ];
     }
-
 
     /**
      * Destroys this object, including all event listeners and cache
@@ -212,4 +257,4 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         FIRSTMatch.current = this;
         FIRSTMatch.emit('select', this);
     }
-};
+}

@@ -1,16 +1,12 @@
-import { Database } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
-import { DB } from "../server/utilities/databases.ts";
-import { uuid } from "../server/utilities/uuid.ts";
-import { makeBackup, restore } from "../storage/db/scripts/backups.ts";
+import { Database } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
+import { DB } from '../server/utilities/databases.ts';
+import { uuid } from '../server/utilities/uuid.ts';
+import { makeBackup, restore } from '../storage/db/scripts/backups.ts';
 import fs from 'node:fs';
-import { __root } from "../server/utilities/env.ts";
+import { __root } from '../server/utilities/env.ts';
 import path from 'node:path';
-import { Match } from "../shared/db-types-extended.ts";
-import { error, log } from "../server/utilities/terminal-logging.ts";
-
-
-
-
+import { Match } from '../shared/db-types-extended.ts';
+import { error, log } from '../server/utilities/terminal-logging.ts';
 
 const parse = <T>(str: string) => {
     try {
@@ -18,13 +14,12 @@ const parse = <T>(str: string) => {
     } catch {
         return {} as T;
     }
-}
+};
 
 const test = (): boolean => {
     const q = DB.unsafe.get('SELECT * FROM ScoutingQuestions LIMIT 1');
     return !!q;
-}
-
+};
 
 let db: Database;
 
@@ -40,13 +35,13 @@ const transferAccounts = () => {
         verified: 0 | 1;
         tatorBucks: number;
         discord: string;
-    }
+    };
 
     const q = db.prepare('SELECT * FROM Accounts');
     const accounts = q.all() as A[];
     q.finalize();
 
-    // username, key, salt, name, info {}, roles [string, string], email, verified, tatorBucks, discord, 
+    // username, key, salt, name, info {}, roles [string, string], email, verified, tatorBucks, discord,
 
     return accounts.map((a) => {
         const roles = JSON.parse(a.roles) as string[];
@@ -55,7 +50,8 @@ const transferAccounts = () => {
         if (!a.email) return;
         if (!a.username) return;
 
-        DB.unsafe.run(`
+        DB.unsafe.run(
+            `
             INSERT INTO Accounts (
                 id,
                 username,
@@ -69,27 +65,29 @@ const transferAccounts = () => {
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
-        `, ...[
-            uuid(),
-            a.username,
-            a.key,
-            a.salt,
-            a.name.split(' ')[0] ?? '',
-            a.name.split(' ')[1] ?? '',
-            a.email,
-            !!a.verified,
-            Date.now()
-        ]);
+        `,
+            ...[
+                uuid(),
+                a.username,
+                a.key,
+                a.salt,
+                a.name.split(' ')[0] ?? '',
+                a.name.split(' ')[1] ?? '',
+                a.email,
+                !!a.verified,
+                Date.now(),
+            ],
+        );
 
         return {
             roles,
-            id
-        }
+            id,
+        };
     }).filter(Boolean) as {
         roles: string[];
         id: string;
     }[];
-}
+};
 type Match2022 = {
     eventKey: string;
     matchNumber: number;
@@ -143,21 +141,24 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
         pushesBots: boolean;
     }>;
 
-
     for (const match of matches) {
-        const foundMatch = DB.unsafe.get(`
+        const foundMatch = DB.unsafe.get(
+            `
             SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
-        `, ...[
-            match.eventKey,
-            match.matchNumber,
-            match.compLevel
-        ]) as Match | undefined;
+        `,
+            ...[
+                match.eventKey,
+                match.matchNumber,
+                match.compLevel,
+            ],
+        ) as Match | undefined;
 
         if (!foundMatch) continue;
 
         const id = uuid();
 
-        DB.unsafe.run(`
+        DB.unsafe.run(
+            `
             INSERT INTO MatchScouting (
                 id,
                 matchId,
@@ -170,27 +171,29 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?
             )
-        `, ...[
-            id,
-            foundMatch?.id ?? null,
-            match.teamNumber,
-            match.scout,
-            match.group,
-            (match.time ?? 0).toString(),
-            match.preScoutingKey,
-            match.trace
-        ]);
-
+        `,
+            ...[
+                id,
+                foundMatch?.id ?? null,
+                match.teamNumber,
+                match.scout,
+                match.group,
+                (match.time ?? 0).toString(),
+                match.preScoutingKey,
+                match.trace,
+            ],
+        );
 
         const sections = {
             auto: parse<Section>(match.auto),
             tele: parse<Section>(match.teleop),
             endgame: parse<Section>(match.endgame),
-            overall: parse<Section>(match.overall)
+            overall: parse<Section>(match.overall),
         };
 
         for (const [section, data] of Object.entries(sections)) {
-            DB.unsafe.run(`
+            DB.unsafe.run(
+                `
                 INSERT INTO MatchScouting2022 (
                     id,
                     matchScoutingId,
@@ -238,40 +241,42 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
                     ?, ?, ?, ?,
                     ?, ?, ?, ?
                 )
-            `, ...[
-                uuid() as string,
-                id,
-                section as 'auto' | 'tele' | 'endgame',
-                data.ballsHigh ?? 0,
-                data.ballsLow ?? 0,
-                data.ballsLowCopy ?? 0,
-                data.leaveTarmac ?? 0,
-                data.climb4 ?? 0,
-                data.climb6 ?? 0,
-                data.climb10 ?? 0,
-                data.climb15 ?? 0,
-                data.totalTime ?? 0,
-                data.timeStart ?? 0,
-                data.noClimb ?? 0,
-                data.fell ?? 0,
-                data.climbLevel ?? 0,
-                data.stage1Time ?? 0,
-                data.stage2Time ?? 0,
-                data.stage3Time ?? 0,
-                data.misses ?? 0,
-                data.bouncedOut ?? 0,
-                data.problemsDriving ?? 0,
-                data.dead ?? 0,
-                data.tippy ?? 0,
-                data.easilyDefended ?? 0,
-                data.foulsPinningOrHerdingCargo ?? 0,
-                data.shootsCargoOverHub ?? 0,
-                data.pushesBots ?? 0
-            ]);
+            `,
+                ...[
+                    uuid() as string,
+                    id,
+                    section as 'auto' | 'tele' | 'endgame',
+                    data.ballsHigh ?? 0,
+                    data.ballsLow ?? 0,
+                    data.ballsLowCopy ?? 0,
+                    data.leaveTarmac ?? 0,
+                    data.climb4 ?? 0,
+                    data.climb6 ?? 0,
+                    data.climb10 ?? 0,
+                    data.climb15 ?? 0,
+                    data.totalTime ?? 0,
+                    data.timeStart ?? 0,
+                    data.noClimb ?? 0,
+                    data.fell ?? 0,
+                    data.climbLevel ?? 0,
+                    data.stage1Time ?? 0,
+                    data.stage2Time ?? 0,
+                    data.stage3Time ?? 0,
+                    data.misses ?? 0,
+                    data.bouncedOut ?? 0,
+                    data.problemsDriving ?? 0,
+                    data.dead ?? 0,
+                    data.tippy ?? 0,
+                    data.easilyDefended ?? 0,
+                    data.foulsPinningOrHerdingCargo ?? 0,
+                    data.shootsCargoOverHub ?? 0,
+                    data.pushesBots ?? 0,
+                ],
+            );
 
             const { comments } = data;
 
-            const query =  `
+            const query = `
                 INSERT INTO TeamComments (
                     id,
                     matchScoutingId,
@@ -283,7 +288,7 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
                 ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?
                 )
-            `
+            `;
 
             DB.unsafe.run(query, ...[
                 uuid(),
@@ -292,7 +297,7 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
                 match.teamNumber,
                 comments ?? '',
                 (match.time ?? 0).toString(),
-                'match'
+                'match',
             ]);
         }
     }
@@ -332,19 +337,23 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
     }>;
 
     for (const match of matches) {
-        const foundMatch = DB.unsafe.get(`
+        const foundMatch = DB.unsafe.get(
+            `
             SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
-        `, ...[
-            match.eventKey,
-            match.matchNumber,
-            match.compLevel
-        ]) as Match | undefined;
+        `,
+            ...[
+                match.eventKey,
+                match.matchNumber,
+                match.compLevel,
+            ],
+        ) as Match | undefined;
 
         if (!foundMatch) continue;
 
         const id = uuid();
 
-        DB.unsafe.run(`
+        DB.unsafe.run(
+            `
             INSERT INTO MatchScouting (
                 id,
                 matchId,
@@ -357,27 +366,29 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?
             )
-        `, ...[
-            id,
-            foundMatch?.id ?? null,
-            match.teamNumber,
-            match.scout,
-            match.group,
-            (match.time ?? 0).toString(),
-            match.preScoutingKey,
-            match.trace
-        ]);
-
+        `,
+            ...[
+                id,
+                foundMatch?.id ?? null,
+                match.teamNumber,
+                match.scout,
+                match.group,
+                (match.time ?? 0).toString(),
+                match.preScoutingKey,
+                match.trace,
+            ],
+        );
 
         const sections = {
             auto: parse<Section>(match.auto),
             tele: parse<Section>(match.teleop),
             endgame: parse<Section>(match.endgame),
-            overall: parse<Section>(match.overall)
+            overall: parse<Section>(match.overall),
         };
 
         for (const [section, data] of Object.entries(sections)) {
-            DB.unsafe.run(`
+            DB.unsafe.run(
+                `
                 INSERT INTO MatchScouting2023 (
                     id,
                     matchScoutingId,
@@ -390,20 +401,22 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
                 ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?, ?
                 )
-            `, ...[
-                uuid() as string,
-                id,
-                section as 'auto' | 'tele' | 'endgame' | 'overall',
-                data.autoMobility ?? 0,
-                data.grid ?? '',
-                data['Total Distance (Ft)'] ?? 0,
-                data['Velocity (ft/s)'] ?? 0,
-                data.parked ?? 0
-            ]);
+            `,
+                ...[
+                    uuid() as string,
+                    id,
+                    section as 'auto' | 'tele' | 'endgame' | 'overall',
+                    data.autoMobility ?? 0,
+                    data.grid ?? '',
+                    data['Total Distance (Ft)'] ?? 0,
+                    data['Velocity (ft/s)'] ?? 0,
+                    data.parked ?? 0,
+                ],
+            );
 
             const { comments, defensiveComments } = data;
 
-            const query =  `
+            const query = `
                 INSERT INTO TeamComments (
                     id,
                     matchScoutingId,
@@ -415,7 +428,7 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
                 ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?
                 )
-            `
+            `;
 
             DB.unsafe.run(query, ...[
                 uuid(),
@@ -424,7 +437,7 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
                 match.teamNumber,
                 comments ?? '',
                 (match.time ?? 0).toString(),
-                'match'
+                'match',
             ]);
 
             DB.unsafe.run(query, ...[
@@ -434,10 +447,9 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
                 match.teamNumber,
                 defensiveComments ?? '',
                 (match.time ?? 0).toString(),
-                'defensive'
+                'defensive',
             ]);
         }
-    
     }
 };
 
@@ -445,38 +457,49 @@ const transferMatchScouting = () => {
     const q = db.prepare('SELECT * FROM MatchScouting');
     const matches = q.all();
 
-
-    transferMatch2022Scouting(matches.filter((m: any) => m?.eventKey?.startsWith('2022')) as Match2022[]);
-    transferMatch2023Scouting(matches.filter((m: any) => m?.eventKey?.startsWith('2023')) as Match2023[]);
+    transferMatch2022Scouting(
+        matches.filter((m: any) =>
+            m?.eventKey?.startsWith('2022')
+        ) as Match2022[],
+    );
+    transferMatch2023Scouting(
+        matches.filter((m: any) =>
+            m?.eventKey?.startsWith('2023')
+        ) as Match2023[],
+    );
 };
 
 const createScoutingQuestionGroups = () => {
     const sections = [{
         name: 'pit',
-        multiple: false
-    },{
+        multiple: false,
+    }, {
         name: 'pre',
-        multiple: false
-    },{
+        multiple: false,
+    }, {
         name: 'electrical',
-        multiple: false
-    },{
+        multiple: false,
+    }, {
         name: 'mechanical',
-        multiple: false
-    },{
+        multiple: false,
+    }, {
         name: 'elimination',
-        multiple: false
+        multiple: false,
     }];
 
     for (const s of sections) {
-        DB.unsafe.run(`
+        DB.unsafe.run(
+            `
             INSERT INTO ScoutingQuestionSections (
                 name,
                 multiple
             ) VALUES (
                 ?, ?
             )
-        `, s.name, s.multiple);
+        `,
+            s.name,
+            s.multiple,
+        );
     }
 };
 
@@ -512,10 +535,10 @@ const populateQuestions = () => {
         id: string;
         options: Options;
     };
-    
+
     type Section = {
         title: string;
-        questions: Question[]
+        questions: Question[];
     };
 
     type QuestionContainer = Section[];
@@ -523,10 +546,15 @@ const populateQuestions = () => {
     const q = db.prepare('SELECT * FROM Events');
     const events = q.all() as Event[];
 
-    const saveGroup = (name: string, group: QuestionContainer, event: Event) => {
+    const saveGroup = (
+        name: string,
+        group: QuestionContainer,
+        event: Event,
+    ) => {
         for (const section of group) {
             const id = uuid();
-            DB.unsafe.run(`
+            DB.unsafe.run(
+                `
                 INSERT INTO ScoutingQuestionGroups (
                     id,
                     name,
@@ -535,26 +563,35 @@ const populateQuestions = () => {
                 ) VALUES (
                     ?, ?, ?, ?
                 )
-            `, ...[
-                id,
-                section.title,
-                name,
-                event.eventKey
-            ]);
+            `,
+                ...[
+                    id,
+                    section.title,
+                    name,
+                    event.eventKey,
+                ],
+            );
 
             for (const question of section.questions) {
                 if (!question.id) question.id = uuid();
-                if (!question.options) question.options = {
-                    checkbox: [],
-                    radio: [],
-                    select: []
-                };
+                if (!question.options) {
+                    question.options = {
+                        checkbox: [],
+                        radio: [],
+                        select: [],
+                    };
+                }
                 if (!question.small) question.small = '';
                 if (!question.description) question.description = '';
                 if (!question.type) question.type = 'text';
-                if (!question.key) question.key = question.question.toLowerCase().replace(/ /g, '-') + '-' + uuid().split('-')[0];
+                if (!question.key) {
+                    question.key =
+                        question.question.toLowerCase().replace(/ /g, '-') +
+                        '-' + uuid().split('-')[0];
+                }
 
-                DB.unsafe.run(`
+                DB.unsafe.run(
+                    `
                     INSERT INTO ScoutingQuestions (
                         id,
                         question,
@@ -565,18 +602,21 @@ const populateQuestions = () => {
                     ) VALUES (
                         ?, ?, ?, ?, ?, ?
                     )
-                `, ...[
-                    question.id,
-                    question.question,
-                    question.key,
-                    question.description,
-                    question.type,
-                    id
-                ]);
+                `,
+                    ...[
+                        question.id,
+                        question.question,
+                        question.key,
+                        question.description,
+                        question.type,
+                        id,
+                    ],
+                );
 
                 const saveOptions = (type: keyof Options) => {
                     for (const option of question.options[type]) {
-                        DB.unsafe.run(`
+                        DB.unsafe.run(
+                            `
                             INSERT INTO ScoutingQuestionOptions (
                                 id,
                                 questionId,
@@ -585,14 +625,16 @@ const populateQuestions = () => {
                             ) VALUES (
                                 ?, ?, ?, ?
                             )
-                        `, ...[
-                            uuid(),
-                            question.id,
-                            option.text,
-                            option.order
-                        ]);
+                        `,
+                            ...[
+                                uuid(),
+                                question.id,
+                                option.text,
+                                option.order,
+                            ],
+                        );
                     }
-                }
+                };
 
                 saveOptions('checkbox');
                 saveOptions('radio');
@@ -602,11 +644,21 @@ const populateQuestions = () => {
     };
 
     for (const e of events) {
-        const pit = e.pitScouting ? parse<QuestionContainer>(e.pitScouting) : [] as QuestionContainer;
-        const pre = e.preScouting ? parse<QuestionContainer>(e.preScouting) : [] as QuestionContainer;
-        const electrical = e.electricalScouting ? parse<QuestionContainer>(e.electricalScouting) : [] as QuestionContainer;
-        const mechanical = e.mechanicalScouting ? parse<QuestionContainer>(e.mechanicalScouting) : [] as QuestionContainer;
-        const elimination = e.eliminationMatchScouting ? parse<QuestionContainer>(e.eliminationMatchScouting) : [] as QuestionContainer;
+        const pit = e.pitScouting
+            ? parse<QuestionContainer>(e.pitScouting)
+            : [] as QuestionContainer;
+        const pre = e.preScouting
+            ? parse<QuestionContainer>(e.preScouting)
+            : [] as QuestionContainer;
+        const electrical = e.electricalScouting
+            ? parse<QuestionContainer>(e.electricalScouting)
+            : [] as QuestionContainer;
+        const mechanical = e.mechanicalScouting
+            ? parse<QuestionContainer>(e.mechanicalScouting)
+            : [] as QuestionContainer;
+        const elimination = e.eliminationMatchScouting
+            ? parse<QuestionContainer>(e.eliminationMatchScouting)
+            : [] as QuestionContainer;
 
         saveGroup('pit', pit, e);
         saveGroup('pre', pre, e);
@@ -631,10 +683,9 @@ const transferTeams = () => {
         active: boolean;
     }[];
 
-
-
     for (const t of teams) {
-        DB.unsafe.run(`
+        DB.unsafe.run(
+            `
             INSERT INTO TeamPictures (
                 teamNumber,
                 eventKey,
@@ -643,33 +694,41 @@ const transferTeams = () => {
             ) VALUES (
                 ?, ?, ?, ?
             )
-        `, ...[
-            t.number,
-            t.eventKey,
-            t.picture ?? '',
-            Date.now().toString()
-        ]);
+        `,
+            ...[
+                t.number,
+                t.eventKey,
+                t.picture ?? '',
+                Date.now().toString(),
+            ],
+        );
 
-        const questions = DB.unsafe.all(`
+        const questions = DB.unsafe.all(
+            `
             SELECT 
                 ScoutingQuestions.id,
                 ScoutingQuestions.key
             FROM ScoutingQuestions
             INNER JOIN ScoutingQuestionGroups ON ScoutingQuestionGroups.id = ScoutingQuestions.groupId
             WHERE ScoutingQuestionGroups.eventKey = ?
-        `, t.eventKey) as { id: string; key: string; }[];
+        `,
+            t.eventKey,
+        ) as { id: string; key: string }[];
 
         const pit = t.pitScouting ? parse<{}>(t.pitScouting) : {};
         const pre = t.preScouting ? parse<{}[]>(t.preScouting) : [];
-        const electrical = t.electricalScouting ? parse<{}>(t.electricalScouting) : {};
-        const mechanical = t.mechanicalScouting ? parse<{}>(t.mechanicalScouting) : {};
+        const electrical = t.electricalScouting
+            ? parse<{}>(t.electricalScouting)
+            : {};
+        const mechanical = t.mechanicalScouting
+            ? parse<{}>(t.mechanicalScouting)
+            : {};
 
         const save = (data: {
-            [key: string]: string
+            [key: string]: string;
         }) => {
-
             for (const [key, value] of Object.entries(data)) {
-                const q = questions.find(q => q.key === key);
+                const q = questions.find((q) => q.key === key);
                 if (!q) continue;
 
                 if (typeof value === 'object') {
@@ -677,7 +736,8 @@ const transferTeams = () => {
                     continue;
                 }
 
-                DB.unsafe.run(`
+                DB.unsafe.run(
+                    `
                     INSERT INTO ScoutingAnswers (
                         id,
                         teamNumber,
@@ -686,12 +746,14 @@ const transferTeams = () => {
                     ) VALUES (
                         ?, ?, ?, ?
                     )
-                `, ...[
-                    uuid(),
-                    t.number,
-                    q.id,
-                    value
-                ]);
+                `,
+                    ...[
+                        uuid(),
+                        t.number,
+                        q.id,
+                        value,
+                    ],
+                );
             }
         };
 
@@ -702,7 +764,6 @@ const transferTeams = () => {
         pre.forEach(save);
     }
 };
-
 
 const transferAccountsAndRoles = () => {
     type Info = Partial<{
@@ -731,7 +792,8 @@ const transferAccountsAndRoles = () => {
 
         const id = uuid();
 
-        DB.unsafe.run(`
+        DB.unsafe.run(
+            `
             INSERT INTO Roles (
                 id,
                 name,
@@ -740,39 +802,43 @@ const transferAccountsAndRoles = () => {
             ) VALUES (
                 ?, ?, ?, ?
             );
-        `, ...[
-            id,
-            r.name,
-            r.description,
-            r.rank
-        ]);
+        `,
+            ...[
+                id,
+                r.name,
+                r.description,
+                r.rank,
+            ],
+        );
 
         for (const [key] of Object.entries(info)) {
-            DB.unsafe.run(`
+            DB.unsafe.run(
+                `
                 INSERT INTO Permissions (
                     roleId,
                     permission
                 ) VALUES (
                     ?, ?
                 )
-            `, ...[
-                id,
-                key
-            ]);
+            `,
+                ...[
+                    id,
+                    key,
+                ],
+            );
         }
 
         return {
             id,
-            name: r.name
+            name: r.name,
         };
     });
-
 
     const accounts = transferAccounts();
 
     for (const a of accounts) {
-        const accountRoles = a.roles.map(r => {
-            const foundRole = newRoles.find(nr => nr.name === r);
+        const accountRoles = a.roles.map((r) => {
+            const foundRole = newRoles.find((nr) => nr.name === r);
 
             if (!foundRole) {
                 console.log(`Role ${r} not found!`);
@@ -783,22 +849,23 @@ const transferAccountsAndRoles = () => {
         }).filter(Boolean) as string[];
 
         for (const roleId of accountRoles) {
-            DB.unsafe.run(`
+            DB.unsafe.run(
+                `
                 INSERT INTO AccountRoles (
                     accountId,
                     roleId
                 ) VALUES (
                     ?, ?
                 )
-            `, ...[
-                a.id,
-                roleId
-            ]);
-        
+            `,
+                ...[
+                    a.id,
+                    roleId,
+                ],
+            );
         }
     }
 };
-
 
 const run = (fn: () => void) => {
     console.log(`Running ${fn.name}`);
@@ -814,11 +881,13 @@ const run = (fn: () => void) => {
     }
     const end = Date.now();
     console.log(`${fn.name} | ${end - start}ms`);
-}
+};
 
 export const transfer = () => {
     if (DB.version.join('.') !== '1.0.4') {
-        throw new Error('The database transfer script is only compatible with version 1.0.4');
+        throw new Error(
+            'The database transfer script is only compatible with version 1.0.4',
+        );
     }
 
     if (test()) {
@@ -827,7 +896,9 @@ export const transfer = () => {
     }
 
     if (!fs.existsSync(path.resolve(__root, './scripts/old.db'))) {
-        console.log('No old database found. Please place the old database in ./scripts/old.db');
+        console.log(
+            'No old database found. Please place the old database in ./scripts/old.db',
+        );
         Deno.exit(0);
     }
 
