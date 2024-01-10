@@ -3,6 +3,9 @@ import { __root } from "../../server/utilities/env.ts";
 import '../init.ts';
 import { runTask, runCommand } from "../../server/utilities/run-task.ts";
 import { log } from "../../server/utilities/terminal-logging.ts";
+import { TBA } from '../../server/utilities/tba/tba.ts';
+import { generateScoutGroups, testAssignments } from '../../shared/scout-groups.ts';
+import { TBATeam, TBAMatch } from '../../shared/tba.ts';
 
 
 export const runTests = async () => {
@@ -33,5 +36,22 @@ export const runTests = async () => {
         const result = await runCommand('echo "test"');
         log('Command result:', result);
         assertEquals(result.error, null);
+    });
+
+    Deno.test('Scout groups', async () => {
+        const eventKey = '2023cabl';
+        const regex = /^([0-9]{4}[a-z]{3,4})$/i;
+        if (!regex.test(eventKey)) throw new Error('Invalid event key');
+
+        const matches = await TBA.get<TBAMatch[]>(`/event/${eventKey}/matches`);
+        const teams = await TBA.get<TBATeam[]>(`/event/${eventKey}/teams`);
+
+        if (!matches || !teams) throw new Error('Failed to fetch matches or teams');
+
+        const assignments = generateScoutGroups(teams, matches);
+
+        const result = testAssignments(assignments);
+
+        assertEquals(result.status, 'ok');
     });
 }
