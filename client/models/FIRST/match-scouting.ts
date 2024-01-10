@@ -20,22 +20,17 @@ export class MatchScouting extends Cache<{}> {
         MatchScouting.$emitter.emit(event, data);
     }
     /**
-     * Cache for all {@link FIRSTYear} objects
+     * Cache for all {@link MatchScouting} objects
      * @date 10/9/2023 - 6:59:50 PM
      *
      * @public
      * @static
      * @readonly
-     * @type {Map<string, FIRSTYear>}
+     * @type {Map<string, MatchScouting>}
      */
     public static readonly cache: Map<string, MatchScouting> = new Map<string, MatchScouting>();
 
     constructor(public readonly data: MatchScoutingObj) {
         super();
-
     }
-
-
-
-
 }
