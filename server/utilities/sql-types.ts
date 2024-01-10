@@ -1,432 +1,414 @@
 // This file is used to typesafe queries to the database
 // The array is the parameters for the query, and the second parameter is the return type
 
-
-
-import { __root } from "./env.ts";
-import { MembershipStatus, Account, Member, Role, AccountRole, RolePermission, Skill } from "../../shared/db-types.ts";
-import { SessionObj } from "../structure/sessions.ts";
-import { 
-    CompLevel, 
-    CustomMatch, 
-    Event, 
-    Match, 
-    Team, 
-    Whiteboard, 
-    MatchScouting, 
-    MatchScoutingComments, 
-    ScoutingQuestionSection, 
-    ScoutingAnswer, 
-    ScoutingQuestionGroup, 
-    ScoutingQuestion, 
-    TBARequest, 
-    CheckListAssignment,
-    Checklist, 
-    ChecklistAnswer, 
-    ChecklistQuestion,
+import { __root } from './env.ts';
+import {
+    Account,
+    AccountRole,
+    Member,
+    MembershipStatus,
+    Role,
+    RolePermission,
+    Skill,
+} from '../../shared/db-types.ts';
+import { SessionObj } from '../structure/sessions.ts';
+import {
     Alliance,
-    Strategy,
+    Checklist,
+    ChecklistAnswer,
+    CheckListAssignment,
+    ChecklistQuestion,
+    CompLevel,
+    CustomMatch,
+    DiscordPair,
+    Event,
+    Match,
+    MatchScouting,
+    MatchScoutingComments,
     RetrievedMatchScouting,
     RetrievedScoutingAnswer,
-    DiscordPair
-} from "../../shared/db-types-extended.ts";
+    ScoutingAnswer,
+    ScoutingQuestion,
+    ScoutingQuestionGroup,
+    ScoutingQuestionSection,
+    Strategy,
+    TBARequest,
+    Team,
+    Whiteboard,
+} from '../../shared/db-types-extended.ts';
 
 export type Queries = {
-    // ▄▀▀ ██▀ ▄▀▀ ▄▀▀ █ ▄▀▄ █▄ █ ▄▀▀ 
-    // ▄█▀ █▄▄ ▄█▀ ▄█▀ █ ▀▄▀ █ ▀█ ▄█▀ 
+    // ▄▀▀ ██▀ ▄▀▀ ▄▀▀ █ ▄▀▄ █▄ █ ▄▀▀
+    // ▄█▀ █▄▄ ▄█▀ ▄█▀ █ ▀▄▀ █ ▀█ ▄█▀
 
     'sessions/delete': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'sessions/delete-all': [
         [],
-        unknown
-    ],
+        unknown,
+    ];
     'sessions/update': [
         [{
-            id: string,
-            ip: string,
-            latestActivity: number,
-            accountId: string,
-            userAgent: string,
-            requests: number,
-            prevUrl: string
+            id: string;
+            ip: string;
+            latestActivity: number;
+            accountId: string;
+            userAgent: string;
+            requests: number;
+            prevUrl: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'sessions/all': [
         [],
-        SessionObj
-    ],
+        SessionObj,
+    ];
     'sessions/get': [
         [{
-            id: string
+            id: string;
         }],
-        SessionObj
-    ],
+        SessionObj,
+    ];
     'sessions/new': [
         [{
-            id: string,
-            ip: string,
-            latestActivity: number,
-            accountId: string,
-            userAgent: string,
-            prevUrl: string,
-            requests: number,
-            created: number
+            id: string;
+            ip: string;
+            latestActivity: number;
+            accountId: string;
+            userAgent: string;
+            prevUrl: string;
+            requests: number;
+            created: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-    // █▀▄ ██▄ 
-    // █▄▀ █▄█ 
+    // █▀▄ ██▄
+    // █▄▀ █▄█
     'db/get-version': [
         [],
         {
-            major: number,
-            minor: number,
-            patch: number
-        }
-    ],
+            major: number;
+            minor: number;
+            patch: number;
+        },
+    ];
 
-
-
-
-    // █▀▄ ▄▀▄ █   ██▀ ▄▀▀ 
-    // █▀▄ ▀▄▀ █▄▄ █▄▄ ▄█▀ 
+    // █▀▄ ▄▀▄ █   ██▀ ▄▀▀
+    // █▀▄ ▀▄▀ █▄▄ █▄▄ ▄█▀
     'roles/from-id': [
         [{
-            id: string
+            id: string;
         }],
-        Role
-    ],
+        Role,
+    ];
     'roles/from-name': [
         [{
-            name: string
+            name: string;
         }],
-        Role
-    ],
+        Role,
+    ];
     'roles/all': [
         [],
-        Role
-    ],
+        Role,
+    ];
 
-
-
-    // █▀▄ ██▀ █▀▄ █▄ ▄█ █ ▄▀▀ ▄▀▀ █ ▄▀▄ █▄ █ ▄▀▀ 
-    // █▀  █▄▄ █▀▄ █ ▀ █ █ ▄█▀ ▄█▀ █ ▀▄▀ █ ▀█ ▄█▀ 
+    // █▀▄ ██▀ █▀▄ █▄ ▄█ █ ▄▀▀ ▄▀▀ █ ▄▀▄ █▄ █ ▄▀▀
+    // █▀  █▄▄ █▀▄ █ ▀ █ █ ▄█▀ ▄█▀ █ ▀▄▀ █ ▀█ ▄█▀
     'permissions/from-role': [
         [{
-            role: string
+            role: string;
         }],
-        RolePermission
-    ],
+        RolePermission,
+    ];
 
-
-
-
-
-    // ▄▀▄ ▄▀▀ ▄▀▀ ▄▀▄ █ █ █▄ █ ▀█▀ ▄▀▀ 
-    // █▀█ ▀▄▄ ▀▄▄ ▀▄▀ ▀▄█ █ ▀█  █  ▄█▀ 
+    // ▄▀▄ ▄▀▀ ▄▀▀ ▄▀▄ █ █ █▄ █ ▀█▀ ▄▀▀
+    // █▀█ ▀▄▄ ▀▄▄ ▀▄▀ ▀▄█ █ ▀█  █  ▄█▀
     'account/from-username': [
         [{
-            username: string
+            username: string;
         }],
-        Account
-    ],
+        Account,
+    ];
     'account/from-email': [
         [{
-            email: string
+            email: string;
         }],
-        Account
-    ],
+        Account,
+    ];
     'account/from-verification-key': [
         [{
-            verification: string
+            verification: string;
         }],
-        Account
-    ],
+        Account,
+    ];
     'account/from-password-change': [
         [{
-            passwordChange: string
+            passwordChange: string;
         }],
-        Account
-    ],
+        Account,
+    ];
     'account/unverified': [
         [],
-        Account
-    ],
+        Account,
+    ];
     'account/all': [
         [],
-        Account
-    ],
+        Account,
+    ];
     'account/new': [
         [{
-            id: string,
-            username: string,
-            key: string,
-            salt: string,
-            firstName: string,
-            lastName: string,
-            email: string,
-            verified: 0 | 1,
-            verification: string,
-            created: number,
-            phoneNumber: string
+            id: string;
+            username: string;
+            key: string;
+            salt: string;
+            firstName: string;
+            lastName: string;
+            email: string;
+            verified: 0 | 1;
+            verification: string;
+            created: number;
+            phoneNumber: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/unverify': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/delete': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/from-id': [
-        [{ 
-            id: string
+        [{
+            id: string;
         }],
-        Account
-    ],
+        Account,
+    ];
     'account/change-email': [
         [{
-            id: string,
-            email: string
+            id: string;
+            email: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/verify': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/set-verification': [
         [{
-            id: string,
-            verification: string
+            id: string;
+            verification: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/roles': [
         [{
-            id: string
+            id: string;
         }],
-        Role
-    ],
+        Role,
+    ];
     'account/add-role': [
         [{
-            accountId: string,
-            roleId: string
+            accountId: string;
+            roleId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/remove-role': [
         [{
-            accountId: string,
-            roleId: string
+            accountId: string;
+            roleId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/update-picture': [
         [{
-            id: string,
-            picture: string
+            id: string;
+            picture: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/change-username': [
         [{
-            id: string,
-            username: string
+            id: string;
+            username: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/request-email-change': [
         [{
-            id: string,
-            emailChange: string
+            id: string;
+            emailChange: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/change-password': [
         [{
-            id: string,
-            salt: string,
-            key: string,
-            passwordChange: null
+            id: string;
+            salt: string;
+            key: string;
+            passwordChange: null;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/request-password-change': [
         [{
-            id: string,
-            passwordChange: string
+            id: string;
+            passwordChange: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'account/from-discord-id': [
         [{
             discordId: string;
         }],
-        Account
-    ],
+        Account,
+    ];
     'account/set-discord-id': [
         [{
             discordId: string;
             id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-    // █▀▄ █ ▄▀▀ ▄▀▀ ▄▀▄ █▀▄ █▀▄ 
-    // █▄▀ █ ▄█▀ ▀▄▄ ▀▄▀ █▀▄ █▄▀ 
+    // █▀▄ █ ▄▀▀ ▄▀▀ ▄▀▄ █▀▄ █▀▄
+    // █▄▀ █ ▄█▀ ▀▄▄ ▀▄▀ █▀▄ █▄▀
     'discord/get': [
         [{
             key: string;
         }],
-        DiscordPair
-    ],
+        DiscordPair,
+    ];
     'discord/insert': [
         [{
             key: string;
             id: string;
             date: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'discord/delete': [
         [{
             key: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-
-    // █▄ ▄█ ██▀ █▄ ▄█ ██▄ ██▀ █▀▄ ▄▀▀ 
-    // █ ▀ █ █▄▄ █ ▀ █ █▄█ █▄▄ █▀▄ ▄█▀ 
+    // █▄ ▄█ ██▀ █▄ ▄█ ██▄ ██▀ █▀▄ ▄▀▀
+    // █ ▀ █ █▄▄ █ ▀ █ █▄█ █▄▄ █▀▄ ▄█▀
 
     'member/from-username': [
         [{
-            username: string
+            username: string;
         }],
-        Member
-    ],
+        Member,
+    ];
     'member/all': [
         [],
-        Member
-    ],
+        Member,
+    ];
     'member/update-status': [
         [{
-            status: MembershipStatus,
-            id: string
+            status: MembershipStatus;
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'member/new': [
         [{
-            id: string,
-            status: MembershipStatus
+            id: string;
+            status: MembershipStatus;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'member/delete': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'member/update-bio': [
         [{
-            id: string,
-            bio: string
+            id: string;
+            bio: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'member/update-title': [
         [{
-            id: string,
-            title: string
+            id: string;
+            title: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'member/update-resume': [
         [{
-            id: string,
-            resume: string
+            id: string;
+            resume: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'member/add-to-board': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'member/remove-from-board': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-
-
-
-
-
-
-    // ██▀ █ █ ██▀ █▄ █ ▀█▀ ▄▀▀ 
-    // █▄▄ ▀▄▀ █▄▄ █ ▀█  █  ▄█▀ 
+    // ██▀ █ █ ██▀ █▄ █ ▀█▀ ▄▀▀
+    // █▄▄ ▀▄▀ █▄▄ █ ▀█  █  ▄█▀
     'events/new-event': [
         [{
             eventKey: string;
             flipX: boolean;
             flipY: boolean;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'events/delete-event': [
         [{
-            eventKey: string
+            eventKey: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'events/from-key': [
         [{
             eventKey: string;
         }],
-        Event
-    ],
+        Event,
+    ];
     'events/all-alliances': [
         [{
-            eventKey: string
+            eventKey: string;
         }],
-        Alliance
-    ],
+        Alliance,
+    ];
     'events/delete-alliance': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'events/new-alliance': [
         [{
             id: string;
@@ -436,66 +418,58 @@ export type Queries = {
             team2: number;
             team3: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-    // ▀█▀ ██▀ ▄▀▄ █▄ ▄█ ▄▀▀ 
-    //  █  █▄▄ █▀█ █ ▀ █ ▄█▀ 
+    // ▀█▀ ██▀ ▄▀▄ █▄ ▄█ ▄▀▀
+    //  █  █▄▄ █▀█ █ ▀ █ ▄█▀
     'teams/from-event': [
         [{
-            eventKey: string
+            eventKey: string;
         }],
-        Team
-    ],
+        Team,
+    ];
     'teams/new': [
         [{
             number: number;
-            watchPriority: 0|1|2|3|4|5|6|7|8|9|10;
+            watchPriority: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
             eventKey: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-
-    // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ██▀ ▄▀▀ 
-    // █ ▀ █ █▀█  █  ▀▄▄ █ █ █▄▄ ▄█▀ 
+    // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ██▀ ▄▀▀
+    // █ ▀ █ █▀█  █  ▀▄▄ █ █ █▄▄ ▄█▀
     'matches/from-event': [
         [{
-            eventKey: string
+            eventKey: string;
         }],
-        Match
-    ],
+        Match,
+    ];
     'matches/new': [
         [{
             id: string;
             eventKey: string;
             matchNumber: number;
-            compLevel: CompLevel
+            compLevel: CompLevel;
         }],
-        unknown 
-    ],
+        unknown,
+    ];
     'matches/from-id': [
         [{
-            id: string
+            id: string;
         }],
-        Match
-    ],
+        Match,
+    ];
 
-
-
-
-    // ▄▀▀ █ █ ▄▀▀ ▀█▀ ▄▀▄ █▄ ▄█    █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ██▀ ▄▀▀ 
-    // ▀▄▄ ▀▄█ ▄█▀  █  ▀▄▀ █ ▀ █    █ ▀ █ █▀█  █  ▀▄▄ █ █ █▄▄ ▄█▀ 
+    // ▄▀▀ █ █ ▄▀▀ ▀█▀ ▄▀▄ █▄ ▄█    █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ██▀ ▄▀▀
+    // ▀▄▄ ▀▄█ ▄█▀  █  ▀▄▀ █ ▀ █    █ ▀ █ █▀█  █  ▀▄▄ █ █ █▄▄ ▄█▀
     'custom-matches/from-event': [
         [{
-            eventKey: string
+            eventKey: string;
         }],
-        CustomMatch
-    ],
+        CustomMatch,
+    ];
     'custom-matches/new': [
         [{
             id: string;
@@ -509,60 +483,56 @@ export type Queries = {
             blue2: number;
             blue3: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'custom-matches/from-id': [
         [{
-            id: string
+            id: string;
         }],
-        Match
-    ],
+        Match,
+    ];
 
-
-
-
-
-    // █   █ █▄█ █ ▀█▀ ██▀ ██▄ ▄▀▄ ▄▀▄ █▀▄ █▀▄ ▄▀▀ 
-    // ▀▄▀▄▀ █ █ █  █  █▄▄ █▄█ ▀▄▀ █▀█ █▀▄ █▄▀ ▄█▀ 
+    // █   █ █▄█ █ ▀█▀ ██▀ ██▄ ▄▀▄ ▄▀▄ █▀▄ █▀▄ ▄▀▀
+    // ▀▄▀▄▀ █ █ █  █  █▄▄ █▄█ ▀▄▀ █▀█ █▀▄ █▄▀ ▄█▀
 
     'whiteboards/change-custom-match': [
         [{
-            id: string,
-            customMatchId: string
+            id: string;
+            customMatchId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'whiteboards/change-match': [
         [{
-            id: string,
-            matchId: string
+            id: string;
+            matchId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'whiteboards/from-custom-match': [
         [{
-            customMatchId: string
+            customMatchId: string;
         }],
-        Whiteboard
-    ],
+        Whiteboard,
+    ];
     'whiteboards/from-match': [
         [{
-            matchId: string
+            matchId: string;
         }],
-        Whiteboard
-    ],
+        Whiteboard,
+    ];
     'whiteboards/from-event': [
         [{
-            eventKey: string
+            eventKey: string;
         }],
-        Whiteboard
-    ],
+        Whiteboard,
+    ];
     'whiteboards/from-id': [
         [{
-            id: string
+            id: string;
         }],
-        Whiteboard
-    ],
+        Whiteboard,
+    ];
     'whiteboards/new': [
         [{
             id: string;
@@ -572,34 +542,31 @@ export type Queries = {
             customMatchId: string | null;
             board: string; // json array
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'whiteboards/update-board': [
         [{
-            id: string,
-            board: string
+            id: string;
+            board: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'whiteboards/update-name': [
         [{
-            id: string,
-            name: string
+            id: string;
+            name: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'whiteboards/delete': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-
-    // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ▄▀▀ ▄▀▀ ▄▀▄ █ █ ▀█▀ █ █▄ █ ▄▀  
-    // █ ▀ █ █▀█  █  ▀▄▄ █ █ ▄█▀ ▀▄▄ ▀▄▀ ▀▄█  █  █ █ ▀█ ▀▄█ 
+    // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ▄▀▀ ▄▀▀ ▄▀▄ █ █ ▀█▀ █ █▄ █ ▄▀
+    // █ ▀ █ █▀█  █  ▀▄▄ █ █ ▄█▀ ▀▄▄ ▀▄▀ ▀▄█  █  █ █ ▀█ ▀▄█
 
     'match-scouting/new': [
         [{
@@ -610,49 +577,49 @@ export type Queries = {
             scoutGroup: string;
             time: number;
             preScouting: boolean;
-            trace: string // json array
+            trace: string; // json array
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'match-scouting/from-id': [
         [{
-            id: string
+            id: string;
         }],
-        RetrievedMatchScouting
-    ],
+        RetrievedMatchScouting,
+    ];
     'match-scouting/from-match': [
         [{
             matchId: string;
         }],
-        RetrievedMatchScouting
-    ],
+        RetrievedMatchScouting,
+    ];
     'match-scouting/from-team': [
         [{
             team: number;
             eventKey: string;
         }],
-        RetrievedMatchScouting
-    ],
+        RetrievedMatchScouting,
+    ];
     'match-scouting/from-scout': [
         [{
             scoutId: string;
             eventKey: string;
         }],
-        RetrievedMatchScouting
-    ],
+        RetrievedMatchScouting,
+    ];
     'match-scouting/from-scout-group': [
         [{
             scoutGroup: string;
             eventKey: string;
         }],
-        RetrievedMatchScouting
-    ],
+        RetrievedMatchScouting,
+    ];
     'match-scouting/from-event': [
         [{
             eventKey: string;
         }],
-        RetrievedMatchScouting
-    ],
+        RetrievedMatchScouting,
+    ];
     'match-scouting/update': [
         [{
             id: string;
@@ -662,18 +629,13 @@ export type Queries = {
             scoutGroup: string;
             time: number;
             preScouting: boolean;
-            trace: string // json array
+            trace: string; // json array
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-
-
-
-    // // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ▄▀▀ ▄▀▄ █▄ ▄█ █▄ ▄█ ██▀ █▄ █ ▀█▀ ▄▀▀ 
-    // // █ ▀ █ █▀█  █  ▀▄▄ █ █ ▀▄▄ ▀▄▀ █ ▀ █ █ ▀ █ █▄▄ █ ▀█  █  ▄█▀ 
+    // // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ▄▀▀ ▄▀▄ █▄ ▄█ █▄ ▄█ ██▀ █▄ █ ▀█▀ ▄▀▀
+    // // █ ▀ █ █▀█  █  ▀▄▄ █ █ ▀▄▄ ▀▄▀ █ ▀ █ █ ▀ █ █▄▄ █ ▀█  █  ▄█▀
     'match-comments/new': [
         [{
             id: string;
@@ -683,46 +645,46 @@ export type Queries = {
             comment: string;
             time: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'match-comments/from-id': [
         [{
-            id: string
+            id: string;
         }],
-        MatchScoutingComments
-    ],
+        MatchScoutingComments,
+    ];
     'match-comments/from-match': [
         [{
             matchId: string;
         }],
-        MatchScoutingComments
-    ],
+        MatchScoutingComments,
+    ];
     'match-comments/from-team': [
         [{
             team: number;
             eventKey: string;
         }],
-        MatchScoutingComments
-    ],
+        MatchScoutingComments,
+    ];
     'match-comments/from-account': [
         [{
             accountId: string;
             eventKey: string;
         }],
-        MatchScoutingComments
-    ],
+        MatchScoutingComments,
+    ];
     'match-comments/from-event': [
         [{
             eventKey: string;
         }],
-        MatchScoutingComments
-    ],
+        MatchScoutingComments,
+    ];
     'match-comments/delete': [
         [{
             id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'match-comments/update': [
         [{
             id: string;
@@ -732,32 +694,28 @@ export type Queries = {
             comment: string;
             time: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-
-
-    // // ▄▀▀ ▄▀▀ ▄▀▄ █ █ ▀█▀ █ █▄ █ ▄▀  ▄▀▄ █ █ ██▀ ▄▀▀ ▀█▀ █ ▄▀▄ █▄ █ ▄▀▀ 
-    // // ▄█▀ ▀▄▄ ▀▄▀ ▀▄█  █  █ █ ▀█ ▀▄█ ▀▄█ ▀▄█ █▄▄ ▄█▀  █  █ ▀▄▀ █ ▀█ ▄█▀ 
+    // // ▄▀▀ ▄▀▀ ▄▀▄ █ █ ▀█▀ █ █▄ █ ▄▀  ▄▀▄ █ █ ██▀ ▄▀▀ ▀█▀ █ ▄▀▄ █▄ █ ▄▀▀
+    // // ▄█▀ ▀▄▄ ▀▄▀ ▀▄█  █  █ █ ▀█ ▀▄█ ▀▄█ ▀▄█ █▄▄ ▄█▀  █  █ ▀▄▀ █ ▀█ ▄█▀
     'scouting-questions/all-sections': [
         [],
-        ScoutingQuestionSection
-    ],
+        ScoutingQuestionSection,
+    ];
     'scouting-questions/answer-from-team': [
         [{
             eventKey: string;
             teamNumber: number;
         }],
-        RetrievedScoutingAnswer
-    ],
+        RetrievedScoutingAnswer,
+    ];
     'scouting-questions/groups-from-event': [
         [{
             eventKey: string;
         }],
-        ScoutingQuestionGroup
-    ],
+        ScoutingQuestionGroup,
+    ];
     'scouting-questions/new-answer': [
         [{
             id: string;
@@ -765,8 +723,8 @@ export type Queries = {
             answer: string;
             teamNumber: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/new-group': [
         [{
             id: string;
@@ -774,33 +732,40 @@ export type Queries = {
             section: string;
             name: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/new-question': [
         [{
             id: string;
             question: string;
-            type: 'text' | 'number' | 'boolean' | 'select' | 'checkbox' | 'radio' | 'textarea';
+            type:
+                | 'text'
+                | 'number'
+                | 'boolean'
+                | 'select'
+                | 'checkbox'
+                | 'radio'
+                | 'textarea';
             section: string;
             key: string;
             description: string;
             groupId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/new-section': [
         [{
             name: string;
             multiple: 0 | 1;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/questions-from-group': [
         [{
             groupId: string;
         }],
-        ScoutingQuestion
-    ],
+        ScoutingQuestion,
+    ];
     'scouting-questions/update-group': [
         [{
             id: string;
@@ -808,50 +773,57 @@ export type Queries = {
             section: string;
             name: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/update-question': [
         [{
             id: string;
             question: string;
-            type: 'text' | 'number' | 'boolean' | 'select' | 'checkbox' | 'radio' | 'textarea';
+            type:
+                | 'text'
+                | 'number'
+                | 'boolean'
+                | 'select'
+                | 'checkbox'
+                | 'radio'
+                | 'textarea';
             key: string;
             description: string;
             groupId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/update-section': [
         [{
             name: string;
             multiple: 0 | 1;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/delete-group': [
         [{
             id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/delete-question': [
         [{
             id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/delete-section': [
         [{
             name: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/delete-answer': [
         [{
             id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'scouting-questions/update-answer': [
         [{
             id: string;
@@ -859,72 +831,61 @@ export type Queries = {
             answer: string;
             teamNumber: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 
-
-
-
-
-
-    // // ▀█▀ ██▄ ▄▀▄ █▀▄ ██▀ ▄▀▄ █ █ ██▀ ▄▀▀ ▀█▀ ▄▀▀ 
-    // //  █  █▄█ █▀█ █▀▄ █▄▄ ▀▄█ ▀▄█ █▄▄ ▄█▀  █  ▄█▀ 
+    // // ▀█▀ ██▄ ▄▀▄ █▀▄ ██▀ ▄▀▄ █ █ ██▀ ▄▀▀ ▀█▀ ▄▀▀
+    // //  █  █▄█ █▀█ █▀▄ █▄▄ ▀▄█ ▀▄█ █▄▄ ▄█▀  █  ▄█▀
     'tba/new': [ // will auto update if already exists
         [{
             url: string;
             response: string; // json
-            updated: number; 
+            updated: number;
             update: 0 | 1;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'tba/from-url': [
         [{
-            url: string
+            url: string;
         }],
-        TBARequest
-    ],
+        TBARequest,
+    ];
 
-
-
-
-
-
-
-    // // ▄▀▀ █▄█ ██▀ ▄▀▀ █▄▀ █   █ ▄▀▀ ▀█▀ ▄▀▀ 
-    // // ▀▄▄ █ █ █▄▄ ▀▄▄ █ █ █▄▄ █ ▄█▀  █  ▄█▀ 
+    // // ▄▀▀ █▄█ ██▀ ▄▀▀ █▄▀ █   █ ▄▀▀ ▀█▀ ▄▀▀
+    // // ▀▄▄ █ █ █▄▄ ▀▄▄ █ █ █▄▄ █ ▄█▀  █  ▄█▀
 
     'checklists/checklist-from-event': [
         [{
-            eventKey: string
+            eventKey: string;
         }],
-        Checklist
-    ],
+        Checklist,
+    ];
     'checklists/delete-answer': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/delete-assignment': [
         [{
             accountId: string;
             checklistId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/delete-checklist': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/delete-question': [
         [{
-            id: string
+            id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/new-answer': [
         [{
             id: string;
@@ -932,15 +893,15 @@ export type Queries = {
             questionId: string;
             matchId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/new-assignment': [
         [{
             checklistId: string;
             accountId: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/new-checklist': [
         [{
             id: string;
@@ -948,8 +909,8 @@ export type Queries = {
             eventKey: string;
             description: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/new-question': [
         [{
             id: string;
@@ -957,14 +918,14 @@ export type Queries = {
             question: string;
             interval: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/questions-from-checklist': [
         [{
             checklistId: string;
         }],
-        ChecklistQuestion
-    ],
+        ChecklistQuestion,
+    ];
     'checklists/update-checklist': [
         [{
             id: string;
@@ -972,8 +933,8 @@ export type Queries = {
             eventKey: string;
             description: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/update-question': [
         [{
             id: string;
@@ -981,8 +942,8 @@ export type Queries = {
             question: string;
             interval: number;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'checklists/answers-from-checklist': [
         [{
             checklistId: string;
@@ -999,14 +960,14 @@ export type Queries = {
             checklistName: string;
             eventKey: string;
             checklistDescription: string;
-        }
-    ],
+        },
+    ];
     'checklists/assignments-from-checklist': [
         [{
             checklistId: string;
         }],
-        CheckListAssignment
-    ],
+        CheckListAssignment,
+    ];
     'checklists/questions-from-assignment': [
         [{
             accountId: string;
@@ -1018,44 +979,38 @@ export type Queries = {
             checklistDescription: string;
             questionId: string;
             question: string;
-            interval: number
-        }
-    ],
+            interval: number;
+        },
+    ];
 
-
-
-
-
-
-
-    // // ▄▀▀ ▀█▀ █▀▄ ▄▀▄ ▀█▀ ██▀ ▄▀  ▀▄▀ 
-    // // ▄█▀  █  █▀▄ █▀█  █  █▄▄ ▀▄█  █  
+    // // ▄▀▀ ▀█▀ █▀▄ ▄▀▄ ▀█▀ ██▀ ▄▀  ▀▄▀
+    // // ▄█▀  █  █▀▄ █▀█  █  █▄▄ ▀▄█  █
     'strategy/from-custom-match': [
         [{
             customMatchId: string;
         }],
-        Strategy
-    ],
+        Strategy,
+    ];
     'strategy/from-match': [
         [{
             eventKey: string;
             matchNumber: number;
             compLevel: 'qm' | 'qf' | 'sf' | 'f';
         }],
-        Strategy
-    ],
+        Strategy,
+    ];
     'strategy/from-id': [
         [{
             id: string;
         }],
-        Strategy
-    ],
+        Strategy,
+    ];
     'strategy/from-whiteboard': [
         [{
             whiteboardId: string;
         }],
-        Strategy
-    ],
+        Strategy,
+    ];
     'strategy/new': [
         [{
             id: string;
@@ -1067,8 +1022,8 @@ export type Queries = {
             customMatchId: string | null;
             comment: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'strategy/update': [
         [{
             id: string;
@@ -1080,12 +1035,12 @@ export type Queries = {
             customMatchId: string | null;
             comment: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
     'strategy/delete': [
         [{
             id: string;
         }],
-        unknown
-    ],
+        unknown,
+    ];
 };
