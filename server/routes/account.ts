@@ -51,7 +51,6 @@ router.post<{
 
     // send the same error for both username and password to prevent username enumeration
     if (!account) return res.sendStatus('account:incorrect-username-or-password');
-
     const hash = Account.hash(password, account.salt);
     if (hash !== account.key) 
         return Status
