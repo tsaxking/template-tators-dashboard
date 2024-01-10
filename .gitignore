@@ -14,6 +14,7 @@ deno.lock
 
 credentials.json
 token.json
+*.assignment.json
 
 # *.js
 # !require.js
