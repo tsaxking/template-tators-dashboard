@@ -45,6 +45,7 @@ const createEnv = () => {
     values.autoSignIn = runPrompt('Auto Sign In: (no default)', '', undefined, true);
     values.tbaKey = runPrompt('TBA Key: (no default)', '', undefined, true);
     values.databaseLink = runPrompt('Database Link: (default: main)', 'main', (i) => i.length > 0, true);
+    values.eventApiKey = runPrompt('Event API Key: (no default)', '', undefined, true);
 
     Object.assign(env, values);
 
