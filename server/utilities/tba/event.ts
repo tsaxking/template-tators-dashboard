@@ -2,10 +2,8 @@
 // import { TBA } from "./tba.ts";
 // import { TBATeam } from "../../../shared/tba.ts";
 
-
 // export class TBA_Event {
 //     constructor(public readonly data: TBAEvent) {};
-
 
 //     async getTeams() {
 //         const { key } = this.data;

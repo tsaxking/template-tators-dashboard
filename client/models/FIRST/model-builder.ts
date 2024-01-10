@@ -1,5 +1,4 @@
-import { FIRSTYear } from "./year";
-
+import { FIRSTYear } from './year';
 
 export const years: FIRSTYear[] = (() => {
     const years: FIRSTYear[] = [];

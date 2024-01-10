@@ -1,32 +1,33 @@
-import { CustomMatch as CustomMatchObj } from "../../../shared/db-types-extended";
-import { Cache, Updates } from "../cache";
-import { EventEmitter } from "../../../shared/event-emitter";
-import { FIRSTTeam } from "./team";
-import { FIRSTEvent } from "./event";
+import { CustomMatch as CustomMatchObj } from '../../../shared/db-types-extended';
+import { Cache, Updates } from '../cache';
+import { EventEmitter } from '../../../shared/event-emitter';
+import { FIRSTTeam } from './team';
+import { FIRSTEvent } from './event';
 
 type CustomMatchEventData = {};
 
 export class CustomMatch extends Cache<CustomMatchEventData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
+        Updates
+    >();
 
-
-    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+    public static on<K extends Updates>(
+        event: K,
+        callback: (data: any) => void,
+    ): void {
         CustomMatch.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+    public static off<K extends Updates>(
+        event: K,
+        callback?: (data: any) => void,
+    ): void {
         CustomMatch.$emitter.off(event, callback);
     }
-
 
     public static emit<K extends Updates>(event: K, data: any): void {
         CustomMatch.$emitter.emit(event, data);
     }
-
-
-
-
-
 
     public static current?: CustomMatch = undefined;
     /**
@@ -38,7 +39,10 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
      * @readonly
      * @type {Map<string, FIRSTMatch>}
      */
-    public static readonly cache: Map<string, CustomMatch> = new Map<string, CustomMatch>();
+    public static readonly cache: Map<string, CustomMatch> = new Map<
+        string,
+        CustomMatch
+    >();
 
     constructor(public readonly data: CustomMatchObj) {
         super();
@@ -46,22 +50,33 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
             CustomMatch.cache.get(data.id)?.destroy();
         }
         CustomMatch.cache.set(data.id, this);
-    };
+    }
 
-    async getTeams(): Promise<[FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam]> {
+    async getTeams(): Promise<
+        [FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam]
+    > {
         return new Promise((res, rej) => {
             if (!FIRSTEvent.current) return rej('No current event');
-            
+
             Promise.all([
                 FIRSTEvent.current.getTeam(this.data.red1),
                 FIRSTEvent.current.getTeam(this.data.red2),
                 FIRSTEvent.current.getTeam(this.data.red3),
                 FIRSTEvent.current.getTeam(this.data.blue1),
                 FIRSTEvent.current.getTeam(this.data.blue2),
-                FIRSTEvent.current.getTeam(this.data.blue3)
+                FIRSTEvent.current.getTeam(this.data.blue3),
             ]).then((teams) => {
-                if (teams.some(t => !t)) return rej('Invalid team');
-                res(teams as [FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam]);
+                if (teams.some((t) => !t)) return rej('Invalid team');
+                res(
+                    teams as [
+                        FIRSTTeam,
+                        FIRSTTeam,
+                        FIRSTTeam,
+                        FIRSTTeam,
+                        FIRSTTeam,
+                        FIRSTTeam,
+                    ],
+                );
             }).catch(rej);
         });
     }

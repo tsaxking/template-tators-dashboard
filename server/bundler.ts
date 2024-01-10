@@ -1,24 +1,33 @@
-import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js'
-import { log } from "./utilities/terminal-logging.ts";
-import { typescript, sveltePlugin } from "./build/esbuild-svelte.ts";
-import { EventEmitter } from "../shared/event-emitter.ts";
-import { getTemplateSync, saveTemplateSync } from "./utilities/files.ts";
-import env, { __root, __templates, resolve, relative } from "./utilities/env.ts";
+import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js';
+import { log } from './utilities/terminal-logging.ts';
+import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
+import { EventEmitter } from '../shared/event-emitter.ts';
+import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
+import env, {
+    __root,
+    __templates,
+    relative,
+    resolve,
+} from './utilities/env.ts';
 import fs from 'node:fs';
 
 log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
 log('V8 version:', Deno.version.v8);
 
-if (!fs.existsSync(
-    resolve(
-        __templates, './entries'
+if (
+    !fs.existsSync(
+        resolve(
+            __templates,
+            './entries',
+        ),
     )
-)) {
+) {
     Deno.mkdirSync(
         resolve(
-            __templates, './entries'
-        )
+            __templates,
+            './entries',
+        ),
     );
 }
 
@@ -28,29 +37,40 @@ if (!fs.existsSync(
  */
 const readDir = (dirPath: string): string[] => {
     const entries = Array.from(Deno.readDirSync(dirPath));
-    return entries.flatMap(e => {
+    return entries.flatMap((e) => {
         if (!e.isFile) return readDir(`${dirPath}/${e.name}`);
 
-        const file = dirPath.split('/').slice(2).join('/') + '/' + e.name.replace('.ts', '.html');
+        const file = dirPath.split('/').slice(2).join('/') + '/' +
+            e.name.replace('.ts', '.html');
 
         saveTemplateSync(
             '/' + file,
             getTemplateSync('index', {
                 script: relative(
                     resolve(__templates, file),
-                    resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.js'))
+                    resolve(
+                        __root,
+                        'dist',
+                        dirPath.split('/').slice(3).join('/'),
+                        e.name.replace('.ts', '.js'),
+                    ),
                 ),
                 style: relative(
                     resolve(__templates, file),
-                    resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.css'))
+                    resolve(
+                        __root,
+                        'dist',
+                        dirPath.split('/').slice(3).join('/'),
+                        e.name.replace('.ts', '.css'),
+                    ),
                 ),
-                title: env.TITLE || 'Untitled'
-            })
+                title: env.TITLE || 'Untitled',
+            }),
         );
 
         return `${dirPath}/${e.name}`;
     });
-}
+};
 
 /**
  * All entry points to the front end app
@@ -80,22 +100,21 @@ export const runBuild = async () => {
         bundle: true,
         // minify: true,
         outdir: './dist',
-        mainFields: ["svelte", "browser", "module", "main"],
-        conditions: ["svelte", "browser"],
+        mainFields: ['svelte', 'browser', 'module', 'main'],
+        conditions: ['svelte', 'browser'],
         watch: {
             onRebuild(error: Error, result: any) {
-    
                 if (error) builder.emit('error', error);
                 else builder.emit('build', result);
-            }
+            },
         },
         // trust me, it works
         plugins: [(sveltePlugin as unknown as Function)({
             preprocess: [
-                typescript()
-            ]
+                typescript(),
+            ],
         })],
-        logLevel: "info",
+        logLevel: 'info',
         loader: {
             '.png': 'dataurl',
             '.woff': 'dataurl',
@@ -103,10 +122,10 @@ export const runBuild = async () => {
             '.eot': 'dataurl',
             '.ttf': 'dataurl',
             '.svg': 'dataurl',
-        }
+        },
     });
 
     builder.on('build', () => entries = readDir('./client/entries'));
 
     return builder;
-}
+};
