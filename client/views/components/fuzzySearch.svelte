@@ -42,7 +42,7 @@
     to be similar with the inputted string. */
 
 
-    //NOTE FOR SELF: NEED TO COMPARE NEEDLE'S LENGTH WITH SOMEHAY'S LENGTH 
+    //NOTE FOR SELF: NEED TO COMPARE KEY'S LENGTH WITH OPTION'S LENGTH 
     function checkStrings(key: String, options:string[]) {
         similarStrings.length = 0;
         for(const option of options) {
