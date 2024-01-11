@@ -4,36 +4,38 @@ import { TBAEvent, YearTBAMatch } from '../shared/tba.ts';
 import { attempt, attemptAsync } from '../shared/attempt.ts';
 import { all } from 'https://deno.land/x/emoji@0.1.2/emoji.ts';
 
-
-
 // console.log(weekEvents.map((e) => e.length));
 
 // Deno.exit()
 
-
-const pullClimbs2022 = (alliance: YearTBAMatch[2022]['score_breakdown']['red']) => {
+const pullClimbs2022 = (
+    alliance: YearTBAMatch[2022]['score_breakdown']['red'],
+) => {
     let climbs = 0;
     climbs += alliance.endgameRobot1 !== 'None' ? 1 : 0;
     climbs += alliance.endgameRobot2 !== 'None' ? 1 : 0;
     climbs += alliance.endgameRobot3 !== 'None' ? 1 : 0;
 
-
     if (isNaN(climbs)) climbs = 0;
     return climbs;
 };
 
-const pullClimbs2016 = (alliance: YearTBAMatch[2016]['score_breakdown']['red']) => {
+const pullClimbs2016 = (
+    alliance: YearTBAMatch[2016]['score_breakdown']['red'],
+) => {
     let climbs = 0;
-    
+
     climbs += alliance.towerFaceA === 'Challenged' ? 1 : 0;
     climbs += alliance.towerFaceB === 'Challenged' ? 1 : 0;
     climbs += alliance.towerFaceC === 'Challenged' ? 1 : 0;
 
     if (isNaN(climbs)) climbs = 0;
     return climbs;
-}
+};
 
-const pullClimbs2017 = (alliance: YearTBAMatch[2017]['score_breakdown']['red']) => {
+const pullClimbs2017 = (
+    alliance: YearTBAMatch[2017]['score_breakdown']['red'],
+) => {
     let climbs = 0;
     climbs += alliance.touchpadFar === 'ReadyForTakeoff' ? 1 : 0;
     climbs += alliance.touchpadMiddle === 'ReadyForTakeoff' ? 1 : 0;
@@ -44,7 +46,9 @@ const pullClimbs2017 = (alliance: YearTBAMatch[2017]['score_breakdown']['red']) 
     return climbs;
 };
 
-const pullClimbs2018 = (alliance: YearTBAMatch[2018]['score_breakdown']['red']) => {
+const pullClimbs2018 = (
+    alliance: YearTBAMatch[2018]['score_breakdown']['red'],
+) => {
     let climbs = 0;
 
     climbs = ['Climbing', 'Levitate'].includes(alliance.endgameRobot1) ? 1 : 0;
@@ -56,11 +60,15 @@ const pullClimbs2018 = (alliance: YearTBAMatch[2018]['score_breakdown']['red']) 
     return climbs;
 };
 
-
-const weekCount = async <y extends keyof YearTBAMatch>(events: TBAEvent[], week: number, year: y) => {
-
+const weekCount = async <y extends keyof YearTBAMatch>(
+    events: TBAEvent[],
+    week: number,
+    year: y,
+) => {
     const climbData = (await Promise.all(events.map(async (e) => {
-        const matches = await TBA.get<YearTBAMatch[y][]>('/event/' + e.key + '/matches');
+        const matches = await TBA.get<YearTBAMatch[y][]>(
+            '/event/' + e.key + '/matches',
+        );
 
         if (!matches) {
             console.error('No matches found for event ' + e.key);
@@ -99,7 +107,6 @@ const weekCount = async <y extends keyof YearTBAMatch>(events: TBAEvent[], week:
         return numClimbs;
     }))).filter(Boolean) as number[][][];
 
-
     const numClimbed = climbData.reduce((acc, cur) => {
         return acc + cur.reduce((acc, cur) => {
             return acc + cur.reduce((acc, cur) => {
@@ -116,7 +123,11 @@ const weekCount = async <y extends keyof YearTBAMatch>(events: TBAEvent[], week:
         }, 0);
     }, 0);
 
-    console.log(`${year} | Week ${week}: ${Math.round(100 * numClimbed / totalMatches)}%`);
+    console.log(
+        `${year} | Week ${week}: ${
+            Math.round(100 * numClimbed / totalMatches)
+        }%`,
+    );
 };
 
 const test = async <y extends keyof YearTBAMatch>(year: y) => {
@@ -133,8 +144,9 @@ const test = async <y extends keyof YearTBAMatch>(year: y) => {
     const getWeekNumber = (date: Date) => {
         const onejan = new Date(date.getFullYear(), 0, 1);
         return Math.ceil(
-            ((date.getTime() - onejan.getTime()) / 86400000 + onejan.getDay() + 1) /
-                7
+            ((date.getTime() - onejan.getTime()) / 86400000 + onejan.getDay() +
+                1) /
+                7,
         );
     };
 
@@ -147,8 +159,6 @@ const test = async <y extends keyof YearTBAMatch>(year: y) => {
         },
         [],
     ).filter(Boolean);
-
-
 
     for (let i = 1; i < 9; i++) {
         const events = weekEvents[i + 1];
@@ -164,7 +174,6 @@ console.log('---');
 await attemptAsync(test, 2018);
 console.log('---');
 await attemptAsync(test, 2022);
-
 
 // console.log(climbData);
 
