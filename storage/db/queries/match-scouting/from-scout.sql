@@ -1,0 +1,1 @@
+SELECT * FROM MatchScouting WHERE scoutId = :scoutId AND eventKey = :eventKey;
