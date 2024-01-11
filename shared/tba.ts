@@ -1,3 +1,24 @@
+type Breakdowns = {
+    2023: {
+        match: {
+
+        }
+    },
+    2022: {
+        match: {
+            adjustPoints: number;
+            autoCargoLowerBlue: number;
+            autoCargoLowerRed: number;
+            autoCargoMidBlue: number;
+            autoCargoMidRed: number;
+        }
+    }
+}
+
+
+
+
+
 export type TBAEvent = {
     key: string,
     name: string,
