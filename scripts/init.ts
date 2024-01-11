@@ -102,6 +102,18 @@ const createEnv = () => {
         (i) => i.length > 0,
         true,
     );
+    values.eventApiKey = runPrompt(
+        'Event API Key: (no default)',
+        '',
+        undefined,
+        true,
+    );
+    values.databaseLink = runPrompt(
+        'Database Link: (default: main)',
+        'main',
+        (i) => i.length > 0,
+        true,
+    );
 
     const e = Object.keys(values).map((key) =>
         `${toSnakeCase(fromCamelCase(key)).toUpperCase()} = '${values[key]}'`
