@@ -1,4 +1,4 @@
-import { App, Route } from "../../structure/app/app.ts";
+import { App, Route } from '../../structure/app/app.ts';
 import env from '../../utilities/env.ts';
 import { validate } from '../../middleware/data-type.ts';
 
@@ -13,11 +13,15 @@ router.post<{
     matchKey: string;
     compLevel: string;
     data: any; // TODO: add event server data type
-}>('/submit-match', validate({
-    eventKey: (v) => typeof v === 'string',
-    matchKey: (v) => typeof v === 'string',
-    compLevel: (v) => ['pr', 'qm', 'qf', 'sf', 'f'].includes(v),
-    data: (v) => typeof v === 'object' // could do more validation here
-}), async (req, res, next) => {
-    // TODO: Implement match submission from event server
-});
+}>(
+    '/submit-match',
+    validate({
+        eventKey: (v) => typeof v === 'string',
+        matchKey: (v) => typeof v === 'string',
+        compLevel: (v) => ['pr', 'qm', 'qf', 'sf', 'f'].includes(v),
+        data: (v) => typeof v === 'object', // could do more validation here
+    }),
+    async (req, res, next) => {
+        // TODO: Implement match submission from event server
+    },
+);
