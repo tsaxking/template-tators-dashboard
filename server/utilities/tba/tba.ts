@@ -1,8 +1,8 @@
-import { TBAEvent } from "../../../shared/tba.ts";
-import { DB } from "../databases.ts";
-import env from "../env.ts";
-import { error, log } from "../terminal-logging.ts";
-import { saveEvent } from "../../../scripts/tba-update.ts";
+import { TBAEvent } from '../../../shared/tba.ts';
+import { DB } from '../databases.ts';
+import env from '../env.ts';
+import { error, log } from '../terminal-logging.ts';
+import { saveEvent } from '../../../scripts/tba-update.ts';
 // import { TBAEvent } from "../../../shared/tba.ts";
 // import { TBA_Event } from './event.ts';
 
@@ -10,19 +10,26 @@ const { TBA_KEY } = env;
 
 type TBAOptions = {
     cached?: boolean; // default: true
-}
+};
 
 export class TBA {
     public static readonly baseURL = 'https://www.thebluealliance.com/api/v3';
 
-    public static async get<T>(path: string, options?: TBAOptions): Promise<T | null> {
-        if (!TBA_KEY) throw new Error('TBA_KEY not found in environment variables! Cannot make request to TBA API!');
+    public static async get<T>(
+        path: string,
+        options?: TBAOptions,
+    ): Promise<T | null> {
+        if (!TBA_KEY) {
+            throw new Error(
+                'TBA_KEY not found in environment variables! Cannot make request to TBA API!',
+            );
+        }
 
         if (!path.startsWith('/')) path = '/' + path;
 
         if (options?.cached) {
             const cached = DB.get('tba/from-url', {
-                url: path
+                url: path,
             });
 
             if (cached) {
@@ -40,20 +47,20 @@ export class TBA {
                 method: 'GET',
                 headers: {
                     'X-TBA-Auth-Key': TBA_KEY,
-                    'Accept': 'application/json'
-                }
+                    'Accept': 'application/json',
+                },
             });
-    
+
             const json = await res.json();
-    
+
             // cache response, this will also update the cache if it already exists (using ON CONFLICT sql)
             DB.run('tba/new', {
                 url: path,
                 response: JSON.stringify(json),
                 updated: Date.now(),
-                update: options?.cached ? 1 : 0
+                update: options?.cached ? 1 : 0,
             });
-    
+
             return json as T;
         } catch (e) {
             error('Error requesting from TBA:', e);
@@ -61,20 +68,19 @@ export class TBA {
         }
     }
 
-
-
     // static async getEvent(eventKey: string, options?: TBAOptions): Promise<TBA_Event | null> {
     //     const res = await TBA.get<TBAEvent>(`event/${eventKey}`, options);
     //     if (!res) return null;
     //     return new TBA_Event(res);
     // }
-};
-
+}
 
 let interval: number | undefined = undefined;
 
 const update = () => {
-    TBA.get<TBAEvent[]>(`/team/frc2122/events/${new Date().getFullYear()}/simple`)
+    TBA.get<TBAEvent[]>(
+        `/team/frc2122/events/${new Date().getFullYear()}/simple`,
+    )
         .then((events) => {
             if (!events) return;
             const now = Date.now();
@@ -112,7 +118,7 @@ const update = () => {
             }
         })
         .catch(error);
-}
+};
 
 if (Deno.args.includes('--update-interval')) {
     setInterval(update, 1000 * 60 * 60 * 24);

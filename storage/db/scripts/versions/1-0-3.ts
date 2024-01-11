@@ -1,7 +1,5 @@
-import { DB } from "../../../../server/utilities/databases.ts";
-import { Team } from "../../../../shared/db-types-extended.ts";
-
-
+import { DB } from '../../../../server/utilities/databases.ts';
+import { Team } from '../../../../shared/db-types-extended.ts';
 
 const teams = DB.unsafe.all('SELECT * FROM Teams') as Team[];
 
