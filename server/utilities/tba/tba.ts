@@ -6,15 +6,56 @@ import { saveEvent } from '../../../scripts/tba-update.ts';
 // import { TBAEvent } from "../../../shared/tba.ts";
 // import { TBA_Event } from './event.ts';
 
+/**
+ * Imported from .env
+ * @date 1/10/2024 - 9:34:20 PM
+ *
+ * @type {*}
+ */
 const { TBA_KEY } = env;
 
+/**
+ * Type definition for TBAOptions
+ * @date 1/10/2024 - 9:34:20 PM
+ *
+ * @typedef {TBAOptions}
+ */
 type TBAOptions = {
     cached?: boolean; // default: true
 };
 
+/**
+ * Main class for interacting with the TBA API
+ * @date 1/10/2024 - 9:34:20 PM
+ *
+ * @export
+ * @class TBA
+ * @typedef {TBA}
+ */
 export class TBA {
+    /**
+     * Base URL for TBA API
+     * @date 1/10/2024 - 9:34:20 PM
+     *
+     * @public
+     * @static
+     * @readonly
+     * @type {"https://www.thebluealliance.com/api/v3"}
+     */
     public static readonly baseURL = 'https://www.thebluealliance.com/api/v3';
 
+    /**
+     * Gets data from the TBA API, using the specified path (e.g. `/team/frc2122/events/2021/simple`)
+     * @date 1/10/2024 - 9:34:20 PM
+     *
+     * @public
+     * @static
+     * @async
+     * @template T
+     * @param {string} path
+     * @param {?TBAOptions} [options]
+     * @returns {Promise<T | null>}
+     */
     public static async get<T>(
         path: string,
         options?: TBAOptions,
@@ -75,8 +116,18 @@ export class TBA {
     // }
 }
 
+/**
+ * Update interval for TBA
+ * @date 1/10/2024 - 9:34:20 PM
+ *
+ * @type {(number | undefined)}
+ */
 let interval: number | undefined = undefined;
 
+/**
+ * Run the TBA update
+ * @date 1/10/2024 - 9:34:20 PM
+ */
 const update = () => {
     TBA.get<TBAEvent[]>(
         `/team/frc2122/events/${new Date().getFullYear()}/simple`,
