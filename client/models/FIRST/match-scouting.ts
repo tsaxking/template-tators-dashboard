@@ -2,7 +2,11 @@ import { Cache, Updates } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { MatchScouting as MatchScoutingObj } from '../../../shared/db-types-extended';
 
-export class MatchScouting extends Cache<{}> {
+type MatchScoutingEvents = {
+    'update': MatchScouting;
+};
+
+export class MatchScouting extends Cache<MatchScoutingEvents> {
     private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
         Updates
     >();

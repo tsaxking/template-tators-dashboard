@@ -1,7 +1,11 @@
 import { Cache, Updates } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 
-export class PitScouting extends Cache<{}> {
+type PitScoutingEvents = {
+    'update': PitScouting;
+}
+
+export class PitScouting extends Cache<PitScoutingEvents> {
     private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
         Updates
     >();
