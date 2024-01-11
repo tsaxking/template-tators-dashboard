@@ -3,7 +3,7 @@ import { EventEmitter } from '../../../shared/event-emitter';
 
 type PitScoutingEvents = {
     'update': PitScouting;
-}
+};
 
 export class PitScouting extends Cache<PitScoutingEvents> {
     private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
