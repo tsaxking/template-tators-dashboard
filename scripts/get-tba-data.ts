@@ -1,7 +1,6 @@
 import { TBA } from '../server/utilities/tba/tba.ts';
 import { TBAMatch } from '../shared/tba.ts';
 
-
 const matches = await TBA.get<TBAMatch[]>('/event/2012utwv/matches');
 
 if (!matches) {
@@ -12,7 +11,6 @@ if (!matches) {
 console.log(matches);
 
 const [m] = matches;
-
 
 const getType = (data: any): any => {
     let tsStr = '';
@@ -33,7 +31,7 @@ const getType = (data: any): any => {
     }
 
     return typeof data;
-}
+};
 
 const ts = getType(m);
 console.log(ts + ';');
