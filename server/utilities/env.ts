@@ -241,4 +241,6 @@ try {
 }
 // }
 
+console.log(Colors.FgGreen, 'Environment variables loaded!', Colors.Reset);
+
 export default env;

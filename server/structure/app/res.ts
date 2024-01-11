@@ -440,7 +440,6 @@ export class Res {
 
             cancel() {
                 if (timer) clearTimeout(timer);
-
                 em.emit('cancel');
             },
 

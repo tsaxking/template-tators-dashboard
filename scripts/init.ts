@@ -1,7 +1,7 @@
-import { init } from '../storage/db/scripts/init.ts';
-import { repeatPrompt } from './prompt.ts';
-import { toSnakeCase } from '../shared/text.ts';
-import { error, log } from '../server/utilities/terminal-logging.ts';
+import { init } from "../storage/db/scripts/init.ts";
+import { repeatPrompt } from "./prompt.ts";
+import { toSnakeCase } from "../shared/text.ts";
+import { log, error } from "../server/utilities/terminal-logging.ts";
 import fs from 'node:fs';
 import env, { __root, resolve } from '../server/utilities/env.ts';
 
@@ -107,9 +107,7 @@ const createEnv = () => {
 
     Object.assign(env, values);
 
-    const e = Object.keys(values).map((key) =>
-        `${toSnakeCase(key).toUpperCase()} = '${values[key]}'`
-    ).join('\n');
+    const e = Object.keys(values).map((key) => `${toSnakeCase(key).toUpperCase()} = '${values[key]}'`).join('\n');
     Deno.writeTextFileSync(
         resolve(
             __root,
