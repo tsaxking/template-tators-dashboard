@@ -1,8 +1,7 @@
-import { TBAEvent } from "../../../shared/tba";
-import { TBA } from "../../utilities/tba";
-import { EventEmitter } from "../../../shared/event-emitter";
-import { Cache, Updates } from "../cache";
-
+import { TBAEvent } from '../../../shared/tba';
+import { TBA } from '../../utilities/tba';
+import { EventEmitter } from '../../../shared/event-emitter';
+import { Cache, Updates } from '../cache';
 
 /**
  * Events that are emitted by a {@link FIRSTYear} object
@@ -24,24 +23,27 @@ type YearUpdateData = {
  * @implements {FIRST}
  */
 export class FIRSTYear extends Cache<YearUpdateData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
+        Updates
+    >();
 
-
-    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+    public static on<K extends Updates>(
+        event: K,
+        callback: (data: any) => void,
+    ): void {
         FIRSTYear.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+    public static off<K extends Updates>(
+        event: K,
+        callback?: (data: any) => void,
+    ): void {
         FIRSTYear.$emitter.off(event, callback);
     }
-
 
     public static emit<K extends Updates>(event: K, data: any): void {
         FIRSTYear.$emitter.emit(event, data);
     }
-
-
-
 
     /**
      * The currently selected year
@@ -51,7 +53,6 @@ export class FIRSTYear extends Cache<YearUpdateData> {
      * @type {FIRSTYear}
      */
     public static current?: FIRSTYear = undefined;
-
 
     public static select(year: number): FIRSTYear | undefined {
         const y = FIRSTYear.cache.get(year);
@@ -69,7 +70,10 @@ export class FIRSTYear extends Cache<YearUpdateData> {
      * @readonly
      * @type {Map<number, FIRSTYear>}
      */
-    public static readonly cache: Map<number, FIRSTYear> = new Map<number, FIRSTYear>();
+    public static readonly cache: Map<number, FIRSTYear> = new Map<
+        number,
+        FIRSTYear
+    >();
 
     /**
      * Creates an instance of FIRSTYear.
@@ -97,8 +101,12 @@ export class FIRSTYear extends Cache<YearUpdateData> {
      * @returns {Promise<TBAEvent[]>}
      */
     async getEvents(): Promise<TBAEvent[]> {
-        if (this.$cache.has('events')) return this.$cache.get('events') as TBAEvent[];
-        const res = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${this.year}`);
+        if (this.$cache.has('events')) {
+            return this.$cache.get('events') as TBAEvent[];
+        }
+        const res = await TBA.get<TBAEvent[]>(
+            `/team/frc2122/events/${this.year}`,
+        );
         this.$cache.set('events', res.data);
 
         res.onUpdate((data) => {
@@ -108,8 +116,6 @@ export class FIRSTYear extends Cache<YearUpdateData> {
 
         return res.data;
     }
-
-
 
     /**
      * Destroys this object, including all event listeners and cache
@@ -126,4 +132,4 @@ export class FIRSTYear extends Cache<YearUpdateData> {
         FIRSTYear.current = this;
         FIRSTYear.emit('select', this);
     }
-};
+}
