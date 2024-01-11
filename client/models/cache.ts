@@ -6,7 +6,15 @@ import { EventEmitter } from '../../shared/event-emitter';
  *
  * @typedef {Updates}
  */
-type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*';
+export type Updates =
+    | 'create'
+    | 'update'
+    | 'delete'
+    | 'archive'
+    | 'restore'
+    | '*'
+    | 'destroy'
+    | 'select';
 
 /**
  * Cache is a class which allows you to store data in memory and listen for updates
