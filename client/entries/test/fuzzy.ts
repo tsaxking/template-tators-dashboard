@@ -37,7 +37,7 @@ Ipsum occaecat consectetur laboris aliqua do exercitation laborum ut culpa fugia
 
 Cupidatat incididunt proident ex nisi nulla ut ipsum ut cupidatat nulla reprehenderit. Eiusmod minim excepteur Lorem aliqua commodo aliquip ullamco. Anim qui ex labore non aute duis in. Esse consectetur cillum ad officia cillum ipsum adipisicing amet nostrud amet dolor aliqua veniam exercitation. Ullamco ad id ex mollit aute mollit nostrud cupidatat minim. Minim labore excepteur commodo consectetur commodo commodo.
 
-Minim tempor excepteur et excepteur nulla elit duis minim magna aliqua dolore mollit. Elit duis Lorem eu aliqua. Nisi ea exercitation excepteur ea voluptate velit.`
-        ]
-    }
+Minim tempor excepteur et excepteur nulla elit duis minim magna aliqua dolore mollit. Elit duis Lorem eu aliqua. Nisi ea exercitation excepteur ea voluptate velit.`,
+        ],
+    },
 });
