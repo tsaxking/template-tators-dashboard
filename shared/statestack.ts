@@ -12,7 +12,7 @@ type StateStackOptions = {
     max?: number;
     copy?: (data: any) => any;
     listenerTarget?: any;
-}
+};
 
 /**
  * Events for the state stack with their respective data type
