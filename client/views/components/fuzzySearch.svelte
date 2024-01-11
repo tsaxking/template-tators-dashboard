@@ -40,6 +40,9 @@
     
     /*Checks an inputted string against an array of strings, and returns an array of all strings from the inputted array it deems
     to be similar with the inputted string. */
+
+
+    //NOTE FOR SELF: NEED TO COMPARE NEEDLE'S LENGTH WITH SOMEHAY'S LENGTH 
     function checkStrings(needle: String, haystack:string[]) {
         similarStrings.length = 0;
         for(let someHay of haystack) {
