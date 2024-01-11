@@ -36,7 +36,7 @@ export type Updates =
  * @class Cache
  * @typedef {Cache}
  */
-export class Cache<data = {}> {
+export class Cache<data = any> {
     /**
      * Event emitter for global updates (create, update, delete, archive, restore, etc.)
      * @date 10/12/2023 - 1:04:42 PM
