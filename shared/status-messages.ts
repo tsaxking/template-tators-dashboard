@@ -297,23 +297,24 @@ export const messages: {
         instructions: '',
     },
     'discord:account-linked': {
-    message: 'Your discord account has been linked to this account',
-    color: 'success',
-    code: 200,
-    instructions: 'you cannot use team tators discord commands'
-},
+        message: 'Your discord account has been linked to this account',
+        color: 'success',
+        code: 200,
+        instructions: 'you cannot use team tators discord commands',
+    },
     'discord:invalid-link': {
-    message: 'This discord link is invalid. You must generate a valid link using /connect',
-    color: 'danger',
-    code: 400,
-    instructions: 'use connect in the discord server'
-},
+        message:
+            'This discord link is invalid. You must generate a valid link using /connect',
+        color: 'danger',
+        code: 400,
+        instructions: 'use connect in the discord server',
+    },
     'discord:link-expired': {
-    message: 'This discord link has expired, please try again.',
-    color: 'danger',
-    code: 400,
-    instructions: 'please try again'
-},
+        message: 'This discord link has expired, please try again.',
+        color: 'danger',
+        code: 400,
+        instructions: 'please try again',
+    },
     'event:update-properties': {
         message: 'Event properties updated',
         color: 'success',
@@ -661,139 +662,140 @@ export const messages: {
     },
 };
 
-export type StatusId = 'account:already-logged-in'
-	| 'account:cannot-edit-self'
-	| 'account:cannot-reject-verified'
-	| 'account:check-email'
-	| 'account:created'
-	| 'account:email-change-expired'
-	| 'account:email-taken'
-	| 'account:has-role'
-	| 'account:incorrect-username-or-password'
-	| 'account:invalid-email'
-	| 'account:invalid-first-name'
-	| 'account:invalid-last-name'
-	| 'account:invalid-password'
-	| 'account:invalid-password-reset-key'
-	| 'account:invalid-username'
-	| 'account:invalid-verification-key'
-	| 'account:logged-in'
-	| 'account:logged-out'
-	| 'account:no-role'
-	| 'account:not-found'
-	| 'account:not-logged-in'
-	| 'account:not-verified'
-	| 'account:password-mismatch'
-	| 'account:password-reset-request'
-	| 'account:password-reset-success'
-	| 'account:picture-updated'
-	| 'account:removed'
-	| 'account:role-added'
-	| 'account:role-removed'
-	| 'account:server-error'
-	| 'account:unverified'
-	| 'account:updated'
-	| 'account:username-changed'
-	| 'account:username-taken'
-	| 'account:verified'
-	| 'admin:invalid-key'
-	| 'discord:account-linked'
-	| 'discord:invalid-link'
-	| 'discord:link-expired'
-	| 'event:update-properties'
-	| 'files:invalid'
-	| 'files:invalid-extension'
-	| 'files:no-files'
-	| 'files:too-large'
-	| 'files:uploaded'
-	| 'match-comments:delete'
-	| 'match-comments:new'
-	| 'match-scouting:delete'
-	| 'match-scouting:new'
-	| 'match:not-found'
-	| 'member:accepted'
-	| 'member:add-skill'
-	| 'member:already-member'
-	| 'member:cannot-manage'
-	| 'member:invalid-request'
-	| 'member:membership-responded'
-	| 'member:not-found'
-	| 'member:not-member'
-	| 'member:rejected'
-	| 'member:remove-skill'
-	| 'member:request-sent'
-	| 'member:revoked'
-	| 'member:status-updated'
-	| 'member:update-bio'
-	| 'member:update-resume'
-	| 'member:update-title'
-	| 'page:not-found'
-	| 'permissions:error'
-	| 'permissions:forbidden'
-	| 'permissions:invalid'
-	| 'permissions:unauthorized'
-	| 'pit-scouting:delete'
-	| 'pit-scouting:new'
-	| 'profanity'
-	| 'roles:added'
-	| 'roles:invalid-role'
-	| 'roles:not-found'
-	| 'roles:removed'
-	| 'server:invalid-data'
-	| 'server:unknown-server-error'
-	| 'skills:added'
-	| 'skills:has-skill'
-	| 'skills:invalid-skill'
-	| 'skills:not-found'
-	| 'skills:removed'
-	| 'spam:detected'
-	| 'strategy:delete'
-	| 'strategy:new'
-	| 'test:fail'
-	| 'test:success'
-	| 'unknown:error'
-	| 'whiteboard:created'
-	| 'whiteboard:deleted'
-	| 'whiteboard:match-not-found'
-	| 'whiteboard:not-found'
-	| 'whiteboard:update'
-;
+export type StatusId =
+    | 'account:already-logged-in'
+    | 'account:cannot-edit-self'
+    | 'account:cannot-reject-verified'
+    | 'account:check-email'
+    | 'account:created'
+    | 'account:email-change-expired'
+    | 'account:email-taken'
+    | 'account:has-role'
+    | 'account:incorrect-username-or-password'
+    | 'account:invalid-email'
+    | 'account:invalid-first-name'
+    | 'account:invalid-last-name'
+    | 'account:invalid-password'
+    | 'account:invalid-password-reset-key'
+    | 'account:invalid-username'
+    | 'account:invalid-verification-key'
+    | 'account:logged-in'
+    | 'account:logged-out'
+    | 'account:no-role'
+    | 'account:not-found'
+    | 'account:not-logged-in'
+    | 'account:not-verified'
+    | 'account:password-mismatch'
+    | 'account:password-reset-request'
+    | 'account:password-reset-success'
+    | 'account:picture-updated'
+    | 'account:removed'
+    | 'account:role-added'
+    | 'account:role-removed'
+    | 'account:server-error'
+    | 'account:unverified'
+    | 'account:updated'
+    | 'account:username-changed'
+    | 'account:username-taken'
+    | 'account:verified'
+    | 'admin:invalid-key'
+    | 'discord:account-linked'
+    | 'discord:invalid-link'
+    | 'discord:link-expired'
+    | 'event:update-properties'
+    | 'files:invalid'
+    | 'files:invalid-extension'
+    | 'files:no-files'
+    | 'files:too-large'
+    | 'files:uploaded'
+    | 'match-comments:delete'
+    | 'match-comments:new'
+    | 'match-scouting:delete'
+    | 'match-scouting:new'
+    | 'match:not-found'
+    | 'member:accepted'
+    | 'member:add-skill'
+    | 'member:already-member'
+    | 'member:cannot-manage'
+    | 'member:invalid-request'
+    | 'member:membership-responded'
+    | 'member:not-found'
+    | 'member:not-member'
+    | 'member:rejected'
+    | 'member:remove-skill'
+    | 'member:request-sent'
+    | 'member:revoked'
+    | 'member:status-updated'
+    | 'member:update-bio'
+    | 'member:update-resume'
+    | 'member:update-title'
+    | 'page:not-found'
+    | 'permissions:error'
+    | 'permissions:forbidden'
+    | 'permissions:invalid'
+    | 'permissions:unauthorized'
+    | 'pit-scouting:delete'
+    | 'pit-scouting:new'
+    | 'profanity'
+    | 'roles:added'
+    | 'roles:invalid-role'
+    | 'roles:not-found'
+    | 'roles:removed'
+    | 'server:invalid-data'
+    | 'server:unknown-server-error'
+    | 'skills:added'
+    | 'skills:has-skill'
+    | 'skills:invalid-skill'
+    | 'skills:not-found'
+    | 'skills:removed'
+    | 'spam:detected'
+    | 'strategy:delete'
+    | 'strategy:new'
+    | 'test:fail'
+    | 'test:success'
+    | 'unknown:error'
+    | 'whiteboard:created'
+    | 'whiteboard:deleted'
+    | 'whiteboard:match-not-found'
+    | 'whiteboard:not-found'
+    | 'whiteboard:update';
 
-export type AccountStatusId = 'already-logged-in'
-	| 'cannot-edit-self'
-	| 'cannot-reject-verified'
-	| 'check-email'
-	| 'created'
-	| 'email-change-expired'
-	| 'email-taken'
-	| 'has-role'
-	| 'incorrect-username-or-password'
-	| 'invalid-email'
-	| 'invalid-first-name'
-	| 'invalid-last-name'
-	| 'invalid-password'
-	| 'invalid-password-reset-key'
-	| 'invalid-username'
-	| 'invalid-verification-key'
-	| 'logged-in'
-	| 'logged-out'
-	| 'no-role'
-	| 'not-found'
-	| 'not-logged-in'
-	| 'not-verified'
-	| 'password-mismatch'
-	| 'password-reset-request'
-	| 'password-reset-success'
-	| 'picture-updated'
-	| 'removed'
-	| 'role-added'
-	| 'role-removed'
-	| 'server-error'
-	| 'unverified'
-	| 'updated'
-	| 'username-changed'
-	| 'username-taken'
-	| 'verified';
+export type AccountStatusId =
+    | 'already-logged-in'
+    | 'cannot-edit-self'
+    | 'cannot-reject-verified'
+    | 'check-email'
+    | 'created'
+    | 'email-change-expired'
+    | 'email-taken'
+    | 'has-role'
+    | 'incorrect-username-or-password'
+    | 'invalid-email'
+    | 'invalid-first-name'
+    | 'invalid-last-name'
+    | 'invalid-password'
+    | 'invalid-password-reset-key'
+    | 'invalid-username'
+    | 'invalid-verification-key'
+    | 'logged-in'
+    | 'logged-out'
+    | 'no-role'
+    | 'not-found'
+    | 'not-logged-in'
+    | 'not-verified'
+    | 'password-mismatch'
+    | 'password-reset-request'
+    | 'password-reset-success'
+    | 'picture-updated'
+    | 'removed'
+    | 'role-added'
+    | 'role-removed'
+    | 'server-error'
+    | 'unverified'
+    | 'updated'
+    | 'username-changed'
+    | 'username-taken'
+    | 'verified';
 
 export type AdminStatusId = 'invalid-key';
 
@@ -804,14 +806,12 @@ export type FilesStatusId =
     | 'too-large'
     | 'uploaded';
 
-export type DiscordStatusId = 'account-linked'
-	| 'invalid-link'
-	| 'link-expired';
-
+export type DiscordStatusId =
+    | 'account-linked'
+    | 'invalid-link'
+    | 'link-expired';
 
 export type EventStatusId = 'update-properties';
-
-
 
 export type MatchStatusId = 'not-found';
 
@@ -849,9 +849,9 @@ export type PermissionsStatusId =
     | 'invalid'
     | 'unauthorized';
 
-export type PitscoutingStatusId = 'delete'
-	| 'new';
-
+export type PitscoutingStatusId =
+    | 'delete'
+    | 'new';
 
 export type ProfanityStatusId = 'undefined';
 
