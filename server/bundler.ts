@@ -3,6 +3,8 @@ import { log } from './utilities/terminal-logging.ts';
 import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
 import { EventEmitter } from '../shared/event-emitter.ts';
 import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
+import { stdin } from './utilities/utilties.ts';
+
 import env, {
     __root,
     __templates,
@@ -109,7 +111,7 @@ export const runBuild = async () => {
             },
         },
         // trust me, it works
-        plugins: [(sveltePlugin as unknown as Function)({
+        plugins: [(sveltePlugin as any)({
             preprocess: [
                 typescript(),
             ],
@@ -129,3 +131,5 @@ export const runBuild = async () => {
 
     return builder;
 };
+
+stdin.on('rb', runBuild);

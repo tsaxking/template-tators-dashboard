@@ -115,8 +115,6 @@ const createEnv = () => {
         true,
     );
 
-    Object.assign(env, values);
-
     const e = Object.keys(values).map((key) =>
         `${toSnakeCase(fromCamelCase(key)).toUpperCase()} = '${values[key]}'`
     ).join('\n');
