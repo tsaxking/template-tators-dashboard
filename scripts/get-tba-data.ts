@@ -1,7 +1,7 @@
 import { TBA } from '../server/utilities/tba/tba.ts';
 import { TBAMatch } from '../shared/tba.ts';
 
-const matches = await TBA.get<TBAMatch[]>('/event/2012utwv/matches');
+const matches = await TBA.get<TBAMatch[]>('/event/2018utwv/matches');
 
 if (!matches) {
     console.log('No matches found');
@@ -12,26 +12,28 @@ console.log(matches);
 
 const [m] = matches;
 
-const getType = (data: any): any => {
-    let tsStr = '';
-    if (data === null) {
-        return 'null';
-    }
+console.log(m);
 
-    if (Array.isArray(data)) {
-        return '(' + getType(data[0]) + ')[]';
-    }
+// const getType = (data: any): any => {
+//     let tsStr = '';
+//     if (data === null) {
+//         return 'null';
+//     }
 
-    if (typeof data === 'object') {
-        for (const [key, value] of Object.entries(data)) {
-            tsStr += `${key}: ${getType(value)};`;
-        }
+//     if (Array.isArray(data)) {
+//         return '(' + getType(data[0]) + ')[]';
+//     }
 
-        return `{${tsStr}}`;
-    }
+//     if (typeof data === 'object') {
+//         for (const [key, value] of Object.entries(data)) {
+//             tsStr += `${key}: ${getType(value)};`;
+//         }
 
-    return typeof data;
-};
+//         return `{${tsStr}}`;
+//     }
 
-const ts = getType(m);
-console.log(ts + ';');
+//     return typeof data;
+// };
+
+// const ts = getType(m);
+// console.log(ts + ';');
