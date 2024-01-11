@@ -43,21 +43,21 @@
 
 
     //NOTE FOR SELF: NEED TO COMPARE NEEDLE'S LENGTH WITH SOMEHAY'S LENGTH 
-    function checkStrings(needle: String, haystack:string[]) {
+    function checkStrings(key: String, options:string[]) {
         similarStrings.length = 0;
-        for(let someHay of haystack) {
-            if(levenshteinDistance(searchKey, someHay) <= 3){
-                similarStrings.push(someHay);
+        for(const option of options) {
+            if(levenshteinDistance(searchKey, option) <= 3){
+                similarStrings.push(option);
             }
-            else if(needle.length >= someHay.length) {
+            else if(key.length >= option.length) {
                 let areSame:boolean = true;
-                for(let i = 0; i<needle.length; i++) {
-                    if(needle[i] != someHay[i]){
+                for(let i = 0; i<key.length; i++) {
+                    if(key[i] != option[i]){
                         areSame = false;
                     } 
                 }
                 if(areSame) {
-                    similarStrings.push(someHay);
+                    similarStrings.push(option);
                 }
             }
         }
