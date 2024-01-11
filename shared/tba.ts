@@ -228,7 +228,7 @@ export type YearTBAMatch = {
         videos: ({ key: string; type: string })[];
         winning_alliance: string;
     };
-    2021: {};
+    2021: any;
     2020: {
         actual_time: number;
         alliances: {
@@ -985,8 +985,8 @@ export type TBAMatch = {
     predicted_time: number;
     post_result_time: number;
     score_breakdown: {
-        red: {};
-        blue: {};
+        red: any;
+        blue: any;
     };
     videos: {
         key: string;
@@ -1016,8 +1016,8 @@ export type TBAMatchSimple = {
     predicted_time: number;
     post_result_time: number;
     score_breakdown: {
-        red: {};
-        blue: {};
+        red: any;
+        blue: any;
     };
     videos: {
         key: string;

@@ -28,7 +28,8 @@
             "dist/",
             "**/require.js",
             "**/submodules/",
-            "**/declaration-merging/"
+            "**/declaration-merging/",
+            "*.js"
         ],
         "rules": {
             "include": [

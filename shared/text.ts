@@ -45,12 +45,10 @@ export const toSnakeCase = (str: string, del = '_'): string =>
  * @param str
  * @returns
  */
-// HEAD
 export const fromSnakeCase = (str: string, del = '_'): string =>
     str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
 
 export const streamDelimiter = '<';
-//42d325356500c50aff4cddcea006e8a21321e442
 
 /**
  * Abbreviates a string to a given length (appending ...)

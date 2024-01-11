@@ -291,11 +291,11 @@ export const messages: {
         instructions: 'You will be redirected to the home page.',
     },
     'admin:invalid-key': {
-    message: 'Invalid key',
-    color: 'danger',
-    code: 400,
-    instructions: ''
-},
+        message: 'Invalid key',
+        color: 'danger',
+        code: 400,
+        instructions: '',
+    },
     'discord:account-linked': {
     message: 'Your discord account has been linked to this account',
     color: 'success',
@@ -315,11 +315,11 @@ export const messages: {
     instructions: 'please try again'
 },
     'event:update-properties': {
-    message: 'Event properties updated',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Event properties updated',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'files:invalid': {
         message: 'Invalid file',
         color: 'danger',
@@ -345,41 +345,41 @@ export const messages: {
         instructions: 'Please try again.',
     },
     'files:uploaded': {
-    message: 'File uploaded',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'File uploaded',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'match:not-found': {
-    message: 'Match was not found',
-    color: 'danger',
-    code: 404,
-    instructions: ''
-},
+        message: 'Match was not found',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
     'match-comments:delete': {
-    message: 'Match comment deleted',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Match comment deleted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'match-comments:new': {
-    message: 'Match comment saved',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Match comment saved',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'match-scouting:delete': {
-    message: 'Deleted Match Scouting',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Deleted Match Scouting',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'match-scouting:new': {
-    message: 'Match scouting submitted',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Match scouting submitted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'member:accepted': {
         message: 'This member was accepted',
         color: 'success',
@@ -502,23 +502,23 @@ export const messages: {
         instructions: '',
     },
     'permissions:unauthorized': {
-    message: 'Unauthorized',
-    color: 'danger',
-    code: 401,
-    instructions: ''
-},
+        message: 'Unauthorized',
+        color: 'danger',
+        code: 401,
+        instructions: '',
+    },
     'pit-scouting:delete': {
-    message: 'Pit Scouting Submission has been deleted',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Pit Scouting Submission has been deleted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'pit-scouting:new': {
-    message: 'Pit Scouting Submitted',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Pit Scouting Submitted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'profanity': {
         message: 'Profanity detected',
         color: 'danger',
@@ -593,23 +593,23 @@ export const messages: {
         instructions: '',
     },
     'spam:detected': {
-    message: 'Spam detected',
-    color: 'danger',
-    code: 400,
-    instructions: 'Please try again.'
-},
+        message: 'Spam detected',
+        color: 'danger',
+        code: 400,
+        instructions: 'Please try again.',
+    },
     'strategy:delete': {
-    message: 'Strategy deleted',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Strategy deleted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'strategy:new': {
-    message: 'Strategy submitted',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Strategy submitted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'test:fail': {
         message: 'This test failed',
         color: 'danger',
@@ -623,41 +623,42 @@ export const messages: {
         instructions: '',
     },
     'unknown:error': {
-    message: 'Unknown error',
-    color: 'danger',
-    code: 500,
-    instructions: 'Please try again.'
-},
+        message: 'Unknown error',
+        color: 'danger',
+        code: 500,
+        instructions: 'Please try again.',
+    },
     'whiteboard:created': {
-    message: 'Whiteboard created successfully',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Whiteboard created successfully',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'whiteboard:deleted': {
-    message: 'Whiteboard deleted successfully',
-    color: 'success',
-    code: 200,
-    instructions: ''
-},
+        message: 'Whiteboard deleted successfully',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'whiteboard:match-not-found': {
-    message: 'The match for the selected whiteboard was not found, please try again using different parameters',
-    color: 'danger',
-    code: 404,
-    instructions: ''
-},
+        message:
+            'The match for the selected whiteboard was not found, please try again using different parameters',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
     'whiteboard:not-found': {
-    message: 'Whiteboard was not found',
-    color: 'danger',
-    code: 404,
-    instructions: ''
-},
+        message: 'Whiteboard was not found',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
     'whiteboard:update': {
-    message: 'Whiteboard updated successfully',
-    color: 'success',
-    code: 200,
-    instructions: ''
-}
+        message: 'Whiteboard updated successfully',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
 };
 
 export type StatusId = 'account:already-logged-in'
@@ -814,32 +815,31 @@ export type EventStatusId = 'update-properties';
 
 export type MatchStatusId = 'not-found';
 
+export type MatchcommentsStatusId =
+    | 'delete'
+    | 'new';
 
-export type MatchcommentsStatusId = 'delete'
-	| 'new';
+export type MatchscoutingStatusId =
+    | 'delete'
+    | 'new';
 
-
-export type MatchscoutingStatusId = 'delete'
-	| 'new';
-
-
-export type MemberStatusId = 'accepted'
-	| 'add-skill'
-	| 'already-member'
-	| 'cannot-manage'
-	| 'invalid-request'
-	| 'membership-responded'
-	| 'not-found'
-	| 'not-member'
-	| 'rejected'
-	| 'remove-skill'
-	| 'request-sent'
-	| 'revoked'
-	| 'status-updated'
-	| 'update-bio'
-	| 'update-resume'
-	| 'update-title';
-
+export type MemberStatusId =
+    | 'accepted'
+    | 'add-skill'
+    | 'already-member'
+    | 'cannot-manage'
+    | 'invalid-request'
+    | 'membership-responded'
+    | 'not-found'
+    | 'not-member'
+    | 'rejected'
+    | 'remove-skill'
+    | 'request-sent'
+    | 'revoked'
+    | 'status-updated'
+    | 'update-bio'
+    | 'update-resume'
+    | 'update-title';
 
 export type PageStatusId = 'not-found';
 
@@ -874,20 +874,19 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
+export type StrategyStatusId =
+    | 'delete'
+    | 'new';
 
-export type StrategyStatusId = 'delete'
-	| 'new';
-
-
-export type TestStatusId = 'fail'
-	| 'success';
-
+export type TestStatusId =
+    | 'fail'
+    | 'success';
 
 export type UnknownStatusId = 'error';
 
-
-export type WhiteboardStatusId = 'deleted'
-	| 'match-not-found'
-	| 'not-found'
-	| 'update'
-	| 'created';
+export type WhiteboardStatusId =
+    | 'deleted'
+    | 'match-not-found'
+    | 'not-found'
+    | 'update'
+    | 'created';
