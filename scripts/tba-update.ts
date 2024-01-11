@@ -1,9 +1,9 @@
-import { DB } from "../server/utilities/databases.ts";
-import { TBA } from "../server/utilities/tba/tba.ts";
-import { error, log } from "../server/utilities/terminal-logging.ts";
-import { uuid } from "../server/utilities/uuid.ts";
-import { CompLevel } from "../shared/db-types-extended.ts";
-import { TBAEvent, TBAMatch, TBATeam } from "../shared/tba.ts";
+import { DB } from '../server/utilities/databases.ts';
+import { TBA } from '../server/utilities/tba/tba.ts';
+import { error, log } from '../server/utilities/terminal-logging.ts';
+import { uuid } from '../server/utilities/uuid.ts';
+import { CompLevel } from '../shared/db-types-extended.ts';
+import { TBAEvent, TBAMatch, TBATeam } from '../shared/tba.ts';
 
 export const saveEvent = async (eventKey: string) => {
     const event = await TBA.get<TBAEvent>('/event/' + eventKey);
@@ -11,7 +11,7 @@ export const saveEvent = async (eventKey: string) => {
 
     // check if event exists
     const exists = DB.get('events/from-key', {
-        eventKey
+        eventKey,
     });
 
     if (exists) {
@@ -22,7 +22,7 @@ export const saveEvent = async (eventKey: string) => {
             DB.run('events/new-event', {
                 eventKey,
                 flipX: false,
-                flipY: false
+                flipY: false,
             });
         } else {
             log('Event already exists in database!');
@@ -31,29 +31,48 @@ export const saveEvent = async (eventKey: string) => {
         DB.run('events/new-event', {
             eventKey,
             flipX: false,
-            flipY: false
+            flipY: false,
         });
     }
 
     saveMatches(eventKey);
     saveTeams(eventKey);
-}
+};
 
 export const saveMatches = async (eventKey: string) => {
     log('Getting matches for event', eventKey);
-    const matches = await TBA.get<TBAMatch[]>('/event/' + eventKey + '/matches');
-    if (!matches) return error(`Error getting matches for event ${eventKey} from TBA API!`);
+    const matches = await TBA.get<TBAMatch[]>(
+        '/event/' + eventKey + '/matches',
+    );
+    if (!matches) {
+        return error(
+            `Error getting matches for event ${eventKey} from TBA API!`,
+        );
+    }
 
     const existingMatches = DB.all('matches/from-event', {
-        eventKey
+        eventKey,
     });
 
     let saved = 0;
     for (const match of matches) {
         // check if match exists
-        if (existingMatches?.some(m => m.matchNumber === match.match_number && m.compLevel === match.comp_level)) {
-            if (Deno.args.includes('--force') && Deno.args.includes('--tba-task')) {
-                DB.unsafe.run(`DELETE FROM matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?`, eventKey, match.match_number, match.comp_level);
+        if (
+            existingMatches?.some((m) =>
+                m.matchNumber === match.match_number &&
+                m.compLevel === match.comp_level
+            )
+        ) {
+            if (
+                Deno.args.includes('--force') &&
+                Deno.args.includes('--tba-task')
+            ) {
+                DB.unsafe.run(
+                    `DELETE FROM matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?`,
+                    eventKey,
+                    match.match_number,
+                    match.comp_level,
+                );
             } else {
                 continue;
             }
@@ -63,7 +82,7 @@ export const saveMatches = async (eventKey: string) => {
             id: uuid(),
             eventKey,
             compLevel: match.comp_level as CompLevel,
-            matchNumber: match.match_number
+            matchNumber: match.match_number,
         });
         saved++;
     }
@@ -71,23 +90,34 @@ export const saveMatches = async (eventKey: string) => {
     if (saved) {
         log(`Saved ${saved} new matches for event ${eventKey}!`);
     }
-}
+};
 
 export const saveTeams = async (eventKey: string) => {
     log('Getting teams for event', eventKey);
-    const teams = await TBA.get<TBATeam[]>('/event/' + eventKey + '/teams/simple');
-    if (!teams) return error(`Error getting teams for event ${eventKey} from TBA API!`);
+    const teams = await TBA.get<TBATeam[]>(
+        '/event/' + eventKey + '/teams/simple',
+    );
+    if (!teams) {
+        return error(`Error getting teams for event ${eventKey} from TBA API!`);
+    }
 
     const existingTeams = DB.all('teams/from-event', {
-        eventKey
+        eventKey,
     });
 
     let saved = 0;
     for (const team of teams) {
         // check if team exists
-        if (existingTeams?.some(t => t.number === team.team_number)) {
-            if (Deno.args.includes('--force') && Deno.args.includes('--tba-task')) {
-                DB.unsafe.run(`DELETE FROM teams WHERE eventKey = ? AND number = ?`, eventKey, team.team_number);
+        if (existingTeams?.some((t) => t.number === team.team_number)) {
+            if (
+                Deno.args.includes('--force') &&
+                Deno.args.includes('--tba-task')
+            ) {
+                DB.unsafe.run(
+                    `DELETE FROM teams WHERE eventKey = ? AND number = ?`,
+                    eventKey,
+                    team.team_number,
+                );
             } else {
                 continue;
             }
@@ -96,7 +126,7 @@ export const saveTeams = async (eventKey: string) => {
         DB.run('teams/new', {
             number: team.team_number,
             eventKey,
-            watchPriority: 0
+            watchPriority: 0,
         });
 
         saved++;
@@ -105,16 +135,18 @@ export const saveTeams = async (eventKey: string) => {
     if (saved) {
         log(`Saved ${saved} new teams for event ${eventKey}!`);
     }
-}
+};
 
 const updateYear = async (year: number) => {
-    const events = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${year}/simple`);
+    const events = await TBA.get<TBAEvent[]>(
+        `/team/frc2122/events/${year}/simple`,
+    );
     if (Array.isArray(events)) {
         for (const event of events) {
             await saveEvent(event.key);
         }
     }
-}
+};
 
 // if running from command line
 if (Deno.args.includes('--update') && Deno.args.includes('--tba-task')) {
