@@ -106,7 +106,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @param {boolean} [simple=false]
      * @returns {Promise<TBAEvent[]>}
      */
-    public async getEvents(simple: boolean = false): Promise<TBAEvent[]> {
+    public async getEvents(simple = false): Promise<TBAEvent[]> {
         if (this.$cache.has('events')) {
             return this.$cache.get('events') as TBAEvent[];
         }

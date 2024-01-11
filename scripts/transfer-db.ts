@@ -715,13 +715,13 @@ const transferTeams = () => {
             t.eventKey,
         ) as { id: string; key: string }[];
 
-        const pit = t.pitScouting ? parse<{}>(t.pitScouting) : {};
-        const pre = t.preScouting ? parse<{}[]>(t.preScouting) : [];
+        const pit = t.pitScouting ? parse<any>(t.pitScouting) : {};
+        const pre = t.preScouting ? parse<any[]>(t.preScouting) : [];
         const electrical = t.electricalScouting
-            ? parse<{}>(t.electricalScouting)
+            ? parse<any>(t.electricalScouting)
             : {};
         const mechanical = t.mechanicalScouting
-            ? parse<{}>(t.mechanicalScouting)
+            ? parse<any>(t.mechanicalScouting)
             : {};
 
         const save = (data: {

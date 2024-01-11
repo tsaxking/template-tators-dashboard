@@ -1,6 +1,6 @@
 import { Color } from '../../submodules/colors/color';
 import { StateStack } from '../../../shared/statestack';
-import { Point2D } from '../../submodules/calculations/src/linear-algebra/point';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { Canvas } from '../canvas/canvas';
 import { ServerRequest } from '../../utilities/requests';
 
@@ -78,13 +78,13 @@ export class Whiteboard {
         return this.ctx.canvas.width;
     }
 
-    get height() {
-        return this.ctx.canvas.height;
-    }
-
     set width(width: number) {
         this.ctx.canvas.width = width;
         this.ctx.canvas.height = width / 2;
+    }
+
+    get height() {
+        return this.ctx.canvas.height;
     }
 
     set height(height: number) {
@@ -93,7 +93,7 @@ export class Whiteboard {
     }
 
     setListeners() {
-        let drawing: boolean = false;
+        let drawing = false;
         const start = (e: MouseEvent | TouchEvent) => {
             const [x, y] = this.getMousePos(e);
             drawing = true;

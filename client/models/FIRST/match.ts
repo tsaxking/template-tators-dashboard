@@ -140,7 +140,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
     public async getInfo(): Promise<MatchObj> {
         return new Promise<MatchObj>((res, rej) => {
-            let info = this.$cache.get('info');
+            const info = this.$cache.get('info');
             if (info) return res(info);
 
             ServerRequest.post<MatchObj>('/api/matches/info', {

@@ -26,7 +26,7 @@ export class TBA {
      */
     static get<T = any>(
         path: string,
-        cached: boolean = true,
+        cached = true,
     ): Promise<TBAResponse<T>> {
         return new Promise(async (res, rej) => {
             const start = Date.now();
@@ -115,7 +115,7 @@ export class TBA {
 
     static async getEvent(
         eventKey: string,
-        simple: boolean = false,
+        simple = false,
     ): Promise<TBAResponse<FIRSTEvent>> {
         const res = await TBA.get<TBAEvent>(
             `/event/${eventKey}${simple ? '/simple' : ''}`,
