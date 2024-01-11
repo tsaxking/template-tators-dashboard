@@ -1,8 +1,7 @@
-import { Command } from "../discord.ts";
-import { DB } from "../../databases.ts";
-import { uuid } from "../../uuid.ts";
-import env from "../../env.ts";
-
+import { Command } from '../discord.ts';
+import { DB } from '../../databases.ts';
+import { uuid } from '../../uuid.ts';
+import env from '../../env.ts';
 
 export default {
     name: 'connect',
@@ -11,22 +10,26 @@ export default {
         const discordId = interaction.member?.user.id;
         if (discordId) {
             const a = DB.get('account/from-discord-id', {
-                discordId
+                discordId,
             });
 
-            if (a) return interaction.reply('Your account is already connected.');
+            if (a) {
+                return interaction.reply('Your account is already connected.');
+            }
 
             const key = uuid();
 
             DB.run('discord/insert', {
                 id: discordId,
                 key,
-                date: Date.now().toString()
+                date: Date.now().toString(),
             });
 
-            interaction.member?.user.send(`Your link is generated, please go to: ${env.DOMAIN}/api/discord/link/${key}`);
+            interaction.member?.user.send(
+                `Your link is generated, please go to: ${env.DOMAIN}/api/discord/link/${key}`,
+            );
         } else {
             interaction.reply('You must be logged in to use this command.');
         }
-    }
+    },
 } as Command;
