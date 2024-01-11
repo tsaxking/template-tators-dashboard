@@ -291,11 +291,35 @@ export const messages: {
         instructions: 'You will be redirected to the home page.',
     },
     'admin:invalid-key': {
-        message: 'Invalid key',
-        color: 'danger',
-        code: 400,
-        instructions: '',
-    },
+    message: 'Invalid key',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
+    'discord:account-linked': {
+    message: 'Your discord account has been linked to this account',
+    color: 'success',
+    code: 200,
+    instructions: 'you cannot use team tators discord commands'
+},
+    'discord:invalid-link': {
+    message: 'This discord link is invalid. You must generate a valid link using /connect',
+    color: 'danger',
+    code: 400,
+    instructions: 'use connect in the discord server'
+},
+    'discord:link-expired': {
+    message: 'This discord link has expired, please try again.',
+    color: 'danger',
+    code: 400,
+    instructions: 'please try again'
+},
+    'event:update-properties': {
+    message: 'Event properties updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'files:invalid': {
         message: 'Invalid file',
         color: 'danger',
@@ -321,11 +345,41 @@ export const messages: {
         instructions: 'Please try again.',
     },
     'files:uploaded': {
-        message: 'File uploaded',
-        color: 'success',
-        code: 200,
-        instructions: '',
-    },
+    message: 'File uploaded',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'match:not-found': {
+    message: 'Match was not found',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'match-comments:delete': {
+    message: 'Match comment deleted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'match-comments:new': {
+    message: 'Match comment saved',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'match-scouting:delete': {
+    message: 'Deleted Match Scouting',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'match-scouting:new': {
+    message: 'Match scouting submitted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'member:accepted': {
         message: 'This member was accepted',
         color: 'success',
@@ -448,11 +502,23 @@ export const messages: {
         instructions: '',
     },
     'permissions:unauthorized': {
-        message: 'Unauthorized',
-        color: 'danger',
-        code: 401,
-        instructions: '',
-    },
+    message: 'Unauthorized',
+    color: 'danger',
+    code: 401,
+    instructions: ''
+},
+    'pit-scouting:delete': {
+    message: 'Pit Scouting Submission has been deleted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'pit-scouting:new': {
+    message: 'Pit Scouting Submitted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'profanity': {
         message: 'Profanity detected',
         color: 'danger',
@@ -527,11 +593,23 @@ export const messages: {
         instructions: '',
     },
     'spam:detected': {
-        message: 'Spam detected',
-        color: 'danger',
-        code: 400,
-        instructions: 'Please try again.',
-    },
+    message: 'Spam detected',
+    color: 'danger',
+    code: 400,
+    instructions: 'Please try again.'
+},
+    'strategy:delete': {
+    message: 'Strategy deleted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'strategy:new': {
+    message: 'Strategy submitted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'test:fail': {
         message: 'This test failed',
         color: 'danger',
@@ -545,129 +623,176 @@ export const messages: {
         instructions: '',
     },
     'unknown:error': {
-        message: 'Unknown error',
-        color: 'danger',
-        code: 500,
-        instructions: 'Please try again.',
-    },
+    message: 'Unknown error',
+    color: 'danger',
+    code: 500,
+    instructions: 'Please try again.'
+},
+    'whiteboard:created': {
+    message: 'Whiteboard created successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'whiteboard:deleted': {
+    message: 'Whiteboard deleted successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'whiteboard:match-not-found': {
+    message: 'The match for the selected whiteboard was not found, please try again using different parameters',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'whiteboard:not-found': {
+    message: 'Whiteboard was not found',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'whiteboard:update': {
+    message: 'Whiteboard updated successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+}
 };
 
-export type StatusId =
-    | 'account:already-logged-in'
-    | 'account:cannot-edit-self'
-    | 'account:cannot-reject-verified'
-    | 'account:check-email'
-    | 'account:created'
-    | 'account:email-change-expired'
-    | 'account:email-taken'
-    | 'account:has-role'
-    | 'account:incorrect-username-or-password'
-    | 'account:invalid-email'
-    | 'account:invalid-first-name'
-    | 'account:invalid-last-name'
-    | 'account:invalid-password'
-    | 'account:invalid-password-reset-key'
-    | 'account:invalid-username'
-    | 'account:invalid-verification-key'
-    | 'account:logged-in'
-    | 'account:logged-out'
-    | 'account:no-role'
-    | 'account:not-found'
-    | 'account:not-logged-in'
-    | 'account:not-verified'
-    | 'account:password-mismatch'
-    | 'account:password-reset-request'
-    | 'account:password-reset-success'
-    | 'account:picture-updated'
-    | 'account:removed'
-    | 'account:role-added'
-    | 'account:role-removed'
-    | 'account:server-error'
-    | 'account:unverified'
-    | 'account:updated'
-    | 'account:username-changed'
-    | 'account:username-taken'
-    | 'account:verified'
-    | 'admin:invalid-key'
-    | 'files:invalid'
-    | 'files:invalid-extension'
-    | 'files:no-files'
-    | 'files:too-large'
-    | 'files:uploaded'
-    | 'member:accepted'
-    | 'member:add-skill'
-    | 'member:already-member'
-    | 'member:cannot-manage'
-    | 'member:invalid-request'
-    | 'member:membership-responded'
-    | 'member:not-found'
-    | 'member:not-member'
-    | 'member:rejected'
-    | 'member:remove-skill'
-    | 'member:request-sent'
-    | 'member:revoked'
-    | 'member:status-updated'
-    | 'member:update-bio'
-    | 'member:update-resume'
-    | 'member:update-title'
-    | 'page:not-found'
-    | 'permissions:error'
-    | 'permissions:forbidden'
-    | 'permissions:invalid'
-    | 'permissions:unauthorized'
-    | 'profanity'
-    | 'roles:added'
-    | 'roles:invalid-role'
-    | 'roles:not-found'
-    | 'roles:removed'
-    | 'server:invalid-data'
-    | 'server:unknown-server-error'
-    | 'skills:added'
-    | 'skills:has-skill'
-    | 'skills:invalid-skill'
-    | 'skills:not-found'
-    | 'skills:removed'
-    | 'spam:detected'
-    | 'test:fail'
-    | 'test:success'
-    | 'unknown:error';
+export type StatusId = 'account:already-logged-in'
+	| 'account:cannot-edit-self'
+	| 'account:cannot-reject-verified'
+	| 'account:check-email'
+	| 'account:created'
+	| 'account:email-change-expired'
+	| 'account:email-taken'
+	| 'account:has-role'
+	| 'account:incorrect-username-or-password'
+	| 'account:invalid-email'
+	| 'account:invalid-first-name'
+	| 'account:invalid-last-name'
+	| 'account:invalid-password'
+	| 'account:invalid-password-reset-key'
+	| 'account:invalid-username'
+	| 'account:invalid-verification-key'
+	| 'account:logged-in'
+	| 'account:logged-out'
+	| 'account:no-role'
+	| 'account:not-found'
+	| 'account:not-logged-in'
+	| 'account:not-verified'
+	| 'account:password-mismatch'
+	| 'account:password-reset-request'
+	| 'account:password-reset-success'
+	| 'account:picture-updated'
+	| 'account:removed'
+	| 'account:role-added'
+	| 'account:role-removed'
+	| 'account:server-error'
+	| 'account:unverified'
+	| 'account:updated'
+	| 'account:username-changed'
+	| 'account:username-taken'
+	| 'account:verified'
+	| 'admin:invalid-key'
+	| 'discord:account-linked'
+	| 'discord:invalid-link'
+	| 'discord:link-expired'
+	| 'event:update-properties'
+	| 'files:invalid'
+	| 'files:invalid-extension'
+	| 'files:no-files'
+	| 'files:too-large'
+	| 'files:uploaded'
+	| 'match-comments:delete'
+	| 'match-comments:new'
+	| 'match-scouting:delete'
+	| 'match-scouting:new'
+	| 'match:not-found'
+	| 'member:accepted'
+	| 'member:add-skill'
+	| 'member:already-member'
+	| 'member:cannot-manage'
+	| 'member:invalid-request'
+	| 'member:membership-responded'
+	| 'member:not-found'
+	| 'member:not-member'
+	| 'member:rejected'
+	| 'member:remove-skill'
+	| 'member:request-sent'
+	| 'member:revoked'
+	| 'member:status-updated'
+	| 'member:update-bio'
+	| 'member:update-resume'
+	| 'member:update-title'
+	| 'page:not-found'
+	| 'permissions:error'
+	| 'permissions:forbidden'
+	| 'permissions:invalid'
+	| 'permissions:unauthorized'
+	| 'pit-scouting:delete'
+	| 'pit-scouting:new'
+	| 'profanity'
+	| 'roles:added'
+	| 'roles:invalid-role'
+	| 'roles:not-found'
+	| 'roles:removed'
+	| 'server:invalid-data'
+	| 'server:unknown-server-error'
+	| 'skills:added'
+	| 'skills:has-skill'
+	| 'skills:invalid-skill'
+	| 'skills:not-found'
+	| 'skills:removed'
+	| 'spam:detected'
+	| 'strategy:delete'
+	| 'strategy:new'
+	| 'test:fail'
+	| 'test:success'
+	| 'unknown:error'
+	| 'whiteboard:created'
+	| 'whiteboard:deleted'
+	| 'whiteboard:match-not-found'
+	| 'whiteboard:not-found'
+	| 'whiteboard:update'
+;
 
-export type AccountStatusId =
-    | 'already-logged-in'
-    | 'cannot-edit-self'
-    | 'cannot-reject-verified'
-    | 'check-email'
-    | 'created'
-    | 'email-change-expired'
-    | 'email-taken'
-    | 'has-role'
-    | 'incorrect-username-or-password'
-    | 'invalid-email'
-    | 'invalid-first-name'
-    | 'invalid-last-name'
-    | 'invalid-password'
-    | 'invalid-password-reset-key'
-    | 'invalid-username'
-    | 'invalid-verification-key'
-    | 'logged-in'
-    | 'logged-out'
-    | 'no-role'
-    | 'not-found'
-    | 'not-logged-in'
-    | 'not-verified'
-    | 'password-mismatch'
-    | 'password-reset-request'
-    | 'password-reset-success'
-    | 'picture-updated'
-    | 'removed'
-    | 'role-added'
-    | 'role-removed'
-    | 'server-error'
-    | 'unverified'
-    | 'updated'
-    | 'username-changed'
-    | 'username-taken'
-    | 'verified';
+export type AccountStatusId = 'already-logged-in'
+	| 'cannot-edit-self'
+	| 'cannot-reject-verified'
+	| 'check-email'
+	| 'created'
+	| 'email-change-expired'
+	| 'email-taken'
+	| 'has-role'
+	| 'incorrect-username-or-password'
+	| 'invalid-email'
+	| 'invalid-first-name'
+	| 'invalid-last-name'
+	| 'invalid-password'
+	| 'invalid-password-reset-key'
+	| 'invalid-username'
+	| 'invalid-verification-key'
+	| 'logged-in'
+	| 'logged-out'
+	| 'no-role'
+	| 'not-found'
+	| 'not-logged-in'
+	| 'not-verified'
+	| 'password-mismatch'
+	| 'password-reset-request'
+	| 'password-reset-success'
+	| 'picture-updated'
+	| 'removed'
+	| 'role-added'
+	| 'role-removed'
+	| 'server-error'
+	| 'unverified'
+	| 'updated'
+	| 'username-changed'
+	| 'username-taken'
+	| 'verified';
 
 export type AdminStatusId = 'invalid-key';
 
@@ -678,23 +803,43 @@ export type FilesStatusId =
     | 'too-large'
     | 'uploaded';
 
-export type MemberStatusId =
-    | 'accepted'
-    | 'add-skill'
-    | 'already-member'
-    | 'cannot-manage'
-    | 'invalid-request'
-    | 'membership-responded'
-    | 'not-found'
-    | 'not-member'
-    | 'rejected'
-    | 'remove-skill'
-    | 'request-sent'
-    | 'revoked'
-    | 'status-updated'
-    | 'update-bio'
-    | 'update-resume'
-    | 'update-title';
+export type DiscordStatusId = 'account-linked'
+	| 'invalid-link'
+	| 'link-expired';
+
+
+export type EventStatusId = 'update-properties';
+
+
+
+export type MatchStatusId = 'not-found';
+
+
+export type MatchcommentsStatusId = 'delete'
+	| 'new';
+
+
+export type MatchscoutingStatusId = 'delete'
+	| 'new';
+
+
+export type MemberStatusId = 'accepted'
+	| 'add-skill'
+	| 'already-member'
+	| 'cannot-manage'
+	| 'invalid-request'
+	| 'membership-responded'
+	| 'not-found'
+	| 'not-member'
+	| 'rejected'
+	| 'remove-skill'
+	| 'request-sent'
+	| 'revoked'
+	| 'status-updated'
+	| 'update-bio'
+	| 'update-resume'
+	| 'update-title';
+
 
 export type PageStatusId = 'not-found';
 
@@ -703,6 +848,10 @@ export type PermissionsStatusId =
     | 'forbidden'
     | 'invalid'
     | 'unauthorized';
+
+export type PitscoutingStatusId = 'delete'
+	| 'new';
+
 
 export type ProfanityStatusId = 'undefined';
 
@@ -725,8 +874,20 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
-export type TestStatusId =
-    | 'fail'
-    | 'success';
+
+export type StrategyStatusId = 'delete'
+	| 'new';
+
+
+export type TestStatusId = 'fail'
+	| 'success';
+
 
 export type UnknownStatusId = 'error';
+
+
+export type WhiteboardStatusId = 'deleted'
+	| 'match-not-found'
+	| 'not-found'
+	| 'update'
+	| 'created';

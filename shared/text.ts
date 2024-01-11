@@ -37,8 +37,7 @@ export const toSnakeCase = (str: string, del = '_'): string =>
  * Converts a string from camelCase to "camel case"
  * @param str
  * @returns
- */
-export const fromCamelCase = (str: string): string =>
+ */ export const fromCamelCase = (str: string): string =>
     str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`);
 
 /**
@@ -46,24 +45,19 @@ export const fromCamelCase = (str: string): string =>
  * @param str
  * @returns
  */
+// HEAD
 export const fromSnakeCase = (str: string, del = '_'): string =>
     str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
+
+export const streamDelimiter = '<';
+//42d325356500c50aff4cddcea006e8a21321e442
 
 /**
  * Abbreviates a string to a given length (appending ...)
  * @date 1/9/2024 - 12:04:06 PM
- */
-export const abbreviate = (string: string, length = 10): string => {
+ */ export const abbreviate = (string: string, length = 10): string => {
     if (length < 3) throw new Error('Abbreviation length must be at least 3');
 
     if (string.length <= length) return string;
     return string.substring(0, length - 3) + '...';
 };
-
-/**
- * Used for streams, you can ignore this
- * @date 1/9/2024 - 12:04:06 PM
- *
- * @type {"<"}
- */
-export const streamDelimiter = '<';
