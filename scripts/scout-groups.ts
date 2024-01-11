@@ -4,7 +4,7 @@ import {
     generateScoutGroups,
     testAssignments,
 } from '../shared/scout-groups.ts';
-import { saveJSON } from '../server/utilities/files.ts';
+import { saveJSON, saveJSONSync } from '../server/utilities/files.ts';
 import { error, log } from '../server/utilities/terminal-logging.ts';
 
 const [key] = Deno.args;
@@ -22,6 +22,13 @@ if (!regex.test(key)) {
 
 const matches = await TBA.get<TBAMatch[]>(`/event/${key}/matches`);
 const teams = await TBA.get<TBATeam[]>(`/event/${key}/teams`);
+
+// const str = JSON.stringify({
+//     matches,
+//     teams
+// }, null, 2);
+
+// saveJSONSync(`${key}-scout-groups`, str);
 
 if (!matches || !teams) throw new Error('Failed to fetch matches or teams');
 
