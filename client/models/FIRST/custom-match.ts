@@ -4,7 +4,9 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { FIRSTTeam } from './team';
 import { FIRSTEvent } from './event';
 
-type CustomMatchEventData = {};
+type CustomMatchEventData = {
+    'update': CustomMatch;
+};
 
 export class CustomMatch extends Cache<CustomMatchEventData> {
     private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<

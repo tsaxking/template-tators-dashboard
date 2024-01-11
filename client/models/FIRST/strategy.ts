@@ -15,7 +15,9 @@ import { Cache, Updates } from '../cache';
  *
  * @typedef {StrategyUpdateData}
  */
-type StrategyUpdateData = {};
+type StrategyUpdateData = {
+    'update': Strategy;
+};
 
 /**
  * Used to create a {@link Strategy} object from different sources
