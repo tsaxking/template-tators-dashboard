@@ -118,7 +118,8 @@
             "./tests/**/*.ts",
             "./deno.json",
             "./client/**/*.ts",
-            "./storage/**/*.ts"
+            "./storage/**/*.ts",
+            "./shared/**/*.ts"
         ],
         "indentWidth": 4,
         "lineWidth": 80,
