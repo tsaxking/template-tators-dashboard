@@ -14,6 +14,7 @@ deno.lock
 
 credentials.json
 token.json
+*.assignment.json
 
 # *.js
 # !require.js
@@ -27,7 +28,7 @@ uploads/
 static/build/
 */scss/*.css
 ignore-list.txt
-*/logs/*.csv
+*.csv
 *.db
 *.db-journal
 
