@@ -1,7 +1,7 @@
-import { init } from '../storage/db/scripts/init.ts';
-import { repeatPrompt } from './prompt.ts';
-import { fromCamelCase, toSnakeCase } from '../shared/text.ts';
-import { error, log } from '../server/utilities/terminal-logging.ts';
+import { init } from "../storage/db/scripts/init.ts";
+import { repeatPrompt } from "./prompt.ts";
+import { toSnakeCase,fromCamelCase } from "../shared/text.ts";
+import { log, error } from "../server/utilities/terminal-logging.ts";
 import fs from 'node:fs';
 import env, { __root, resolve } from '../server/utilities/env.ts';
 
@@ -96,6 +96,8 @@ const createEnv = () => {
         true,
     );
     values.tbaKey = runPrompt('TBA Key: (no default)', '', undefined, true);
+    values.databaseLink = runPrompt('Database Link: (default: main)', 'main', (i) => i.length > 0, true);
+    values.eventApiKey = runPrompt('Event API Key: (no default)', '', undefined, true);
     values.databaseLink = runPrompt(
         'Database Link: (default: main)',
         'main',
@@ -105,9 +107,7 @@ const createEnv = () => {
 
     Object.assign(env, values);
 
-    const e = Object.keys(values).map((key) =>
-        `${fromCamelCase(toSnakeCase(key)).toUpperCase()} = '${values[key]}'`
-    ).join('\n');
+    const e = Object.keys(values).map((key) => `${toSnakeCase(fromCamelCase(key)).toUpperCase()} = '${values[key]}'`).join('\n');
     Deno.writeTextFileSync(
         resolve(
             __root,
