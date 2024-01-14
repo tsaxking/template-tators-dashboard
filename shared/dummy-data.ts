@@ -68,7 +68,7 @@ export const createMatchScouting = (
         team,
         scoutId,
         scoutGroup: String(choose([0, 1, 2, 3, 4, 5, 6])),
-        trace: generateTrace(),
+        trace: JSON.stringify(generateTrace()),
         preScouting: false,
         time: String(Date.now()),
     }
@@ -93,7 +93,7 @@ const actions: Action[] = [
     'clb'
 ];
 
-export const generateTrace = (): string => {
+export const generateTrace = () => {
     class Tick {
         public pos: Point2D | undefined;
         public action: Action | undefined;
@@ -162,9 +162,8 @@ export const generateTrace = (): string => {
             return tick;
         }
 
-        generate(): string {
-            const ticks = this.ticks.map(t => this.move(t)).map(t => t.simplify());
-            return JSON.stringify(ticks);
+        generate() {
+            return this.ticks.map(t => this.move(t)).map(t => t.simplify());
         }
     }
 
