@@ -18,17 +18,12 @@ export const uuid = (options?: {
     return result;
 };
 
-
-
-
 /**
  * Chooses a random element from an array
  * @date 1/11/2024 - 7:11:15 PM
  */
-export const choose = <T>(array: T[]): T => array[Math.floor(Math.random() * array.length)];
-
-
-
+export const choose = <T>(array: T[]): T =>
+    array[Math.floor(Math.random() * array.length)];
 
 /**
  * Returns a shuffled version of the array
@@ -42,4 +37,4 @@ export const shuffle = <T>(array: T[]): T[] => {
         array.splice(index, 1);
     }
     return result;
-}
+};

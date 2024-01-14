@@ -575,7 +575,7 @@ export type Queries = {
             team: number;
             scoutId: string;
             scoutGroup: string;
-            time: number;
+            time: string;
             preScouting: boolean;
             trace: string; // json array
         }],
@@ -627,7 +627,7 @@ export type Queries = {
             team: number;
             scoutId: string;
             scoutGroup: string;
-            time: number;
+            time: string;
             preScouting: boolean;
             trace: string; // json array
         }],
