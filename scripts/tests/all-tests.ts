@@ -61,8 +61,8 @@ export const runTests = async () => {
         if (!regex.test(eventKey)) throw new Error('Invalid event key');
 
         const data = await getJSONSync<{
-            matches: TBAMatch[],
-            teams: TBATeam[]
+            matches: TBAMatch[];
+            teams: TBATeam[];
         }>('scout-group-test');
 
         if (!data) throw new Error('Failed to fetch data');
