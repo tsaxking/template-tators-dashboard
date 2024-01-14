@@ -91,4 +91,4 @@ export class $Math {
         const mult = Math.pow(10, sigFigs);
         return Math.round(num * mult) / mult;
     }
-}
+};

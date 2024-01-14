@@ -11,6 +11,7 @@ import { EventEmitter } from './event-emitter.ts';
 type StateStackOptions = {
     max?: number;
     copy?: (data: any) => any;
+    listenerTarget?: any;
 };
 
 /**
