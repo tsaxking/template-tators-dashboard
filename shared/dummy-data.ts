@@ -1,5 +1,4 @@
-import { uuid } from './random.ts';
-import { choose } from './random.ts';
+import { Random } from './random.ts';
 import {
     Point,
     Point2D,
