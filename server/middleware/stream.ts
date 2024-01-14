@@ -18,10 +18,11 @@ import { EventEmitter } from '../../shared/event-emitter.ts';
  *
  * @typedef {FileStreamOptions}
  */
-type FileStreamOptions = {
-    maxFileSize?: number;
-    extensions?: string[];
-};
+type FileStreamOptions = Partial<{
+    maxFileSize: number;
+    extensions: string[];
+    maxFiles: number;
+}>;
 
 /**
  * File upload object
@@ -70,7 +71,16 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
         else body = {};
 
         // forced to use any because Deno FormData is not typed accurately yet
-        reqBody.getAll('file').forEach(async (file, i, a) => {
+
+        const files = reqBody.getAll('file');
+        if (opts?.maxFiles && files.length > opts.maxFiles) {
+            return res.sendStatus('files:too-many-files', {
+                maxFiles: opts.maxFiles,
+                ...body
+            });
+        }
+
+        files.forEach(async (file, i, a) => {
             if (file instanceof File) {
                 const name = file.name;
                 const ext = name.split('.').pop()?.toLowerCase() || '';
