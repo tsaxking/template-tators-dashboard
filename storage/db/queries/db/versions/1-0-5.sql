@@ -1,0 +1,1 @@
+ALTER TABLE MatchScouting ADD COLUMN 'eventKey' TEXT NOT NULL;

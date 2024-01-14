@@ -178,14 +178,12 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
-        redirect: '/home',
     },
     'account:logged-out': {
         message: 'You have been logged out.',
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
-        redirect: '/home',
     },
     'account:no-role': {
         message: 'This account does not have this role',
@@ -344,6 +342,12 @@ export const messages: {
         color: 'danger',
         code: 400,
         instructions: 'Please try again.',
+    },
+    'files:too-many-files': {
+        message: 'Too many files were uploaded',
+        color: 'danger',
+        code: 413,
+        instructions: 'please upload fewer files',
     },
     'files:uploaded': {
         message: 'File uploaded',
@@ -707,6 +711,7 @@ export type StatusId =
     | 'files:invalid-extension'
     | 'files:no-files'
     | 'files:too-large'
+    | 'files:too-many-files'
     | 'files:uploaded'
     | 'match-comments:delete'
     | 'match-comments:new'
@@ -804,7 +809,8 @@ export type FilesStatusId =
     | 'invalid-extension'
     | 'no-files'
     | 'too-large'
-    | 'uploaded';
+    | 'uploaded'
+    | 'too-many-files';
 
 export type DiscordStatusId =
     | 'account-linked'
