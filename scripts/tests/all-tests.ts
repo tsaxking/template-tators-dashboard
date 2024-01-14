@@ -3,6 +3,12 @@ import { __root } from '../../server/utilities/env.ts';
 import '../init.ts';
 import { runCommand, runTask } from '../../server/utilities/run-task.ts';
 import { log } from '../../server/utilities/terminal-logging.ts';
+import {
+    generateScoutGroups,
+    testAssignments,
+} from '../../shared/scout-groups.ts';
+import { TBAMatch, TBATeam } from '../../shared/tba.ts';
+import { getJSONSync } from '../../server/utilities/files.ts';
 
 export const runTests = async () => {
     Deno.test('Database Speed and Reliability', async () => {
@@ -47,5 +53,26 @@ export const runTests = async () => {
         const result = await runCommand('echo "test"');
         log('Command result:', result);
         assertEquals(result.error, null);
+    });
+
+    Deno.test('Scout groups', async () => {
+        const eventKey = '2023cabl';
+        const regex = /^([0-9]{4}[a-z]{3,4})$/i;
+        if (!regex.test(eventKey)) throw new Error('Invalid event key');
+
+        const data = await getJSONSync<{
+            matches: TBAMatch[],
+            teams: TBATeam[]
+        }>('scout-group-test');
+
+        if (!data) throw new Error('Failed to fetch data');
+
+        const { matches, teams } = data;
+
+        const assignments = generateScoutGroups(teams, matches);
+
+        const result = testAssignments(assignments);
+
+        assertEquals(result.status, 'ok');
     });
 };
