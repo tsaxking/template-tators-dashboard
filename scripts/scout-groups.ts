@@ -1,9 +1,12 @@
 import { TBA } from '../server/utilities/tba/tba.ts';
-import { TBAMatch, TBATeam } from '../shared/tba.ts';
+import {
+    TBAMatch,
+    TBATeam,
+} from '../shared/submodules/tatorscout-calculations/tba.ts';
 import {
     generateScoutGroups,
     testAssignments,
-} from '../shared/scout-groups.ts';
+} from '../shared/submodules/tatorscout-calculations/scout-groups.ts';
 import { saveJSON, saveJSONSync } from '../server/utilities/files.ts';
 import { error, log } from '../server/utilities/terminal-logging.ts';
 

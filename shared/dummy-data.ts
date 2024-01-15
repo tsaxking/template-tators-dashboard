@@ -62,7 +62,7 @@ export const createMatchScouting = (
         trace: JSON.stringify(generateTrace()),
         preScouting: false,
         time: String(Date.now()),
-    }
+    };
 };
 
 const initPoints: Point2D[] = [
@@ -81,7 +81,7 @@ const actions: Action[] = [
     'amp',
     'src',
     'trp',
-    'clb'
+    'clb',
 ];
 
 export const generateTrace = () => {
@@ -99,11 +99,11 @@ export const generateTrace = () => {
             const simple: [
                 number,
                 number,
-                string
+                string,
             ] = [-1, -1, ''];
 
             if (this.pos) {
-                simple[0] = $Math.roundTo(4,this.pos[0]);
+                simple[0] = $Math.roundTo(4, this.pos[0]);
                 simple[1] = $Math.roundTo(4, this.pos[1]);
             }
 
@@ -154,7 +154,7 @@ export const generateTrace = () => {
         }
 
         generate() {
-            return this.ticks.map(t => this.move(t)).map(t => t.simplify());
+            return this.ticks.map((t) => this.move(t)).map((t) => t.simplify());
         }
     }
 
