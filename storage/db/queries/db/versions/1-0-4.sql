@@ -13,6 +13,14 @@ ALTER TABLE MatchComments DROP COLUMN time;
 ALTER TABLE MatchComments ADD COLUMN time TEXT; -- changing to TEXT
 ALTER TABLE MatchComments RENAME TO TeamComments;
 
+-- Something is wrong with foreign keys, so we're dropping them and re-adding them
+DROP TABLE IF EXISTS Teams;
+CREATE TABLE IF NOT EXISTS Teams (
+    number INTEGER NOT NULL,
+    eventKey TEXT NOT NULL,
+    watchPriority INTEGER NOT NULL DEFAULT 0
+);
+
 
 CREATE TABLE IF NOT EXISTS ScoutingQuestionOptions (
     id TEXT PRIMARY KEY,

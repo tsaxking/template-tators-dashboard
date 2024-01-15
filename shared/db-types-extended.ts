@@ -1,17 +1,45 @@
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {Event}
+ */
 export type Event = {
     eventKey: string;
     flipX: 0 | 1;
     flipY: 0 | 1;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {Team}
+ */
 export type Team = {
     number: number;
     watchPriority: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
     eventKey: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {CompLevel}
+ */
 export type CompLevel = 'pr' | 'qm' | 'ef' | 'qf' | 'sf' | 'f';
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {Match}
+ */
 export type Match = {
     id: string;
     eventKey: string;
@@ -19,6 +47,13 @@ export type Match = {
     compLevel: CompLevel;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {CustomMatch}
+ */
 export type CustomMatch = {
     id: string;
     eventKey: string;
@@ -34,11 +69,25 @@ export type CustomMatch = {
     blue3: number;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {ScoutingSection}
+ */
 export type ScoutingSection = {
     name: string;
     multiple: 0 | 1;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {Whiteboard}
+ */
 export type Whiteboard = {
     id: string;
     eventKey: string;
@@ -48,6 +97,13 @@ export type Whiteboard = {
     customMatchId?: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {MatchScoutingComments}
+ */
 export type MatchScoutingComments = {
     id: string;
     matchId: string;
@@ -57,11 +113,25 @@ export type MatchScoutingComments = {
     time: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {ScoutingQuestionSection}
+ */
 export type ScoutingQuestionSection = {
     name: string;
     multiple: boolean;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {ScoutingQuestionGroup}
+ */
 export type ScoutingQuestionGroup = {
     id: string;
     eventKey: string;
@@ -69,6 +139,13 @@ export type ScoutingQuestionGroup = {
     name: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {ScoutingQuestion}
+ */
 export type ScoutingQuestion = {
     id: string;
     question: string;
@@ -86,6 +163,13 @@ export type ScoutingQuestion = {
     groupId: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {ScoutingAnswer}
+ */
 export type ScoutingAnswer = {
     id: string;
     questionId: string;
@@ -93,6 +177,13 @@ export type ScoutingAnswer = {
     teamNumber: number;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {TBARequest}
+ */
 export type TBARequest = {
     url: string;
     response: string;
@@ -100,6 +191,13 @@ export type TBARequest = {
     update: 0 | 1;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {Checklist}
+ */
 export type Checklist = {
     id: string;
     name: string;
@@ -107,6 +205,13 @@ export type Checklist = {
     description: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {ChecklistQuestion}
+ */
 export type ChecklistQuestion = {
     id: string;
     checklistId: string;
@@ -114,11 +219,25 @@ export type ChecklistQuestion = {
     interval: number;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {CheckListAssignment}
+ */
 export type CheckListAssignment = {
     checklistId: string;
     accountId: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {ChecklistAnswer}
+ */
 export type ChecklistAnswer = {
     id: string;
     accountId: string;
@@ -126,6 +245,13 @@ export type ChecklistAnswer = {
     matchId: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {Alliance}
+ */
 export type Alliance = {
     id: string;
     name: string;
@@ -135,6 +261,13 @@ export type Alliance = {
     team3: number;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {Strategy}
+ */
 export type Strategy = {
     id: string;
     time: string;
@@ -146,6 +279,13 @@ export type Strategy = {
     comment: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {MatchScouting}
+ */
 export type MatchScouting = {
     id: string;
     matchId: string;
@@ -157,6 +297,13 @@ export type MatchScouting = {
     trace: string; // json array
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {RetrievedMatchScouting}
+ */
 export type RetrievedMatchScouting = {
     id: string;
     team: number;
@@ -171,6 +318,13 @@ export type RetrievedMatchScouting = {
     compLevel: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {RetrievedScoutingAnswer}
+ */
 export type RetrievedScoutingAnswer = {
     id: string;
     teamNumber: number;
@@ -193,6 +347,13 @@ export type RetrievedScoutingAnswer = {
     groupName: string;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:57 AM
+ *
+ * @export
+ * @typedef {DiscordPair}
+ */
 export type DiscordPair = {
     key: string;
     id: string;

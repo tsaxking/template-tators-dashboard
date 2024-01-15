@@ -68,9 +68,7 @@ export const runTests = async () => {
         if (!data) throw new Error('Failed to fetch data');
 
         const { matches, teams } = data;
-
         const assignments = generateScoutGroups(teams, matches);
-
         const result = testAssignments(assignments);
 
         assertEquals(result.status, 'ok');
