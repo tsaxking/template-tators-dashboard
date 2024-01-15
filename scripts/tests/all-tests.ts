@@ -6,8 +6,11 @@ import { log } from '../../server/utilities/terminal-logging.ts';
 import {
     generateScoutGroups,
     testAssignments,
-} from '../../shared/scout-groups.ts';
-import { TBAMatch, TBATeam } from '../../shared/tba.ts';
+} from '../../shared/submodules/tatorscout-calculations/scout-groups.ts';
+import {
+    TBAMatch,
+    TBATeam,
+} from '../../shared/submodules/tatorscout-calculations/tba.ts';
 import { getJSONSync } from '../../server/utilities/files.ts';
 
 export const runTests = async () => {

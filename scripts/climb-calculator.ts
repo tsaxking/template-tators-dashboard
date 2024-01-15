@@ -1,8 +1,9 @@
-import Y from 'https://esm.sh/v132/posthtml-parser@0.11.0/denonext/posthtml-parser.mjs';
 import { TBA } from '../server/utilities/tba/tba.ts';
-import { TBAEvent, YearTBAMatch } from '../shared/tba.ts';
+import {
+    TBAEvent,
+    YearTBAMatch,
+} from '../shared/submodules/tatorscout-calculations/tba.ts';
 import { attempt, attemptAsync } from '../shared/attempt.ts';
-import { all } from 'https://deno.land/x/emoji@0.1.2/emoji.ts';
 
 // console.log(weekEvents.map((e) => e.length));
 

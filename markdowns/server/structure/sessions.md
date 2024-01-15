@@ -5,14 +5,16 @@ server's database under Sessions and are identified by a unique ID. The session
 ID is stored in a cookie on the client's browser called ssid.
 
 <<<<<<< HEAD
+
 ## Initializing Sessions
-To utilize sessions, you must have the database setup properly. Please ensure that you run "deno task update" every time you pull from the repository.
-=======
+
+# To utilize sessions, you must have the database setup properly. Please ensure that you run "deno task update" every time you pull from the repository.
+
 ## Utilizing Sessions
 
 To utilize sessions, you must have the database setup properly. Please ensure
-that you run "deno task update" every time you pull from the repository.
->>>>>>> main
+that you run "deno task update" every time you pull from the repository. >>>>>>>
+main
 
 To use the session class, it's super simple:
 
@@ -25,9 +27,11 @@ const app = new App(3000, 'https://localhost:3000');
 // this will ensure that the session is created and the cookie is setq
 app.use(Session.middleware());
 ```
+
 <<<<<<< HEAD
 
 ## Accounts
+
 The user's account is accessible through their session object.
 
 ```typescript runnable
@@ -44,6 +48,7 @@ app.post('/sign-in', (req, res) => {
 ```
 
 ## Socket.io
+
 You can emit events to the user's socket by using the session object.
 
 ```typescript runnable
@@ -51,5 +56,5 @@ app.get('/', (req, res) => {
     req.session.emit('event', { data: 'data' });
 });
 ```
-=======
->>>>>>> main
+
+======= >>>>>>> main

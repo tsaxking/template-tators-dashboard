@@ -3,7 +3,11 @@ import { TBA } from '../server/utilities/tba/tba.ts';
 import { error, log } from '../server/utilities/terminal-logging.ts';
 import { uuid } from '../server/utilities/uuid.ts';
 import { CompLevel } from '../shared/db-types-extended.ts';
-import { TBAEvent, TBAMatch, TBATeam } from '../shared/tba.ts';
+import {
+    TBAEvent,
+    TBAMatch,
+    TBATeam,
+} from '../shared/submodules/tatorscout-calculations/tba.ts';
 
 export const saveEvent = async (eventKey: string) => {
     const event = await TBA.get<TBAEvent>('/event/' + eventKey);

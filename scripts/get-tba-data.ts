@@ -1,5 +1,5 @@
 import { TBA } from '../server/utilities/tba/tba.ts';
-import { TBAMatch } from '../shared/tba.ts';
+import { TBAMatch } from '../shared/submodules/tatorscout-calculations/tba.ts';
 
 const matches = await TBA.get<TBAMatch[]>('/event/2018utwv/matches');
 

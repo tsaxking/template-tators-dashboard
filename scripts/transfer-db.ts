@@ -684,14 +684,18 @@ const transferTeams = () => {
     }[];
 
     for (const t of teams) {
-        DB.unsafe.run(`
+        DB.unsafe.run(
+            `
             INSERT INTO Teams (
                 number,
                 eventKey
             ) VALUES (
                 ?, ?
             )
-        `, t.number, t.eventKey);
+        `,
+            t.number,
+            t.eventKey,
+        );
 
         DB.unsafe.run(
             `

@@ -1,4 +1,4 @@
-import { TBAEvent } from '../../../shared/tba.ts';
+import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
 import { DB } from '../databases.ts';
 import env from '../env.ts';
 import { error, log } from '../terminal-logging.ts';
