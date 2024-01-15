@@ -1,3 +1,10 @@
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:40 AM
+ *
+ * @export
+ * @typedef {YearTBAMatch}
+ */
 export type YearTBAMatch = {
     2024: TBAMatch;
     2023: {
@@ -925,6 +932,13 @@ export type YearTBAMatch = {
     };
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:40 AM
+ *
+ * @export
+ * @typedef {TBAEvent}
+ */
 export type TBAEvent = {
     key: string;
     name: string;
@@ -944,6 +958,13 @@ export type TBAEvent = {
     year: number;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:40 AM
+ *
+ * @export
+ * @typedef {TBAEventSimple}
+ */
 export type TBAEventSimple = {
     key: string;
     name: string;
@@ -963,6 +984,13 @@ export type TBAEventSimple = {
     year: number;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:40 AM
+ *
+ * @export
+ * @typedef {TBAMatch}
+ */
 export type TBAMatch = {
     key: string;
     comp_level: string;
@@ -994,6 +1022,13 @@ export type TBAMatch = {
     }[];
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:40 AM
+ *
+ * @export
+ * @typedef {TBAMatchSimple}
+ */
 export type TBAMatchSimple = {
     key: string;
     comp_level: string;
@@ -1025,6 +1060,13 @@ export type TBAMatchSimple = {
     }[];
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:40 AM
+ *
+ * @export
+ * @typedef {TBATeam}
+ */
 export type TBATeam = {
     key: string;
     team_number: number;
@@ -1051,6 +1093,13 @@ export type TBATeam = {
     };
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:10:40 AM
+ *
+ * @export
+ * @typedef {TBATeamSimple}
+ */
 export type TBATeamSimple = {
     key: string;
     team_number: number;

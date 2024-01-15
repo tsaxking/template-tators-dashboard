@@ -1,17 +1,9 @@
+import { $Math } from './math.ts';
 import { Random } from './random.ts';
 import {
     Point,
     Point2D,
 } from './submodules/calculations/src/linear-algebra/point.ts';
-
-const randBetween = (min: number, max: number) =>
-    Math.floor(Math.random() * (max - min + 1) + min);
-
-const roundTo = (sigFigs: number, num: number) => {
-    const mult = Math.pow(10, sigFigs);
-    return Math.round(num * mult) / mult;
-
-}
 
 const chars = 'abcdefghijklmnopqrstuvwxyz';
 const char = (num: number) =>
@@ -47,7 +39,7 @@ export const createMatch = (
     compLevel: 'pr' | 'qm' | 'qf' | 'sf' | 'f',
 ) => {
     if (i < 1) throw new Error('i must be greater than 0');
-    const id = uuid();
+    const id = Random.uuid();
     return {
         id,
         eventKey,
@@ -62,11 +54,11 @@ export const createMatchScouting = (
     scoutId: string,
 ) => {
     return {
-        id: uuid() as string,
+        id: Random.uuid() as string,
         matchId,
         team,
         scoutId,
-        scoutGroup: String(choose([0, 1, 2, 3, 4, 5, 6])),
+        scoutGroup: String(Random.choose([0, 1, 2, 3, 4, 5, 6])),
         trace: JSON.stringify(generateTrace()),
         preScouting: false,
         time: String(Date.now()),
@@ -111,8 +103,8 @@ export const generateTrace = () => {
             ] = [-1, -1, ''];
 
             if (this.pos) {
-                simple[0] = roundTo(4,this.pos[0]);
-                simple[1] = roundTo(4, this.pos[1]);
+                simple[0] = $Math.roundTo(4,this.pos[0]);
+                simple[1] = $Math.roundTo(4, this.pos[1]);
             }
 
             if (this.action) simple[2] = this.action;
@@ -125,12 +117,12 @@ export const generateTrace = () => {
         public ticks: Tick[] = new Array(150 * 4).fill(null).map((_, i) =>
             new Tick(i)
         );
-        public pos = choose(initPoints);
-        public readonly vel = randBetween(3, 15);
+        public pos = Random.choose(initPoints);
+        public readonly vel = Random.between(3, 15);
         public currentTick = this.ticks[0];
 
         move(tick: Tick) {
-            const dir: Point2D = choose(
+            const dir: Point2D = Random.choose(
                 new Array(8).fill(0).map((_, i) => {
                     const angle = i * 45;
                     const x = Math.cos(angle);
@@ -140,7 +132,7 @@ export const generateTrace = () => {
             );
 
             const v = new Point(dir[0] * 27, dir[1] * 54);
-            v.scale(randBetween(0, this.vel));
+            v.scale(Random.between(0, this.vel));
             v.x = v.x / 27;
             v.y = v.y / 54;
 
@@ -154,8 +146,8 @@ export const generateTrace = () => {
             if (tick.pos[0] > 1) tick.pos[0] = 2 - tick.pos[0];
             if (tick.pos[1] > 1) tick.pos[1] = 2 - tick.pos[1];
 
-            if (randBetween(0, 100) < 5) {
-                tick.action = choose(actions);
+            if (Random.between(0, 100) < 5) {
+                tick.action = Random.choose(actions);
             }
 
             return tick;

@@ -2,13 +2,37 @@ import { ServerRequest } from './requests';
 import { TBAEvent } from '../../shared/tba';
 import { FIRSTEvent } from '../models/FIRST/event';
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:11:24 AM
+ *
+ * @export
+ * @typedef {TBAResponse}
+ * @template T
+ */
 export type TBAResponse<T> = {
     data: T;
     time: number;
     onUpdate: (callback: (data: T) => void, interval?: number) => void;
 };
 
+/**
+ * Description placeholder
+ * @date 1/11/2024 - 3:11:24 AM
+ *
+ * @export
+ * @class TBA
+ * @typedef {TBA}
+ */
 export class TBA {
+    /**
+     * Description placeholder
+     * @date 1/11/2024 - 3:11:24 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<string>}
+     */
     static async getAPIKey(): Promise<string> {
         let item = localStorage.getItem('tba-api-key');
         if (item) return item;
@@ -52,7 +76,7 @@ export class TBA {
             type Callback = (data: T) => void;
 
             class IntervalEmitter {
-                interval: NodeJS.Timeout;
+                interval: number;
                 callbacks: Callback[] = [];
 
                 constructor(private readonly time: number) {
@@ -94,6 +118,16 @@ export class TBA {
         });
     }
 
+    /**
+     * Description placeholder
+     * @date 1/11/2024 - 3:11:24 AM
+     *
+     * @private
+     * @static
+     * @template T
+     * @param {string} path
+     * @param {T} data
+     */
     private static storeCache<T>(path: string, data: T) {
         try {
             localStorage.setItem(path, JSON.stringify(data));
@@ -102,6 +136,16 @@ export class TBA {
         }
     }
 
+    /**
+     * Description placeholder
+     * @date 1/11/2024 - 3:11:23 AM
+     *
+     * @private
+     * @static
+     * @template T
+     * @param {string} path
+     * @returns {(T | null)}
+     */
     private static retrieveCache<T>(path: string): T | null {
         const item = localStorage.getItem(path);
         if (!item) return null;
@@ -113,6 +157,16 @@ export class TBA {
         }
     }
 
+    /**
+     * Description placeholder
+     * @date 1/11/2024 - 3:11:23 AM
+     *
+     * @static
+     * @async
+     * @param {string} eventKey
+     * @param {boolean} [simple=false]
+     * @returns {Promise<TBAResponse<FIRSTEvent>>}
+     */
     static async getEvent(
         eventKey: string,
         simple = false,

@@ -684,6 +684,15 @@ const transferTeams = () => {
     }[];
 
     for (const t of teams) {
+        DB.unsafe.run(`
+            INSERT INTO Teams (
+                number,
+                eventKey
+            ) VALUES (
+                ?, ?
+            )
+        `, t.number, t.eventKey);
+
         DB.unsafe.run(
             `
             INSERT INTO TeamPictures (
