@@ -8,16 +8,20 @@ import Account from '../pages/account.svelte';
 const groups = [
     {
         name: 'Home',
-        pages: [
-            {
-                name: 'dashboard',
-                icon: 'home'
-            },
-            {
-                name: 'account',
-                icon: 'person'
-            }
-        ]
+        pages: [{
+            name: 'dashboard',
+            icon: 'home'
+        },{
+            name: 'account',
+            icon: 'person'
+        }]
+    }];
+
+    let active: string = 'Robot Display';
+    const domain = 'tatorscout.org'
+
+    const openPage = ({ detail }) => {
+        active = detail;
     }
 ];
 
