@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { FIRSTTeam } from "../../../models/FIRST/team";
+import { FIRSTTeam } from '../../../models/FIRST/team';
 
-    export let team: FIRSTTeam;
+export let team: FIRSTTeam;
 </script>

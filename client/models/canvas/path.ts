@@ -60,10 +60,12 @@ export class Path implements Drawable {
      * @param {...Point2D[]} points
      */
     add(...points: Point2D[]) {
-        this.points.push(...points.map((p) => {
-            setTimeout(() => this.points.shift(), 3000);
-            return p;
-        }));
+        this.points.push(
+            ...points.map((p) => {
+                setTimeout(() => this.points.shift(), 3000);
+                return p;
+            }),
+        );
     }
 }
 

@@ -12,12 +12,14 @@ router.post('/get-account', async (req, res) => {
     const { account } = req.session;
 
     if (account) {
-        res.json(account.safe({
-            roles: true,
-            memberInfo: true,
-            permissions: true,
-            email: true,
-        }));
+        res.json(
+            account.safe({
+                roles: true,
+                memberInfo: true,
+                permissions: true,
+                email: true,
+            }),
+        );
     } else res.sendStatus('account:not-logged-in');
 });
 
@@ -45,25 +47,20 @@ router.post<{
         password: (v: any) => typeof v == 'string',
     }),
     (req, res) => {
-        const {
-            username,
-            password,
-        } = req.body;
+        const { username, password } = req.body;
 
         const account = Account.fromUsername(username) ||
             Account.fromEmail(username);
 
         // send the same error for both username and password to prevent username enumeration
         if (!account) {
-            return res.sendStatus(
-                'account:incorrect-username-or-password',
-            );
+            return res.sendStatus('account:incorrect-username-or-password');
         }
         const hash = Account.hash(password, account.salt);
         if (hash !== account.key) {
-            return Status
-                .from('account:password-mismatch', req, { username: username })
-                .send(res);
+            return Status.from('account:password-mismatch', req, {
+                username: username,
+            }).send(res);
         }
         if (!account.verified) {
             return res.sendStatus('account:not-verified', {
@@ -106,10 +103,7 @@ router.post<{
         } = req.body;
 
         if (password !== confirmPassword) {
-            return Status.from(
-                'account:password-mismatch',
-                req,
-            ).send(res);
+            return Status.from('account:password-mismatch', req).send(res);
         }
 
         const status = await Account.create(
@@ -120,7 +114,7 @@ router.post<{
             lastName,
         );
 
-        res.sendStatus('account:' + status as StatusId, { username });
+        res.sendStatus(('account:' + status) as StatusId, { username });
     },
 );
 
@@ -139,15 +133,13 @@ router.post<{
         const { username } = req.body;
 
         if (username === req.session.account?.username) {
-            return res.sendStatus(
-                'account:cannot-edit-self',
-            );
+            return res.sendStatus('account:cannot-edit-self');
         }
 
         const a = Account.fromUsername(username);
         if (!a) return res.sendStatus('account:not-found');
         const status = await a.verify();
-        res.sendStatus('account:' + status as StatusId, { username });
+        res.sendStatus(('account:' + status) as StatusId, { username });
     },
 );
 
@@ -163,22 +155,18 @@ router.post<{
         const { username } = req.body;
 
         if (username === req.session.account?.username) {
-            return res.sendStatus(
-                'account:cannot-edit-self',
-            );
+            return res.sendStatus('account:cannot-edit-self');
         }
 
         const account = Account.fromUsername(username);
         if (!account) return res.sendStatus('account:not-found', { username });
 
         if (account.verified) {
-            return res.sendStatus(
-                'account:cannot-reject-verified',
-            );
+            return res.sendStatus('account:cannot-reject-verified');
         }
 
         const status = Account.delete(username);
-        res.sendStatus('account:' + status as StatusId, { username });
+        res.sendStatus(('account:' + status) as StatusId, { username });
     },
 );
 
@@ -187,14 +175,16 @@ router.post(
     Account.allowPermissions('verify'),
     (_req, res) => {
         const accounts = Account.unverifiedAccounts;
-        res.json(accounts.map((a) =>
-            a.safe({
-                roles: true,
-                memberInfo: true,
-                permissions: true,
-                email: true,
-            })
-        ));
+        res.json(
+            accounts.map((a) =>
+                a.safe({
+                    roles: true,
+                    memberInfo: true,
+                    permissions: true,
+                    email: true,
+                })
+            ),
+        );
     },
 );
 
@@ -215,14 +205,11 @@ router.post<{
         const { username } = req.body;
 
         if (username === req.session.account?.username) {
-            return res.sendStatus(
-                'account:cannot-edit-self',
-                { username },
-            );
+            return res.sendStatus('account:cannot-edit-self', { username });
         }
 
         const status = Account.delete(username);
-        res.sendStatus('account:' + status as StatusId, { username });
+        res.sendStatus(('account:' + status) as StatusId, { username });
     },
 );
 
@@ -238,16 +225,14 @@ router.post<{
         const { username } = req.body;
 
         if (username === req.session.account?.username) {
-            return res.sendStatus(
-                'account:cannot-edit-self',
-                { username },
-            );
+            return res.sendStatus('account:cannot-edit-self', { username });
         }
 
         const a = Account.fromUsername(username);
         if (!a) return res.sendStatus('account:not-found');
-        Status.from('account:' + a.unverify() as StatusId, req, { username })
-            .send(res);
+        Status.from(('account:' + a.unverify()) as StatusId, req, {
+            username,
+        }).send(res);
     },
 );
 
@@ -265,10 +250,7 @@ router.post<{
         const { username, role } = req.body;
 
         if (username === req.session.account?.username) {
-            return res.sendStatus(
-                'account:cannot-edit-self',
-                { username },
-            );
+            return res.sendStatus('account:cannot-edit-self', { username });
         }
 
         const account = Account.fromUsername(username);
@@ -276,13 +258,12 @@ router.post<{
 
         const status = account.addRole(role);
         if (!messages[('role:' + status) as keyof typeof messages]) {
-            return res
-                .sendStatus('account:' + status as StatusId, {
-                    username,
-                    role,
-                });
+            return res.sendStatus(('account:' + status) as StatusId, {
+                username,
+                role,
+            });
         }
-        res.sendStatus('role:' + status as StatusId, { username, role });
+        res.sendStatus(('role:' + status) as StatusId, { username, role });
     },
 );
 
@@ -300,10 +281,7 @@ router.post<{
         const { username, role } = req.body;
 
         if (username === req.session.account?.username) {
-            return res.sendStatus(
-                'account:cannot-edit-self',
-                { username },
-            );
+            return res.sendStatus('account:cannot-edit-self', { username });
         }
 
         const account = Account.fromUsername(username);
@@ -311,12 +289,11 @@ router.post<{
 
         const status = account.removeRole(role);
         if (!messages[('role:' + status) as keyof typeof messages]) {
-            return res
-                .sendStatus('account:' + status as StatusId, {
-                    username,
-                    role,
-                });
+            return res.sendStatus(('account:' + status) as StatusId, {
+                username,
+                role,
+            });
         }
-        res.sendStatus('role:' + status as StatusId, { username, role });
+        res.sendStatus(('role:' + status) as StatusId, { username, role });
     },
 );

@@ -18,7 +18,8 @@ log('Generating scouting assignments for:', key);
 
 if (!regex.test(key)) {
     throw new Error(
-        'Invalid event key (failed regex: ' + regex.toString() +
+        'Invalid event key (failed regex: ' +
+            regex.toString() +
             ') It must be in the format: 2023cabl',
     );
 }

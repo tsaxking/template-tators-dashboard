@@ -4,17 +4,10 @@ Sessions are a way to store data between requests. They are stored on the
 server's database under Sessions and are identified by a unique ID. The session
 ID is stored in a cookie on the client's browser called ssid.
 
-<<<<<<< HEAD
-
 ## Initializing Sessions
 
-# To utilize sessions, you must have the database setup properly. Please ensure that you run "deno task update" every time you pull from the repository.
-
-## Utilizing Sessions
-
 To utilize sessions, you must have the database setup properly. Please ensure
-that you run "deno task update" every time you pull from the repository. >>>>>>>
-main
+that you run "deno task update" every time you pull from the repository.
 
 To use the session class, it's super simple:
 
@@ -56,5 +49,3 @@ app.get('/', (req, res) => {
     req.session.emit('event', { data: 'data' });
 });
 ```
-
-======= >>>>>>> main

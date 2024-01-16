@@ -173,7 +173,11 @@ export class Img implements Drawable {
      */
     isIn(point: Point2D) {
         const [x, y] = point;
-        return x >= this.x && x <= this.x + this.width && y >= this.y &&
-            y <= this.y + this.height;
+        return (
+            x >= this.x &&
+            x <= this.x + this.width &&
+            y >= this.y &&
+            y <= this.y + this.height
+        );
     }
 }

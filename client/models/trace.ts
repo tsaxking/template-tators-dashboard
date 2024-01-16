@@ -14,21 +14,23 @@ export class Trace {
 
 export class Heatmap {
     public static get spline() {
-        return new Spline(...[
-            Color.fromName('blue'),
-            Color.fromName('green'),
-            Color.fromName('red'),
-            Color.fromName('purple'),
-            Color.fromName('white'),
-        ].map((c) => {
-            return new Point(
-                ...c.rgb.values.slice(0, 3).map((v) => v / 255) as [
-                    number,
-                    number,
-                    number,
-                ],
-            );
-        }));
+        return new Spline(
+            ...[
+                Color.fromName('blue'),
+                Color.fromName('green'),
+                Color.fromName('red'),
+                Color.fromName('purple'),
+                Color.fromName('white'),
+            ].map((c) => {
+                return new Point(
+                    ...(c.rgb.values.slice(0, 3).map((v) => v / 255) as [
+                        number,
+                        number,
+                        number,
+                    ]),
+                );
+            }),
+        );
     }
 
     public readonly map: number[][];
@@ -77,12 +79,15 @@ export class Heatmap {
                     const p = this.map[x][y];
 
                     ctx.fillStyle = new Color(
-                        ...Heatmap.spline
-                            .ft(p * scale).array
-                            .map((v) => v * 255) as [number, number, number],
+                        ...(Heatmap.spline
+                            .ft(p * scale)
+                            .array.map((v) => v * 255) as [
+                                number,
+                                number,
+                                number,
+                            ]),
                         1,
-                    )
-                        .toString('rgba');
+                    ).toString('rgba');
 
                     ctx.fillRect(
                         +x * (width / this.map.length),

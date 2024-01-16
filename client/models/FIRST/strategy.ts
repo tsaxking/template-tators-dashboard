@@ -16,7 +16,7 @@ import { Cache, Updates } from '../cache';
  * @typedef {StrategyUpdateData}
  */
 type StrategyUpdateData = {
-    'update': Strategy;
+    update: Strategy;
 };
 
 /**
@@ -26,21 +26,23 @@ type StrategyUpdateData = {
  * @typedef {FromType}
  */
 type FromType = {
-    'match': {
+    match: {
         eventKey: string;
         matchNumber: number;
         compLevel: string;
     };
 
-    'custom-match': {
-        eventKey: string;
-        matchNumber: number;
-        compLevel: CompLevel;
-    } | {
-        id: string;
-    };
+    'custom-match':
+        | {
+            eventKey: string;
+            matchNumber: number;
+            compLevel: CompLevel;
+        }
+        | {
+            id: string;
+        };
 
-    'whiteboard': {
+    whiteboard: {
         id: string;
     };
 };
@@ -107,12 +109,11 @@ export class Strategy extends Cache<StrategyUpdateData> {
         type: K,
         body: FromType[K],
     ): RetrieveStreamEventEmitter<Strategy> {
-        return ServerRequest
-            .retrieveStream<Strategy>(
-                `/api/${type}/strategy`,
-                body,
-                (s) => new Strategy(JSON.parse(s) as StrategyObj),
-            );
+        return ServerRequest.retrieveStream<Strategy>(
+            `/api/${type}/strategy`,
+            body,
+            (s) => new Strategy(JSON.parse(s) as StrategyObj),
+        );
     }
 
     /**
@@ -150,14 +151,13 @@ export class Strategy extends Cache<StrategyUpdateData> {
             return em;
         }
 
-        const em = ServerRequest
-            .retrieveStream<WhiteboardCache>(
-                '/api/strategy/whiteboards',
-                {
-                    whiteboardId: this.data.whiteboardId,
-                },
-                (s) => new WhiteboardCache(JSON.parse(s) as WhiteboardObj, ctx),
-            );
+        const em = ServerRequest.retrieveStream<WhiteboardCache>(
+            '/api/strategy/whiteboards',
+            {
+                whiteboardId: this.data.whiteboardId,
+            },
+            (s) => new WhiteboardCache(JSON.parse(s) as WhiteboardObj, ctx),
+        );
 
         em.on('complete', (data) => {
             this.$cache.set('strategy', data);
