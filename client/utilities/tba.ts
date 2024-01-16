@@ -48,10 +48,7 @@ export class TBA {
      * @param options
      * @returns
      */
-    static get<T = any>(
-        path: string,
-        cached = true,
-    ): Promise<TBAResponse<T>> {
+    static get<T = any>(path: string, cached = true): Promise<TBAResponse<T>> {
         return new Promise(async (res, rej) => {
             const start = Date.now();
             let data: T | null = null;
@@ -66,7 +63,8 @@ export class TBA {
                             'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ',
                     },
                     method: 'GET',
-                }).then((data) => data.json())
+                })
+                    .then((data) => data.json())
                     .catch(rej);
             };
 

@@ -1,6 +1,8 @@
 import { generateTrace } from '../shared/dummy-data.ts';
-import { P, Action } from '../shared/submodules/tatorscout-calculations/trace.ts';
-
+import {
+    Action,
+    P,
+} from '../shared/submodules/tatorscout-calculations/trace.ts';
 
 /**
  * Filter by action

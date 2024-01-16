@@ -115,10 +115,13 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             `/team/${this.tba.key}/events${simple ? '/simple' : ''}`,
         );
 
-        res.onUpdate((data: TBAEvent[]) => {
-            this.$emitter.emit('update-events', data);
-            this.$cache.set('events', data);
-        }, 1000 * 60 * 60 * 24); // 24 hours
+        res.onUpdate(
+            (data: TBAEvent[]) => {
+                this.$emitter.emit('update-events', data);
+                this.$cache.set('events', data);
+            },
+            1000 * 60 * 60 * 24,
+        ); // 24 hours
 
         this.$cache.set('events', res.data);
 
@@ -183,15 +186,14 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             return em;
         }
 
-        const em = ServerRequest
-            .retrieveStream<RetrievedMatchScouting>(
-                '/api/teams/match-scouting',
-                {
-                    team: this.tba.team_number,
-                    eventKey: this.event.tba.key,
-                },
-                JSON.parse,
-            );
+        const em = ServerRequest.retrieveStream<RetrievedMatchScouting>(
+            '/api/teams/match-scouting',
+            {
+                team: this.tba.team_number,
+                eventKey: this.event.tba.key,
+            },
+            JSON.parse,
+        );
 
         em.on('complete', (data) => {
             this.$cache.set('match-scouting', data);
@@ -223,15 +225,14 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             return em;
         }
 
-        const em = ServerRequest
-            .retrieveStream<MatchScoutingComments>(
-                '/api/teams/match-comments',
-                {
-                    team: this.tba.team_number,
-                    eventKey: this.event.tba.key,
-                },
-                JSON.parse,
-            );
+        const em = ServerRequest.retrieveStream<MatchScoutingComments>(
+            '/api/teams/match-comments',
+            {
+                team: this.tba.team_number,
+                eventKey: this.event.tba.key,
+            },
+            JSON.parse,
+        );
 
         em.on('complete', (data) => {
             this.$cache.set('match-comments', data);
@@ -265,15 +266,14 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             return em;
         }
 
-        const em = ServerRequest
-            .retrieveStream<RetrievedScoutingAnswer>(
-                '/api/teams/pit-scouting',
-                {
-                    team: this.tba.team_number,
-                    eventKey: this.event.tba.key,
-                },
-                JSON.parse,
-            );
+        const em = ServerRequest.retrieveStream<RetrievedScoutingAnswer>(
+            '/api/teams/pit-scouting',
+            {
+                team: this.tba.team_number,
+                eventKey: this.event.tba.key,
+            },
+            JSON.parse,
+        );
 
         em.on('complete', (data) => {
             this.$cache.set('pit-scouting', data);
@@ -323,8 +323,9 @@ socket.on('match-scouting:new', (data: RetrievedMatchScouting) => {
                 if (a.compLevel === b.compLevel) {
                     return a.matchNumber - b.matchNumber;
                 }
-                return levels.indexOf(a.compLevel) -
-                    levels.indexOf(b.compLevel);
+                return (
+                    levels.indexOf(a.compLevel) - levels.indexOf(b.compLevel)
+                );
             });
         }
         team.$cache.set('match-scouting', ms);

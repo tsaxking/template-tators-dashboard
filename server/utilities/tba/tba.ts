@@ -88,7 +88,7 @@ export class TBA {
                 method: 'GET',
                 headers: {
                     'X-TBA-Auth-Key': TBA_KEY,
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                 },
             });
 
@@ -160,9 +160,12 @@ const update = () => {
 
             if (diff < 1000 * 60 * 60 * 24 * 3) {
                 // event is within 3 days
-                interval = setInterval(() => {
-                    saveEvent(closest.key);
-                }, 1000 * 60 * 10); // update every 10 minutes during event
+                interval = setInterval(
+                    () => {
+                        saveEvent(closest.key);
+                    },
+                    1000 * 60 * 10,
+                ); // update every 10 minutes during event
             } else {
                 // update every day
                 saveEvent(closest.key);
