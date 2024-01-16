@@ -306,39 +306,49 @@ export type Queries = {
         unknown,
     ];
     'account/from-discord-id': [
-        [{
-            discordId: string;
-        }],
+        [
+            {
+                discordId: string;
+            },
+        ],
         Account,
     ];
     'account/set-discord-id': [
-        [{
-            discordId: string;
-            id: string;
-        }],
+        [
+            {
+                discordId: string;
+                id: string;
+            },
+        ],
         unknown,
     ];
 
     // █▀▄ █ ▄▀▀ ▄▀▀ ▄▀▄ █▀▄ █▀▄
     // █▄▀ █ ▄█▀ ▀▄▄ ▀▄▀ █▀▄ █▄▀
     'discord/get': [
-        [{
-            key: string;
-        }],
+        [
+            {
+                key: string;
+            },
+        ],
         DiscordPair,
     ];
     'discord/insert': [
-        [{
-            key: string;
-            id: string;
-            date: string;
-        }],
+        [
+            {
+                key: string;
+                id: string;
+                date: string;
+            },
+        ],
         unknown,
     ];
     'discord/delete': [
-        [{
-            key: string;
-        }],
+        [
+            {
+                key: string;
+            },
+        ],
         unknown,
     ];
 
@@ -427,117 +437,145 @@ export type Queries = {
     // ██▀ █ █ ██▀ █▄ █ ▀█▀ ▄▀▀
     // █▄▄ ▀▄▀ █▄▄ █ ▀█  █  ▄█▀
     'events/new-event': [
-        [{
-            eventKey: string;
-            flipX: boolean;
-            flipY: boolean;
-        }],
+        [
+            {
+                eventKey: string;
+                flipX: boolean;
+                flipY: boolean;
+            },
+        ],
         unknown,
     ];
     'events/delete-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         unknown,
     ];
     'events/from-key': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         Event,
     ];
     'events/all-alliances': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         Alliance,
     ];
     'events/delete-alliance': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'events/new-alliance': [
-        [{
-            id: string;
-            eventKey: string;
-            name: string;
-            team1: number;
-            team2: number;
-            team3: number;
-        }],
+        [
+            {
+                id: string;
+                eventKey: string;
+                name: string;
+                team1: number;
+                team2: number;
+                team3: number;
+            },
+        ],
         unknown,
     ];
 
     // ▀█▀ ██▀ ▄▀▄ █▄ ▄█ ▄▀▀
     //  █  █▄▄ █▀█ █ ▀ █ ▄█▀
     'teams/from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         Team,
     ];
     'teams/new': [
-        [{
-            number: number;
-            watchPriority: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-            eventKey: string;
-        }],
+        [
+            {
+                number: number;
+                watchPriority: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+                eventKey: string;
+            },
+        ],
         unknown,
     ];
 
     // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ██▀ ▄▀▀
     // █ ▀ █ █▀█  █  ▀▄▄ █ █ █▄▄ ▄█▀
     'matches/from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         Match,
     ];
     'matches/new': [
-        [{
-            id: string;
-            eventKey: string;
-            matchNumber: number;
-            compLevel: CompLevel;
-        }],
+        [
+            {
+                id: string;
+                eventKey: string;
+                matchNumber: number;
+                compLevel: CompLevel;
+            },
+        ],
         unknown,
     ];
     'matches/from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         Match,
     ];
 
     // ▄▀▀ █ █ ▄▀▀ ▀█▀ ▄▀▄ █▄ ▄█    █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ██▀ ▄▀▀
     // ▀▄▄ ▀▄█ ▄█▀  █  ▀▄▀ █ ▀ █    █ ▀ █ █▀█  █  ▀▄▄ █ █ █▄▄ ▄█▀
     'custom-matches/from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         CustomMatch,
     ];
     'custom-matches/new': [
-        [{
-            id: string;
-            eventKey: string;
-            matchNumber: number;
-            compLevel: CompLevel;
-            red1: number;
-            red2: number;
-            red3: number;
-            blue1: number;
-            blue2: number;
-            blue3: number;
-        }],
+        [
+            {
+                id: string;
+                eventKey: string;
+                matchNumber: number;
+                compLevel: CompLevel;
+                red1: number;
+                red2: number;
+                red3: number;
+                blue1: number;
+                blue2: number;
+                blue3: number;
+            },
+        ],
         unknown,
     ];
     'custom-matches/from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         Match,
     ];
 
@@ -545,72 +583,92 @@ export type Queries = {
     // ▀▄▀▄▀ █ █ █  █  █▄▄ █▄█ ▀▄▀ █▀█ █▀▄ █▄▀ ▄█▀
 
     'whiteboards/change-custom-match': [
-        [{
-            id: string;
-            customMatchId: string;
-        }],
+        [
+            {
+                id: string;
+                customMatchId: string;
+            },
+        ],
         unknown,
     ];
     'whiteboards/change-match': [
-        [{
-            id: string;
-            matchId: string;
-        }],
+        [
+            {
+                id: string;
+                matchId: string;
+            },
+        ],
         unknown,
     ];
     'whiteboards/from-custom-match': [
-        [{
-            customMatchId: string;
-        }],
+        [
+            {
+                customMatchId: string;
+            },
+        ],
         Whiteboard,
     ];
     'whiteboards/from-match': [
-        [{
-            matchId: string;
-        }],
+        [
+            {
+                matchId: string;
+            },
+        ],
         Whiteboard,
     ];
     'whiteboards/from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         Whiteboard,
     ];
     'whiteboards/from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         Whiteboard,
     ];
     'whiteboards/new': [
-        [{
-            id: string;
-            eventKey: string;
-            name: string;
-            matchId: string | null;
-            customMatchId: string | null;
-            board: string; // json array
-        }],
+        [
+            {
+                id: string;
+                eventKey: string;
+                name: string;
+                matchId: string | null;
+                customMatchId: string | null;
+                board: string; // json array
+            },
+        ],
         unknown,
     ];
     'whiteboards/update-board': [
-        [{
-            id: string;
-            board: string;
-        }],
+        [
+            {
+                id: string;
+                board: string;
+            },
+        ],
         unknown,
     ];
     'whiteboards/update-name': [
-        [{
-            id: string;
-            name: string;
-        }],
+        [
+            {
+                id: string;
+                name: string;
+            },
+        ],
         unknown,
     ];
     'whiteboards/delete': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
 
@@ -618,286 +676,350 @@ export type Queries = {
     // █ ▀ █ █▀█  █  ▀▄▄ █ █ ▄█▀ ▀▄▄ ▀▄▀ ▀▄█  █  █ █ ▀█ ▀▄█
 
     'match-scouting/new': [
-        [{
-            id: string;
-            matchId: string;
-            team: number;
-            scoutId: string;
-            scoutGroup: string;
-            time: string;
-            preScouting: boolean;
-            trace: string; // json array
-        }],
+        [
+            {
+                id: string;
+                matchId: string;
+                team: number;
+                scoutId: string;
+                scoutGroup: string;
+                time: string;
+                preScouting: boolean;
+                trace: string; // json array
+            },
+        ],
         unknown,
     ];
     'match-scouting/from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         RetrievedMatchScouting,
     ];
     'match-scouting/from-match': [
-        [{
-            matchId: string;
-        }],
+        [
+            {
+                matchId: string;
+            },
+        ],
         RetrievedMatchScouting,
     ];
     'match-scouting/from-team': [
-        [{
-            team: number;
-            eventKey: string;
-        }],
+        [
+            {
+                team: number;
+                eventKey: string;
+            },
+        ],
         RetrievedMatchScouting,
     ];
     'match-scouting/from-scout': [
-        [{
-            scoutId: string;
-            eventKey: string;
-        }],
+        [
+            {
+                scoutId: string;
+                eventKey: string;
+            },
+        ],
         RetrievedMatchScouting,
     ];
     'match-scouting/from-scout-group': [
-        [{
-            scoutGroup: string;
-            eventKey: string;
-        }],
+        [
+            {
+                scoutGroup: string;
+                eventKey: string;
+            },
+        ],
         RetrievedMatchScouting,
     ];
     'match-scouting/from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         RetrievedMatchScouting,
     ];
     'match-scouting/update': [
-        [{
-            id: string;
-            matchId: string;
-            team: number;
-            scoutId: string;
-            scoutGroup: string;
-            time: string;
-            preScouting: boolean;
-            trace: string; // json array
-        }],
+        [
+            {
+                id: string;
+                matchId: string;
+                team: number;
+                scoutId: string;
+                scoutGroup: string;
+                time: string;
+                preScouting: boolean;
+                trace: string; // json array
+            },
+        ],
         unknown,
     ];
 
     // // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ▄▀▀ ▄▀▄ █▄ ▄█ █▄ ▄█ ██▀ █▄ █ ▀█▀ ▄▀▀
     // // █ ▀ █ █▀█  █  ▀▄▄ █ █ ▀▄▄ ▀▄▀ █ ▀ █ █ ▀ █ █▄▄ █ ▀█  █  ▄█▀
     'match-comments/new': [
-        [{
-            id: string;
-            matchId: string;
-            accountId: string;
-            team: number;
-            comment: string;
-            time: number;
-        }],
+        [
+            {
+                id: string;
+                matchId: string;
+                accountId: string;
+                team: number;
+                comment: string;
+                time: number;
+            },
+        ],
         unknown,
     ];
     'match-comments/from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         MatchScoutingComments,
     ];
     'match-comments/from-match': [
-        [{
-            matchId: string;
-        }],
+        [
+            {
+                matchId: string;
+            },
+        ],
         MatchScoutingComments,
     ];
     'match-comments/from-team': [
-        [{
-            team: number;
-            eventKey: string;
-        }],
+        [
+            {
+                team: number;
+                eventKey: string;
+            },
+        ],
         MatchScoutingComments,
     ];
     'match-comments/from-account': [
-        [{
-            accountId: string;
-            eventKey: string;
-        }],
+        [
+            {
+                accountId: string;
+                eventKey: string;
+            },
+        ],
         MatchScoutingComments,
     ];
     'match-comments/from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         MatchScoutingComments,
     ];
     'match-comments/delete': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'match-comments/update': [
-        [{
-            id: string;
-            matchId: string;
-            accountId: string;
-            team: number;
-            comment: string;
-            time: number;
-        }],
+        [
+            {
+                id: string;
+                matchId: string;
+                accountId: string;
+                team: number;
+                comment: string;
+                time: number;
+            },
+        ],
         unknown,
     ];
 
     // // ▄▀▀ ▄▀▀ ▄▀▄ █ █ ▀█▀ █ █▄ █ ▄▀  ▄▀▄ █ █ ██▀ ▄▀▀ ▀█▀ █ ▄▀▄ █▄ █ ▄▀▀
     // // ▄█▀ ▀▄▄ ▀▄▀ ▀▄█  █  █ █ ▀█ ▀▄█ ▀▄█ ▀▄█ █▄▄ ▄█▀  █  █ ▀▄▀ █ ▀█ ▄█▀
-    'scouting-questions/all-sections': [
-        [],
-        ScoutingQuestionSection,
-    ];
+    'scouting-questions/all-sections': [[], ScoutingQuestionSection];
     'scouting-questions/answer-from-team': [
-        [{
-            eventKey: string;
-            teamNumber: number;
-        }],
+        [
+            {
+                eventKey: string;
+                teamNumber: number;
+            },
+        ],
         RetrievedScoutingAnswer,
     ];
     'scouting-questions/groups-from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         ScoutingQuestionGroup,
     ];
     'scouting-questions/new-answer': [
-        [{
-            id: string;
-            questionId: string;
-            answer: string;
-            teamNumber: number;
-        }],
+        [
+            {
+                id: string;
+                questionId: string;
+                answer: string;
+                teamNumber: number;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/new-group': [
-        [{
-            id: string;
-            eventKey: string;
-            section: string;
-            name: string;
-        }],
+        [
+            {
+                id: string;
+                eventKey: string;
+                section: string;
+                name: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/new-question': [
-        [{
-            id: string;
-            question: string;
-            type:
-                | 'text'
-                | 'number'
-                | 'boolean'
-                | 'select'
-                | 'checkbox'
-                | 'radio'
-                | 'textarea';
-            section: string;
-            key: string;
-            description: string;
-            groupId: string;
-        }],
+        [
+            {
+                id: string;
+                question: string;
+                type:
+                    | 'text'
+                    | 'number'
+                    | 'boolean'
+                    | 'select'
+                    | 'checkbox'
+                    | 'radio'
+                    | 'textarea';
+                section: string;
+                key: string;
+                description: string;
+                groupId: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/new-section': [
-        [{
-            name: string;
-            multiple: 0 | 1;
-        }],
+        [
+            {
+                name: string;
+                multiple: 0 | 1;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/questions-from-group': [
-        [{
-            groupId: string;
-        }],
+        [
+            {
+                groupId: string;
+            },
+        ],
         ScoutingQuestion,
     ];
     'scouting-questions/update-group': [
-        [{
-            id: string;
-            eventKey: string;
-            section: string;
-            name: string;
-        }],
+        [
+            {
+                id: string;
+                eventKey: string;
+                section: string;
+                name: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/update-question': [
-        [{
-            id: string;
-            question: string;
-            type:
-                | 'text'
-                | 'number'
-                | 'boolean'
-                | 'select'
-                | 'checkbox'
-                | 'radio'
-                | 'textarea';
-            key: string;
-            description: string;
-            groupId: string;
-        }],
+        [
+            {
+                id: string;
+                question: string;
+                type:
+                    | 'text'
+                    | 'number'
+                    | 'boolean'
+                    | 'select'
+                    | 'checkbox'
+                    | 'radio'
+                    | 'textarea';
+                key: string;
+                description: string;
+                groupId: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/update-section': [
-        [{
-            name: string;
-            multiple: 0 | 1;
-        }],
+        [
+            {
+                name: string;
+                multiple: 0 | 1;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/delete-group': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/delete-question': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/delete-section': [
-        [{
-            name: string;
-        }],
+        [
+            {
+                name: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/delete-answer': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/update-answer': [
-        [{
-            id: string;
-            questionId: string;
-            answer: string;
-            teamNumber: number;
-        }],
+        [
+            {
+                id: string;
+                questionId: string;
+                answer: string;
+                teamNumber: number;
+            },
+        ],
         unknown,
     ];
 
     // // ▀█▀ ██▄ ▄▀▄ █▀▄ ██▀ ▄▀▄ █ █ ██▀ ▄▀▀ ▀█▀ ▄▀▀
     // //  █  █▄█ █▀█ █▀▄ █▄▄ ▀▄█ ▀▄█ █▄▄ ▄█▀  █  ▄█▀
-    'tba/new': [ // will auto update if already exists
-        [{
-            url: string;
-            response: string; // json
-            updated: number;
-            update: 0 | 1;
-        }],
+    'tba/new': [
+        // will auto update if already exists
+        [
+            {
+                url: string;
+                response: string; // json
+                updated: number;
+                update: 0 | 1;
+            },
+        ],
         unknown,
     ];
     'tba/from-url': [
-        [{
-            url: string;
-        }],
+        [
+            {
+                url: string;
+            },
+        ],
         TBARequest,
     ];
 
@@ -905,99 +1027,125 @@ export type Queries = {
     // // ▀▄▄ █ █ █▄▄ ▀▄▄ █ █ █▄▄ █ ▄█▀  █  ▄█▀
 
     'checklists/checklist-from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         Checklist,
     ];
     'checklists/delete-answer': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'checklists/delete-assignment': [
-        [{
-            accountId: string;
-            checklistId: string;
-        }],
+        [
+            {
+                accountId: string;
+                checklistId: string;
+            },
+        ],
         unknown,
     ];
     'checklists/delete-checklist': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'checklists/delete-question': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'checklists/new-answer': [
-        [{
-            id: string;
-            accountId: string;
-            questionId: string;
-            matchId: string;
-        }],
+        [
+            {
+                id: string;
+                accountId: string;
+                questionId: string;
+                matchId: string;
+            },
+        ],
         unknown,
     ];
     'checklists/new-assignment': [
-        [{
-            checklistId: string;
-            accountId: string;
-        }],
+        [
+            {
+                checklistId: string;
+                accountId: string;
+            },
+        ],
         unknown,
     ];
     'checklists/new-checklist': [
-        [{
-            id: string;
-            name: string;
-            eventKey: string;
-            description: string;
-        }],
+        [
+            {
+                id: string;
+                name: string;
+                eventKey: string;
+                description: string;
+            },
+        ],
         unknown,
     ];
     'checklists/new-question': [
-        [{
-            id: string;
-            checklistId: string;
-            question: string;
-            interval: number;
-        }],
+        [
+            {
+                id: string;
+                checklistId: string;
+                question: string;
+                interval: number;
+            },
+        ],
         unknown,
     ];
     'checklists/questions-from-checklist': [
-        [{
-            checklistId: string;
-        }],
+        [
+            {
+                checklistId: string;
+            },
+        ],
         ChecklistQuestion,
     ];
     'checklists/update-checklist': [
-        [{
-            id: string;
-            name: string;
-            eventKey: string;
-            description: string;
-        }],
+        [
+            {
+                id: string;
+                name: string;
+                eventKey: string;
+                description: string;
+            },
+        ],
         unknown,
     ];
     'checklists/update-question': [
-        [{
-            id: string;
-            checklistId: string;
-            question: string;
-            interval: number;
-        }],
+        [
+            {
+                id: string;
+                checklistId: string;
+                question: string;
+                interval: number;
+            },
+        ],
         unknown,
     ];
     'checklists/answers-from-checklist': [
-        [{
-            checklistId: string;
-            eventKey: string;
-        }],
+        [
+            {
+                checklistId: string;
+                eventKey: string;
+            },
+        ],
         {
             id: string;
             accountId: string;
@@ -1012,15 +1160,19 @@ export type Queries = {
         },
     ];
     'checklists/assignments-from-checklist': [
-        [{
-            checklistId: string;
-        }],
+        [
+            {
+                checklistId: string;
+            },
+        ],
         CheckListAssignment,
     ];
     'checklists/questions-from-assignment': [
-        [{
-            accountId: string;
-        }],
+        [
+            {
+                accountId: string;
+            },
+        ],
         {
             checklistId: string;
             checklistName: string;
@@ -1035,61 +1187,75 @@ export type Queries = {
     // // ▄▀▀ ▀█▀ █▀▄ ▄▀▄ ▀█▀ ██▀ ▄▀  ▀▄▀
     // // ▄█▀  █  █▀▄ █▀█  █  █▄▄ ▀▄█  █
     'strategy/from-custom-match': [
-        [{
-            customMatchId: string;
-        }],
+        [
+            {
+                customMatchId: string;
+            },
+        ],
         Strategy,
     ];
     'strategy/from-match': [
-        [{
-            eventKey: string;
-            matchNumber: number;
-            compLevel: 'qm' | 'qf' | 'sf' | 'f';
-        }],
+        [
+            {
+                eventKey: string;
+                matchNumber: number;
+                compLevel: 'qm' | 'qf' | 'sf' | 'f';
+            },
+        ],
         Strategy,
     ];
     'strategy/from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         Strategy,
     ];
     'strategy/from-whiteboard': [
-        [{
-            whiteboardId: string;
-        }],
+        [
+            {
+                whiteboardId: string;
+            },
+        ],
         Strategy,
     ];
     'strategy/new': [
-        [{
-            id: string;
-            name: string;
-            time: number;
-            createdBy: string;
-            whiteboardId: string | null;
-            matchId: string | null;
-            customMatchId: string | null;
-            comment: string;
-        }],
+        [
+            {
+                id: string;
+                name: string;
+                time: number;
+                createdBy: string;
+                whiteboardId: string | null;
+                matchId: string | null;
+                customMatchId: string | null;
+                comment: string;
+            },
+        ],
         unknown,
     ];
     'strategy/update': [
-        [{
-            id: string;
-            name: string;
-            time: number;
-            createdBy: string;
-            whiteboardId: string | null;
-            matchId: string | null;
-            customMatchId: string | null;
-            comment: string;
-        }],
+        [
+            {
+                id: string;
+                name: string;
+                time: number;
+                createdBy: string;
+                whiteboardId: string | null;
+                matchId: string | null;
+                customMatchId: string | null;
+                comment: string;
+            },
+        ],
         unknown,
     ];
     'strategy/delete': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
 };

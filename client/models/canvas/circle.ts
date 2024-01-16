@@ -35,8 +35,10 @@ export class Circle implements Drawable {
      */
     isIn(point: Point2D) {
         const [x, y] = point;
-        return Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2)) <
-            this.radius;
+        return (
+            Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2)) <
+                this.radius
+        );
     }
 
     /**

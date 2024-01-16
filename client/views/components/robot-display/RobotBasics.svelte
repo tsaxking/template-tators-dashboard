@@ -1,10 +1,8 @@
 <script lang="ts">
-    import { FIRSTTeam } from "../../../models/FIRST/team";
+import { FIRSTTeam } from '../../../models/FIRST/team';
 
-    export let team: FIRSTTeam;
+export let team: FIRSTTeam;
 </script>
-
-
 
 <div class="card">
     <div class="card-header">
@@ -19,9 +17,21 @@
                     <dt>Team Name</dt>
                     <dd>{team?.tba.nickname || ''}</dd>
                     <dt>Location</dt>
-                    <dd>{team?.tba.city ? team?.tba.city + ', ' + team?.tba.state_prov + ', ' + team?.tba.country : ''}</dd>
+                    <dd>
+                        {team?.tba.city
+                            ? team?.tba.city +
+                              ', ' +
+                              team?.tba.state_prov +
+                              ', ' +
+                              team?.tba.country
+                            : ''}
+                    </dd>
                     <dt>Website</dt>
-                    <dd><a href={team?.tba.website} target="_blank">{team?.tba.website || ''}</a></dd>
+                    <dd>
+                        <a href="{team?.tba.website}" target="_blank"
+                            >{team?.tba.website || ''}</a
+                        >
+                    </dd>
                 </dl>
             </div>
             <!-- Basic information from pit scouting -->

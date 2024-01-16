@@ -43,15 +43,16 @@ const transferAccounts = () => {
 
     // username, key, salt, name, info {}, roles [string, string], email, verified, tatorBucks, discord,
 
-    return accounts.map((a) => {
-        const roles = JSON.parse(a.roles) as string[];
-        const id = uuid();
+    return accounts
+        .map((a) => {
+            const roles = JSON.parse(a.roles) as string[];
+            const id = uuid();
 
-        if (!a.email) return;
-        if (!a.username) return;
+            if (!a.email) return;
+            if (!a.username) return;
 
-        DB.unsafe.run(
-            `
+            DB.unsafe.run(
+                `
             INSERT INTO Accounts (
                 id,
                 username,
@@ -66,27 +67,28 @@ const transferAccounts = () => {
                 ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         `,
-            ...[
-                uuid(),
-                a.username,
-                a.key,
-                a.salt,
-                a.name.split(' ')[0] ?? '',
-                a.name.split(' ')[1] ?? '',
-                a.email,
-                !!a.verified,
-                Date.now(),
-            ],
-        );
+                ...[
+                    uuid(),
+                    a.username,
+                    a.key,
+                    a.salt,
+                    a.name.split(' ')[0] ?? '',
+                    a.name.split(' ')[1] ?? '',
+                    a.email,
+                    !!a.verified,
+                    Date.now(),
+                ],
+            );
 
-        return {
-            roles,
-            id,
-        };
-    }).filter(Boolean) as {
-        roles: string[];
-        id: string;
-    }[];
+            return {
+                roles,
+                id,
+            };
+        })
+        .filter(Boolean) as {
+            roles: string[];
+            id: string;
+        }[];
 };
 type Match2022 = {
     eventKey: string;
@@ -146,11 +148,7 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
             `
             SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
         `,
-            ...[
-                match.eventKey,
-                match.matchNumber,
-                match.compLevel,
-            ],
+            ...[match.eventKey, match.matchNumber, match.compLevel],
         ) as Match | undefined;
 
         if (!foundMatch) continue;
@@ -290,15 +288,18 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
                 )
             `;
 
-            DB.unsafe.run(query, ...[
-                uuid(),
-                id,
-                match.scout,
-                match.teamNumber,
-                comments ?? '',
-                (match.time ?? 0).toString(),
-                'match',
-            ]);
+            DB.unsafe.run(
+                query,
+                ...[
+                    uuid(),
+                    id,
+                    match.scout,
+                    match.teamNumber,
+                    comments ?? '',
+                    (match.time ?? 0).toString(),
+                    'match',
+                ],
+            );
         }
     }
 };
@@ -341,11 +342,7 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
             `
             SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
         `,
-            ...[
-                match.eventKey,
-                match.matchNumber,
-                match.compLevel,
-            ],
+            ...[match.eventKey, match.matchNumber, match.compLevel],
         ) as Match | undefined;
 
         if (!foundMatch) continue;
@@ -430,25 +427,31 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
                 )
             `;
 
-            DB.unsafe.run(query, ...[
-                uuid(),
-                id,
-                match.scout,
-                match.teamNumber,
-                comments ?? '',
-                (match.time ?? 0).toString(),
-                'match',
-            ]);
+            DB.unsafe.run(
+                query,
+                ...[
+                    uuid(),
+                    id,
+                    match.scout,
+                    match.teamNumber,
+                    comments ?? '',
+                    (match.time ?? 0).toString(),
+                    'match',
+                ],
+            );
 
-            DB.unsafe.run(query, ...[
-                uuid(),
-                id,
-                match.scout,
-                match.teamNumber,
-                defensiveComments ?? '',
-                (match.time ?? 0).toString(),
-                'defensive',
-            ]);
+            DB.unsafe.run(
+                query,
+                ...[
+                    uuid(),
+                    id,
+                    match.scout,
+                    match.teamNumber,
+                    defensiveComments ?? '',
+                    (match.time ?? 0).toString(),
+                    'defensive',
+                ],
+            );
         }
     }
 };
@@ -470,22 +473,28 @@ const transferMatchScouting = () => {
 };
 
 const createScoutingQuestionGroups = () => {
-    const sections = [{
-        name: 'pit',
-        multiple: false,
-    }, {
-        name: 'pre',
-        multiple: false,
-    }, {
-        name: 'electrical',
-        multiple: false,
-    }, {
-        name: 'mechanical',
-        multiple: false,
-    }, {
-        name: 'elimination',
-        multiple: false,
-    }];
+    const sections = [
+        {
+            name: 'pit',
+            multiple: false,
+        },
+        {
+            name: 'pre',
+            multiple: false,
+        },
+        {
+            name: 'electrical',
+            multiple: false,
+        },
+        {
+            name: 'mechanical',
+            multiple: false,
+        },
+        {
+            name: 'elimination',
+            multiple: false,
+        },
+    ];
 
     for (const s of sections) {
         DB.unsafe.run(
@@ -564,12 +573,7 @@ const populateQuestions = () => {
                     ?, ?, ?, ?
                 )
             `,
-                ...[
-                    id,
-                    section.title,
-                    name,
-                    event.eventKey,
-                ],
+                ...[id, section.title, name, event.eventKey],
             );
 
             for (const question of section.questions) {
@@ -587,7 +591,8 @@ const populateQuestions = () => {
                 if (!question.key) {
                     question.key =
                         question.question.toLowerCase().replace(/ /g, '-') +
-                        '-' + uuid().split('-')[0];
+                        '-' +
+                        uuid().split('-')[0];
                 }
 
                 DB.unsafe.run(
@@ -626,12 +631,7 @@ const populateQuestions = () => {
                                 ?, ?, ?, ?
                             )
                         `,
-                            ...[
-                                uuid(),
-                                question.id,
-                                option.text,
-                                option.order,
-                            ],
+                            ...[uuid(), question.id, option.text, option.order],
                         );
                     }
                 };
@@ -646,19 +646,19 @@ const populateQuestions = () => {
     for (const e of events) {
         const pit = e.pitScouting
             ? parse<QuestionContainer>(e.pitScouting)
-            : [] as QuestionContainer;
+            : ([] as QuestionContainer);
         const pre = e.preScouting
             ? parse<QuestionContainer>(e.preScouting)
-            : [] as QuestionContainer;
+            : ([] as QuestionContainer);
         const electrical = e.electricalScouting
             ? parse<QuestionContainer>(e.electricalScouting)
-            : [] as QuestionContainer;
+            : ([] as QuestionContainer);
         const mechanical = e.mechanicalScouting
             ? parse<QuestionContainer>(e.mechanicalScouting)
-            : [] as QuestionContainer;
+            : ([] as QuestionContainer);
         const elimination = e.eliminationMatchScouting
             ? parse<QuestionContainer>(e.eliminationMatchScouting)
-            : [] as QuestionContainer;
+            : ([] as QuestionContainer);
 
         saveGroup('pit', pit, e);
         saveGroup('pre', pre, e);
@@ -708,12 +708,7 @@ const transferTeams = () => {
                 ?, ?, ?, ?
             )
         `,
-            ...[
-                t.number,
-                t.eventKey,
-                t.picture ?? '',
-                Date.now().toString(),
-            ],
+            ...[t.number, t.eventKey, t.picture ?? '', Date.now().toString()],
         );
 
         const questions = DB.unsafe.all(
@@ -737,9 +732,7 @@ const transferTeams = () => {
             ? parse<any>(t.mechanicalScouting)
             : {};
 
-        const save = (data: {
-            [key: string]: string;
-        }) => {
+        const save = (data: { [key: string]: string }) => {
             for (const [key, value] of Object.entries(data)) {
                 const q = questions.find((q) => q.key === key);
                 if (!q) continue;
@@ -760,12 +753,7 @@ const transferTeams = () => {
                         ?, ?, ?, ?
                     )
                 `,
-                    ...[
-                        uuid(),
-                        t.number,
-                        q.id,
-                        value,
-                    ],
+                    ...[uuid(), t.number, q.id, value],
                 );
             }
         };
@@ -816,12 +804,7 @@ const transferAccountsAndRoles = () => {
                 ?, ?, ?, ?
             );
         `,
-            ...[
-                id,
-                r.name,
-                r.description,
-                r.rank,
-            ],
+            ...[id, r.name, r.description, r.rank],
         );
 
         for (const [key] of Object.entries(info)) {
@@ -834,10 +817,7 @@ const transferAccountsAndRoles = () => {
                     ?, ?
                 )
             `,
-                ...[
-                    id,
-                    key,
-                ],
+                ...[id, key],
             );
         }
 
@@ -850,16 +830,18 @@ const transferAccountsAndRoles = () => {
     const accounts = transferAccounts();
 
     for (const a of accounts) {
-        const accountRoles = a.roles.map((r) => {
-            const foundRole = newRoles.find((nr) => nr.name === r);
+        const accountRoles = a.roles
+            .map((r) => {
+                const foundRole = newRoles.find((nr) => nr.name === r);
 
-            if (!foundRole) {
-                console.log(`Role ${r} not found!`);
-                return;
-            }
+                if (!foundRole) {
+                    console.log(`Role ${r} not found!`);
+                    return;
+                }
 
-            return foundRole.id;
-        }).filter(Boolean) as string[];
+                return foundRole.id;
+            })
+            .filter(Boolean) as string[];
 
         for (const roleId of accountRoles) {
             DB.unsafe.run(
@@ -871,10 +853,7 @@ const transferAccountsAndRoles = () => {
                     ?, ?
                 )
             `,
-                ...[
-                    a.id,
-                    roleId,
-                ],
+                ...[a.id, roleId],
             );
         }
     }
@@ -904,7 +883,9 @@ export const transfer = () => {
     }
 
     if (test()) {
-        log('The database has already been transferred! Nothing has changed :)');
+        log(
+            'The database has already been transferred! Nothing has changed :)',
+        );
         return;
     }
 

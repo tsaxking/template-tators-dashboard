@@ -17,20 +17,8 @@ log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
 log('V8 version:', Deno.version.v8);
 
-if (
-    !fs.existsSync(
-        resolve(
-            __templates,
-            './entries',
-        ),
-    )
-) {
-    Deno.mkdirSync(
-        resolve(
-            __templates,
-            './entries',
-        ),
-    );
+if (!fs.existsSync(resolve(__templates, './entries'))) {
+    Deno.mkdirSync(resolve(__templates, './entries'));
 }
 
 /**

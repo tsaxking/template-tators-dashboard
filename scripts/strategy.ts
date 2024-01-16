@@ -23,19 +23,19 @@ class Game {
             difficulty: 'medium',
             points: 2,
         },
-        'Amp': {
+        Amp: {
             description: 'Place the note into the amp',
             time: 3,
             difficulty: 'medium',
             points: 1,
         },
-        'Climb': {
+        Climb: {
             description: 'Climb onto the chain',
             time: 3,
             difficulty: 'easy',
             points: 5,
         },
-        'Trap': {
+        Trap: {
             description: 'Trap the note in the trap',
             time: 8,
             difficulty: 'hard',
@@ -54,16 +54,16 @@ class Team {
     ) {}
 
     get instability(): number {
-        return this.tasks.reduce(
-            (acc, task) =>
-                ['easy', 'medium', 'hard'].indexOf(task.difficulty) + 1,
-            0,
-        ) / this.skill;
+        return (
+            this.tasks.reduce(
+                (acc, task) =>
+                    ['easy', 'medium', 'hard'].indexOf(task.difficulty) + 1,
+                0,
+            ) / this.skill
+        );
     }
 }
 
 class Alliance {
-    constructor(
-        public readonly teams: [Team, Team, Team],
-    ) {}
+    constructor(public readonly teams: [Team, Team, Team]) {}
 }

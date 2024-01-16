@@ -109,10 +109,13 @@ export class FIRSTYear extends Cache<YearUpdateData> {
         );
         this.$cache.set('events', res.data);
 
-        res.onUpdate((data) => {
-            this.$cache.set('events', data);
-            this.$emitter.emit('update-events', data);
-        }, 1000 * 60 * 60 * 24 * 7); // 1 week
+        res.onUpdate(
+            (data) => {
+                this.$cache.set('events', data);
+                this.$emitter.emit('update-events', data);
+            },
+            1000 * 60 * 60 * 24 * 7,
+        ); // 1 week
 
         return res.data;
     }

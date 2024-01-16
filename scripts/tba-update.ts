@@ -62,9 +62,10 @@ export const saveMatches = async (eventKey: string) => {
     for (const match of matches) {
         // check if match exists
         if (
-            existingMatches?.some((m) =>
-                m.matchNumber === match.match_number &&
-                m.compLevel === match.comp_level
+            existingMatches?.some(
+                (m) =>
+                    m.matchNumber === match.match_number &&
+                    m.compLevel === match.comp_level,
             )
         ) {
             if (
@@ -155,7 +156,9 @@ const updateYear = async (year: number) => {
 // if running from command line
 if (Deno.args.includes('--update') && Deno.args.includes('--tba-task')) {
     if (Deno.args.includes('--force')) {
-        log('Forcing updates... This will reset all existing data for the event(s) being updated! (Including matches and teams)');
+        log(
+            'Forcing updates... This will reset all existing data for the event(s) being updated! (Including matches and teams)',
+        );
         const res = prompt('Are you sure you want to continue? (y/n)');
         if (res !== 'y') {
             error('Aborting update!');

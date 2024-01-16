@@ -111,49 +111,52 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             JSON.parse,
         );
 
-        const r = await TBA.get<TBAMatch[]>(`/event/${this.tba.key}/matches`)
-            .then((res) => {
-                res.data.sort((a, b) => {
-                    const levels = ['qm', 'ef', 'qf', 'sf', 'f'];
-                    const aLevel = levels.indexOf(a.comp_level);
-                    const bLevel = levels.indexOf(b.comp_level);
+        const r = await TBA.get<TBAMatch[]>(
+            `/event/${this.tba.key}/matches`,
+        ).then((res) => {
+            res.data.sort((a, b) => {
+                const levels = ['qm', 'ef', 'qf', 'sf', 'f'];
+                const aLevel = levels.indexOf(a.comp_level);
+                const bLevel = levels.indexOf(b.comp_level);
 
-                    if (aLevel !== bLevel) return aLevel - bLevel;
-                    return a.match_number - b.match_number;
-                });
-
-                return {
-                    data: res.data.map((match) => new FIRSTMatch(match, this)),
-                    time: res.time,
-                    onUpdate: (
-                        callback: (data: FIRSTMatch[]) => void,
-                        time?: number,
-                    ) => {
-                        res.onUpdate((data) => {
-                            callback(
-                                data.map((match) =>
-                                    new FIRSTMatch(match, this)
-                                ),
-                            );
-                        }, time);
-                    },
-                };
+                if (aLevel !== bLevel) return aLevel - bLevel;
+                return a.match_number - b.match_number;
             });
 
+            return {
+                data: res.data.map((match) => new FIRSTMatch(match, this)),
+                time: res.time,
+                onUpdate: (
+                    callback: (data: FIRSTMatch[]) => void,
+                    time?: number,
+                ) => {
+                    res.onUpdate((data) => {
+                        callback(
+                            data.map((match) => new FIRSTMatch(match, this)),
+                        );
+                    }, time);
+                },
+            };
+        });
+
         serverStream.on('chunk', (match) => {
-            const m = r.data.find((_m) =>
-                _m.tba.match_number === match.matchNumber &&
-                _m.tba.comp_level === match.compLevel
+            const m = r.data.find(
+                (_m) =>
+                    _m.tba.match_number === match.matchNumber &&
+                    _m.tba.comp_level === match.compLevel,
             );
             if (!m) return;
             m.$cache.set('info', match);
         });
 
         this.$cache.set('matches', r.data);
-        r.onUpdate((data: FIRSTMatch[]) => {
-            this.$cache.set('matches', data);
-            this.$emitter.emit('update-matches', data);
-        }, 1000 * 60 * 10);
+        r.onUpdate(
+            (data: FIRSTMatch[]) => {
+                this.$cache.set('matches', data);
+                this.$emitter.emit('update-matches', data);
+            },
+            1000 * 60 * 10,
+        );
         return r.data;
     }
 
@@ -203,10 +206,13 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         });
 
         this.$cache.set('teams', r.data);
-        r.onUpdate((data) => {
-            this.$cache.set('teams', data);
-            this.emit('update-teams', data);
-        }, 1000 * 60 * 10 * 24);
+        r.onUpdate(
+            (data) => {
+                this.$cache.set('teams', data);
+                this.emit('update-teams', data);
+            },
+            1000 * 60 * 10 * 24,
+        );
 
         return r.data;
     }

@@ -1,10 +1,10 @@
 <script lang="ts">
-    import YearSelect from './GlobalYearSelect.svelte';
-    import EventSelect from './GlobalEventSelect.svelte';
-    import { capitalize, fromSnakeCase } from '../../../../shared/text';
-    import { ServerRequest } from '../../../utilities/requests';
-    export let title: string;
-    export let navItems: string[] = [];
+import YearSelect from './GlobalYearSelect.svelte';
+import EventSelect from './GlobalEventSelect.svelte';
+import { capitalize, fromSnakeCase } from '../../../../shared/text';
+import { ServerRequest } from '../../../utilities/requests';
+export let title: string;
+export let navItems: string[] = [];
 
 export let active: string = '';
 
@@ -17,14 +17,15 @@ export let account: {
     phoneNumber?: string;
 };
 
-
-    ServerRequest.post('/account/get-account').then(res => {
-        account = res as any;
+ServerRequest.post('/account/get-account').then(res => {
+    account = res as any;
+});
 </script>
 
 <nav
     class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow text-light d-flex"
     id="top-navbar"
+>
     <button
         class="btn btn-dark navbar-toggler"
         type="button"
