@@ -3,15 +3,8 @@ import { StateStack } from '../../../shared/statestack';
 import { Point2D } from '../../submodules/calculations/src/linear-algebra/point';
 import { Whiteboard, WhiteboardState } from './whiteboard';
 
-const robotSize = .1; // % of canvas height
-const colors: [
-    Color,
-    Color,
-    Color,
-    Color,
-    Color,
-    Color,
-] = [
+const robotSize = 0.1; // % of canvas height
+const colors: [Color, Color, Color, Color, Color, Color] = [
     new Color(255, 0, 0),
     new Color(250, 10, 10),
     new Color(245, 20, 20),
@@ -44,14 +37,7 @@ class FieldBoardState extends WhiteboardState {
         Point2D | null,
         Point2D | null,
         Point2D | null,
-    ] = [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-    ];
+    ] = [null, null, null, null, null, null];
 
     draw(ctx: CanvasRenderingContext2D) {
         super.draw(ctx);
@@ -66,8 +52,8 @@ class FieldBoardState extends WhiteboardState {
             x = x * ctx.canvas.width;
             y = y * ctx.canvas.height;
             ctx.rect(
-                x - robotSize * ctx.canvas.height / 2,
-                y - robotSize * ctx.canvas.height / 2,
+                x - (robotSize * ctx.canvas.height) / 2,
+                y - (robotSize * ctx.canvas.height) / 2,
                 robotSize * ctx.canvas.height,
                 robotSize * ctx.canvas.height,
             );
@@ -104,7 +90,7 @@ export class FieldBoard extends Whiteboard {
                 const color = colors[i];
                 b.style.backgroundColor = color.toString('hex');
 
-                b.onclick = () => this.currentColor = color;
+                b.onclick = () => (this.currentColor = color);
 
                 this.btnGroup.appendChild(b);
 
@@ -116,7 +102,7 @@ export class FieldBoard extends Whiteboard {
         black.classList.add('btn', 'btn-outline-secondary');
         black.innerText = 'black';
         black.style.backgroundColor = 'black';
-        black.onclick = () => this.currentColor = Color.fromName('black');
+        black.onclick = () => (this.currentColor = Color.fromName('black'));
 
         this.btnGroup.appendChild(black);
     }

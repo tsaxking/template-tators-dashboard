@@ -10,15 +10,10 @@ export type Command = {
     data?: SlashCommandBuilder;
 };
 
-const commands: Command[] = [
-    Ping,
-    Connect,
-];
+const commands: Command[] = [Ping];
 
 export const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-    ],
+    intents: [GatewayIntentBits.Guilds],
 });
 
 client.on('ready', () => {
@@ -28,7 +23,7 @@ client.on('ready', () => {
 
     // loop through guilds
     for (const guild of client.guilds.cache.values()) {
-        guild.commands.set(commands.map((c) => c.data ? c.data.toJSON() : c));
+        guild.commands.set(commands.map((c) => (c.data ? c.data.toJSON() : c)));
     }
 });
 

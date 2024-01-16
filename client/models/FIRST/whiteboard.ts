@@ -11,7 +11,7 @@ import { EventEmitter } from '../../../shared/event-emitter';
  * @typedef {WhiteboardUpdateData}
  */
 type WhiteboardUpdateData = {
-    'update': WhiteboardState[];
+    update: WhiteboardState[];
 };
 
 /**

@@ -2,7 +2,7 @@ import { Cache, Updates } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 
 type PitScoutingEvents = {
-    'update': PitScouting;
+    update: PitScouting;
 };
 
 export class PitScouting extends Cache<PitScoutingEvents> {
