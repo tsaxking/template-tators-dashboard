@@ -157,9 +157,7 @@ export type DiscordLink = {
  * @export
  * @typedef {Permission}
  */
-export type Permission =
-    | 'manageMembers'
-    | 'manageBoard';
+export type Permission = 'manageMembers' | 'manageBoard';
 
 /**
  * Description placeholder
@@ -168,8 +166,4 @@ export type Permission =
  * @export
  * @typedef {RoleName}
  */
-export type RoleName =
-    | 'admin'
-    | 'developer'
-    | 'user'
-    | 'guest';
+export type RoleName = 'admin' | 'developer' | 'user' | 'guest';

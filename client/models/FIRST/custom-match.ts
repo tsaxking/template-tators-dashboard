@@ -5,7 +5,7 @@ import { FIRSTTeam } from './team';
 import { FIRSTEvent } from './event';
 
 type CustomMatchEventData = {
-    'update': CustomMatch;
+    update: CustomMatch;
 };
 
 export class CustomMatch extends Cache<CustomMatchEventData> {
@@ -67,19 +67,21 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
                 FIRSTEvent.current.getTeam(this.data.blue1),
                 FIRSTEvent.current.getTeam(this.data.blue2),
                 FIRSTEvent.current.getTeam(this.data.blue3),
-            ]).then((teams) => {
-                if (teams.some((t) => !t)) return rej('Invalid team');
-                res(
-                    teams as [
-                        FIRSTTeam,
-                        FIRSTTeam,
-                        FIRSTTeam,
-                        FIRSTTeam,
-                        FIRSTTeam,
-                        FIRSTTeam,
-                    ],
-                );
-            }).catch(rej);
+            ])
+                .then((teams) => {
+                    if (teams.some((t) => !t)) return rej('Invalid team');
+                    res(
+                        teams as [
+                            FIRSTTeam,
+                            FIRSTTeam,
+                            FIRSTTeam,
+                            FIRSTTeam,
+                            FIRSTTeam,
+                            FIRSTTeam,
+                        ],
+                    );
+                })
+                .catch(rej);
         });
     }
 }

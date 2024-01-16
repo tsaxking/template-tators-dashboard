@@ -1,32 +1,34 @@
 <script lang="ts">
-    import { FIRSTEvent } from "../../models/FIRST/event";
-    import NavTabs from "../components/bootstrap/NavTabs.svelte";
-    import CreateScoutingSections from "../components/scouting/CreateScoutingSections.svelte";
+import { FIRSTEvent } from '../../models/FIRST/event';
+import NavTabs from '../components/bootstrap/NavTabs.svelte';
+import CreateScoutingSections from '../components/scouting/CreateScoutingSections.svelte';
 
+let event: FIRSTEvent;
 
-    let event: FIRSTEvent;
+FIRSTEvent.on('select', (e: FIRSTEvent) => (event = e));
 
-    FIRSTEvent.on('select', (e: FIRSTEvent) => event = e);
+type Type = {
+    name: string;
+    groups: string[];
+    questions: string[];
+};
 
-    type Type = {
-        name: string;
-        groups: string[];
-        questions: string[];
-    }
+let types: Type[] = [];
 
-    let types: Type[] = [];
+const save = (type: Type) => () => {
+    console.log(type);
+};
 
-    const save = (type: Type) => () => {
-        console.log(type);
-    }
-
-    let active: string = '';
-
+let active: string = '';
 </script>
 
 <div class="container-fluid">
     <div class="row mb-3">
-        <NavTabs tabs={types.map(t => t.name)} bind:active={active} on:change={(e) => active = e.detail}></NavTabs>
+        <NavTabs
+            tabs="{types.map(t => t.name)}"
+            bind:active
+            on:change="{e => (active = e.detail)}"
+        ></NavTabs>
     </div>
     {#each types as type}
         {#if type.name === active}
@@ -36,5 +38,3 @@
         {/if}
     {/each}
 </div>
-
-

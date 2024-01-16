@@ -31,7 +31,7 @@ import { Cache, Updates } from '../cache';
  * @typedef {FIRSTMatchEventData}
  */
 type FIRSTMatchEventData = {
-    'strategy': Strategy[];
+    strategy: Strategy[];
     'match-scouting': RetrievedMatchScouting;
 };
 
@@ -143,16 +143,22 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             const info = this.$cache.get('info');
             if (info) return res(info);
 
-            ServerRequest.post<MatchObj>('/api/matches/info', {
-                eventKey: this.event.tba.key,
-                matchNumber: this.tba.match_number,
-                compLevel: this.tba.comp_level,
-            }, {
-                cached: true,
-            }).then((data) => {
-                this.$cache.set('info', data);
-                res(data);
-            }).catch(rej);
+            ServerRequest.post<MatchObj>(
+                '/api/matches/info',
+                {
+                    eventKey: this.event.tba.key,
+                    matchNumber: this.tba.match_number,
+                    compLevel: this.tba.comp_level,
+                },
+                {
+                    cached: true,
+                },
+            )
+                .then((data) => {
+                    this.$cache.set('info', data);
+                    res(data);
+                })
+                .catch(rej);
         });
     }
 
@@ -170,35 +176,44 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     async getMatchScouting(): Promise<{
         [teamNumber: number]: RetrievedMatchScouting;
     }> {
-        const scouting = await Promise.all(this.teams.map((t) => {
-            return new Promise<RetrievedMatchScouting>((res, rej) => {
-                t.getMatchScouting()
-                    .on('complete', (matches) => {
-                        const match = matches.find((m) =>
-                            m.compLevel === this.tba.comp_level &&
-                            m.matchNumber === this.tba.match_number
+        const scouting = await Promise.all(
+            this.teams.map((t) => {
+                return new Promise<RetrievedMatchScouting>((res, rej) => {
+                    t.getMatchScouting().on('complete', (matches) => {
+                        const match = matches.find(
+                            (m) =>
+                                m.compLevel === this.tba.comp_level &&
+                                m.matchNumber === this.tba.match_number,
                         );
                         if (match) res(match);
                         else rej(new Error('Match not found'));
                     });
-            });
-        }));
+                });
+            }),
+        );
 
-        return scouting.reduce((acc, cur, i) => {
-            acc[this.teams[i].tba.team_number] = cur;
+        return scouting.reduce(
+            (acc, cur, i) => {
+                acc[this.teams[i].tba.team_number] = cur;
 
-            return acc;
-        }, {} as { [teamNumber: number]: RetrievedMatchScouting });
+                return acc;
+            },
+            {} as { [teamNumber: number]: RetrievedMatchScouting },
+        );
     }
 
     async getWhiteboard(): Promise<WhiteboardObj> {
-        return ServerRequest.post<WhiteboardObj>('/api/whiteboard/from-match', {
-            eventKey: this.event.tba.key,
-            matchNumber: this.tba.match_number,
-            compLevel: this.tba.comp_level,
-        }, {
-            cached: true,
-        });
+        return ServerRequest.post<WhiteboardObj>(
+            '/api/whiteboard/from-match',
+            {
+                eventKey: this.event.tba.key,
+                matchNumber: this.tba.match_number,
+                compLevel: this.tba.comp_level,
+            },
+            {
+                cached: true,
+            },
+        );
     }
 
     /**
@@ -219,14 +234,9 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         const [red1, red2, red3] = this.tba.alliances.red.team_keys;
         const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
 
-        const teams = [
-            red1,
-            red2,
-            red3,
-            blue1,
-            blue2,
-            blue3,
-        ].map((t) => FIRSTTeam.cache.get(+t.replace('frc', '')));
+        const teams = [red1, red2, red3, blue1, blue2, blue3].map((t) =>
+            FIRSTTeam.cache.get(+t.replace('frc', ''))
+        );
 
         if (teams.some((t) => !t)) {
             throw new Error('Some teams are undefined');

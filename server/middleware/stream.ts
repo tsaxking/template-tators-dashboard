@@ -132,9 +132,9 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
  * @typedef {StreamEvents}
  */
 type StreamEvents = {
-    'data': string;
-    'end': void;
-    'error': Error;
+    data: string;
+    end: void;
+    error: Error;
 };
 
 /**
@@ -183,14 +183,16 @@ export const retrieveStream = (
 
     return (
         req: Req<
-            {
+            | {
                 type: 'data';
                 index: number;
                 data: string;
                 size: number;
-            } | {
+            }
+            | {
                 type: 'end';
-            } | {
+            }
+            | {
                 type: 'error';
                 error: Error;
             }

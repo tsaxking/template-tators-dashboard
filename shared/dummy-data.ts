@@ -3,15 +3,23 @@ import {
     Point,
     Point2D,
 } from './submodules/calculations/src/linear-algebra/point.ts';
-import { P, Action, Trace } from './submodules/tatorscout-calculations/trace.ts';
+import {
+    Action,
+    P,
+    Trace,
+} from './submodules/tatorscout-calculations/trace.ts';
 
 const chars = 'abcdefghijklmnopqrstuvwxyz';
 const char = (num: number) =>
-    new Array(num).fill('').map((_) =>
-        chars[Math.floor(Math.random() * chars.length)]
-    ).join('');
+    new Array(num)
+        .fill('')
+        .map((_) => chars[Math.floor(Math.random() * chars.length)])
+        .join('');
 const num = (num: number) =>
-    +new Array(num).fill(0).map((_) => Math.floor(Math.random() * 10)).join('');
+    +new Array(num)
+        .fill(0)
+        .map((_) => Math.floor(Math.random() * 10))
+        .join('');
 
 export const createEvent = () => {
     const year = num(4);
@@ -66,36 +74,33 @@ export const createMatchScouting = (
 };
 
 const initPoints: Point2D[] = [
-    [.25, .3],
-    [.5, .3],
-    [.75, .3],
-    [.25, .7],
-    [.5, .7],
-    [.75, .7],
+    [0.25, 0.3],
+    [0.5, 0.3],
+    [0.75, 0.3],
+    [0.25, 0.7],
+    [0.5, 0.7],
+    [0.75, 0.7],
 ];
 
-const actions: Action[] = [
-    'spk',
-    'amp',
-    'src',
-    'trp',
-    'clb',
-];
+const actions: Action[] = ['spk', 'amp', 'src', 'trp', 'clb'];
 
 export const generateTrace = () => {
     class Tick {
         public pos: Point2D | undefined;
         public action: Action | undefined;
 
-        constructor(public readonly index: number, public readonly robot: Robot) {}
+        constructor(
+            public readonly index: number,
+            public readonly robot: Robot,
+        ) {}
 
         simplify(): P {
-            const simple: [
-                number,
-                number,
-                number,
-                Action | 0,
-            ] = [this.index,-1, -1, 0];
+            const simple: [number, number, number, Action | 0] = [
+                this.index,
+                -1,
+                -1,
+                0,
+            ];
 
             if (this.pos) {
                 simple[1] = $Math.roundTo(4, this.pos[0]);
@@ -117,9 +122,9 @@ export const generateTrace = () => {
     }
 
     class Robot {
-        public ticks: Tick[] = new Array(150 * 4).fill(null).map((_, i) =>
-            new Tick(i, this)
-        );
+        public ticks: Tick[] = new Array(150 * 4)
+            .fill(null)
+            .map((_, i) => new Tick(i, this));
         public pos = Random.choose(initPoints);
         public readonly vel = Random.between(3, 15);
         public currentTick = this.ticks[0];
