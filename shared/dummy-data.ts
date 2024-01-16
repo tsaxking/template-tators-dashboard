@@ -1,9 +1,9 @@
-import { $Math } from './math.ts';
-import { Random } from './random.ts';
+import { $Math, Random } from './math.ts';
 import {
     Point,
     Point2D,
 } from './submodules/calculations/src/linear-algebra/point.ts';
+import { P, Action } from './submodules/tatorscout-calculations/trace.ts';
 
 const chars = 'abcdefghijklmnopqrstuvwxyz';
 const char = (num: number) =>
@@ -74,8 +74,6 @@ const initPoints: Point2D[] = [
     [.75, .7],
 ];
 
-type Action = 'spk' | 'amp' | 'src' | 'trp' | 'clb';
-
 const actions: Action[] = [
     'spk',
     'amp',
@@ -89,39 +87,49 @@ export const generateTrace = () => {
         public pos: Point2D | undefined;
         public action: Action | undefined;
 
-        constructor(public readonly index: number) {}
+        constructor(public readonly index: number, public readonly robot: Robot) {}
 
-        simplify(): [
-            number | undefined,
-            number | undefined,
-            string | undefined,
-        ] {
+        simplify(): P {
             const simple: [
                 number,
                 number,
-                string,
-            ] = [-1, -1, ''];
+                number,
+                Action | 0,
+            ] = [this.index,-1, -1, 0];
 
             if (this.pos) {
-                simple[0] = $Math.roundTo(4, this.pos[0]);
-                simple[1] = $Math.roundTo(4, this.pos[1]);
+                simple[1] = $Math.roundTo(4, this.pos[0]);
+                simple[2] = $Math.roundTo(4, this.pos[1]);
             }
 
-            if (this.action) simple[2] = this.action;
+            if (this.action) simple[3] = this.action;
 
             return simple;
+        }
+
+        get prev(): Tick {
+            return this.robot.ticks[this.index - 1];
+        }
+
+        get next(): Tick {
+            return this.robot.ticks[this.index + 1];
         }
     }
 
     class Robot {
         public ticks: Tick[] = new Array(150 * 4).fill(null).map((_, i) =>
-            new Tick(i)
+            new Tick(i, this)
         );
         public pos = Random.choose(initPoints);
         public readonly vel = Random.between(3, 15);
         public currentTick = this.ticks[0];
 
         move(tick: Tick) {
+            if (tick.prev?.pos && Random.between(0, 100) < 5) {
+                this.pos = tick.prev.pos;
+                return tick;
+            }
+
             const dir: Point2D = Random.choose(
                 new Array(8).fill(0).map((_, i) => {
                     const angle = i * 45;
