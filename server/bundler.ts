@@ -11,10 +11,15 @@ import env, {
     relative,
     resolve,
 } from './utilities/env.ts';
+import fs from 'node:fs';
 
 log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
 log('V8 version:', Deno.version.v8);
+
+if (!fs.existsSync(resolve(__templates, './entries'))) {
+    Deno.mkdirSync(resolve(__templates, './entries'));
+}
 
 /**
  * Recursively reads a directory, saves the template, and returns the file paths
