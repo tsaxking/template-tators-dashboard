@@ -22,8 +22,8 @@ router.post<{
             eventKey,
         });
 
-        const match = matches.find((m) =>
-            m.matchNumber === matchNumber && m.compLevel === compLevel
+        const match = matches.find(
+            (m) => m.matchNumber === matchNumber && m.compLevel === compLevel,
         );
 
         if (!match) return res.sendStatus('whiteboard:match-not-found');

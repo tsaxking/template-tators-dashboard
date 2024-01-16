@@ -292,7 +292,7 @@ export class Canvas {
      * @param {(canvas: this) => void} [update] - The update function, called every frame (optional)
      */
     animate(update?: (canvas: this) => void): () => void {
-        const stop = () => this.animating = false;
+        const stop = () => (this.animating = false);
         if (this.animating) return stop;
 
         this.animating = true;
@@ -334,9 +334,9 @@ export class Canvas {
         if (e instanceof MouseEvent) {
             return [makePoint(e.clientX, e.clientY)];
         } else {
-            return Array.from(e.touches).map((
-                touch,
-            ) => makePoint(touch.clientX, touch.clientY));
+            return Array.from(e.touches).map((touch) =>
+                makePoint(touch.clientX, touch.clientY)
+            );
         }
     }
 

@@ -524,7 +524,7 @@ export const messages: {
         code: 200,
         instructions: '',
     },
-    'profanity': {
+    profanity: {
         message: 'Profanity detected',
         color: 'danger',
         code: 400,
@@ -821,13 +821,9 @@ export type EventStatusId = 'update-properties';
 
 export type MatchStatusId = 'not-found';
 
-export type MatchcommentsStatusId =
-    | 'delete'
-    | 'new';
+export type MatchcommentsStatusId = 'delete' | 'new';
 
-export type MatchscoutingStatusId =
-    | 'delete'
-    | 'new';
+export type MatchscoutingStatusId = 'delete' | 'new';
 
 export type MemberStatusId =
     | 'accepted'
@@ -855,21 +851,13 @@ export type PermissionsStatusId =
     | 'invalid'
     | 'unauthorized';
 
-export type PitscoutingStatusId =
-    | 'delete'
-    | 'new';
+export type PitscoutingStatusId = 'delete' | 'new';
 
 export type ProfanityStatusId = 'undefined';
 
-export type RolesStatusId =
-    | 'added'
-    | 'invalid-role'
-    | 'not-found'
-    | 'removed';
+export type RolesStatusId = 'added' | 'invalid-role' | 'not-found' | 'removed';
 
-export type ServerStatusId =
-    | 'invalid-data'
-    | 'unknown-server-error';
+export type ServerStatusId = 'invalid-data' | 'unknown-server-error';
 
 export type SkillsStatusId =
     | 'added'
@@ -880,13 +868,9 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
-export type StrategyStatusId =
-    | 'delete'
-    | 'new';
+export type StrategyStatusId = 'delete' | 'new';
 
-export type TestStatusId =
-    | 'fail'
-    | 'success';
+export type TestStatusId = 'fail' | 'success';
 
 export type UnknownStatusId = 'error';
 

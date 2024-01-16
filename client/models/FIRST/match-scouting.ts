@@ -3,7 +3,7 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { MatchScouting as MatchScoutingObj } from '../../../shared/db-types-extended';
 
 type MatchScoutingEvents = {
-    'update': MatchScouting;
+    update: MatchScouting;
 };
 
 export class MatchScouting extends Cache<MatchScoutingEvents> {
