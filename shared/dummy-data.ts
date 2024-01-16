@@ -3,7 +3,7 @@ import {
     Point,
     Point2D,
 } from './submodules/calculations/src/linear-algebra/point.ts';
-import { P, Action } from './submodules/tatorscout-calculations/trace.ts';
+import { P, Action, Trace } from './submodules/tatorscout-calculations/trace.ts';
 
 const chars = 'abcdefghijklmnopqrstuvwxyz';
 const char = (num: number) =>
@@ -166,5 +166,5 @@ export const generateTrace = () => {
         }
     }
 
-    return new Robot().generate();
+    return new Robot().generate().filter(Trace.filterPipe);
 };
