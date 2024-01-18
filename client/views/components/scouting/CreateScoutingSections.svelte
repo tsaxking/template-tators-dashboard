@@ -4,7 +4,7 @@ import GroupCard from './GroupCard.svelte';
 import Button from '../bootstrap/Button.svelte';
 import { createEventDispatcher } from 'svelte';
 import QuestionCard from './QuestionCard.svelte';
-import { random } from '../../../../shared/uuid';
+import { Random } from '../../../../shared/math';
 import { StateStack, State } from '../../../../shared/statestack';
 
 type ScoutingQuestionGroup = {
@@ -50,7 +50,7 @@ const addGroup = () => {
         ...groups,
         {
             // this id will be replaced by the server
-            id: random(),
+            id: Random.uuid(),
             name: 'New Section',
             eventKey
         }
@@ -81,7 +81,7 @@ const addCard = (id: string) => (e: CustomEvent) => {
             group: id,
             section: id,
             key: 'new_question',
-            id: random(),
+            id: Random.uuid(),
             question: 'New Question',
             type: 'text',
             description: ''

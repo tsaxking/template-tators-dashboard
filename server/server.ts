@@ -31,10 +31,6 @@ export const app = new App(port, domain, {
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
-app.get('/*', (req, res) => {
-    console.log('test');
-});
-
 const builder = await runBuild();
 
 // building client listeners
