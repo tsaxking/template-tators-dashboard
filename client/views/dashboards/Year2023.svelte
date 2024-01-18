@@ -3,7 +3,7 @@ import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
 import { getOpenPage } from '../../utilities/page';
 import RobotDisplay from '../pages/RobotDisplay.svelte';
-import CreateScoutingQuestions from '../pages/CreateScoutingQuestions.svelte';
+//import CreateScoutingQuestions from '../pages/CreateScoutingQuestions.svelte';
 import { TBA } from '../../utilities/tba';
 import { abbreviate } from '../../../shared/text';
 import ScoutingChecklist from '../pages/ScoutingChecklist.svelte';
@@ -153,9 +153,9 @@ const accountLinks = [
     <Page {active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
     </Page>
-    <Page {active} {domain} title="create-scouting-questions">
+    <!-- <Page {active} {domain} title="create-scouting-questions">
         <CreateScoutingQuestions />
-    </Page>
+    </Page> -->
     <Page {active} {domain} title="scouting-checklist">
         <ScoutingChecklist />
     </Page>

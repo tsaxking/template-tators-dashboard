@@ -1,8 +1,8 @@
-import '../utilities/imports.ts';
-import { generateTrace } from "../../shared/dummy-data.ts"
-import { Trace, P } from '../../shared/submodules/tatorscout-calculations/trace.ts';
-import { Canvas } from '../models/canvas/canvas.ts';
-import { Circle } from '../models/canvas/circle.ts';
+import '../../utilities/imports.ts';
+import { generateTrace } from "../../../shared/dummy-data.ts"
+import { Trace, P } from '../../../shared/submodules/tatorscout-calculations/trace.ts';
+import { Canvas } from '../../models/canvas/canvas.ts';
+import { Circle } from '../../models/canvas/circle.ts';
 
 
 const shotCanvas = document.createElement('canvas');
