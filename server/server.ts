@@ -13,6 +13,7 @@ import Role from './structure/roles.ts';
 import { validate } from './middleware/data-type.ts';
 import { retrieveStream } from './middleware/stream.ts';
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
+import { stdin } from './utilities/utilties.ts';
 import './utilities/tba/tba.ts';
 
 console.log('Platform:', os.platform());
@@ -30,10 +31,6 @@ export const app = new App(port, domain, {
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
-app.get('/*', (req, res) => {
-    console.log('test');
-});
-
 const builder = await runBuild();
 
 // building client listeners
@@ -41,6 +38,8 @@ builder.on('build', () => {
     if (env.ENVIRONMENT === 'dev') app.io.emit('reload');
     log('Build complete');
 });
+
+stdin.on('build', () => builder.emit('build'));
 
 builder.on('error', (e) => log('Build error:', e));
 
