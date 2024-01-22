@@ -1,0 +1,1 @@
+SELECT * FROM MatchComments WHERE matchId = :matchId;
