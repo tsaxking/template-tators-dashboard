@@ -9,7 +9,7 @@ type Task = {
 
 class Tick {}
 
-class Game {
+class _Game {
     static readonly tasks = {
         'Speaker Short': {
             description: 'Shoot into the speaker from the subwoofer',
@@ -64,6 +64,6 @@ class Team {
     }
 }
 
-class Alliance {
+class _Alliance {
     constructor(public readonly teams: [Team, Team, Team]) {}
 }

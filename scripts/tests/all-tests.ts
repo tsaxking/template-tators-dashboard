@@ -68,12 +68,14 @@ export const runTests = async () => {
             teams: TBATeam[];
         }>('scout-group-test');
 
-        if (!data) throw new Error('Failed to fetch data');
+        if (data.isOk()) {
+            const { matches, teams } = data.value;
+            const assignments = generateScoutGroups(teams, matches);
+            const result = testAssignments(assignments);
 
-        const { matches, teams } = data;
-        const assignments = generateScoutGroups(teams, matches);
-        const result = testAssignments(assignments);
-
-        assertEquals(result.status, 'ok');
+            assertEquals(result.status, 'ok');
+        } else {
+            throw data.error;
+        }
     });
 };
