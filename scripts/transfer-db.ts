@@ -458,17 +458,13 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
 
 const transferMatchScouting = () => {
     const q = db.prepare('SELECT * FROM MatchScouting');
-    const matches = q.all();
+    const matches = q.all() as (Match2022 | Match2023)[];
 
     transferMatch2022Scouting(
-        matches.filter((m: any) =>
-            m?.eventKey?.startsWith('2022')
-        ) as Match2022[],
+        matches.filter((m) => m?.eventKey?.startsWith('2022')) as Match2022[],
     );
     transferMatch2023Scouting(
-        matches.filter((m: any) =>
-            m?.eventKey?.startsWith('2023')
-        ) as Match2023[],
+        matches.filter((m) => m?.eventKey?.startsWith('2023')) as Match2023[],
     );
 };
 
@@ -723,13 +719,13 @@ const transferTeams = () => {
             t.eventKey,
         ) as { id: string; key: string }[];
 
-        const pit = t.pitScouting ? parse<any>(t.pitScouting) : {};
-        const pre = t.preScouting ? parse<any[]>(t.preScouting) : [];
+        const pit = t.pitScouting ? parse<unknown>(t.pitScouting) : {};
+        const pre = t.preScouting ? parse<unknown[]>(t.preScouting) : [];
         const electrical = t.electricalScouting
-            ? parse<any>(t.electricalScouting)
+            ? parse<unknown>(t.electricalScouting)
             : {};
         const mechanical = t.mechanicalScouting
-            ? parse<any>(t.mechanicalScouting)
+            ? parse<unknown>(t.mechanicalScouting)
             : {};
 
         const save = (data: { [key: string]: string }) => {
@@ -758,11 +754,11 @@ const transferTeams = () => {
             }
         };
 
-        save(pit);
-        save(electrical);
-        save(mechanical);
+        save(pit as { [key: string]: string });
+        save(electrical as { [key: string]: string });
+        save(mechanical as { [key: string]: string });
 
-        pre.forEach(save);
+        pre.forEach((p) => save(p as { [key: string]: string }));
     }
 };
 

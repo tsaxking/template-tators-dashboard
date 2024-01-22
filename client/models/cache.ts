@@ -4,7 +4,7 @@ import { EventEmitter } from '../../shared/event-emitter';
  * Global updates for all caches
  * @date 10/12/2023 - 1:04:42 PM
  *
- * @typedef {Updates}
+ * @typedef {CacheUpdates}
  */
 export type Updates =
     | 'create'
@@ -36,7 +36,7 @@ export type Updates =
  * @class Cache
  * @typedef {Cache}
  */
-export class Cache<data = any> {
+export class Cache<data = unknown> {
     /**
      * Cache for storing data (any)
      * @date 10/12/2023 - 1:04:42 PM
@@ -44,7 +44,7 @@ export class Cache<data = any> {
      * @readonly
      * @type {Map<string, any>}
      */
-    readonly $cache: Map<string, any> = new Map<string, any>();
+    readonly $cache = new Map<string, unknown>();
     /**
      * Event emitter for cache object updates (passed in as a generic)
      * @date 10/12/2023 - 1:04:42 PM
