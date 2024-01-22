@@ -150,8 +150,6 @@ export const runTests = async () => {
         );
     });
 
-
-    
     Deno.test('Scout groups', async () => {
         const eventKey = '2023cabl';
         const regex = /^([0-9]{4}[a-z]{3,4})$/i;
