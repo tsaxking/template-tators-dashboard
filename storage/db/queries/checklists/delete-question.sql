@@ -1,0 +1,1 @@
+DELETE FROM ChecklistQuestions WHERE id = :id;
