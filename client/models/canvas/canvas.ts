@@ -300,7 +300,7 @@ export class Canvas {
             if (!this.animating) return;
             this.clear();
             this.draw();
-            // update?.(this);
+            update?.(this);
             requestAnimationFrame(loop);
         };
         requestAnimationFrame(loop);

@@ -23,7 +23,7 @@ export class Path implements Drawable {
      * @param {?Partial<LineProperties>} [properties]
      */
     constructor(
-        public readonly points: Point2D[],
+        public points: Point2D[],
         public properties?: Partial<LineProperties>,
     ) {}
 
@@ -60,12 +60,7 @@ export class Path implements Drawable {
      * @param {...Point2D[]} points
      */
     add(...points: Point2D[]) {
-        this.points.push(
-            ...points.map((p) => {
-                setTimeout(() => this.points.shift(), 3000);
-                return p;
-            }),
-        );
+        this.points.push(...points);
     }
 }
 
