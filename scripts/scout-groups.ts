@@ -7,7 +7,7 @@ import {
     generateScoutGroups,
     testAssignments,
 } from '../shared/submodules/tatorscout-calculations/scout-groups.ts';
-import { saveJSON, saveJSONSync } from '../server/utilities/files.ts';
+import { saveJSON } from '../server/utilities/files.ts';
 import { error, log } from '../server/utilities/terminal-logging.ts';
 
 const [key] = Deno.args;

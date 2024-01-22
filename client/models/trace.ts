@@ -1,14 +1,80 @@
-import { Trace as T } from '../../shared/trace';
-import { Action, Point as P } from '../../shared/trace';
+import {
+    Action,
+    Action2024,
+    P,
+    Trace as T,
+} from '../../shared/submodules/tatorscout-calculations/trace';
 import { Color } from '../submodules/colors/color';
-import { Spline } from '../submodules/calculations/src/linear-algebra/spline';
-import { Point } from '../submodules/calculations/src/linear-algebra/point';
+import { Circle } from './canvas/circle';
+import { Spline } from '../../shared/submodules/calculations/src/linear-algebra/spline';
+import {
+    Point,
+    Point2D,
+} from '../../shared/submodules/calculations/src/linear-algebra/point';
+import { Drawable } from './canvas/canvas';
+import { Path } from './canvas/path';
 
-export class Trace {
-    constructor(public readonly points: T) {}
+type TraceProperties<action = Action> = {
+    actions: action[];
+    drawTrace: boolean;
+    slider: boolean;
+};
+
+export class Trace<action = Action> implements Drawable<Trace> {
+    public $actions: Circle[] = [];
+    public readonly $path: Path;
+    public $points: P[];
+
+    public $from = 0;
+    public $to = 600;
+
+    constructor(
+        points: P[],
+        public readonly options: Partial<TraceProperties<action>>,
+    ) {
+        this.points = points;
+    }
+
+    public get points() {
+        return this.$points;
+    }
+
+    public set points(points: P[]) {
+        this.$points = points;
+        this.$path.points = points.map((p) => [p[1], p[2]]) as Point2D[];
+
+        if (this.options.actions) {
+            for (const a of this.options.actions) {
+                const points = this.$points.filter(T.filterAction<action>(a));
+
+                this.$actions = points.map((p) =>
+                    new Circle([p[1], p[2]], 0.05)
+                );
+            }
+        }
+    }
+
+    public get from() {
+        return this.$from;
+    }
+
+    public set from(from: number) {
+        this.$from = from;
+        this.points = [...this.points];
+    }
 
     getHeatmap(): Heatmap {
-        return new Heatmap(this.points.filter(Array.isArray) as P[]);
+        return new Heatmap(this.$points.filter(Array.isArray) as P[]);
+    }
+
+    draw(ctx: CanvasRenderingContext2D) {
+        if (this.options.drawTrace) {
+            this.$path.draw(ctx);
+        }
+
+        for (const a of this.$actions) {
+            a.draw(ctx);
+        }
     }
 }
 
@@ -107,3 +173,8 @@ export class Heatmap {
         };
     }
 }
+
+const t = new Trace<Action2024>([], {
+    actions: ['amp', 'spk'],
+    drawTrace: true,
+});

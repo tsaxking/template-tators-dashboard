@@ -3,7 +3,7 @@ import {
     TBAEvent,
     YearTBAMatch,
 } from '../shared/submodules/tatorscout-calculations/tba.ts';
-import { attempt, attemptAsync } from '../shared/attempt.ts';
+import { attemptAsync } from '../shared/attempt.ts';
 
 // console.log(weekEvents.map((e) => e.length));
 
@@ -86,37 +86,61 @@ const weekCount = async <y extends keyof YearTBAMatch>(
                             case 2022:
                                 return [
                                     pullClimbs2022(
-                                        m.score_breakdown.red as any,
+                                        m.score_breakdown
+                                            .red as YearTBAMatch[2022][
+                                                'score_breakdown'
+                                            ]['red'],
                                     ),
                                     pullClimbs2022(
-                                        m.score_breakdown.blue as any,
+                                        m.score_breakdown
+                                            .blue as YearTBAMatch[2022][
+                                                'score_breakdown'
+                                            ]['blue'],
                                     ),
                                 ];
                             case 2016:
                                 return [
                                     pullClimbs2016(
-                                        m.score_breakdown.red as any,
+                                        m.score_breakdown
+                                            .red as YearTBAMatch[2016][
+                                                'score_breakdown'
+                                            ]['red'],
                                     ),
                                     pullClimbs2016(
-                                        m.score_breakdown.blue as any,
+                                        m.score_breakdown
+                                            .blue as YearTBAMatch[2016][
+                                                'score_breakdown'
+                                            ]['blue'],
                                     ),
                                 ];
                             case 2017:
                                 return [
                                     pullClimbs2017(
-                                        m.score_breakdown.red as any,
+                                        m.score_breakdown
+                                            .red as YearTBAMatch[2017][
+                                                'score_breakdown'
+                                            ]['red'],
                                     ),
                                     pullClimbs2017(
-                                        m.score_breakdown.blue as any,
+                                        m.score_breakdown
+                                            .blue as YearTBAMatch[2017][
+                                                'score_breakdown'
+                                            ]['blue'],
                                     ),
                                 ];
                             case 2018:
                                 return [
                                     pullClimbs2018(
-                                        m.score_breakdown.red as any,
+                                        m.score_breakdown
+                                            .red as YearTBAMatch[2018][
+                                                'score_breakdown'
+                                            ]['red'],
                                     ),
                                     pullClimbs2018(
-                                        m.score_breakdown.blue as any,
+                                        m.score_breakdown
+                                            .blue as YearTBAMatch[2018][
+                                                'score_breakdown'
+                                            ]['blue'],
                                     ),
                                 ];
                             default:
@@ -169,7 +193,7 @@ const test = async <y extends keyof YearTBAMatch>(year: y) => {
     if (!allEvents) throw new Error('No events found');
 
     // sort by date
-    allEvents.sort((a: any, b: any) => {
+    allEvents.sort((a: TBAEvent, b: TBAEvent) => {
         const aDate = new Date(a.start_date);
         const bDate = new Date(b.start_date);
         return aDate.getTime() - bDate.getTime();
@@ -197,17 +221,17 @@ const test = async <y extends keyof YearTBAMatch>(year: y) => {
     for (let i = 1; i < 9; i++) {
         const events = weekEvents[i + 1];
 
-        await attemptAsync(weekCount, events, i, year);
+        await attemptAsync(() => weekCount(events, i, year));
     }
 };
 
-await attemptAsync(test, 2016);
+await attemptAsync(() => test(2016));
 console.log('---');
-await attemptAsync(test, 2017);
+await attemptAsync(() => test(2017));
 console.log('---');
-await attemptAsync(test, 2018);
+await attemptAsync(() => test(2018));
 console.log('---');
-await attemptAsync(test, 2022);
+await attemptAsync(() => test(2022));
 
 // console.log(climbData);
 
