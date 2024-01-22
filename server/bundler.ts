@@ -68,9 +68,7 @@ const readDir = (dirPath: string): string[] => {
  *
  * @type {{}}
  */
-let entries: string[] = [];
-
-entries = readDir('./client/entries');
+let entries: string[] = readDir('./client/entries');
 
 /**
  * Event data for the build event
@@ -85,37 +83,51 @@ type BuildEventData = {
 
 export const runBuild = async () => {
     const builder = new EventEmitter<keyof BuildEventData>();
-    const result = await esbuild.build({
-        entryPoints: entries,
-        bundle: true,
-        // minify: true,
-        outdir: './dist',
-        mainFields: ['svelte', 'browser', 'module', 'main'],
-        conditions: ['svelte', 'browser'],
-        watch: {
-            onRebuild(error: Error, result: any) {
-                if (error) builder.emit('error', error);
-                else builder.emit('build', result);
+
+    const build = () =>
+        esbuild.build({
+            entryPoints: entries,
+            bundle: true,
+            // minify: true,
+            outdir: './dist',
+            mainFields: ['svelte', 'browser', 'module', 'main'],
+            conditions: ['svelte', 'browser'],
+            watch: {
+                onRebuild(error: Error, result: any) {
+                    if (error) builder.emit('error', error);
+                    else builder.emit('build', result);
+                },
             },
-        },
-        // trust me, it works
-        plugins: [
-            (sveltePlugin as any)({
-                preprocess: [typescript()],
-            }),
-        ],
-        logLevel: 'info',
-        loader: {
-            '.png': 'dataurl',
-            '.woff': 'dataurl',
-            '.woff2': 'dataurl',
-            '.eot': 'dataurl',
-            '.ttf': 'dataurl',
-            '.svg': 'dataurl',
-        },
+            // trust me, it works
+            plugins: [
+                (sveltePlugin as any)({
+                    preprocess: [typescript()],
+                }),
+            ],
+            logLevel: 'info',
+            loader: {
+                '.png': 'dataurl',
+                '.woff': 'dataurl',
+                '.woff2': 'dataurl',
+                '.eot': 'dataurl',
+                '.ttf': 'dataurl',
+                '.svg': 'dataurl',
+            },
+        });
+
+    builder.on('build', () => {
+        entries = readDir('./client/entries');
+        build();
     });
 
-    builder.on('build', () => (entries = readDir('./client/entries')));
+    await build();
 
     return builder;
 };
+
+// if this file is the main file, run the build
+if (import.meta.main) {
+    runBuild()
+        .then(() => Deno.exit(0))
+        .catch(() => Deno.exit(1));
+}
