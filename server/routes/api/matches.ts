@@ -7,9 +7,9 @@ export const router = new Route();
 router.post(
     '/strategy',
     validate({
-        eventKey: (v: any) => typeof v === 'string',
-        matchNumber: (v: any) => typeof v === 'number',
-        compLevel: (v: any) => ['qm', 'qf', 'sf', 'f'].includes(v),
+        eventKey: 'string',
+        matchNumber: 'number',
+        compLevel: ['qm', 'qf', 'sf', 'f'],
     }),
     (req, res) => {
         const { eventKey, matchNumber, compLevel } = req.body;
@@ -29,7 +29,7 @@ router.post<{
 }>(
     '/all-from-event',
     validate({
-        eventKey: (v: any) => typeof v === 'string',
+        eventKey: 'string',
     }),
     (req, res) => {
         const { eventKey } = req.body;
@@ -45,9 +45,9 @@ router.post<{
 router.post(
     '/info',
     validate({
-        eventKey: (v: any) => typeof v === 'string',
-        matchNumber: (v: any) => typeof v === 'number',
-        compLevel: (v: any) => ['qm', 'qf', 'sf', 'f'].includes(v),
+        eventKey: 'string',
+        matchNumber: 'number',
+        compLevel: ['qm', 'qf', 'sf', 'f'],
     }),
     (req, res) => {
         const { eventKey, matchNumber, compLevel } = req.body;

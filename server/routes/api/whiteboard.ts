@@ -11,9 +11,9 @@ router.post<{
 }>(
     '/from-match',
     validate({
-        eventKey: (v) => typeof v === 'string',
-        matchNumber: (v) => typeof v === 'number',
-        compLevel: (v) => typeof v === 'string',
+        eventKey: 'string',
+        matchNumber: 'number',
+        compLevel: 'string',
     }),
     (req, res, next) => {
         const { eventKey, matchNumber, compLevel } = req.body;

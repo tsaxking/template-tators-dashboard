@@ -3,8 +3,7 @@ import { generateTrace } from '../../../shared/dummy-data';
 import {
     P,
     Trace,
-} 
-from '../../../shared/submodules/tatorscout-calculations/trace';
+} from '../../../shared/submodules/tatorscout-calculations/trace';
 import { Canvas } from '../../models/canvas/canvas';
 import { Circle } from '../../models/canvas/circle';
 import 'jquery-ui';

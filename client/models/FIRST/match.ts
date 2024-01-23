@@ -1,28 +1,19 @@
 import {
-    CompLevel,
-    Event as EventProperties,
     Match as MatchObj,
-    MatchScouting,
-    MatchScoutingComments,
     RetrievedMatchScouting,
-    RetrievedScoutingAnswer,
-    ScoutingAnswer,
-    Strategy as StrategyObj,
-    Team,
     Whiteboard as WhiteboardObj,
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { TBAEvent, TBAMatch, TBATeam } from '../../../shared/tba';
+import { TBAMatch } from '../../../shared/submodules/tatorscout-calculations/tba';
 import {
     RetrieveStreamEventEmitter,
     ServerRequest,
 } from '../../utilities/requests';
-import { TBA, TBAResponse } from '../../utilities/tba';
-import { socket } from '../../utilities/socket';
 import { FIRSTEvent } from './event';
 import { FIRSTTeam } from './team';
 import { Strategy } from './strategy';
 import { Cache, Updates } from '../cache';
+import { attemptAsync, Result } from '../../../shared/attempt';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -106,6 +97,18 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         });
     }
 
+    get number() {
+        return this.tba.match_number;
+    }
+
+    get compLevel() {
+        return this.tba.comp_level;
+    }
+
+    get eventKey() {
+        return this.event.tba.key;
+    }
+
     /**
      * Streams the strategy for this match
      * Returns an emitter that emits chunks of the strategy
@@ -138,12 +141,12 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         return em;
     }
 
-    public async getInfo(): Promise<MatchObj> {
-        return new Promise<MatchObj>((res, rej) => {
-            const info = this.$cache.get('info');
-            if (info) return res(info);
+    public async getInfo(): Promise<Result<MatchObj>> {
+        return attemptAsync(async () => {
+            const info = this.$cache.get('info') as MatchObj;
+            if (info) return info;
 
-            ServerRequest.post<MatchObj>(
+            const res = await ServerRequest.post<MatchObj>(
                 '/api/matches/info',
                 {
                     eventKey: this.event.tba.key,
@@ -153,12 +156,15 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
                 {
                     cached: true,
                 },
-            )
-                .then((data) => {
-                    this.$cache.set('info', data);
-                    res(data);
-                })
-                .catch(rej);
+            );
+
+            if (res.isOk()) {
+                this.$cache.set('info', res.value);
+
+                return res.value;
+            }
+
+            throw res.error;
         });
     }
 
@@ -202,7 +208,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         );
     }
 
-    async getWhiteboard(): Promise<WhiteboardObj> {
+    async getWhiteboard(): Promise<Result<WhiteboardObj>> {
         return ServerRequest.post<WhiteboardObj>(
             '/api/whiteboard/from-match',
             {
@@ -235,7 +241,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
 
         const teams = [red1, red2, red3, blue1, blue2, blue3].map((t) =>
-            FIRSTTeam.cache.get(+t.replace('frc', ''))
+            FIRSTTeam.$cache.get(+t.replace('frc', ''))
         );
 
         if (teams.some((t) => !t)) {

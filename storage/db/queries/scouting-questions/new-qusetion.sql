@@ -4,12 +4,16 @@ INSERT INTO ScoutingQuestions (
     key,
     description,
     type,
-    groupId
+    groupId,
+    dateAdded,
+    accountId
 ) VALUES (
     :id,
     :question,
     :key,
     :description,
     :type,
-    :groupId
+    :groupId,
+    :dateAdded,
+    :accountId
 );

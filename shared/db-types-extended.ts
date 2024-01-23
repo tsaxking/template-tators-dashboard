@@ -97,6 +97,14 @@ export type Whiteboard = {
     customMatchId?: string;
 };
 
+export type QuestionHistory = {
+    questionId: string;
+    answer: string;
+    teamNumber: number;
+    date: string;
+    accountId: string;
+};
+
 /**
  * Description placeholder
  * @date 1/11/2024 - 3:10:57 AM
@@ -118,18 +126,6 @@ export type MatchScoutingComments = {
  * @date 1/11/2024 - 3:10:57 AM
  *
  * @export
- * @typedef {ScoutingQuestionSection}
- */
-export type ScoutingQuestionSection = {
-    name: string;
-    multiple: boolean;
-};
-
-/**
- * Description placeholder
- * @date 1/11/2024 - 3:10:57 AM
- *
- * @export
  * @typedef {ScoutingQuestionGroup}
  */
 export type ScoutingQuestionGroup = {
@@ -137,6 +133,8 @@ export type ScoutingQuestionGroup = {
     eventKey: string;
     section: string;
     name: string;
+    dateAdded: string;
+    accountId: string;
 };
 
 /**
@@ -161,6 +159,9 @@ export type ScoutingQuestion = {
     key: string;
     description: string;
     groupId: string;
+    dateAdded: string;
+    accountId: string;
+    options: string; // json
 };
 
 /**
@@ -175,6 +176,8 @@ export type ScoutingAnswer = {
     questionId: string;
     answer: string;
     teamNumber: number;
+    dateAdded: string;
+    accountId: string;
 };
 
 /**

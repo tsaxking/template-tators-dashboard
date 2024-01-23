@@ -198,6 +198,8 @@ CREATE TABLE IF NOT EXISTS ScoutingQuestionGroups (
     eventKey TEXT NOT NULL,
     section TEXT NOT NULL, -- section name (references ScoutingQuestionSections)
     name TEXT NOT NULL
+    -- added dateAdded column in 1-0-5.sql
+    -- added accountId column in 1-0-5.sql
 );
 
 CREATE TABLE IF NOT EXISTS ScoutingQuestions (
@@ -207,6 +209,9 @@ CREATE TABLE IF NOT EXISTS ScoutingQuestions (
     description TEXT NOT NULL,
     type TEXT NOT NULL, -- boolean/number/text/textarea etc.
     groupId TEXT NOT NULL -- group id
+    -- added dateAdded column in 1-0-5.sql
+    -- added accountId column in 1-0-5.sql
+    -- added options column in 1-0-5.sql (JSON)
 );
 
 -- Added table for select/checkbox/radio etc. options in 1-0-4.sql
@@ -216,6 +221,8 @@ CREATE TABLE IF NOT EXISTS ScoutingAnswers (
     questionId TEXT NOT NULL,
     answer TEXT NOT NULL,
     teamNumber INTEGER NOT NULL
+    -- added date column in 1-0-5.sql
+    -- added accountId column in 1-0-5.sql
 );
 
 CREATE TABLE IF NOT EXISTS TBARequests (
