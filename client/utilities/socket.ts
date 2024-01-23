@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
 import { SocketEvent } from '../../shared/socket';
 import { ServerRequest } from './requests';
@@ -10,18 +11,23 @@ import { uptime } from '../../shared/clock';
  * @type {*}
  */
 const initialized = new Promise<void>((res) => {
-    ServerRequest.post<{ url: string }>('/socket-url').then(({ url }) => {
-        res();
-        const s = io(url);
-        s.on('disconnect', () => {
-            s.io['reconnect'](); // reconnect is private, but it is still accessible if I do this
-        });
+    ServerRequest.post<{ url: string }>('/socket-url').then((data) => {
+        if (data.isOk()) {
+            const { value } = data;
+            res();
+            const s = io(value.url);
+            s.on('disconnect', () => {
+                s.io['reconnect'](); // reconnect is private, but it is still accessible if I do this
+            });
 
-        s.on('reload', () => {
-            if (uptime() > 1000) location.reload();
-        });
+            s.on('reload', () => {
+                if (uptime() > 1000) location.reload();
+            });
 
-        socket.socket = s;
+            socket.socket = s;
+        } else {
+            console.error(data.error);
+        }
     });
 });
 
@@ -249,7 +255,7 @@ export class SocketWrapper {
      */
     async on(
         event: SocketEvent,
-        dataUpdate: (...args: unknown[]) => void,
+        dataUpdate: (...args: any[]) => void,
     ): Promise<SocketListener> {
         // wait for the socket to be initialized, if it already has been initialized then this will resolve immediately
         await initialized;
@@ -263,7 +269,7 @@ export class SocketWrapper {
 
         this.$$socket?.on(
             event,
-            (/* metadata: SocketMetadata, */ ...args: unknown[]) => {
+            (/* metadata: SocketMetadata, */ ...args: any[]) => {
                 console.log('socket.on', event, ...args);
                 dataUpdate(...args);
 
