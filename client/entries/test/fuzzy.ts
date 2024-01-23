@@ -1,6 +1,6 @@
 import './../../utilities/imports';
 import FuzzySearch from '../../views/components/FuzzySearch.svelte';
-const app = new FuzzySearch({
+new FuzzySearch({
     target: document.body,
     props: {
         searchOptions: [
