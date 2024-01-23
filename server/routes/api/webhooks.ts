@@ -16,9 +16,6 @@ router.use(App.headerAuth('x-webhook-auth', env.WEBHOOK_KEY as string));
 
 router.get(
     '/event/:eventKey/teams/trace',
-    validate({
-        eventKey: (v: any) => typeof v === 'string',
-    }),
     (req, res) => {
         const { eventKey } = req.params;
         if (!eventKey) return res.sendStatus('webhook:invalid-url');

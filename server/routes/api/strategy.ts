@@ -7,7 +7,7 @@ export const router = new Route();
 router.post(
     '/whiteboards',
     validate({
-        whiteboardId: (v: any) => typeof v === 'string',
+        whiteboardId: 'string',
     }),
     (req, res) => {
         const { whiteboardId } = req.body;

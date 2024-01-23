@@ -1,6 +1,7 @@
 import { ServerRequest } from './requests';
-import { TBAEvent } from '../../shared/tba';
+import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba';
 import { FIRSTEvent } from '../models/FIRST/event';
+import { attemptAsync, Result } from '../../shared/attempt';
 
 /**
  * Description placeholder
@@ -33,13 +34,17 @@ export class TBA {
      * @async
      * @returns {Promise<string>}
      */
-    static async getAPIKey(): Promise<string> {
-        let item = localStorage.getItem('tba-api-key');
-        if (item) return item;
-        item = await ServerRequest.post<string>('/api/tba/api-key');
-        if (!item) throw new Error('No API key found');
-        localStorage.setItem('tba-api-key', item);
-        return item;
+    static async getAPIKey(): Promise<Result<string>> {
+        return attemptAsync(async () => {
+            let item = localStorage.getItem('tba-api-key');
+            if (item) return item;
+            const res = await ServerRequest.post<string>('/api/tba/api-key');
+            if (res.isOk()) item = res.value;
+            else throw res.error;
+            if (!item) throw new Error('No API key found');
+            localStorage.setItem('tba-api-key', item);
+            return item;
+        });
     }
 
     /**
@@ -48,8 +53,11 @@ export class TBA {
      * @param options
      * @returns
      */
-    static get<T = any>(path: string, cached = true): Promise<TBAResponse<T>> {
-        return new Promise(async (res, rej) => {
+    static get<T = unknown>(
+        path: string,
+        cached = true,
+    ): Promise<Result<TBAResponse<T>>> {
+        return attemptAsync(async () => {
             const start = Date.now();
             let data: T | null = null;
             if (cached) {
@@ -63,18 +71,16 @@ export class TBA {
                             'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ',
                     },
                     method: 'GET',
-                })
-                    .then((data) => data.json())
-                    .catch(rej);
+                }).then((data) => data.json());
             };
 
             if (!data) data = await fetcher();
-            if (!data) return rej('No data found');
+            if (!data) throw new Error('No data found');
 
             type Callback = (data: T) => void;
 
             class IntervalEmitter {
-                interval: number;
+                interval: NodeJS.Timer;
                 callbacks: Callback[] = [];
 
                 constructor(private readonly time: number) {
@@ -112,7 +118,7 @@ export class TBA {
             };
 
             if (cached) TBA.storeCache(path, data);
-            res(response);
+            return response;
         });
     }
 
@@ -168,15 +174,21 @@ export class TBA {
     static async getEvent(
         eventKey: string,
         simple = false,
-    ): Promise<TBAResponse<FIRSTEvent>> {
-        const res = await TBA.get<TBAEvent>(
-            `/event/${eventKey}${simple ? '/simple' : ''}`,
-        );
+    ): Promise<Result<TBAResponse<FIRSTEvent>>> {
+        return attemptAsync(async () => {
+            const res = await TBA.get<TBAEvent>(
+                `/event/${eventKey}${simple ? '/simple' : ''}`,
+            );
 
-        return {
-            data: new FIRSTEvent(res.data),
-            time: res.time,
-            onUpdate: res.onUpdate.bind(res),
-        };
+            if (res.isOk()) {
+                return {
+                    data: new FIRSTEvent(res.value.data),
+                    time: res.value.time,
+                    onUpdate: res.value.onUpdate.bind(res),
+                };
+            }
+
+            throw res.error;
+        });
     }
 }

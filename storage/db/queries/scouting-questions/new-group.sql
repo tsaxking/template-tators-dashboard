@@ -2,10 +2,14 @@ INSERT INTO ScoutingQuestionGroups (
     id,
     eventKey,
     name,
-    section
+    section,
+    dateAdded,
+    accountId
 ) VALUES (
     :id,
     :eventKey,
     :name,
-    :section
+    :section,
+    :dateAdded,
+    :accountId
 );

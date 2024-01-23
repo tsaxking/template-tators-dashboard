@@ -3,6 +3,7 @@ SELECT
     ScoutingAnswers.teamNumber as teamNumber,
     ScoutingAnswers.questionId as questionId,
     ScoutingAnswers.answer as answer,
+    ScoutingAnswers.data as date,
     ScoutingQuestions.question as question,
     ScoutingQuestions.key as questionKey,
     ScoutingQuestions.description as questionDescription,
