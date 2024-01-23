@@ -7,8 +7,8 @@ export const router = new Route();
 router.post(
     '/match-scouting',
     validate({
-        team: (v: any) => typeof v === 'number',
-        eventKey: (v: any) => typeof v === 'string',
+        team: 'number',
+        eventKey: 'string',
     }),
     (req, res) => {
         const { team, eventKey } = req.body;
@@ -25,8 +25,8 @@ router.post(
 router.post(
     '/match-comments',
     validate({
-        team: (v: any) => typeof v === 'number',
-        eventKey: (v: any) => typeof v === 'string',
+        team: 'number',
+        eventKey: 'string',
     }),
     (req, res) => {
         const { team, eventKey } = req.body;
@@ -43,8 +43,8 @@ router.post(
 router.post(
     '/pit-scouting',
     validate({
-        team: (v: any) => typeof v === 'number',
-        eventKey: (v: any) => typeof v === 'string',
+        team: 'number',
+        eventKey: 'string',
     }),
     (req, res) => {
         const { team, eventKey } = req.body;
@@ -61,7 +61,7 @@ router.post(
 router.post(
     '/all-from-event',
     validate({
-        eventKey: (v: any) => typeof v === 'string',
+        eventKey: 'string',
     }),
     (req, res) => {
         const { eventKey } = req.body;

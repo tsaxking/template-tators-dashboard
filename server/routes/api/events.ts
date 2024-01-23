@@ -7,7 +7,7 @@ export const router = new Route();
 router.post(
     '/properties',
     validate({
-        eventKey: (v: any) => typeof v === 'string',
+        eventKey: 'string',
     }),
     (req, res) => {
         const p = DB.get('events/from-key', req.body.eventKey);

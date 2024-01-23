@@ -13,7 +13,6 @@ import { SessionObj } from '../structure/sessions.ts';
 import {
     Alliance,
     Checklist,
-    ChecklistAnswer,
     CheckListAssignment,
     ChecklistQuestion,
     CompLevel,
@@ -21,19 +20,19 @@ import {
     DiscordPair,
     Event,
     Match,
-    MatchScouting,
     MatchScoutingComments,
+    QuestionHistory,
     RetrievedMatchScouting,
     RetrievedScoutingAnswer,
-    ScoutingAnswer,
     ScoutingQuestion,
     ScoutingQuestionGroup,
-    ScoutingQuestionSection,
+    ScoutingSection,
     Strategy,
     TBARequest,
     Team,
     Whiteboard,
 } from '../../shared/db-types-extended.ts';
+import { ScoutingAnswer } from '../../shared/db-types-extended.ts';
 
 export type Queries = {
     // ▄▀▀ ██▀ ▄▀▀ ▄▀▀ █ ▄▀▄ █▄ █ ▄▀▀
@@ -836,7 +835,7 @@ export type Queries = {
 
     // // ▄▀▀ ▄▀▀ ▄▀▄ █ █ ▀█▀ █ █▄ █ ▄▀  ▄▀▄ █ █ ██▀ ▄▀▀ ▀█▀ █ ▄▀▄ █▄ █ ▄▀▀
     // // ▄█▀ ▀▄▄ ▀▄▀ ▀▄█  █  █ █ ▀█ ▀▄█ ▀▄█ ▀▄█ █▄▄ ▄█▀  █  █ ▀▄▀ █ ▀█ ▄█▀
-    'scouting-questions/all-sections': [[], ScoutingQuestionSection];
+    'scouting-questions/all-sections': [[], ScoutingSection];
     'scouting-questions/answer-from-team': [
         [
             {
@@ -845,6 +844,12 @@ export type Queries = {
             },
         ],
         RetrievedScoutingAnswer,
+    ];
+    'scouting-questions/get-answer-history': [
+        [{
+            questionId: string;
+        }],
+        QuestionHistory,
     ];
     'scouting-questions/groups-from-event': [
         [
@@ -861,6 +866,8 @@ export type Queries = {
                 questionId: string;
                 answer: string;
                 teamNumber: number;
+                accountId: string;
+                date: string;
             },
         ],
         unknown,
@@ -872,6 +879,8 @@ export type Queries = {
                 eventKey: string;
                 section: string;
                 name: string;
+                accountId: string;
+                dateAdded: string;
             },
         ],
         unknown,
@@ -893,9 +902,18 @@ export type Queries = {
                 key: string;
                 description: string;
                 groupId: string;
+                accountId: string;
+                dateAdded: string;
+                options: string;
             },
         ],
         unknown,
+    ];
+    'scouting-questions/answer-from-id': [
+        [{
+            id: string;
+        }],
+        ScoutingAnswer,
     ];
     'scouting-questions/new-section': [
         [
@@ -921,6 +939,7 @@ export type Queries = {
                 eventKey: string;
                 section: string;
                 name: string;
+                accountId: string;
             },
         ],
         unknown,
@@ -941,6 +960,7 @@ export type Queries = {
                 key: string;
                 description: string;
                 groupId: string;
+                accountId: string;
             },
         ],
         unknown,
@@ -993,6 +1013,8 @@ export type Queries = {
                 questionId: string;
                 answer: string;
                 teamNumber: number;
+                accountId: string;
+                date: string;
             },
         ],
         unknown,

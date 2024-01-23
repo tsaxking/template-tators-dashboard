@@ -16,9 +16,9 @@ router.post<{
 }>(
     '/submit-match',
     validate({
-        eventKey: (v) => typeof v === 'string',
-        matchKey: (v) => typeof v === 'string',
-        compLevel: (v) => ['pr', 'qm', 'qf', 'sf', 'f'].includes(v),
+        eventKey: 'string',
+        matchKey: 'string',
+        compLevel: ['pr', 'qm', 'qf', 'sf', 'f'],
         data: (v) => typeof v === 'object', // could do more validation here
     }),
     async (req, res, next) => {

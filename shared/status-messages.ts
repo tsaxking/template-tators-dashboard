@@ -524,7 +524,7 @@ export const messages: {
         code: 200,
         instructions: '',
     },
-    profanity: {
+    'profanity': {
         message: 'Profanity detected',
         color: 'danger',
         code: 400,
@@ -550,6 +550,42 @@ export const messages: {
     },
     'roles:removed': {
         message: 'Role removed',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:answer-not-found': {
+        message: 'Answer was not found, nothing was changed',
+        color: 'danger',
+        code: 404,
+        instructions: 'pleaseensureyouhaveselectedavalidanswertoupdate',
+    },
+    'scouting-question:new-answer': {
+        message: 'New answer submitted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:new-group': {
+        message: 'New group created',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:new-question': {
+        message: 'New question created',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:new-section': {
+        message: 'Section was created',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:updated-answer': {
+        message: 'Answer updated',
         color: 'success',
         code: 200,
         instructions: '',
@@ -758,6 +794,12 @@ export type StatusId =
     | 'roles:invalid-role'
     | 'roles:not-found'
     | 'roles:removed'
+    | 'scouting-question:answer-not-found'
+    | 'scouting-question:new-answer'
+    | 'scouting-question:new-group'
+    | 'scouting-question:new-question'
+    | 'scouting-question:new-section'
+    | 'scouting-question:updated-answer'
     | 'server:invalid-data'
     | 'server:unknown-server-error'
     | 'skills:added'
@@ -835,9 +877,13 @@ export type FilesStatusId =
 
 export type MatchStatusId = 'not-found';
 
-export type MatchcommentsStatusId = 'delete' | 'new';
+export type MatchcommentsStatusId =
+    | 'delete'
+    | 'new';
 
-export type MatchscoutingStatusId = 'delete' | 'new';
+export type MatchscoutingStatusId =
+    | 'delete'
+    | 'new';
 
 export type MemberStatusId =
     | 'accepted'
@@ -865,13 +911,29 @@ export type PermissionsStatusId =
     | 'invalid'
     | 'unauthorized';
 
-export type PitscoutingStatusId = 'delete' | 'new';
+export type PitscoutingStatusId =
+    | 'delete'
+    | 'new';
 
 export type ProfanityStatusId = 'undefined';
 
-export type RolesStatusId = 'added' | 'invalid-role' | 'not-found' | 'removed';
+export type RolesStatusId =
+    | 'added'
+    | 'invalid-role'
+    | 'not-found'
+    | 'removed';
 
-export type ServerStatusId = 'invalid-data' | 'unknown-server-error';
+export type ScoutingquestionStatusId =
+    | 'answer-not-found'
+    | 'new-answer'
+    | 'new-group'
+    | 'new-question'
+    | 'new-section'
+    | 'updated-answer';
+
+export type ServerStatusId =
+    | 'invalid-data'
+    | 'unknown-server-error';
 
 export type SkillsStatusId =
     | 'added'
@@ -882,13 +944,19 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
-export type StrategyStatusId = 'delete' | 'new';
+export type StrategyStatusId =
+    | 'delete'
+    | 'new';
 
-export type TestStatusId = 'fail' | 'success';
+export type TestStatusId =
+    | 'fail'
+    | 'success';
 
 export type UnknownStatusId = 'error';
 
-export type WebhookStatusId = 'not-found' | 'invalid-url';
+export type WebhookStatusId =
+    | 'invalid-url'
+    | 'not-found';
 
 export type WhiteboardStatusId =
     | 'created'
