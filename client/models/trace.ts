@@ -79,13 +79,6 @@ export class Trace<action = Action> implements Drawable<Trace> {
     //Takes array of points, filters for what you want it to, maps it
 }
 
-
-
-
-
-
-
-
 export class Heatmap {
     public static get spline() {
         return new Spline(
