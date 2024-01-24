@@ -9,42 +9,59 @@ type Updates = {
     update: unknown;
 };
 
-export class ScoutingQuestion extends Cache {
+export class Question extends Cache {
+    public static readonly $cache = new Map<string, Question>();
+
     private static readonly $emitter = new EventEmitter<keyof Updates>();
 
     public static on<K extends keyof Updates>(
         event: K,
         callback: (data: Updates[K]) => void,
     ): void {
-        ScoutingQuestion.$emitter.on(event, callback);
+        Question.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: Updates[K]) => void,
     ): void {
-        ScoutingQuestion.$emitter.off(event, callback);
+        Question.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
         data: Updates[K],
     ): void {
-        ScoutingQuestion.$emitter.emit(event, data);
+        Question.$emitter.emit(event, data);
     }
 
     public static new(
-        data: ScoutingQuestionObj,
-    ): Promise<Result<ScoutingQuestion>> {
+        data: {
+            question: string;
+            type:
+                | 'text'
+                | 'number'
+                | 'boolean'
+                | 'select'
+                | 'checkbox'
+                | 'radio'
+                | 'textarea';
+            section: string;
+            key: string;
+            description: string;
+            groupId: string;
+            options: any; // TODO: add type
+        },
+    ): Promise<Result<Question>> {
         return attemptAsync(async () => {
-            const res = await ServerRequest.post(
+            const res = await ServerRequest.post<{
+                data: ScoutingQuestionObj;
+            }>(
                 '/api/scouting-questions/new-question',
-                {
-                    ...data,
-                },
+                data,
             );
 
-            if (res.isOk()) return new ScoutingQuestion(data);
+            if (res.isOk()) return new Question(res.value.data);
             throw res.error;
         });
     }
@@ -130,5 +147,24 @@ export class ScoutingQuestion extends Cache {
 
     private async update(): Promise<Result<void>> {
         return attemptAsync(async () => {});
+    }
+
+
+
+    delete() {
+        return attemptAsync(async () => {
+            throw new Error('Method not implemented.');
+            // const res = await ServerRequest.post<{
+            //     id: string;
+            // }>('/api/scouting-questions/delete-question', {
+            //     id: this.id,
+            // });
+
+            // if (res.isOk()) {
+            //     Question.$cache.delete(this.id);
+            //     this.destroy();
+            //     return;
+            // } else throw res.error;
+        });
     }
 }

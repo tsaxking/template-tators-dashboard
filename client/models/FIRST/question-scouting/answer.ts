@@ -1,22 +1,13 @@
-import { ScoutingAnswer } from "../../../../shared/db-types-extended";
-import { Cache } from "../../cache";
-
-
-
-
+import { ScoutingAnswer } from '../../../../shared/db-types-extended';
+import { Cache } from '../../cache';
 
 export class Answer extends Cache {
-
-
-
-
     readonly id: string;
     readonly questionId: string;
     $answer: string;
     $teamNumber: number;
     $dateAdded: string;
     $accountId: string;
-
 
     constructor(data: ScoutingAnswer) {
         super();

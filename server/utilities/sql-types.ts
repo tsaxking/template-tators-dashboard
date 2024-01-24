@@ -920,6 +920,9 @@ export type Queries = {
             {
                 name: string;
                 multiple: 0 | 1;
+                dateAdded: string;
+                accountId: string;
+                id: string;
             },
         ],
         unknown,
@@ -937,7 +940,7 @@ export type Queries = {
             {
                 id: string;
                 eventKey: string;
-                section: string;
+                section: string; // section id
                 name: string;
                 accountId: string;
             },
@@ -970,6 +973,9 @@ export type Queries = {
             {
                 name: string;
                 multiple: 0 | 1;
+                accountId: string;
+                dateAdded: string;
+                id: string;
             },
         ],
         unknown,
@@ -993,7 +999,7 @@ export type Queries = {
     'scouting-questions/delete-section': [
         [
             {
-                name: string;
+                id: string;
             },
         ],
         unknown,

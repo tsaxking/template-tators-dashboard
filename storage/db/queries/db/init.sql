@@ -188,6 +188,9 @@ CREATE TABLE IF NOT EXISTS MatchComments (
 CREATE TABLE IF NOT EXISTS ScoutingQuestionSections (
     name TEXT NOT NULL UNIQUE,
     multiple INTEGER NOT NULL DEFAULT 0 -- 0 = there cannot be multiple answers for a submission
+    -- id column added in 1-0-5.sql
+    -- dateAdded column added in 1-0-5.sql
+    -- accountId column added in 1-0-5.sql
 );
 
 

@@ -79,6 +79,9 @@ export type CustomMatch = {
 export type ScoutingSection = {
     name: string;
     multiple: 0 | 1;
+    dateAdded: string;
+    accountId: string;
+    id: string;
 };
 
 /**
@@ -135,6 +138,10 @@ export type ScoutingQuestionGroup = {
     name: string;
     dateAdded: string;
     accountId: string;
+};
+
+export type ScoutingQuestionGroupExtended = ScoutingQuestionGroup & {
+    questions: ScoutingQuestion[];
 };
 
 /**
