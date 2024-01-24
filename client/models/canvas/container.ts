@@ -1,6 +1,4 @@
-import { Drawable } from "./canvas";
-
-
+import { Drawable } from './canvas';
 
 export class Container implements Drawable {
     private $elements: Drawable[] = [];

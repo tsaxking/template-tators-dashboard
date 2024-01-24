@@ -1,7 +1,13 @@
 INSERT INTO ScoutingQuestionSections (
     name,
-    multiple
+    multiple,
+    dateAdded,
+    accountId,
+    id
 ) VALUES (
     :name,
-    :multiple
+    :multiple,
+    :dateAdded,
+    :accountId,
+    :id
 );
