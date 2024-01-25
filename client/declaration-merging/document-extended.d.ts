@@ -20,7 +20,7 @@ declare function create<K extends keyof HTMLElementTagNameMap>(
  * @param {string} tag
  * @param {?*} [attrs]
  * @returns {HTMLElementDeprecatedTagNameMap[K]}
- */
+ */ 
 declare function create<K extends keyof HTMLElementDeprecatedTagNameMap>(
     tag: string,
     attrs?: any,
