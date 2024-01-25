@@ -18,6 +18,8 @@ credentials.json
 token.json
 *.assignment.json
 
+cached-ids.json
+
 # *.js
 # !require.js
 
