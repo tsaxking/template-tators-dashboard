@@ -1,121 +1,61 @@
 // The point of this file is to work with another server that generates ids and pulls them form random.org
 
 import * as randomString from 'npm:uuid';
-// import axios from 'npm:axios';
-// import * as fsPromises from 'node:fs/promises';
-// import * as fs from 'node:fs';
-// import env from './env.ts';
+import env from './env.ts';
+import { attemptAsync, Result } from '../../shared/attempt.ts';
+import { getJSON, saveJSON } from './files.ts';
 
-export const uuid = (..._args: unknown[]) => randomString.v4();
+// limit 5 keys in cache at a time
+let cache: string[] = [];
 
-// const uuidv4 = randomString.v4;
+const res = await getJSON<string[]>('cached-ids');
 
-// /**
-//  * Description placeholder
-//  * @date 10/12/2023 - 3:26:42 PM
-//  *
-//  * @type {*}
-//  */
-// const {
-//     ID_GENERATION_KEY,
-//     ID_GENERATION_LINK
-// } = env;
+if (res.isOk()) cache = res.value;
 
-// /**
-//  * Description placeholder
-//  * @date 10/12/2023 - 3:26:42 PM
-//  *
-//  * @async
-//  */
-// const getIds = async (n: number = 10): Promise<string[]> => {
-//     if (ID_GENERATION_KEY && ID_GENERATION_LINK) {
-//         ids.push(...(await axios.post(ID_GENERATION_LINK + '/uuid', {
-//             apiKey: ID_GENERATION_KEY,
-//             n
-//         })).data as string[]);
+const retrieve = async (): Promise<Result<string[]>> => {
+    return attemptAsync(async () => {
+        if (!env.RANDOM_KEY_LINK) {
+            throw new Error('No random key link provided');
+        }
+        const data = await fetch(env.RANDOM_KEY_LINK + '/uuid', {
+            headers: {
+                'x-auth-token': env.RANDOM_KEY_AUTH || '',
+            },
+            method: 'POST',
+        });
 
-//         fsPromises.writeFile('./ids.txt', JSON.stringify(ids, null, 2));
+        if (data.ok) {
+            console.log('Retrieved keys!');
+            const json = await data.json();
 
-//         return ids;
-//     }
-//     return new Array(Math.round(n)).fill('').map(() => uuidv4());
-// }
+            if (!Array.isArray(json)) {
+                throw new Error('Failed to retrieve keys, invalid response');
+            }
 
-// /**
-//  * Description placeholder
-//  * @date 10/12/2023 - 3:26:42 PM
-//  *
-//  * @type {string[]}
-//  */
-// let ids: string[] = [];
-// (async () => {
-//     if (fs.existsSync('./ids.txt')) {
-//         ids = JSON.parse(await fsPromises
-//             .readFile('./ids.txt', 'utf-8')) as string[];
-//     } else {
-//         ids = await getIds(10);
-//     }
-// })();
+            cache = json;
+            const res = await saveJSON('cached-ids', json);
 
-// /**
-//  * Description placeholder
-//  * @date 10/12/2023 - 3:26:42 PM
-//  *
-//  * @typedef {uuidOptions}
-//  */
-// type uuidOptions = {
-//     letters?: boolean;
-//     length?: number;
-// };
+            if (res.isErr()) {
+                console.error('Failed to save cached ids');
+            }
 
-// /**
-//  * Description placeholder
-//  * @date 10/12/2023 - 3:26:42 PM
-//  */
-// const getId = (): string => {
-//     if (ids.length) {
-//         const id = ids.shift();
-//         if (!id) return uuidv4();
+            return json as string[];
+        }
 
-//         if (ids.length < 5) {
-//             getIds(10).then((newIds) => {
-//                 ids.push(...newIds);
-//             });
-//         }
+        throw new Error('Failed to retrieve keys');
+    });
+};
 
-//         return id;
-//     }
+export const uuid = () => {
+    setTimeout(async () => {
+        if (cache.length === 0) {
+            const result = await retrieve();
+            if (result.isOk()) {
+                cache.push(...result.value);
+            }
+        }
+    });
 
-//     return uuidv4();
-// }
-
-// /**
-//  * Returns a unique id
-//  * @param {uuidOptions} options
-//  * @returns {string} unique id
-//  */
-// export const uuid = (options?: uuidOptions): string => {
-//     // random string, only letters
-//     let id: string;
-//     id = getId();
-
-//     if (options?.letters) {
-//         id = id.replace(/0-9/g, (num) => {
-//             return String.fromCharCode(parseInt(num) + 65);
-//         });
-//     }
-
-//     if (options?.length) {
-//         if (options.length < 1) throw new Error('Length must be greater than 0');
-//         if (options.length > 32) throw new Error('Length must be less than 32');
-
-//         while (id.length < options.length) {
-//             const i = getId();
-//             id += i;
-//         }
-
-//         id = id.slice(0, options.length);
-//     }
-
-//     return id;
-// }
+    if (cache.length) return cache.pop();
+    return randomString.v4();
+};
