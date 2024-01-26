@@ -47,6 +47,7 @@ router.post(
     auth,
     async (req, res) => {
         const { eventKey } = req.params;
+        if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
         const [teams, matches] = await Promise.all([
             TBA.get<TBATeam[]>(`/event/${eventKey}/teams`),
