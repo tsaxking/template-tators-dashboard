@@ -12,7 +12,9 @@
         "discord": "deno run --allow-all --unstable-ffi ./server/utilities/discord/discord.ts",
         "test": "deno test --allow-all --unstable-ffi --no-check ./scripts/test.ts -- --default",
         "view-paths": "deno run --allow-all ./scripts/view-paths.ts",
-        "tree": "deno run --allow-all ./scripts/dir-tree.ts"
+        "tree": "deno run --allow-all ./scripts/dir-tree.ts",
+        "scout-group": "deno run --allow-all --unstable ./scripts/scout-groups.ts",
+        "strategy": "deno run --allow-all --unstable ./scripts/strategy.ts"
     },
     "compilerOptions": {
         "noImplicitAny": false,
@@ -25,7 +27,8 @@
             "dist/",
             "**/require.js",
             "**/submodules/",
-            "**/declaration-merging/"
+            "**/declaration-merging/",
+            "*.js"
         ],
         "rules": {
             "include": [
