@@ -16,7 +16,7 @@ ALTER TABLE ScoutingQuestions ADD COLUMN options TEXT NOT NULL DEFAULT ''; -- JS
 
 ALTER TABLE ScoutingQuestionSections ADD COLUMN dateAdded TEXT NOT NULL DEFAULT '';
 ALTER TABLE ScoutingQuestionSections ADD COLUMN accountId TEXT NOT NULL DEFAULT '';
-ALTER TABLE ScoutingQuestionSections ADD COLUMN id TEXT PRIMARY KEY;
+ALTER TABLE ScoutingQuestionSections ADD COLUMN id TEXT NOT NULL DEFAULT '';
 
 
 

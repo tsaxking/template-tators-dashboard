@@ -5,7 +5,6 @@ import {
     P,
 } from '../shared/submodules/tatorscout-calculations/trace.ts';
 
-
 saveJSONSync('dummy-trace', generateTrace());
 
 // /**

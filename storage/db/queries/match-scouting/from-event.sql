@@ -7,6 +7,7 @@ SELECT
     MatchScouting.scoutGroup as scoutGroup,
     MatchScouting.prescouting as prescouting,
     MatchScouting.trace as trace,
+    MatchScouting.checks as checks,
     Matches.eventKey as eventKey,
     Matches.matchNumber as matchNumber,
     Matches.compLevel as compLevel

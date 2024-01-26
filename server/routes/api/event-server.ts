@@ -15,6 +15,7 @@ import {
     validateObj,
 } from '../../../shared/submodules/tatorscout-calculations/match-submission.ts';
 import { uuid } from '../../utilities/uuid.ts';
+import { DB } from '../../utilities/databases.ts';
 
 export const router = new Route();
 
@@ -38,12 +39,58 @@ router.post<Match>(
             group,
             scout,
             date,
-            trace
+            trace,
         } = req.body;
 
-        const id = uuid();
-
+        const matchScoutingId = uuid();
         const traceStr = JSON.stringify(trace);
+
+        const matches = DB.all('matches/from-event', {
+            eventKey,
+        });
+
+        const m = matches.find((m) =>
+            m.matchNumber === matchNumber && m.compLevel === compLevel
+        );
+        if (!m) {
+            return res.json({
+                success: false,
+                error: 'Match not found',
+            });
+        }
+        let scoutId = '';
+        const s = Account.fromUsername(scout);
+        if (s) scoutId = s.id;
+
+        DB.run('match-scouting/new', {
+            id: matchScoutingId,
+            matchId: m.id,
+            team: teamNumber,
+            scoutId,
+            scoutGroup: group,
+            trace: traceStr,
+            preScouting: null,
+            time: date.toString(),
+            checks: JSON.stringify(checks),
+        });
+
+        for (const [key, value] of Object.entries(comments)) {
+            const matchId = uuid();
+            DB.run('team-comments/new', {
+                id: matchId,
+                accountId: scoutId,
+                matchScoutingId,
+                comment: value,
+                type: key,
+                eventKey,
+                team: teamNumber,
+                time: date.toString(),
+            });
+        }
+
+        res.json({
+            success: true,
+        });
     },
 );
 

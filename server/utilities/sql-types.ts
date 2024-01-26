@@ -21,7 +21,6 @@ import {
     DiscordPair,
     Event,
     Match,
-    MatchScoutingComments,
     QuestionHistory,
     RetrievedMatchScouting,
     RetrievedScoutingAnswer,
@@ -31,6 +30,7 @@ import {
     Strategy,
     TBARequest,
     Team,
+    TeamComment,
     Whiteboard,
 } from '../../shared/db-types-extended.ts';
 import { ScoutingAnswer } from '../../shared/db-types-extended.ts';
@@ -689,10 +689,11 @@ export type Queries = {
                 matchId: string;
                 team: number;
                 scoutId: string;
-                scoutGroup: string;
+                scoutGroup: 0 | 1 | 2 | 3 | 4 | 5;
                 time: string;
-                preScouting: boolean;
+                preScouting: null;
                 trace: string; // json array
+                checks: string; // json array
             },
         ],
         unknown,
@@ -757,8 +758,9 @@ export type Queries = {
                 scoutId: string;
                 scoutGroup: string;
                 time: string;
-                preScouting: boolean;
+                preScouting: null;
                 trace: string; // json array
+                checks: string; // json array
             },
         ],
         unknown,
@@ -766,80 +768,61 @@ export type Queries = {
 
     // // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ▄▀▀ ▄▀▄ █▄ ▄█ █▄ ▄█ ██▀ █▄ █ ▀█▀ ▄▀▀
     // // █ ▀ █ █▀█  █  ▀▄▄ █ █ ▀▄▄ ▀▄▀ █ ▀ █ █ ▀ █ █▄▄ █ ▀█  █  ▄█▀
-    'match-comments/new': [
-        [
-            {
-                id: string;
-                matchId: string;
-                accountId: string;
-                team: number;
-                comment: string;
-                time: number;
-            },
-        ],
+    'team-comments/new': [
+        [{
+            id: string;
+            team: number;
+            comment: string;
+            type: string;
+            matchScoutingId: string | null;
+            accountId: string | null;
+            time: string;
+            eventKey: string;
+        }],
         unknown,
     ];
-    'match-comments/from-id': [
-        [
-            {
-                id: string;
-            },
-        ],
-        MatchScoutingComments,
-    ];
-    'match-comments/from-match': [
-        [
-            {
-                matchId: string;
-            },
-        ],
-        MatchScoutingComments,
-    ];
-    'match-comments/from-team': [
-        [
-            {
-                team: number;
-                eventKey: string;
-            },
-        ],
-        MatchScoutingComments,
-    ];
-    'match-comments/from-account': [
-        [
-            {
-                accountId: string;
-                eventKey: string;
-            },
-        ],
-        MatchScoutingComments,
-    ];
-    'match-comments/from-event': [
-        [
-            {
-                eventKey: string;
-            },
-        ],
-        MatchScoutingComments,
-    ];
-    'match-comments/delete': [
-        [
-            {
-                id: string;
-            },
-        ],
+    'team-comments/update': [
+        [{
+            team: number;
+            comment: string;
+            type: string;
+            matchScoutingId: string | null;
+            accountId: string | null;
+            time: string;
+            eventKey: string;
+            id: string;
+        }],
         unknown,
     ];
-    'match-comments/update': [
-        [
-            {
-                id: string;
-                matchId: string;
-                accountId: string;
-                team: number;
-                comment: string;
-                time: number;
-            },
-        ],
+    'team-comments/from-event': [
+        [{
+            eventKey: string;
+        }],
+        TeamComment,
+    ];
+    'team-comments/from-team': [
+        [{
+            team: number;
+            eventKey: string;
+        }],
+        TeamComment,
+    ];
+    'team-comment/from-match-scouting': [
+        [{
+            matchScoutingId: string | null;
+        }],
+        TeamComment,
+    ];
+    'team-comment/from-account': [
+        [{
+            accountId: string | null;
+        }],
+        TeamComment,
+    ];
+    'team-comment/delete': [
+        [{
+            id: string;
+        }],
         unknown,
     ];
 

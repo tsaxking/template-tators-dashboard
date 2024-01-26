@@ -197,6 +197,11 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
+// app.get('/api/webhooks/test', (req, res,next) => {
+//     console.log('worked!');
+//     next()
+// })
+
 app.route('/api', api);
 app.route('/account', account);
 
