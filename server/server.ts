@@ -40,7 +40,7 @@ builder.on('build', () => {
     log('Build complete');
 });
 
-stdin.on('build', () => builder.emit('build'));
+stdin.on('rb', () => builder.emit('build'));
 
 builder.on('error', (e) => log('Build error:', e));
 
