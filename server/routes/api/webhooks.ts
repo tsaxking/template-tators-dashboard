@@ -47,7 +47,6 @@ router.post(
     auth,
     async (req, res) => {
         const { eventKey } = req.params;
-        console.log(eventKey);
 
         const [teams, matches] = await Promise.all([
             TBA.get<TBATeam[]>(`/event/${eventKey}/teams`),
