@@ -1,5 +1,4 @@
 export type SocketEvent = 
-      
 	| 'disconnect'
 	| 'account:created'
 	| 'account:logged-in'

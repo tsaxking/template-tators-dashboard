@@ -4,6 +4,7 @@
 import { __root } from './env.ts';
 import {
     Account,
+    AccountSettings,
     Member,
     MembershipStatus,
     Role,
@@ -178,6 +179,15 @@ export type Queries = {
             },
         ],
         unknown,
+    ];
+    'account/save-settings': [[AccountSettings], unknown];
+    'account/get-settings': [
+        [
+            {
+                accountId: string;
+            },
+        ],
+        AccountSettings,
     ];
     'account/unverify': [
         [
