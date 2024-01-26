@@ -15,6 +15,7 @@ import { FileUpload, retrieveStream } from './middleware/stream.ts';
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
+import './utilities/tba/tba.ts';
 
 console.log('Platform:', os.platform());
 
@@ -195,6 +196,11 @@ app.get('/test/:page', (req, res, next) => {
         res.sendStatus('page:not-found', { page: req.params.page });
     }
 });
+
+// app.get('/api/webhooks/test', (req, res,next) => {
+//     console.log('worked!');
+//     next()
+// })
 
 app.route('/api', api);
 app.route('/account', account);

@@ -161,12 +161,6 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.',
     },
-    'account:invalid-settings': {
-        message: 'Your settings were invalid, please try again',
-        color: 'danger',
-        code: 404,
-        instructions: '',
-    },
     'account:invalid-username': {
         message: 'That username is invalid.',
         color: 'danger',
@@ -264,12 +258,6 @@ export const messages: {
         code: 500,
         instructions: 'Please try again.',
     },
-    'account:settings-set': {
-        message: 'Your settings have been saved',
-        color: 'success',
-        code: 200,
-        instructions: '',
-    },
     'account:unverified': {
         message: 'Account has been unverified',
         color: 'success',
@@ -306,6 +294,31 @@ export const messages: {
         code: 400,
         instructions: '',
     },
+    'discord:account-linked': {
+        message: 'Your discord account has been linked to this account',
+        color: 'success',
+        code: 200,
+        instructions: 'you cannot use team tators discord commands',
+    },
+    'discord:invalid-link': {
+        message:
+            'This discord link is invalid. You must generate a valid link using /connect',
+        color: 'danger',
+        code: 400,
+        instructions: 'use connect in the discord server',
+    },
+    'discord:link-expired': {
+        message: 'This discord link has expired, please try again.',
+        color: 'danger',
+        code: 400,
+        instructions: 'please try again',
+    },
+    'event:update-properties': {
+        message: 'Event properties updated',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'files:invalid': {
         message: 'Invalid file',
         color: 'danger',
@@ -338,6 +351,36 @@ export const messages: {
     },
     'files:uploaded': {
         message: 'File uploaded',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'match:not-found': {
+        message: 'Match was not found',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
+    'match-comments:delete': {
+        message: 'Match comment deleted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'match-comments:new': {
+        message: 'Match comment saved',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'match-scouting:delete': {
+        message: 'Deleted Match Scouting',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'match-scouting:new': {
+        message: 'Match scouting submitted',
         color: 'success',
         code: 200,
         instructions: '',
@@ -469,7 +512,19 @@ export const messages: {
         code: 401,
         instructions: '',
     },
-    profanity: {
+    'pit-scouting:delete': {
+        message: 'Pit Scouting Submission has been deleted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'pit-scouting:new': {
+        message: 'Pit Scouting Submitted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'profanity': {
         message: 'Profanity detected',
         color: 'danger',
         code: 400,
@@ -495,6 +550,48 @@ export const messages: {
     },
     'roles:removed': {
         message: 'Role removed',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:answer-not-found': {
+        message: 'Answer was not found, nothing was changed',
+        color: 'danger',
+        code: 404,
+        instructions: 'pleaseensureyouhaveselectedavalidanswertoupdate',
+    },
+    'scouting-question:new-answer': {
+        message: 'New answer submitted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:new-group': {
+        message: 'New group created',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:new-question': {
+        message: 'New question created',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:new-section': {
+        message: 'Section was created',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:update-section': {
+        message: 'Section updated',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'scouting-question:updated-answer': {
+        message: 'Answer updated',
         color: 'success',
         code: 200,
         instructions: '',
@@ -548,6 +645,18 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.',
     },
+    'strategy:delete': {
+        message: 'Strategy deleted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'strategy:new': {
+        message: 'Strategy submitted',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'test:fail': {
         message: 'This test failed',
         color: 'danger',
@@ -566,6 +675,49 @@ export const messages: {
         code: 500,
         instructions: 'Please try again.',
     },
+    'webhook:invalid-url': {
+        message: 'Invalid url for webhook',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
+    'webhook:not-found': {
+        message: 'Webhook not found',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
+    'whiteboard:created': {
+        message: 'Whiteboard created successfully',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'whiteboard:deleted': {
+        message: 'Whiteboard deleted successfully',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
+    'whiteboard:match-not-found': {
+        message:
+            'The match for the selected whiteboard was not found, please try again using different parameters',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
+    'whiteboard:not-found': {
+        message: 'Whiteboard was not found',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
+    'whiteboard:update': {
+        message: 'Whiteboard updated successfully',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
 };
 
 export type StatusId =
@@ -583,7 +735,6 @@ export type StatusId =
     | 'account:invalid-last-name'
     | 'account:invalid-password'
     | 'account:invalid-password-reset-key'
-    | 'account:invalid-settings'
     | 'account:invalid-username'
     | 'account:invalid-verification-key'
     | 'account:logged-in'
@@ -600,19 +751,27 @@ export type StatusId =
     | 'account:role-added'
     | 'account:role-removed'
     | 'account:server-error'
-    | 'account:settings-set'
     | 'account:unverified'
     | 'account:updated'
     | 'account:username-changed'
     | 'account:username-taken'
     | 'account:verified'
     | 'admin:invalid-key'
+    | 'discord:account-linked'
+    | 'discord:invalid-link'
+    | 'discord:link-expired'
+    | 'event:update-properties'
     | 'files:invalid'
     | 'files:invalid-extension'
     | 'files:no-files'
     | 'files:too-large'
     | 'files:too-many-files'
     | 'files:uploaded'
+    | 'match-comments:delete'
+    | 'match-comments:new'
+    | 'match-scouting:delete'
+    | 'match-scouting:new'
+    | 'match:not-found'
     | 'member:accepted'
     | 'member:add-skill'
     | 'member:already-member'
@@ -634,11 +793,20 @@ export type StatusId =
     | 'permissions:forbidden'
     | 'permissions:invalid'
     | 'permissions:unauthorized'
+    | 'pit-scouting:delete'
+    | 'pit-scouting:new'
     | 'profanity'
     | 'roles:added'
     | 'roles:invalid-role'
     | 'roles:not-found'
     | 'roles:removed'
+    | 'scouting-question:answer-not-found'
+    | 'scouting-question:new-answer'
+    | 'scouting-question:new-group'
+    | 'scouting-question:new-question'
+    | 'scouting-question:new-section'
+    | 'scouting-question:update-section'
+    | 'scouting-question:updated-answer'
     | 'server:invalid-data'
     | 'server:unknown-server-error'
     | 'skills:added'
@@ -647,9 +815,18 @@ export type StatusId =
     | 'skills:not-found'
     | 'skills:removed'
     | 'spam:detected'
+    | 'strategy:delete'
+    | 'strategy:new'
     | 'test:fail'
     | 'test:success'
-    | 'unknown:error';
+    | 'unknown:error'
+    | 'webhook:invalid-url'
+    | 'webhook:not-found'
+    | 'whiteboard:created'
+    | 'whiteboard:deleted'
+    | 'whiteboard:match-not-found'
+    | 'whiteboard:not-found'
+    | 'whiteboard:update';
 
 export type AccountStatusId =
     | 'already-logged-in'
@@ -666,7 +843,6 @@ export type AccountStatusId =
     | 'invalid-last-name'
     | 'invalid-password'
     | 'invalid-password-reset-key'
-    | 'invalid-settings'
     | 'invalid-username'
     | 'invalid-verification-key'
     | 'logged-in'
@@ -687,10 +863,16 @@ export type AccountStatusId =
     | 'updated'
     | 'username-changed'
     | 'username-taken'
-    | 'verified'
-    | 'settings-set';
+    | 'verified';
 
 export type AdminStatusId = 'invalid-key';
+
+export type DiscordStatusId =
+    | 'account-linked'
+    | 'invalid-link'
+    | 'link-expired';
+
+export type EventStatusId = 'update-properties';
 
 export type FilesStatusId =
     | 'invalid'
@@ -699,6 +881,16 @@ export type FilesStatusId =
     | 'too-large'
     | 'too-many-files'
     | 'uploaded';
+
+export type MatchStatusId = 'not-found';
+
+export type MatchcommentsStatusId =
+    | 'delete'
+    | 'new';
+
+export type MatchscoutingStatusId =
+    | 'delete'
+    | 'new';
 
 export type MemberStatusId =
     | 'accepted'
@@ -726,11 +918,30 @@ export type PermissionsStatusId =
     | 'invalid'
     | 'unauthorized';
 
+export type PitscoutingStatusId =
+    | 'delete'
+    | 'new';
+
 export type ProfanityStatusId = 'undefined';
 
-export type RolesStatusId = 'added' | 'invalid-role' | 'not-found' | 'removed';
+export type RolesStatusId =
+    | 'added'
+    | 'invalid-role'
+    | 'not-found'
+    | 'removed';
 
-export type ServerStatusId = 'invalid-data' | 'unknown-server-error';
+export type ScoutingquestionStatusId =
+    | 'answer-not-found'
+    | 'new-answer'
+    | 'new-group'
+    | 'new-question'
+    | 'new-section'
+    | 'updated-answer'
+    | 'update-section';
+
+export type ServerStatusId =
+    | 'invalid-data'
+    | 'unknown-server-error';
 
 export type SkillsStatusId =
     | 'added'
@@ -741,6 +952,23 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
-export type TestStatusId = 'fail' | 'success';
+export type StrategyStatusId =
+    | 'delete'
+    | 'new';
+
+export type TestStatusId =
+    | 'fail'
+    | 'success';
 
 export type UnknownStatusId = 'error';
+
+export type WebhookStatusId =
+    | 'invalid-url'
+    | 'not-found';
+
+export type WhiteboardStatusId =
+    | 'created'
+    | 'deleted'
+    | 'match-not-found'
+    | 'not-found'
+    | 'update';
