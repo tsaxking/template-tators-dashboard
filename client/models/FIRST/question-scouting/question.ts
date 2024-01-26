@@ -149,8 +149,6 @@ export class Question extends Cache {
         return attemptAsync(async () => {});
     }
 
-
-
     delete() {
         return attemptAsync(async () => {
             throw new Error('Method not implemented.');

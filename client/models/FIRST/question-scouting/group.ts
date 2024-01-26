@@ -137,7 +137,7 @@ export class Group extends Cache<GroupUpdates> {
                 {
                     ...data,
                     groupId: this.id,
-                    section: this.section
+                    section: this.section,
                 },
             );
 
@@ -158,10 +158,9 @@ export class Group extends Cache<GroupUpdates> {
         });
     }
 
-
     delete(): Promise<Result<void>> {
         return attemptAsync(async () => {
-            throw new Error('Method not implemented.')
+            throw new Error('Method not implemented.');
             // const res = await ServerRequest.post<void>(
             //     '/api/scouting-questions/delete-group',
             //     {

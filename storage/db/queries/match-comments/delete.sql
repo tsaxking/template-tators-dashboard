@@ -1,1 +1,0 @@
-DELETE FROM MatchComments WHERE id = :id;
