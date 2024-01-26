@@ -13,14 +13,14 @@ export const router = new Route();
 
 const auth = App.headerAuth('x-auth-key', env.WEBHOOK_AUTH as string);
 
-router.get(
+router.post(
     '/test',
     (req, res) => {
         res.send(JSON.stringify({ success: true }));
     }
 );
 
-router.get(
+router.post(
     '/event/:eventKey/teams/trace',
     auth,
     (req, res) => {
@@ -42,11 +42,12 @@ router.get(
     },
 );
 
-router.get(
+router.post(
     '/event/:eventKey/scout-groups',
     auth,
     async (req, res) => {
         const { eventKey } = req.params;
+        console.log(eventKey);
 
         const [teams, matches] = await Promise.all([
             TBA.get<TBATeam[]>(`/event/${eventKey}/teams`),
@@ -66,7 +67,7 @@ router.get(
     },
 );
 
-router.get(
+router.post(
     '/event/:eventKey/match-scouting',
     auth,
     (req, res) => {
@@ -79,7 +80,7 @@ router.get(
     }
 );
 
-router.get(
+router.post(
     '/event/:eventKey/team/:teamNumber/match-scouting',
     auth,
     (req, res) => {
@@ -92,7 +93,7 @@ router.get(
     }
 );
 
-router.get(
+router.post(
     '/event/:eventKey/team/:teamNumber/comments',
     auth,
     (req, res) => {
@@ -105,7 +106,7 @@ router.get(
     }
 );
 
-router.get(
+router.post(
     '/event/:eventKey/comments',
     auth,
     (req, res) => {
