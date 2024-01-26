@@ -13,7 +13,7 @@ import Account from '../../structure/accounts.ts';
 import {
     Match,
     validateObj,
-} from '../../../shared/submodules/tatorscout-calculations/match-submission.ts';
+} from '../../../shared/submodules/tatorscout-calculations/trace.ts';
 import { uuid } from '../../utilities/uuid.ts';
 import { DB } from '../../utilities/databases.ts';
 
