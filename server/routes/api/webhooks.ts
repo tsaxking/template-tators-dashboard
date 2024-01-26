@@ -11,7 +11,7 @@ import {
 
 export const router = new Route();
 
-const auth = App.headerAuth('x-auth-key', env.EVENT_API_KEY as string);
+const auth = App.headerAuth('x-auth-key', env.WEBHOOK_AUTH as string);
 
 router.get(
     '/test',
