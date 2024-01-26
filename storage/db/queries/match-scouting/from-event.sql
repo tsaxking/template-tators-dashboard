@@ -15,4 +15,4 @@ SELECT
 FROM MatchScouting
 INNER JOIN Matches ON Matches.id = MatchScouting.matchId
 
-WHERE MatchScouting.eventKey = :eventKey;
+WHERE Matches.eventKey = :eventKey;
