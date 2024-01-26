@@ -15,6 +15,7 @@ import { FileUpload, retrieveStream } from './middleware/stream.ts';
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
+import './utilities/tba/tba.ts';
 
 console.log('Platform:', os.platform());
 

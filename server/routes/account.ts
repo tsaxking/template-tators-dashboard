@@ -56,7 +56,6 @@ router.post<{
         if (!account) {
             return res.sendStatus('account:incorrect-username-or-password');
         }
-
         const hash = Account.hash(password, account.salt);
         if (hash !== account.key) {
             return Status.from('account:password-mismatch', req, {

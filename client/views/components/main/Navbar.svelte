@@ -1,5 +1,8 @@
 <script lang="ts">
+import YearSelect from './GlobalYearSelect.svelte';
+import EventSelect from './GlobalEventSelect.svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
+import { ServerRequest } from '../../../utilities/requests';
 export let title: string;
 export let navItems: string[] = [];
 
@@ -14,7 +17,9 @@ export let account: {
     phoneNumber?: string;
 };
 
-export let accountLinks: (string | null)[] = [];
+ServerRequest.post('/account/get-account').then(res => {
+    account = res as any;
+});
 </script>
 
 <nav
@@ -63,7 +68,10 @@ export let accountLinks: (string | null)[] = [];
         </ul>
     </div>
     <div class="me-3">
-        <slot />
+        <YearSelect></YearSelect>
+    </div>
+    <div class="me-3">
+        <EventSelect></EventSelect>
     </div>
 
     <a
