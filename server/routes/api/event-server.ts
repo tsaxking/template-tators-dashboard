@@ -58,6 +58,19 @@ router.post<Match>(
                 error: 'Match not found',
             });
         }
+        
+        // check if duplicate
+        const existing = DB.get('match-scouting/from-match', {
+            matchId: m.id
+        });
+
+        if (existing) {
+            return res.json({
+                success: false,
+                error: 'Duplicate match',
+            });
+        }
+
         let scoutId = '';
         const s = Account.fromUsername(scout);
         if (s) scoutId = s.id;
