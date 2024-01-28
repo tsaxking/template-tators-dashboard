@@ -94,7 +94,7 @@ export type Result<T, E = Error> = Ok<T> | Err<E>;
  * @date 1/22/2024 - 2:56:57 AM
  */
 export const attempt = <T = unknown, E = Error>(
-    fn: (...params: unknown[]) => T,
+    fn: () => T,
     parseError?: (error: Error) => E,
 ): Result<T, E> => {
     try {
@@ -106,13 +106,13 @@ export const attempt = <T = unknown, E = Error>(
                 (e) => 'Error parsing error: ' + e,
             );
             if (err.isOk()) {
-                console.warn(err.value);
+                // console.warn(err.value);
                 return new Err(err.value);
             }
-            console.warn(err.error, e);
+            // console.warn(err.error, e);
             return new Err(e);
         }
-        console.warn(e);
+        // console.warn(e);
         return new Err(e);
     }
 };
@@ -123,7 +123,7 @@ export const attempt = <T = unknown, E = Error>(
  * @async
  */
 export const attemptAsync = async <T = unknown, E = Error>(
-    fn: (...params: unknown[]) => Promise<T>,
+    fn: () => Promise<T>,
     parseError?: (error: Error) => E,
 ): Promise<Result<T, E>> => {
     try {
@@ -135,13 +135,13 @@ export const attemptAsync = async <T = unknown, E = Error>(
                 (e) => 'Error parsing error: ' + e,
             );
             if (err.isOk()) {
-                console.warn(err.value);
+                // console.warn(err.value);
                 return new Err(err.value);
             }
-            console.warn(err.error, e);
+            // console.warn(err.error, e);
             return new Err(e);
         }
-        console.warn(e);
+        // console.warn(e);
         return new Err(e);
     }
 };

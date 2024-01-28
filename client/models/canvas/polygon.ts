@@ -1,32 +1,71 @@
+import { Drawable } from './drawable';
+import { ShapeProperties } from './properties';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
-import { Drawable } from './canvas';
-import { ShapeProperties } from './shape-properties';
+import { copy } from '../../../shared/copy';
 
 /**
- * A polygon drawable
- * @date 1/9/2024 - 11:57:35 AM
+ * Polygon
+ * @date 1/25/2024 - 12:36:59 PM
  *
  * @export
  * @class Polygon
  * @typedef {Polygon}
+ * @extends {Drawable<Polygon>}
  */
-export class Polygon implements Drawable<Polygon> {
+export class Polygon extends Drawable<Polygon> {
     /**
      * Creates an instance of Polygon.
-     * @date 1/9/2024 - 11:57:35 AM
+     * @date 1/25/2024 - 12:36:59 PM
      *
      * @constructor
      * @param {Point2D[]} points
-     * @param {?ShapeProperties} [properties]
+     * @param {Partial<ShapeProperties<Polygon>>} [$properties={}]
      */
     constructor(
         public points: Point2D[],
-        public properties?: ShapeProperties<Polygon>,
-    ) {}
+        public readonly $properties: Partial<ShapeProperties<Polygon>> = {},
+    ) {
+        super();
+    }
 
     /**
-     * If the given point is inside the polygon (uses ray casting algorithm)
-     * @date 1/9/2024 - 11:57:35 AM
+     * Draw the polygon
+     * @date 1/25/2024 - 12:36:59 PM
+     *
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    draw(ctx: CanvasRenderingContext2D) {
+        ctx.beginPath();
+        const x0 = this.points[0][0] * ctx.canvas.width;
+        const y0 = this.points[0][1] * ctx.canvas.height;
+        ctx.moveTo(x0, y0);
+
+        for (let i = 1; i < this.points.length; i++) {
+            ctx.lineTo(
+                this.points[i][0] * ctx.canvas.width,
+                this.points[i][1] * ctx.canvas.height,
+            );
+        }
+        ctx.closePath();
+
+        if (this.$properties?.line?.color) {
+            ctx.strokeStyle = this.$properties.line.color;
+        }
+        if (this.$properties?.line?.width) {
+            ctx.lineWidth = this.$properties.line.width;
+        }
+
+        if (this.$properties?.line) ctx.stroke();
+
+        if (this.$properties?.fill?.color) {
+            ctx.fillStyle = this.$properties.fill.color;
+        }
+        if (this.$properties?.fill) ctx.fill();
+    }
+
+    /**
+     * Check if the given point is inside the polygon
+     * @date 1/25/2024 - 12:36:59 PM
      *
      * @param {Point2D} point
      * @returns {boolean}
@@ -52,41 +91,9 @@ export class Polygon implements Drawable<Polygon> {
         return inside;
     }
 
-    /**
-     * Draw the polygon
-     * @date 1/9/2024 - 11:57:35 AM
-     *
-     * @param {CanvasRenderingContext2D} context
-     */
-    draw(context: CanvasRenderingContext2D) {
-        context.save();
-        context.beginPath();
-        const x0 = this.points[0][0] * context.canvas.width;
-        const y0 = this.points[0][1] * context.canvas.height;
-        context.moveTo(x0, y0);
-
-        for (let i = 1; i < this.points.length; i++) {
-            context.lineTo(
-                this.points[i][0] * context.canvas.width,
-                this.points[i][1] * context.canvas.height,
-            );
-        }
-        context.closePath();
-
-        if (this.properties?.line?.color) {
-            context.strokeStyle = this.properties.line.color;
-        }
-        if (this.properties?.line?.width) {
-            context.lineWidth = this.properties.line.width;
-        }
-
-        if (this.properties?.line) context.stroke();
-
-        if (this.properties?.fill?.color) {
-            context.fillStyle = this.properties.fill.color;
-        }
-        if (this.properties?.fill) context.fill();
-
-        context.restore();
+    clone(): Polygon {
+        const p = new Polygon(this.points.map((p) => [...p]));
+        copy(this, p);
+        return p;
     }
 }

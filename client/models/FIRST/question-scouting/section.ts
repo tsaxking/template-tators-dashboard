@@ -6,43 +6,49 @@ import {
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { ServerRequest } from '../../../utilities/requests';
 import { Cache } from '../../cache';
-import { QuestionGroup } from './group';
+import { Group } from './group';
 
 type Updates = {
-    new: unknown;
-    update: unknown;
+    'new': Section;
+    'update': Section;
+};
+
+type SectionUpdates = {
+    'new-group': Group;
+    'delete-group': string; // id
+    'update': Section;
 };
 
 // pitscouting/prescouting/mechanical/programming/electrical/strategical etc.
-export class QuestionSection extends Cache {
+export class Section extends Cache<SectionUpdates> {
     private static readonly $emitter = new EventEmitter<keyof Updates>();
 
     public static on<K extends keyof Updates>(
         event: K,
         callback: (data: Updates[K]) => void,
     ): void {
-        QuestionSection.$emitter.on(event, callback);
+        Section.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: Updates[K]) => void,
     ): void {
-        QuestionSection.$emitter.off(event, callback);
+        Section.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
         data: Updates[K],
     ): void {
-        QuestionSection.$emitter.emit(event, data);
+        Section.$emitter.emit(event, data);
     }
 
-    public static readonly $cache = new Map<string, QuestionSection>();
+    public static readonly $cache = new Map<string, Section>();
 
     public static async new(
         data: ScoutingSection,
-    ): Promise<Result<QuestionSection>> {
+    ): Promise<Result<Section>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post(
                 '/api/scouting-questions/new-section',
@@ -51,7 +57,7 @@ export class QuestionSection extends Cache {
                 },
             );
 
-            if (res.isOk()) return new QuestionSection(data);
+            if (res.isOk()) return new Section(data);
 
             throw res.error;
         });
@@ -59,24 +65,30 @@ export class QuestionSection extends Cache {
 
     public $name: string;
     public $multiple: boolean;
+    public readonly id: string;
+    public readonly dateAdded: string;
+    public readonly accountId: string;
 
     constructor(data: ScoutingSection) {
         super();
 
         this.$name = data.name;
         this.$multiple = !!data.multiple; // multiple is 0 or 1 in the database
+        this.id = data.id;
+        this.dateAdded = data.dateAdded;
+        this.accountId = data.accountId;
 
-        if (QuestionSection.$cache.has(data.name)) {
-            QuestionSection.$cache.get(data.name)?.destroy();
+        if (Section.$cache.has(data.name)) {
+            Section.$cache.get(data.name)?.destroy();
         }
 
-        QuestionSection.$cache.set(data.name, this);
+        Section.$cache.set(data.name, this);
     }
 
-    public async getGroups(): Promise<Result<QuestionGroup[]>> {
+    public async getGroups(): Promise<Result<Group[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has('groups')) {
-                return this.$cache.get('groups') as QuestionGroup[];
+                return this.$cache.get('groups') as Group[];
             }
 
             const res = await ServerRequest.post<ScoutingQuestionGroup[]>(
@@ -87,7 +99,7 @@ export class QuestionSection extends Cache {
             );
 
             if (res.isOk()) {
-                const groups = res.value.map((g) => new QuestionGroup(g));
+                const groups = res.value.map((g) => new Group(g));
                 this.$cache.set('groups', groups);
                 return groups;
             }
@@ -118,6 +130,46 @@ export class QuestionSection extends Cache {
     private async update(): Promise<Result<void>> {
         return attemptAsync(async () => {});
     }
+
+    addGroup(group: {
+        name: string;
+        eventKey: string;
+    }) {
+        return Group.new({
+            name: group.name,
+            eventKey: group.eventKey,
+            section: this.id,
+        });
+    }
+
+    removeGroup(id: string) {
+        return attemptAsync(async () => {
+            const group = Group.$cache.get(id);
+            if (!group) throw new Error('Group not found');
+            const res = await group.delete();
+            if (res.isOk()) {
+                Group.$cache.delete(id);
+                group.destroy();
+                return;
+            } else throw res.error;
+        });
+    }
+
+    delete() {
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+            // const res = await ServerRequest.post<void>(
+            //     '/api/scouting-questions/delete-section',
+            //     {
+            //         id: this.id,
+            //     },
+            // );
+
+            // if (res.isOk()) {
+            //     Section.$cache.delete(this.id);
+            //     this.destroy();
+            //     return;
+            // } else throw res.error;
+        });
+    }
 }
-
-

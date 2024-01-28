@@ -21,4 +21,4 @@ import { router as eventServer } from './api/event-server.ts';
 router.route('/event-server', eventServer);
 
 import { router as webhook } from './api/webhooks.ts';
-router.route('/webhook', webhook);
+router.route('/webhooks', webhook);

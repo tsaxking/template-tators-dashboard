@@ -40,7 +40,7 @@ builder.on('build', () => {
     log('Build complete');
 });
 
-stdin.on('build', () => builder.emit('build'));
+stdin.on('rb', () => builder.emit('build'));
 
 builder.on('error', (e) => log('Build error:', e));
 
@@ -196,6 +196,11 @@ app.get('/test/:page', (req, res, next) => {
         res.sendStatus('page:not-found', { page: req.params.page });
     }
 });
+
+// app.get('/api/webhooks/test', (req, res,next) => {
+//     console.log('worked!');
+//     next()
+// })
 
 app.route('/api', api);
 app.route('/account', account);

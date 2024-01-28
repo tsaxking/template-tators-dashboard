@@ -9,7 +9,8 @@ SELECT
     MatchScouting.trace as trace,
     Matches.eventKey as eventKey,
     Matches.matchNumber as matchNumber,
-    Matches.compLevel as compLevel
+    Matches.compLevel as compLevel,
+    MatchScouting.checks as checks
 
 FROM MatchScouting
 INNER JOIN Matches ON Matches.id = MatchScouting.matchId

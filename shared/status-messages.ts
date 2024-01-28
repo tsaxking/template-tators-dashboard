@@ -584,6 +584,12 @@ export const messages: {
         code: 200,
         instructions: '',
     },
+    'scouting-question:update-section': {
+        message: 'Section updated',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'scouting-question:updated-answer': {
         message: 'Answer updated',
         color: 'success',
@@ -799,6 +805,7 @@ export type StatusId =
     | 'scouting-question:new-group'
     | 'scouting-question:new-question'
     | 'scouting-question:new-section'
+    | 'scouting-question:update-section'
     | 'scouting-question:updated-answer'
     | 'server:invalid-data'
     | 'server:unknown-server-error'
@@ -929,7 +936,8 @@ export type ScoutingquestionStatusId =
     | 'new-group'
     | 'new-question'
     | 'new-section'
-    | 'updated-answer';
+    | 'updated-answer'
+    | 'update-section';
 
 export type ServerStatusId =
     | 'invalid-data'
