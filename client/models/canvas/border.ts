@@ -1,36 +1,12 @@
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
-import { Drawable } from './canvas';
 import { Polygon } from './polygon';
 
-/**
- * A polygon that the robot cannot enter (shades on the outside)
- * @date 1/9/2024 - 11:13:09 AM
- *
- * @export
- * @class BorderPolygon
- * @typedef {BorderPolygon}
- * @extends {Polygon}
- */
-export class BorderPolygon extends Polygon implements Drawable<BorderPolygon> {
-    /**
-     * Determines if the given point is inside the polygon
-     * @date 1/9/2024 - 11:13:09 AM
-     *
-     * @param {Point2D} point
-     * @returns {boolean}
-     */
+export class Border extends Polygon {
     isIn(point: Point2D) {
         return !super.isIn(point);
     }
 
-    /**
-     * Draw the border, use evenodd fill rule (shades on the outside)
-     * @date 1/9/2024 - 11:39:15 AM
-     *
-     * @param {CanvasRenderingContext2D} ctx
-     */
     draw(ctx: CanvasRenderingContext2D) {
-        ctx.save();
         const region = new Path2D();
 
         region.moveTo(
@@ -53,10 +29,9 @@ export class BorderPolygon extends Polygon implements Drawable<BorderPolygon> {
         region.closePath();
 
         // fill the area between the polygon and the canvas edges
-        if (this.properties?.fill?.color) {
-            ctx.fillStyle = this.properties.fill.color;
+        if (this.$properties?.fill?.color) {
+            ctx.fillStyle = this.$properties.fill.color;
         }
-        if (this.properties?.fill) ctx.fill(region, 'evenodd');
-        ctx.restore();
+        if (this.$properties?.fill) ctx.fill(region, 'evenodd');
     }
 }

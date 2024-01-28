@@ -1,8 +1,5 @@
 import { init } from '../storage/db/scripts/init.ts';
 import { repeatPrompt } from './prompt.ts';
-import { fromCamelCase, toSnakeCase } from '../shared/text.ts';
-import { log } from '../server/utilities/terminal-logging.ts';
-import fs from 'node:fs';
 import { __root, resolve } from '../server/utilities/env.ts';
 
 const runPrompt = (
@@ -22,112 +19,150 @@ const runPrompt = (
 };
 
 const createEnv = () => {
-    if (
-        Deno.args.includes('--no-env') ||
-        fs.existsSync(resolve(__root, './.env'))
-    ) {
-        log('Skipping .env file creation...');
-        return {
-            databaseLink: 'main',
-        };
-    }
-    log('Creating .env file...');
-    const values: {
-        [key: string]: string | number | boolean | null | undefined;
-    } = {
-        session_duration: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+    const values = {
+        SESSION_DURATION: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
     };
 
-    values.port = runPrompt(
+    try {
+        const file = resolve(__root, './.env');
+        const data = Deno.readTextFileSync(file);
+        const lines = data.split('\n');
+        for (const line of lines) {
+            const [key, value] = line.split('=');
+            values[key.trim()] = value
+                .replace(/"/g, '')
+                .replace(/'/g, '')
+                .trim();
+        }
+    } catch {
+        console.error(
+            'Unable to read .env file, please make sure it exists and is formatted correctly.',
+        );
+    }
+
+    const setKey = (
+        key: string,
+        message: string,
+        defaultValue?: string,
+        validation?: (data: string) => boolean,
+        allowBlank = true,
+    ) => {
+        if (typeof values[key] !== 'undefined') return;
+        const value = runPrompt(message, defaultValue, validation, allowBlank);
+        if (value) {
+            values[key] = value;
+
+            if (key === 'SEND_STATUS_EMAILS') {
+                values[key] = values[key] === 'y' ? 'TRUE' : 'FALSE';
+            }
+        } else {
+            values[key] = defaultValue || '';
+        }
+    };
+
+    setKey(
+        'PORT',
         'Port: (default: 3000)',
         '3000',
         (i) => +i > 0 && +i < 65535,
         true,
     );
-    values.sessionPort = +values.port + 1;
-    values.environment = runPrompt(
+    setKey(
+        'SOCKET_PORT',
+        'Session Port: (default: 3001)',
+        '3001',
+        (i) => +i > 0 && +i < 65535,
+        true,
+    );
+    setKey(
+        'ENVIRONMENT',
         'Environment: (default: dev)',
         'dev',
         (i) => ['dev', 'prod'].includes(i),
         true,
     );
-    values.domain = runPrompt(
+    setKey(
+        'DOMAIN',
         'Domain: (default: localhost)',
-        'http://localhost:' + values.port,
+        'http://localhost:' + values['PORT'],
         (i) => i.length > 0,
         true,
     );
-    values.socketDomain = runPrompt(
+    setKey(
+        'SOCKET_DOMAIN',
         'Socket Domain: (default: localhost)',
-        'http://localhost:' + values.sessionPort,
+        'http://localhost:' + values['SOCKET_PORT'],
         (i) => i.length > 0,
         true,
     );
-    values.title = runPrompt(
+    setKey(
+        'TITLE',
         'Title: (default: My App)',
         'My App',
         (i) => i.length > 0,
         true,
     );
-    values.sendgridApiKey = runPrompt(
+    setKey(
+        'SENDGRID_API_KEY',
         'Sendgrid API Key: (no default)',
         '',
         undefined,
         true,
     );
-    values.sendgridDefaultFrom = runPrompt(
+    setKey(
+        'SENDGRID_DEFAULT_FROM',
         'Sendgrid Default From: (no default)',
         '',
         undefined,
         true,
     );
-    values.sendStatusEmails = runPrompt(
-            'Send Status Emails: (default: false) (y/n)',
-            'false',
-            (i) => ['y', 'n'].includes(i),
-            true,
-        ) === 'y'
-        ? 'TRUE'
-        : 'FALSE';
-    values.autoSignIn = runPrompt(
-        'Auto Sign In: (no default)',
-        '',
-        undefined,
+    setKey(
+        'SEND_STATUS_EMAILS',
+        'Send Status Emails: (default: false) (y/n)',
+        'FALSE',
+        (i) => ['y', 'n'].includes(i),
         true,
     );
-    values.tbaKey = runPrompt('TBA Key: (no default)', '', undefined, true);
-    values.databaseLink = runPrompt(
+    setKey('AUTO_SIGN_IN', 'Auto Sign In: (no default)', '', undefined, true);
+    setKey('TBA_KEY', 'TBA Key: (no default)', '', undefined, true);
+    setKey(
+        'DATABASE_LINK',
         'Database Link: (default: main)',
         'main',
         (i) => i.length > 0,
         true,
     );
-    values.eventApiKey = runPrompt(
-        'Event API Key: (no default)',
+    setKey(
+        'RANDOM_KEY_AUTH',
+        'Random Key Auth: (no default)',
         '',
         undefined,
         true,
     );
-    values.databaseLink = runPrompt(
-        'Database Link: (default: main)',
-        'main',
-        (i) => i.length > 0,
+    setKey(
+        'RANDOM_KEY_LINK',
+        'Random Key Link: (no default)',
+        '',
+        undefined,
+        true,
+    );
+    setKey(
+        'WEBHOOK_AUTH',
+        'Webhook Auth: (no default)',
+        '',
+        undefined,
         true,
     );
 
     const e = Object.keys(values)
-        .map(
-            (key) =>
-                `${toSnakeCase(fromCamelCase(key)).toUpperCase()} = '${
-                    values[key]
-                }'`,
-        )
+        .map((key) => `${key} = '${values[key]}'`)
         .join('\n');
     Deno.writeTextFileSync(resolve(__root, './.env'), e);
 
     return values;
 };
 
+
 const vals = createEnv();
 
-init(vals.databaseLink as string);
+init(vals['DATABASE_LINK'] as string);

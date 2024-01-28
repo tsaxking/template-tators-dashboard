@@ -5,53 +5,65 @@ import {
 } from '../../../../shared/db-types-extended';
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { Cache } from '../../cache';
-import { ScoutingQuestion } from './question';
+import { Question } from './question';
 import { ServerRequest } from '../../../utilities/requests';
 
 type Updates = {
-    new: unknown;
-    update: unknown;
+    'new': Group;
+    'delete': string; // id
+};
+
+type GroupUpdates = {
+    'update': Group;
+    'new-question': Question;
+    'delete-question': string; // id
 };
 
 // used to organize questions into separate groups
-export class QuestionGroup extends Cache {
+export class Group extends Cache<GroupUpdates> {
     private static readonly $emitter = new EventEmitter<keyof Updates>();
 
     public static on<K extends keyof Updates>(
         event: K,
         callback: (data: Updates[K]) => void,
     ): void {
-        QuestionGroup.$emitter.on(event, callback);
+        Group.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: Updates[K]) => void,
     ): void {
-        QuestionGroup.$emitter.off(event, callback);
+        Group.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
         data: Updates[K],
     ): void {
-        QuestionGroup.$emitter.emit(event, data);
+        Group.$emitter.emit(event, data);
     }
 
-    public static readonly $cache = new Map<string, QuestionGroup>();
+    public static readonly $cache = new Map<string, Group>();
 
     public static new(
-        data: ScoutingQuestionGroup,
-    ): Promise<Result<QuestionGroup>> {
+        data: {
+            name: string;
+            eventKey: string;
+            section: string;
+        },
+    ): Promise<Result<Group>> {
         return attemptAsync(async () => {
-            const res = await ServerRequest.post(
+            const res = await ServerRequest.post<{
+                data: ScoutingQuestionGroup;
+            }>(
                 '/api/scouting-questions/new-group',
                 {
                     ...data,
                 },
             );
 
-            if (res.isOk()) return new QuestionGroup(data);
+            if (res.isOk()) return new Group(res.value.data);
             throw res.error;
         });
     }
@@ -60,6 +72,7 @@ export class QuestionGroup extends Cache {
     public readonly eventKey: string;
     public readonly section: string;
     public $name: string;
+    public readonly dateAdded: Date;
 
     constructor(data: ScoutingQuestionGroup) {
         super();
@@ -67,9 +80,10 @@ export class QuestionGroup extends Cache {
         this.eventKey = data.eventKey;
         this.section = data.section;
         this.$name = data.name;
+        this.dateAdded = new Date(data.dateAdded);
 
-        if (!QuestionGroup.$cache.has(this.id)) {
-            QuestionGroup.$cache.set(this.id, this);
+        if (!Group.$cache.has(this.id)) {
+            Group.$cache.set(this.id, this);
         }
     }
 
@@ -82,7 +96,7 @@ export class QuestionGroup extends Cache {
         this.update();
     }
 
-    public async getQuestions(): Promise<Result<ScoutingQuestion[]>> {
+    public async getQuestions(): Promise<Result<Question[]>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<ScoutingQuestionObj[]>(
                 '/api/scouting-questions/get-questions',
@@ -92,12 +106,71 @@ export class QuestionGroup extends Cache {
             );
 
             if (res.isOk()) {
-                return res.value.map((q) => new ScoutingQuestion(q));
+                return res.value.map((q) => new Question(q));
             } else throw res.error;
         });
     }
 
     private async update(): Promise<Result<void>> {
         return attemptAsync(async () => {});
+    }
+
+    public async addQuestion(data: {
+        question: string;
+        type:
+            | 'text'
+            | 'number'
+            | 'boolean'
+            | 'select'
+            | 'checkbox'
+            | 'radio'
+            | 'textarea';
+        key: string;
+        description: string;
+        options: any; // TODO: add type
+    }) {
+        return attemptAsync(async () => {
+            const res = await ServerRequest.post<{
+                data: ScoutingQuestionObj;
+            }>(
+                '/api/scouting-questions/new-question',
+                {
+                    ...data,
+                    groupId: this.id,
+                    section: this.section,
+                },
+            );
+
+            if (res.isOk()) return new Question(res.value.data);
+            throw res.error;
+        });
+    }
+
+    public async removeQuestion(id: string): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            const q = Question.$cache.get(id);
+            if (!q) throw new Error('Question not found');
+
+            const res = await q.delete();
+            if (res.isOk()) {
+                Question.$cache.delete(id);
+            } else throw res.error;
+        });
+    }
+
+    delete(): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            throw new Error('Method not implemented.');
+            // const res = await ServerRequest.post<void>(
+            //     '/api/scouting-questions/delete-group',
+            //     {
+            //         id: this.id,
+            //     },
+            // );
+
+            // if (res.isOk()) {
+            //     Group.$cache.delete(this.id);
+            // } else throw res.error;
+        });
     }
 }
