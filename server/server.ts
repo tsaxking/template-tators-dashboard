@@ -14,6 +14,7 @@ import { FileUpload } from './middleware/stream.ts';
 import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
+import './utilities/tba/tba.ts';
 
 const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -168,6 +169,11 @@ app.get('/test/:page', (req, res, next) => {
         res.sendStatus('page:not-found', { page: req.params.page });
     }
 });
+
+// app.get('/api/webhooks/test', (req, res,next) => {
+//     console.log('worked!');
+//     next()
+// })
 
 app.route('/api', api);
 app.route('/account', account);
