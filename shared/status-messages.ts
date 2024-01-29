@@ -229,6 +229,7 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: '',
+        redirect: '/account/sign-in',
     },
     'account:picture-updated': {
         message: 'Added a picture to this account',
