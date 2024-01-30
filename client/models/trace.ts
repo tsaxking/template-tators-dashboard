@@ -76,6 +76,7 @@ export class Trace<action = Action> implements Drawable<Trace> {
             a.draw(ctx);
         }
     }
+    //Takes array of points, filters for what you want it to, maps it
 }
 
 export class Heatmap {
