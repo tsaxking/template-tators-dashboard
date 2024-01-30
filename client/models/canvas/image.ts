@@ -1,29 +1,21 @@
+import { Drawable } from './drawable';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
-import { Drawable } from './canvas';
+import { copy } from '../../../shared/copy';
 
 /**
  * Location and size of the image
  * @date 1/9/2024 - 11:48:39 AM
  *
- * @typedef {CanvasImageProperties}
+ * @typedef {CanvasImgOptions}
  */
-export type CanvasImageProperties = {
+export type CanvasImgOptions = {
     x: number;
     y: number;
     width: number;
     height: number;
 };
 
-/**
- * Image drawable
- * @date 1/9/2024 - 11:48:39 AM
- *
- * @export
- * @class Img
- * @typedef {Img}
- * @implements {Drawable}
- */
-export class Img implements Drawable {
+export class Img extends Drawable<Img> {
     /**
      * Description placeholder
      * @date 1/9/2024 - 11:48:39 AM
@@ -32,22 +24,15 @@ export class Img implements Drawable {
      * @readonly
      * @type {HTMLImageElement}
      */
-    public readonly img: HTMLImageElement;
+    public readonly img: HTMLImageElement = new Image();
     private data: HTMLImageElement | null = null;
 
-    /**
-     * Creates an instance of Img.
-     * @date 1/9/2024 - 11:48:39 AM
-     *
-     * @constructor
-     * @param {string} src
-     * @param {Partial<CanvasImageProperties>} imgProperties
-     */
     constructor(
         public readonly src: string,
-        public readonly imgProperties: Partial<CanvasImageProperties>,
+        public readonly options: Partial<CanvasImgOptions> = {},
     ) {
-        this.img = new Image();
+        super();
+
         this.img.src = src;
 
         this.img.onload = () => {
@@ -71,7 +56,7 @@ export class Img implements Drawable {
      * @type {number}
      */
     get x() {
-        return this.imgProperties.x ?? 0;
+        return this.options.x ?? 0;
     }
 
     /**
@@ -81,7 +66,7 @@ export class Img implements Drawable {
      * @type {number}
      */
     set x(x: number) {
-        this.imgProperties.x = x;
+        this.options.x = x;
     }
 
     /**
@@ -91,7 +76,7 @@ export class Img implements Drawable {
      * @type {number}
      */
     get y() {
-        return this.imgProperties.y ?? 0;
+        return this.options.y ?? 0;
     }
 
     /**
@@ -101,7 +86,7 @@ export class Img implements Drawable {
      * @type {number}
      */
     set y(y: number) {
-        this.imgProperties.y = y;
+        this.options.y = y;
     }
 
     /**
@@ -111,7 +96,7 @@ export class Img implements Drawable {
      * @type {number}
      */
     get width() {
-        return this.imgProperties.width ?? this.img.width;
+        return this.options.width ?? this.img.width;
     }
 
     /**
@@ -121,7 +106,7 @@ export class Img implements Drawable {
      * @type {number}
      */
     set width(width: number) {
-        this.imgProperties.width = width;
+        this.options.width = width;
     }
 
     /**
@@ -131,7 +116,7 @@ export class Img implements Drawable {
      * @type {number}
      */
     get height() {
-        return this.imgProperties.height ?? this.img.height;
+        return this.options.height ?? this.img.height;
     }
 
     /**
@@ -141,7 +126,7 @@ export class Img implements Drawable {
      * @type {number}
      */
     set height(height: number) {
-        this.imgProperties.height = height;
+        this.options.height = height;
     }
 
     /**
@@ -151,13 +136,13 @@ export class Img implements Drawable {
      * @param {CanvasRenderingContext2D} ctx
      */
     draw(ctx: CanvasRenderingContext2D) {
-        const { x, y, width, height } = this.imgProperties;
+        const { x, y, width, height } = this.options;
         if (!this.data) return;
 
         ctx.drawImage(
             this.data,
-            x || 0,
-            y || 0,
+            (x || 0) * ctx.canvas.width,
+            (y || 0) * ctx.canvas.height,
             (width || 0) * ctx.canvas.width,
             (height || 0) * ctx.canvas.height,
         );
@@ -179,5 +164,11 @@ export class Img implements Drawable {
             y >= this.y &&
             y <= this.y + this.height
         );
+    }
+
+    clone(): Img {
+        const i = new Img(this.src, this.options);
+        copy(this, i);
+        return i;
     }
 }

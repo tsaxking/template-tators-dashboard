@@ -28,12 +28,22 @@ router.post('/get-roles', (req, res) => {
     res.json(Role.all());
 });
 
-router.get('/sign-in', (_req, res) => {
+router.get('/sign-in', (req, res, next) => {
+    if (req.session.account) return next();
     res.sendTemplate('entries/account/sign-in');
 });
 
-router.get('/sign-up', (_req, res) => {
+router.get('/sign-up', (req, res, next) => {
+    if (req.session.account) return next();
     res.sendTemplate('entries/account/sign-up');
+});
+
+router.get('/reset-password/:key', (req, res, next) => {
+    const { key } = req.params;
+    if (!key) return next();
+    const a = Account.fromPasswordChangeKey(key);
+    if (!a) return res.sendStatus('account:invalid-password-reset-key');
+    res.sendTemplate('entries/account/reset-password');
 });
 
 router.post<{
@@ -295,5 +305,81 @@ router.post<{
             });
         }
         res.sendStatus(('role:' + status) as StatusId, { username, role });
+    },
+);
+
+router.post<{
+    settings: string;
+}>(
+    '/set-settings',
+    validate({
+        settings: 'string',
+    }),
+    (req, res) => {
+        const { settings } = req.body;
+
+        const account = req.session.account;
+        if (!account) return res.sendStatus('account:not-logged-in');
+
+        try {
+            account.settings = JSON.parse(settings);
+        } catch (e) {
+            return res.sendStatus('account:invalid-settings');
+        }
+
+        res.sendStatus('account:settings-set', {
+            settings,
+            id: account.id,
+        });
+
+        req.session.emit('account:settings-set', settings);
+    },
+);
+
+router.post('/get-settings', (req, res) => {
+    const account = req.session.account;
+    if (!account) return res.sendStatus('account:not-logged-in');
+
+    res.json(
+        account.settings
+            ? JSON.parse(account.settings.settings || '[]')
+            : undefined,
+    );
+});
+
+router.post('/request-password-reset', validate({}), (req, res) => {
+    const a = req.session.account;
+    if (!a) return res.sendStatus('account:not-logged-in');
+
+    a.requestPasswordChange();
+
+    res.sendStatus('account:password-reset-request');
+});
+
+router.post<{
+    password: string;
+    confirmPassword: string;
+    key: string;
+}>(
+    '/reset-password',
+    validate({
+        password: 'string',
+        confirmPassword: 'string',
+        key: 'string',
+    }),
+    (req, res) => {
+        const { password, confirmPassword, key } = req.body;
+
+        const a = Account.fromPasswordChangeKey(key);
+
+        if (!a) return res.sendStatus('account:invalid-password-reset-key');
+
+        if (password !== confirmPassword) {
+            return res.sendStatus('account:password-mismatch');
+        }
+
+        a.changePassword(key, password);
+
+        res.sendStatus('account:password-reset-success');
     },
 );
