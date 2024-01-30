@@ -1,4 +1,5 @@
 import { attempt } from '../../shared/attempt';
+import { log } from './logging';
 
 /**
  * Creates a fullscreen request
@@ -10,9 +11,7 @@ export const fullscreen = (_target: HTMLElement) => {
         attempt(() => {
             // exit fullscreen
             if (document.fullscreenElement) {
-                document
-                    .exitFullscreen()
-                    .then(() => console.log('Exited fullscreen'));
+                document.exitFullscreen().then(() => log('Exited fullscreen'));
             }
         });
 
