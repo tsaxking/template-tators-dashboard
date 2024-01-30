@@ -1,8 +1,3 @@
-console.warn(
-    '[shared/attempt.ts]',
-    'This file will be changed to /shared/check.ts in the future. Please update your imports.',
-);
-
 /**
  * Ok Result
  * @date 1/22/2024 - 2:56:57 AM
@@ -149,4 +144,89 @@ export const attemptAsync = async <T = unknown, E = Error>(
         // console.warn(e);
         return new Err(e);
     }
+};
+
+/**
+ * All primitive types
+ * @date 1/28/2024 - 5:40:39 AM
+ *
+ * @typedef {Primitive}
+ */
+type Primitive =
+    | 'string'
+    | 'number'
+    | 'boolean'
+    | 'object'
+    | 'array'
+    | 'null'
+    | 'undefined';
+
+/**
+ * Object type
+ * @date 1/28/2024 - 5:40:39 AM
+ *
+ * @typedef {O}
+ */
+type O = {
+    [key: string]: Primitive | O | A;
+};
+
+/**
+ * Array type (only supports one type)
+ * @date 1/28/2024 - 5:40:39 AM
+ *
+ * @typedef {A}
+ */
+type A = [Primitive | O | A];
+
+/**
+ * Checks if the data matches the type
+ * @date 1/28/2024 - 5:40:39 AM
+ */
+export const check = (data: unknown, type: Primitive | O | A): boolean => {
+    const isPrimitive = (data: unknown, type: Primitive): boolean =>
+        typeof data === type;
+    const isObject = (data: unknown): data is O =>
+        typeof data === 'object' && data !== null;
+    const isArray = (data: unknown): data is A => Array.isArray(data);
+    try {
+        JSON.stringify(data);
+    } catch (error) {
+        console.error(
+            'Invalid data, it is likely that you have a circular reference in your "data" definition',
+        );
+        return false;
+    }
+
+    try {
+        JSON.stringify(type);
+    } catch (error) {
+        console.error(
+            'Invalid type, it is likely that you have a circular reference in your "type" definition',
+        );
+        return false;
+    }
+
+    const runCheck = (data: unknown, type: Primitive | O | A): boolean => {
+        if (typeof type === 'string') {
+            return isPrimitive(data, type);
+        }
+
+        if (isArray(type)) {
+            return (
+                isArray(data) &&
+                data.every((item) => type.some((t) => runCheck(item, t)))
+            );
+        }
+
+        if (isObject(data) && isObject(type)) {
+            return Object.keys(type).every((key) =>
+                runCheck(data[key], type[key])
+            );
+        }
+
+        return false;
+    };
+
+    return runCheck(data, type);
 };

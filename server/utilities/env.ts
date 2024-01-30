@@ -1,6 +1,7 @@
-import { Colors } from './colors.ts';
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
+import path from 'node:path';
+import { error } from './terminal-logging.ts';
 
 /**
  * Makes paths consistent across platforms
@@ -9,12 +10,20 @@ import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 export const platformify = (path: string) => {
     switch (os.platform()) {
         case 'linux':
-            return path;
+            return clean(path);
         case 'windows':
-            return path.replace(/\//g, '\\');
+            return clean(path.replace(/\//g, '\\'));
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
+};
+
+export const clean = (path: string) => {
+    // remove all unnecessary slashes, etc.
+    path = path.replace(/\/\//g, '/');
+    path = path.replace(/\/\.\//g, '/');
+
+    return path;
 };
 
 /**
@@ -24,9 +33,9 @@ export const platformify = (path: string) => {
 export const addFileProtocol = (path: string) => {
     switch (os.platform()) {
         case 'linux':
-            return path;
+            return clean(path);
         case 'windows':
-            return 'file://' + path;
+            return 'file://' + clean(path);
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
@@ -37,10 +46,13 @@ export const addFileProtocol = (path: string) => {
  * @date 1/9/2024 - 12:12:32 PM
  */
 export const unify = (path: string) => {
-    return path
-        .replace(/\\/g, '/')
-        .replaceAll('file://', '')
-        .replace(/\/\//g, '/');
+    return clean(
+        path
+            .replace(/\\/g, '/')
+            .replace(/\/+/g, '/')
+            .replace(/^(file:\/)/, '')
+            .replace(/\/\//g, '/'),
+    );
 };
 
 /**
@@ -79,32 +91,35 @@ export const resolve = (...paths: string[]): string => {
 
     return platformify(result);
 };
+// export const resolve = (...paths: string[]): string => path.resolve(...paths.map(unify));
 
 /**
  * Finds the relative path from one file to another
  * @date 1/9/2024 - 12:12:32 PM
  */
-export const relative = (from: string, to: string): string => {
-    from = unify(from);
-    to = unify(to);
+export const relative = (from: string, to: string): string =>
+    clean(path.relative(unify(from), unify(to)));
+// export const relative = (from: string, to: string): string => {
+//     from = unify(from);
+//     to = unify(to);
 
-    // replace path.relative with this function
+//     // replace path.relative with this function
 
-    const path1Parts = from.split('/');
-    const path2Parts = to.split('/');
+//     const path1Parts = from.split('/');
+//     const path2Parts = to.split('/');
 
-    while (path1Parts[0] === path2Parts[0]) {
-        path1Parts.shift();
-        path2Parts.shift();
-    }
+//     while (path1Parts[0] === path2Parts[0]) {
+//         path1Parts.shift();
+//         path2Parts.shift();
+//     }
 
-    let result = '';
-    for (const _ of path1Parts) {
-        result += '../';
-    }
+//     let result = '';
+//     for (const _ of path1Parts) {
+//         result += '../';
+//     }
 
-    return platformify('./' + result + path2Parts.join('/'));
-};
+//     return platformify('./' + result + path2Parts.join('/'));
+// };
 
 /**
  * Root directory of the project
@@ -223,11 +238,7 @@ const env: {
     [key: string]: string | undefined;
 } = Deno.env.toObject();
 
-console.log(Colors.FgGreen, 'Loading environment variables...', Colors.Reset);
-
-// if (Object.keys(env).length === 56) {
-// console.log(Colors.FgYellow, 'Environment were not loaded, loading manually from .env file... (This may not work properly, if you see errors, just restart)', Colors.Reset);
-// force load from .env file
+// force load from .env file because Deno.env.toObject() doesn't always read it the first time
 try {
     const file = resolve(__root, './.env');
     const data = Deno.readTextFileSync(file);
@@ -237,12 +248,9 @@ try {
         env[key.trim()] = value.replace(/"/g, '').replace(/'/g, '').trim();
     }
 } catch {
-    console.error(
+    error(
         'Unable to read .env file, please make sure it exists and is formatted correctly.',
     );
 }
-// }
-
-console.log(Colors.FgGreen, 'Environment variables loaded!', Colors.Reset);
 
 export default env;
