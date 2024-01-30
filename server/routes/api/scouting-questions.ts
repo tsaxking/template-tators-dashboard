@@ -175,22 +175,117 @@ router.post<{
 
 const canEdit = Account.allowPermissions('edit-scouting-questions');
 
+// TODO: Add delete information
 // user must have permissions to update scouting questions
 
-router.post<ScoutingQuestionGroup>(
+router.post<{
+    name: string;
+    multiple: 0 | 1;
+}>(
+    '/new-section',
+    canEdit,
+    validate({
+        name: 'string',
+        multiple: [0, 1],
+    }),
+    (req, res) => {
+        const { name, multiple } = req.body;
+        const accountId = req.session.account?.id;
+
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        const id = uuid();
+        const dateAdded = Date.now().toString();
+
+        DB.run('scouting-questions/new-section', {
+            name,
+            multiple,
+            id,
+            dateAdded,
+            accountId,
+        });
+
+        res.sendStatus('scouting-question:new-section', {
+            name,
+            multiple,
+            id,
+            dateAdded,
+            accountId,
+        });
+
+        req.io.emit('scouting-question:new-section', {
+            name,
+            multiple,
+            id,
+            dateAdded,
+            accountId,
+        });
+    },
+);
+
+router.post<{
+    name: string;
+    multiple: 0 | 1;
+    id: string;
+}>(
+    '/update-section',
+    canEdit,
+    validate({
+        name: 'string',
+        multiple: [0, 1],
+        id: 'string',
+    }),
+    (req, res) => {
+        const { name, multiple, id } = req.body;
+        const accountId = req.session.account?.id;
+
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        const dateAdded = Date.now().toString();
+
+        DB.run('scouting-questions/update-section', {
+            name,
+            multiple,
+            id,
+            accountId,
+        });
+
+        res.sendStatus('scouting-question:update-section', {
+            name,
+            multiple,
+            id,
+            dateAdded,
+            accountId,
+        });
+
+        req.io.emit('scouting-question:update-section', {
+            name,
+            multiple,
+            id,
+            dateAdded,
+            accountId,
+        });
+    },
+);
+
+router.post<{
+    name: string;
+    eventKey: string;
+    section: string;
+}>(
     '/new-group',
     canEdit,
-    validate<Partial<ScoutingQuestionGroup>>({
-        id: 'string',
+    validate({
         eventKey: 'string',
         section: 'string',
         name: 'string',
     }),
     (req, res) => {
-        const { id, eventKey, section, name } = req.body;
+        const { eventKey, section, name } = req.body;
         const accountId = req.session.account?.id;
         if (!accountId) return res.sendStatus('account:not-logged-in');
         const dateAdded = Date.now().toString();
+        const id = uuid();
 
         DB.run('scouting-questions/new-group', {
             id,
@@ -206,6 +301,8 @@ router.post<ScoutingQuestionGroup>(
             eventKey,
             section,
             name,
+            accountId,
+            dateAdded,
         });
 
         req.io.emit('scouting-question:new-group', {
@@ -219,11 +316,25 @@ router.post<ScoutingQuestionGroup>(
     },
 );
 
-router.post<ScoutingQuestion>(
+router.post<{
+    question: string;
+    type:
+        | 'text'
+        | 'number'
+        | 'boolean'
+        | 'select'
+        | 'checkbox'
+        | 'radio'
+        | 'textarea';
+    section: string;
+    key: string;
+    description: string;
+    groupId: string;
+    options: any; // TODO: add type
+}>(
     '/new-question',
     canEdit,
-    validate<Partial<ScoutingQuestion>>({
-        id: 'string',
+    validate({
         question: 'string',
         type: [
             'text',
@@ -242,7 +353,6 @@ router.post<ScoutingQuestion>(
     }),
     (req, res) => {
         const {
-            id,
             question,
             type,
             section,
@@ -255,6 +365,7 @@ router.post<ScoutingQuestion>(
         const accountId = req.session.account?.id;
         if (!accountId) return res.sendStatus('account:not-logged-in');
         const dateAdded = Date.now().toString();
+        const id = uuid();
 
         DB.run('scouting-questions/new-question', {
             id,
@@ -277,6 +388,9 @@ router.post<ScoutingQuestion>(
             key,
             description,
             groupId,
+            accountId,
+            dateAdded,
+            options,
         });
 
         req.io.emit('scouting-question:new-question', {
@@ -287,33 +401,9 @@ router.post<ScoutingQuestion>(
             key,
             description,
             groupId,
-        });
-    },
-);
-
-router.post<ScoutingSection>(
-    '/new-section',
-    canEdit,
-    validate<ScoutingSection>({
-        name: 'string',
-        multiple: [0, 1],
-    }),
-    (req, res) => {
-        const { name, multiple } = req.body;
-
-        DB.run('scouting-questions/new-section', {
-            name,
-            multiple,
-        });
-
-        res.sendStatus('scouting-question:new-section', {
-            name,
-            multiple,
-        });
-
-        req.io.emit('scouting-question:new-section', {
-            name,
-            multiple,
+            accountId,
+            dateAdded,
+            options,
         });
     },
 );

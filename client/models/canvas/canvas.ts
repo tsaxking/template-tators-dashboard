@@ -1,331 +1,576 @@
-// type Events =
-//     'click' |
-//     'mousedown' |
-//     'mouseup' |
-//     'mousemove' |
-//     'mouseleave' |
-//     'touchstart' |
-//     'touchend' |
-//     'touchmove' |
-//     'touchcancel';
+import { Drawable, DrawableEvent } from './drawable';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { attempt } from '../../../shared/attempt';
-import { ShapeProperties } from './shape-properties';
-import { CanvasImageProperties } from './image';
-import { sleep } from '../../../shared/sleep';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { Color } from '../../submodules/colors/color';
+import { Background } from './background';
 
 /**
- * Similar to mouse events, but with a point
- * @date 1/9/2024 - 11:39:34 AM
+ * Description placeholder
+ * @date 1/25/2024 - 12:50:19 PM
  *
- * @export
- * @class CanvasEvent
- * @typedef {CanvasEvent}
- * @template T (MouseEvent | TouchEvent)
+ * @typedef {CanvasEvents}
  */
-export class CanvasEvent<T> {
-    /**
-     * Time of the event
-     * @date 1/9/2024 - 11:40:14 AM
-     *
-     * @public
-     * @readonly
-     * @type {Date}
-     */
-    public readonly time: Date = new Date();
+type CanvasEvents = {
+    animatestart: void;
+    animateend: void;
+    draw: void;
+    click: CanvasEvent<MouseEvent>;
+    touchstart: CanvasEvent<TouchEvent>;
+    touchmove: CanvasEvent<TouchEvent>;
+    touchend: CanvasEvent<TouchEvent>;
+    touchcancel: CanvasEvent<TouchEvent>;
+    mousemove: CanvasEvent<MouseEvent>;
+    mousedown: CanvasEvent<MouseEvent>;
+    mouseup: CanvasEvent<MouseEvent>;
+    mouseover: CanvasEvent<MouseEvent>;
+    mouseleave: CanvasEvent<MouseEvent>;
+    mouseenter: CanvasEvent<MouseEvent>;
+};
 
-    /**
-     * Creates an instance of CanvasEvent.
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @constructor
-     * @param {keyof Events} event
-     * @param {Point2D} point
-     * @param {T} data
-     */
+export class CanvasEvent<T> {
     constructor(
-        public readonly event: keyof Events,
-        public readonly point: Point2D,
-        public readonly data: T,
+        public readonly event: T,
+        public readonly points: Point2D[],
     ) {}
 }
 
 /**
- * All events for the canvas
- * @date 1/9/2024 - 11:39:34 AM
+ * Options for the canvas
+ * @date 1/25/2024 - 12:50:19 PM
  *
- * @typedef {Events}
+ * @typedef {CanvasOptions}
  */
-type Events = {
-    click: CanvasEvent<MouseEvent | TouchEvent>;
+type CanvasOptions = {
+    /**
+     * All events that the canvas should listen for (this will be deduped)
+     * @date 1/25/2024 - 12:51:53 PM
+     *
+     * @type {(keyof CanvasEvents)[]}
+     */
+    events: (keyof CanvasEvents)[];
+    background: Color;
 };
 
 /**
- * An interface for all drawable objects
- * @date 1/9/2024 - 11:39:34 AM
- *
- * @export
- * @interface Drawable
- * @typedef {Drawable}
- */
-export interface Drawable<T = unknown> {
-    /**
-     * The draw function
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @param {CanvasRenderingContext2D} ctx
-     */
-    draw(ctx: CanvasRenderingContext2D): void;
-
-    /**
-     * Event emitter for the drawable, if it has one
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @readonly
-     * @type {?EventEmitter<keyof Events>}
-     */
-    readonly $emitter?: EventEmitter<keyof Events>;
-
-    /**
-     * Determines if the given point is inside the drawable
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @param {Point2D} point
-     * @returns {boolean}
-     */
-    isIn?(point: Point2D): boolean;
-
-    /**
-     * Emits an event
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @template {keyof Events} K
-     * @param {K} event
-     * @param {Events[K]} data
-     */
-    emit?<K extends keyof Events>(event: K, data: Events[K]): void;
-    /**
-     * Adds an event listener
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @template {keyof Events} K
-     * @param {K} event
-     * @param {(e: Events[K]) => void} cb
-     */
-    on?<K extends keyof Events>(event: K, cb: (e: Events[K]) => void): void;
-    /**
-     * Removes an event listener
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @template {keyof Events} K
-     * @param {K} event
-     * @param {(e: Events[K]) => void} cb
-     */
-    off?<K extends keyof Events>(event: K, cb: (e: Events[K]) => void): void;
-
-    properties?: ShapeProperties<T>;
-}
-
-/**
- * The canvas class, this contains elements that can be drawn (drawables), event emitters, and more
- * All points used should be normalized (between 0 and 1)
- * @date 1/9/2024 - 11:39:34 AM
+ * A class to manage the canvas and drawables
+ * @date 1/25/2024 - 12:50:19 PM
  *
  * @export
  * @class Canvas
  * @typedef {Canvas}
  */
-export class Canvas {
+export class Canvas<T = unknown> {
+    public $data?: T;
+
+    get data(): T | undefined {
+        return this.$data;
+    }
+
+    set data(data: T | undefined) {
+        this.$data = data;
+    }
+
+    public background: Background;
+
     /**
      * All drawables on the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * @date 1/25/2024 - 12:50:19 PM
      *
      * @public
      * @readonly
      * @type {Drawable[]}
      */
-    public readonly drawables: Drawable[] = [];
+    public readonly $drawables: Drawable[] = [];
     /**
-     * Event emitter for the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * Emitter for canvas events
+     * @date 1/25/2024 - 12:50:19 PM
      *
      * @public
      * @readonly
      * @type {*}
      */
-    public readonly $emitter = new EventEmitter<keyof Events>();
+    public readonly $emitter = new EventEmitter<keyof CanvasEvents>();
     /**
-     * Determines if the canvas is animating
-     * @date 1/9/2024 - 11:39:34 AM
+     * Animation status
+     * @date 1/25/2024 - 12:50:19 PM
      *
-     * @private
+     * @public
      * @type {boolean}
      */
-    private animating = false;
+    public $animating = false;
+    /**
+     * Frames per second (default 60)
+     * @date 1/25/2024 - 12:50:19 PM
+     *
+     * @public
+     * @type {number}
+     */
+    public $fps = 60;
+    /**
+     * Canvas element
+     * @date 1/25/2024 - 12:50:19 PM
+     *
+     * @public
+     * @readonly
+     * @type {HTMLCanvasElement}
+     */
+    public readonly $canvas: HTMLCanvasElement;
+    /**
+     * Canvas context
+     * @date 1/25/2024 - 12:50:19 PM
+     *
+     * @public
+     * @readonly
+     * @type {CanvasRenderingContext2D}
+     */
+    public readonly $ctx: CanvasRenderingContext2D;
+    /**
+     * Options for the canvas
+     * @date 1/25/2024 - 12:50:19 PM
+     *
+     * @public
+     * @readonly
+     * @type {Partial<CanvasOptions>}
+     */
+    public readonly $options: Partial<CanvasOptions>;
 
-    // TODO: Implement FPS
-    public fps = 30;
+    /**
+     * Creates an instance of Canvas.
+     * @date 1/25/2024 - 12:50:19 PM
+     *
+     * @constructor
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {Partial<CanvasOptions>} [options={}]
+     */
+    constructor(
+        ctx: CanvasRenderingContext2D,
+        options: Partial<CanvasOptions> = {},
+    ) {
+        this.$canvas = ctx.canvas;
+        this.$ctx = ctx;
+        this.$options = options;
+        this.background = new Background();
+        this.background.color = options.background || Color.fromName('white');
+        this.add(this.background);
 
-    constructor(public readonly ctx: CanvasRenderingContext2D) {
-        ctx.canvas.addEventListener('click', (e) => {
-            this.$emitter.emit('click', e);
-            const [p] = this.getXY(e);
-
-            for (const el of this.drawables) {
-                if (el.$emitter && el.isIn?.(p)) {
-                    el.emit?.('click', new CanvasEvent('click', p, e));
+        if (this.$options.events) {
+            this.$options.events = this.$options.events.filter(
+                (e, i, a) => a.indexOf(e) === i,
+            );
+            for (const event of this.$options.events) {
+                switch (event) {
+                    case 'click':
+                        this.$canvas.addEventListener('click', (event) => {
+                            const point = this.getXY(event)[0];
+                            const e = new CanvasEvent(event, [point]);
+                            this.emit('click', e);
+                            for (const drawable of this.$drawables) {
+                                if (drawable.$doDraw && drawable.isIn(point)) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        [point],
+                                        this,
+                                        drawable,
+                                    );
+                                    // console.log('clicked!', drawable);
+                                    drawable.emit('click', e);
+                                }
+                            }
+                        });
+                        break;
+                    case 'touchstart':
+                        this.$canvas.addEventListener('touchstart', (event) => {
+                            const points = this.getXY(event);
+                            const e = new CanvasEvent(event, points);
+                            this.emit('touchstart', e);
+                            for (const drawable of this.$drawables) {
+                                if (
+                                    drawable.$doDraw &&
+                                    points.some((point) => drawable.isIn(point))
+                                ) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        points,
+                                        this,
+                                        drawable,
+                                    );
+                                    drawable.emit('touchstart', e);
+                                }
+                            }
+                        });
+                        break;
+                    case 'touchmove':
+                        this.$canvas.addEventListener('touchmove', (event) => {
+                            const points = this.getXY(event);
+                            const e = new CanvasEvent(event, points);
+                            this.emit('touchmove', e);
+                            for (const drawable of this.$drawables) {
+                                if (
+                                    drawable.$doDraw &&
+                                    points.some((point) => drawable.isIn(point))
+                                ) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        points,
+                                        this,
+                                        drawable,
+                                    );
+                                    drawable.emit('touchmove', e);
+                                }
+                            }
+                        });
+                        break;
+                    case 'touchend':
+                        this.$canvas.addEventListener('touchend', (event) => {
+                            const points = this.getXY(event);
+                            const e = new CanvasEvent(event, points);
+                            this.emit('touchend', e);
+                            for (const drawable of this.$drawables) {
+                                if (
+                                    drawable.$doDraw &&
+                                    points.some((point) => drawable.isIn(point))
+                                ) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        points,
+                                        this,
+                                        drawable,
+                                    );
+                                    drawable.emit('touchend', e);
+                                }
+                            }
+                        });
+                        break;
+                    case 'touchcancel':
+                        this.$canvas.addEventListener(
+                            'touchcancel',
+                            (event) => {
+                                const points = this.getXY(event);
+                                const e = new CanvasEvent(event, points);
+                                this.emit('touchcancel', e);
+                                for (const drawable of this.$drawables) {
+                                    if (
+                                        drawable.$doDraw &&
+                                        points.some((point) =>
+                                            drawable.isIn(point)
+                                        )
+                                    ) {
+                                        const e = new DrawableEvent(
+                                            event,
+                                            points,
+                                            this,
+                                            drawable,
+                                        );
+                                        drawable.emit('touchcancel', e);
+                                    }
+                                }
+                            },
+                        );
+                        break;
+                    case 'mousemove':
+                        this.$canvas.addEventListener('mousemove', (event) => {
+                            const point = this.getXY(event)[0];
+                            const e = new CanvasEvent(event, [point]);
+                            this.emit('mousemove', e);
+                            for (const drawable of this.$drawables) {
+                                if (drawable.$doDraw && drawable.isIn(point)) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        [point],
+                                        this,
+                                        drawable,
+                                    );
+                                    drawable.emit('mousemove', e);
+                                }
+                            }
+                        });
+                        break;
+                    case 'mousedown':
+                        this.$canvas.addEventListener('mousedown', (event) => {
+                            const point = this.getXY(event)[0];
+                            const e = new CanvasEvent(event, [point]);
+                            this.emit('mousedown', e);
+                            for (const drawable of this.$drawables) {
+                                if (drawable.$doDraw && drawable.isIn(point)) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        [point],
+                                        this,
+                                        drawable,
+                                    );
+                                    drawable.emit('mousedown', e);
+                                }
+                            }
+                        });
+                        break;
+                    case 'mouseup':
+                        this.$canvas.addEventListener('mouseup', (event) => {
+                            const point = this.getXY(event)[0];
+                            const e = new CanvasEvent(event, [point]);
+                            this.emit('mouseup', e);
+                            for (const drawable of this.$drawables) {
+                                if (drawable.$doDraw && drawable.isIn(point)) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        [point],
+                                        this,
+                                        drawable,
+                                    );
+                                    drawable.emit('mouseup', e);
+                                }
+                            }
+                        });
+                        break;
+                    case 'mouseleave':
+                        this.$canvas.addEventListener('mouseleave', (event) => {
+                            const point = this.getXY(event)[0];
+                            const e = new CanvasEvent(event, [point]);
+                            this.emit('mouseleave', e);
+                            for (const drawable of this.$drawables) {
+                                if (drawable.$doDraw && drawable.isIn(point)) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        [point],
+                                        this,
+                                        drawable,
+                                    );
+                                    drawable.emit('mouseleave', e);
+                                }
+                            }
+                        });
+                        break;
+                    case 'mouseenter':
+                        this.$canvas.addEventListener('mouseenter', (event) => {
+                            const point = this.getXY(event)[0];
+                            const e = new CanvasEvent(event, [point]);
+                            this.emit('mouseenter', e);
+                            for (const drawable of this.$drawables) {
+                                if (drawable.$doDraw && drawable.isIn(point)) {
+                                    const e = new DrawableEvent(
+                                        event,
+                                        [point],
+                                        this,
+                                        drawable,
+                                    );
+                                    drawable.emit('mouseenter', e);
+                                }
+                            }
+                        });
+                        break;
                 }
             }
-        });
-    }
-
-    get width() {
-        return this.ctx.canvas.width;
+        }
     }
 
     /**
-     * Sets the width of the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * Width of the canvas
+     * @date 1/25/2024 - 12:50:19 PM
+     *
+     * @type {number}
+     */
+    get width() {
+        return this.$canvas.width;
+    }
+
+    /**
+     * Width of the canvas
+     * @date 1/25/2024 - 12:50:19 PM
      *
      * @type {number}
      */
     set width(width: number) {
-        this.ctx.canvas.width = width;
+        this.$canvas.width = width;
     }
 
     /**
      * Height of the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * @date 1/25/2024 - 12:50:18 PM
      *
      * @type {number}
      */
     get height() {
-        return this.ctx.canvas.height;
+        return this.$canvas.height;
     }
 
     /**
-     * Sets the height of the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * Height of the canvas
+     * @date 1/25/2024 - 12:50:18 PM
      *
      * @type {number}
      */
     set height(height: number) {
-        this.ctx.canvas.height = height;
+        this.$canvas.height = height;
     }
 
     /**
-     * Image data of the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * Adds an event listener to the canvas
+     * @date 1/25/2024 - 12:50:18 PM
      *
-     * @type {ImageData}
+     * @template {keyof CanvasEvents} K
+     * @param {K} event
+     * @param {(data: CanvasEvents[K]) => void} listener
+     * @returns {void) => void}
      */
-    get imageData() {
-        return this.ctx.getImageData(0, 0, this.width, this.height);
+    on<K extends keyof CanvasEvents>(
+        event: K,
+        listener: (data: CanvasEvents[K]) => void,
+    ) {
+        this.$emitter.on(event, listener);
     }
 
     /**
-     * Sets the image data of the canvas
-     * This will clear the canvas, and stop animating
-     * @date 1/9/2024 - 11:39:34 AM
+     * Removes an event listener from the canvas
+     * @date 1/25/2024 - 12:50:18 PM
      *
-     * @type {ImageData}
+     * @template {keyof CanvasEvents} K
+     * @param {K} event
+     * @param {(data: CanvasEvents[K]) => void} listener
+     * @returns {void) => void}
      */
-    set imageData(imageData: ImageData) {
-        this.animating = false;
-        this.clear();
-        this.ctx.putImageData(imageData, 0, 0);
+    off<K extends keyof CanvasEvents>(
+        event: K,
+        listener: (data: CanvasEvents[K]) => void,
+    ) {
+        this.$emitter.off(event, listener);
+    }
+
+    /**
+     * Listens for an event once
+     * @date 1/25/2024 - 12:50:18 PM
+     *
+     * @template {keyof CanvasEvents} K
+     * @param {K} event
+     * @param {(data: CanvasEvents[K]) => void} listener
+     * @returns {void) => void}
+     */
+    once<K extends keyof CanvasEvents>(
+        event: K,
+        listener: (data: CanvasEvents[K]) => void,
+    ) {
+        this.$emitter.once(event, listener);
+    }
+
+    /**
+     * Emits an event
+     * @date 1/25/2024 - 12:50:18 PM
+     *
+     * @template {keyof CanvasEvents} K
+     * @param {K} event
+     * @param {CanvasEvents[K]} data
+     */
+    emit<K extends keyof CanvasEvents>(event: K, data: CanvasEvents[K]) {
+        this.$emitter.emit(event, data);
     }
 
     /**
      * Adds drawables to the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * @date 1/25/2024 - 12:50:18 PM
      *
      * @param {...Drawable[]} drawables
      */
-    add(...drawables: Drawable<any>[]) {
-        this.drawables.push(...drawables);
+    add(...drawables: Drawable[]) {
+        this.$drawables.push(
+            ...drawables.map((d) => {
+                d.$canvas = this;
+                return d;
+            }),
+        );
     }
 
     /**
      * Removes drawables from the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * @date 1/25/2024 - 12:50:18 PM
      *
      * @param {...Drawable[]} drawables
      */
-    remove(...drawables: Drawable<any>[]) {
+    remove(...drawables: Drawable[]) {
         for (const drawable of drawables) {
-            const index = this.drawables.indexOf(drawable);
-            if (index !== -1) this.drawables.splice(index, 1);
+            const index = this.$drawables.indexOf(drawable);
+            if (index !== -1) {
+                this.$drawables.splice(index, 1);
+            }
         }
     }
 
     /**
-     * Clears the canvas
-     * @date 1/9/2024 - 11:39:34 AM
+     * Clears the canvas context
+     * @date 1/25/2024 - 12:50:18 PM
      */
     clear() {
-        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.$ctx.clearRect(0, 0, this.width, this.height);
     }
 
     /**
-     * Iterates through all drawables and calls their draw function
-     * @date 1/9/2024 - 11:39:34 AM
+     * Removes all drawables from the canvas
+     * @date 1/25/2024 - 12:50:18 PM
+     */
+    clearDrawables() {
+        this.$drawables.length = 0;
+        this.add(this.background);
+    }
+
+    /**
+     * Draws all drawables on the canvas
+     * @date 1/25/2024 - 12:50:18 PM
      */
     draw() {
-        for (const element of this.drawables) {
-            if (element.properties?.drawCondition?.(element) === false) {
-                continue;
+        this.clear();
+        for (const drawable of this.$drawables) {
+            this.$ctx.save();
+
+            // forces the canvas to draw the drawable at a lower opacity
+            const fadeScale = drawable.$currentFadeFrame / drawable.$fadeFrames;
+            // console.log(fadeScale);
+            if (fadeScale < 1) {
+                this.$ctx.globalAlpha = fadeScale;
+            } else {
+                this.$ctx.globalAlpha = 1;
             }
 
-            this.ctx.save();
-            attempt(() => element.draw(this.ctx));
-            this.ctx.restore();
+            let draw = true;
+
+            if (!drawable.$doDraw) {
+                this.$ctx.globalAlpha = 0;
+                draw = false;
+            }
+
+            if (drawable.$properties?.doDraw) {
+                if (!drawable.$properties.doDraw(drawable)) {
+                    // drawable.hide();
+                    this.$ctx.globalAlpha = 0;
+                    draw = false;
+                }
+            } else {
+                // drawable.show();
+            }
+
+            const res = attempt(() => drawable.draw(this.$ctx));
+            this.$ctx.restore();
+            if (res.isOk()) {
+                if (
+                    drawable.$currentFadeFrame > 1 &&
+                    drawable.$currentFadeFrame < drawable.$fadeFrames
+                ) {
+                    drawable.$currentFadeFrame += drawable.$fadeDirection;
+                }
+
+                if (!drawable.$drawn && draw) {
+                    drawable.emit('draw', undefined);
+                }
+            }
         }
     }
 
     /**
-     * Animates the canvas (calls draw() every frame)
-     * To change the animation, change the elements array outside of this class
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @param {(canvas: this) => void} [update] - The update function, called every frame (optional)
-     */
-    animate(update?: (canvas: this) => void): () => void {
-        const stop = () => (this.animating = false);
-        if (this.animating) return stop;
-
-        this.animating = true;
-        const loop = async () => {
-            if (!this.animating) return;
-            this.clear();
-            this.draw();
-            update?.(this);
-            requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
-        return stop;
-    }
-
-    /**
-     * Clears the canvas, stops animation, and removes all drawables
-     * @date 1/9/2024 - 11:39:34 AM
-     */
-    destroy() {
-        this.clear();
-        this.animating = false;
-        this.drawables.length = 0;
-    }
-
-    /**
-     * Gets the x and y coordinates of the event
-     * @date 1/9/2024 - 11:39:34 AM
+     * Returns normalized points from a mouse or touch event
+     * @date 1/25/2024 - 12:50:18 PM
      *
      * @param {(MouseEvent | TouchEvent)} e
      * @returns {Point2D[]}
      */
     getXY(e: MouseEvent | TouchEvent): Point2D[] {
-        const rect = this.ctx.canvas.getBoundingClientRect();
+        const rect = this.$ctx.canvas.getBoundingClientRect();
 
         const makePoint = (x: number, y: number): [number, number] => {
             return [(x - rect.left) / rect.width, (y - rect.top) / rect.height];
@@ -341,40 +586,34 @@ export class Canvas {
     }
 
     /**
-     * Adds an event listener
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @template {keyof Events} K
-     * @param {K} event
-     * @param {(e: Events[K]) => void} cb
-     * @returns {void) => void}
+     * Removes all drawables, clears, and stops animation
+     * @date 1/25/2024 - 12:50:18 PM
      */
-    on<K extends keyof Events>(event: K, cb: (e: Events[K]) => void) {
-        this.$emitter.on(event, cb);
+    destroy() {
+        this.clearDrawables();
+        this.clear();
+        this.$animating = false;
     }
 
     /**
-     * Removes an event listener
-     * @date 1/9/2024 - 11:39:34 AM
+     * Starts animating the canvas, returns a function to stop the animation
+     * @date 1/25/2024 - 12:50:18 PM
      *
-     * @template {keyof Events} K
-     * @param {K} event
-     * @param {(e: Events[K]) => void} cb
-     * @returns {void) => void}
+     * @returns {() => void}
      */
-    off<K extends keyof Events>(event: K, cb: (e: Events[K]) => void) {
-        this.$emitter.off(event, cb);
-    }
+    animate(): () => void {
+        const stop = () => (this.$animating = false);
+        if (this.$animating) return stop;
 
-    /**
-     * Emits an event
-     * @date 1/9/2024 - 11:39:34 AM
-     *
-     * @template {keyof Events} K
-     * @param {K} event
-     * @param {Events[K]} data
-     */
-    emit<K extends keyof Events>(event: K, data: Events[K]) {
-        this.$emitter.emit(event, data);
+        this.$animating = true;
+        const loop = async () => {
+            if (!this.$animating) return;
+            this.clear();
+            this.draw();
+            // update?.(this);
+            requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+        return stop;
     }
 }

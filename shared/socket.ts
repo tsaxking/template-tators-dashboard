@@ -42,6 +42,7 @@ export type SocketEvent =
     | 'scouting-question:new-group'
     | 'scouting-question:new-question'
     | 'scouting-question:new-section'
+    | 'scouting-question:update-section'
     | 'scouting-question:updated-answer'
     | 'skills:added'
     | 'skills:removed'

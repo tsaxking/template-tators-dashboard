@@ -178,12 +178,14 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
+        redirect: '/home',
     },
     'account:logged-out': {
         message: 'You have been logged out.',
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
+        redirect: '/home',
     },
     'account:no-role': {
         message: 'This account does not have this role',
@@ -227,6 +229,7 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: '',
+        redirect: '/account/sign-in',
     },
     'account:picture-updated': {
         message: 'Added a picture to this account',
@@ -584,6 +587,12 @@ export const messages: {
         code: 200,
         instructions: '',
     },
+    'scouting-question:update-section': {
+        message: 'Section updated',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'scouting-question:updated-answer': {
         message: 'Answer updated',
         color: 'success',
@@ -799,6 +808,7 @@ export type StatusId =
     | 'scouting-question:new-group'
     | 'scouting-question:new-question'
     | 'scouting-question:new-section'
+    | 'scouting-question:update-section'
     | 'scouting-question:updated-answer'
     | 'server:invalid-data'
     | 'server:unknown-server-error'
@@ -929,7 +939,8 @@ export type ScoutingquestionStatusId =
     | 'new-group'
     | 'new-question'
     | 'new-section'
-    | 'updated-answer';
+    | 'updated-answer'
+    | 'update-section';
 
 export type ServerStatusId =
     | 'invalid-data'

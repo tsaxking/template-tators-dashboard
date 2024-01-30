@@ -261,6 +261,7 @@ enum RequestMethod {
     POST = 'POST',
     PUT = 'PUT',
     DELETE = 'DELETE',
+    USE = 'USE',
 }
 
 /**
@@ -402,11 +403,12 @@ export class App {
             // socket.join(socket.id);
 
             // join tab session
-            const { ssid } = parseCookie(
-                socket.handshake.headers.get('cookie') || '',
-            );
-            if (ssid) socket.join(ssid);
+            socket.on('ssid', (ssid: string) => {
+                socket.join(ssid);
+                socket.off('ssid');
+            });
 
+            // reload on file change
             if (env.ENVIRONMENT === 'dev') {
                 socket.emit('reload');
             }
@@ -454,7 +456,9 @@ export class App {
             const fns = this.serverFunctions.filter((sf) => {
                 // get rid of query
                 const path = url.pathname.split('?')[0];
-                if (sf.method !== denoReq.method) return false;
+                if (sf.method !== denoReq.method && sf.method !== 'USE') {
+                    return false;
+                }
                 const pathParts = sf.path.split('/');
                 const urlParts = path.split('/');
 
