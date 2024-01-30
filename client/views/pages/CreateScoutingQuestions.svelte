@@ -1,7 +1,6 @@
 <script lang="ts">
 import { FIRSTEvent } from '../../models/FIRST/event';
 import NavTabs from '../components/bootstrap/NavTabs.svelte';
-import CreateScoutingSections from '../components/scouting/CreateScoutingSections.svelte';
 
 let event: FIRSTEvent;
 
