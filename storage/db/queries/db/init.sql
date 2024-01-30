@@ -170,6 +170,8 @@ CREATE TABLE IF NOT EXISTS MatchScouting (
 
 
     trace TEXT NOT NULL DEFAULT '[]' -- JSON array of objects
+
+    -- added checks column in 1-1-1.sql
 );
 
 
@@ -182,6 +184,7 @@ CREATE TABLE IF NOT EXISTS MatchComments (
     comment TEXT NOT NULL,
     time INTEGER NOT NULL -- time of submission (in ms)
     -- added type column in 1-0-4.sql
+    -- added eventKey column in 1-1-1.sql
 );
 
 

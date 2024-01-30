@@ -5,7 +5,7 @@ import { Chart } from 'chart.js';
 import { generateTrace } from '../../../shared/dummy-data';
 import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import { months } from '../../../shared/clock';
-
+//Question: How many shots on average does a bot make per match
 const traces: TraceArray[] = new Array(10).fill(0).map(generateTrace);
 
 const canvas = create('canvas');
@@ -50,3 +50,34 @@ const c = new Chart(ctx, {
       }
     },
   });
+
+  //Score Chart
+
+  <div>
+  <canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      datasets: [{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>

@@ -178,7 +178,6 @@ const canEdit = Account.allowPermissions('edit-scouting-questions');
 // TODO: Add delete information
 // user must have permissions to update scouting questions
 
-
 router.post<{
     name: string;
     multiple: 0 | 1;
@@ -228,41 +227,46 @@ router.post<{
     name: string;
     multiple: 0 | 1;
     id: string;
-}>('/update-section', canEdit, validate({
-    name: 'string',
-    multiple: [0, 1],
-    id: 'string',
-}), (req, res) => {
-    const { name, multiple, id } = req.body;
-    const accountId = req.session.account?.id;
+}>(
+    '/update-section',
+    canEdit,
+    validate({
+        name: 'string',
+        multiple: [0, 1],
+        id: 'string',
+    }),
+    (req, res) => {
+        const { name, multiple, id } = req.body;
+        const accountId = req.session.account?.id;
 
-    if (!accountId) return res.sendStatus('account:not-logged-in');
+        if (!accountId) return res.sendStatus('account:not-logged-in');
 
-    const dateAdded = Date.now().toString();
+        const dateAdded = Date.now().toString();
 
-    DB.run('scouting-questions/update-section', {
-        name,
-        multiple,
-        id,
-        accountId,
-    });
+        DB.run('scouting-questions/update-section', {
+            name,
+            multiple,
+            id,
+            accountId,
+        });
 
-    res.sendStatus('scouting-question:update-section', {
-        name,
-        multiple,
-        id,
-        dateAdded,
-        accountId,
-    });
+        res.sendStatus('scouting-question:update-section', {
+            name,
+            multiple,
+            id,
+            dateAdded,
+            accountId,
+        });
 
-    req.io.emit('scouting-question:update-section', {
-        name,
-        multiple,
-        id,
-        dateAdded,
-        accountId,
-    });
-});
+        req.io.emit('scouting-question:update-section', {
+            name,
+            multiple,
+            id,
+            dateAdded,
+            accountId,
+        });
+    },
+);
 
 router.post<{
     name: string;

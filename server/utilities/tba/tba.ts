@@ -1,8 +1,9 @@
 import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
 import { DB } from '../databases.ts';
 import env from '../env.ts';
-import { error, log } from '../terminal-logging.ts';
+import { error } from '../terminal-logging.ts';
 import { saveEvent } from '../../../scripts/tba-update.ts';
+import { attemptAsync, Result } from '../../../shared/attempt.ts';
 // import { TBAEvent } from "../../../shared/tba.ts";
 // import { TBA_Event } from './event.ts';
 
@@ -59,54 +60,56 @@ export class TBA {
     public static async get<T>(
         path: string,
         options?: TBAOptions,
-    ): Promise<T | null> {
-        if (!TBA_KEY) {
-            throw new Error(
-                'TBA_KEY not found in environment variables! Cannot make request to TBA API!',
-            );
-        }
+    ): Promise<Result<T | null>> {
+        return attemptAsync(async () => {
+            if (!TBA_KEY) {
+                throw new Error(
+                    'TBA_KEY not found in environment variables! Cannot make request to TBA API!',
+                );
+            }
 
-        if (!path.startsWith('/')) path = '/' + path;
+            if (!path.startsWith('/')) path = '/' + path;
 
-        if (options?.cached) {
-            const cached = DB.get('tba/from-url', {
-                url: path,
-            });
+            if (options?.cached) {
+                const cached = DB.get('tba/from-url', {
+                    url: path,
+                });
 
-            if (cached) {
-                try {
-                    return JSON.parse(cached.response) as T;
-                } catch (e) {
-                    error('Error parsing cached TBA response:', e);
-                    return null;
+                if (cached) {
+                    try {
+                        return JSON.parse(cached.response) as T;
+                    } catch (e) {
+                        error('Error parsing cached TBA response:', e);
+                        return null;
+                    }
                 }
             }
-        }
 
-        try {
-            const res = await fetch(`${TBA.baseURL}/${path}`, {
-                method: 'GET',
-                headers: {
-                    'X-TBA-Auth-Key': TBA_KEY,
-                    Accept: 'application/json',
-                },
-            });
+            try {
+                const res = await fetch(`${TBA.baseURL}/${path}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-TBA-Auth-Key': TBA_KEY,
+                        Accept: 'application/json',
+                    },
+                });
 
-            const json = await res.json();
+                const json = await res.json();
 
-            // cache response, this will also update the cache if it already exists (using ON CONFLICT sql)
-            DB.run('tba/new', {
-                url: path,
-                response: JSON.stringify(json),
-                updated: Date.now(),
-                update: options?.cached ? 1 : 0,
-            });
+                // cache response, this will also update the cache if it already exists (using ON CONFLICT sql)
+                DB.run('tba/new', {
+                    url: path,
+                    response: JSON.stringify(json),
+                    updated: Date.now(),
+                    update: options?.cached ? 1 : 0,
+                });
 
-            return json as T;
-        } catch (e) {
-            error('Error requesting from TBA:', e);
-            return null;
-        }
+                return json as T;
+            } catch (e) {
+                error('Error requesting from TBA:', e);
+                return null;
+            }
+        });
     }
 
     // static async getEvent(eventKey: string, options?: TBAOptions): Promise<TBA_Event | null> {
@@ -132,7 +135,9 @@ const update = () => {
     TBA.get<TBAEvent[]>(
         `/team/frc2122/events/${new Date().getFullYear()}/simple`,
     )
-        .then((events) => {
+        .then((result) => {
+            if (result.isErr()) return;
+            const events = result.value;
             if (!events) return;
             const now = Date.now();
 

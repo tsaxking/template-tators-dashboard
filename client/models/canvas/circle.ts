@@ -1,16 +1,11 @@
-import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
-import { Drawable } from './canvas';
-import { ShapeProperties } from './shape-properties';
+import { Drawable } from './drawable';
+import {
+    Point,
+    Point2D,
+} from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { copy } from '../../../shared/copy';
 
-/**
- * A circle drawable
- * @date 1/9/2024 - 11:47:29 AM
- *
- * @export
- * @class Circle
- * @typedef {Circle}
- */
-export class Circle implements Drawable {
+export class Circle extends Drawable<Circle> {
     /**
      * Creates an instance of Circle.
      * @date 1/9/2024 - 11:47:29 AM
@@ -18,13 +13,13 @@ export class Circle implements Drawable {
      * @constructor
      * @param {Point2D} center [x, y] normalized coordinates
      * @param {number} radius normalized radius of the circle to the height of the canvas
-     * @param {?ShapeProperties} [properties]
      */
     constructor(
         public center: Point2D,
         public radius: number,
-        public properties?: ShapeProperties,
-    ) {}
+    ) {
+        super();
+    }
 
     /**
      * If the given point is inside the circle
@@ -33,7 +28,7 @@ export class Circle implements Drawable {
      * @param {Point2D} point
      * @returns {boolean}
      */
-    isIn(point: Point2D) {
+    public isIn(point: Point2D) {
         const [x, y] = point;
         return (
             Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2)) <
@@ -47,17 +42,16 @@ export class Circle implements Drawable {
      *
      * @param {CanvasRenderingContext2D} context
      */
-    draw(context: CanvasRenderingContext2D) {
-        context.save();
+    public draw(context: CanvasRenderingContext2D) {
         context.beginPath();
-        if (this.properties?.line?.color) {
-            context.strokeStyle = this.properties.line.color;
+        if (this.$properties?.line?.color) {
+            context.strokeStyle = this.$properties.line.color;
         }
-        if (this.properties?.line?.width) {
-            context.lineWidth = this.properties.line.width;
+        if (this.$properties?.line?.width) {
+            context.lineWidth = this.$properties.line.width;
         }
-        if (this.properties?.fill?.color) {
-            context.fillStyle = this.properties.fill.color;
+        if (this.$properties?.fill?.color) {
+            context.fillStyle = this.$properties.fill.color;
         }
         context.arc(
             this.x * context.canvas.width,
@@ -66,9 +60,8 @@ export class Circle implements Drawable {
             0,
             2 * Math.PI,
         );
-        if (this.properties?.fill) context.fill();
-        context.stroke();
-        context.restore();
+        if (this.$properties?.fill) context.fill();
+        if (this.$properties.line) context.stroke();
     }
 
     /**
@@ -106,4 +99,16 @@ export class Circle implements Drawable {
     set y(y: number) {
         this.center[1] = y;
     }
+
+    clone(): Circle {
+        const c = new Circle(this.center, this.radius);
+        copy(c, this);
+        return c;
+    }
+
+    // public get $Math() {
+    //     return {
+    //         center: new Point(this.center[0], this.center[1])
+    //     }
+    // }
 }

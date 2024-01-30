@@ -1,7 +1,10 @@
 <script lang="ts">
+import Setting from '../Setting.svelte';
+import { capitalize, fromSnakeCase } from '../../../../shared/text';
+import { Settings } from '../../../models/settings';
+import ThemeSwitch from '../ThemeSwitch.svelte';
 import YearSelect from './GlobalYearSelect.svelte';
 import EventSelect from './GlobalEventSelect.svelte';
-import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import { ServerRequest } from '../../../utilities/requests';
 export let title: string;
 export let navItems: string[] = [];
@@ -20,6 +23,8 @@ export let account: {
 ServerRequest.post('/account/get-account').then(res => {
     account = res as any;
 });
+
+export let accountLinks: string[] = [];
 </script>
 
 <nav
@@ -68,6 +73,8 @@ ServerRequest.post('/account/get-account').then(res => {
         </ul>
     </div>
     <div class="me-3">
+        <slot />
+        <ThemeSwitch />
         <YearSelect></YearSelect>
     </div>
     <div class="me-3">
@@ -99,6 +106,11 @@ ServerRequest.post('/account/get-account').then(res => {
         aria-labelledby="navbarDropdown"
         id="navbarDropdown"
     >
+        <li>
+            <a href="/settings">
+                <i class="material-icons">settings</i>
+            </a>
+        </li>
         {#each accountLinks as link}
             {#if link}
                 <li>

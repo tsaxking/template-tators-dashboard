@@ -16,3 +16,6 @@ import './socket';
 
 // bootstrap cdn
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+// settings
+import './settings';
