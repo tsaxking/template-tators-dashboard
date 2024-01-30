@@ -320,12 +320,13 @@ export type RetrievedMatchScouting = {
     matchId: string;
     scoutId: string;
     time: number;
-    scoutGroup: string;
-    prescouting: 0 | 1;
+    scoutGroup: 0 | 1 | 2 | 3 | 4 | 5;
+    prescouting: null;
     trace: string; // json array
     eventKey: string;
     matchNumber: number;
     compLevel: string;
+    checks: string; // json array
 };
 
 /**
@@ -368,4 +369,14 @@ export type DiscordPair = {
     key: string;
     id: string;
     date: string;
+};
+
+export type TeamComment = {
+    id: string;
+    team: string;
+    comment: string;
+    type: string;
+    matchScoutingId: string | null;
+    time: string;
+    eventKey: string;
 };

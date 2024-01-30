@@ -6,7 +6,11 @@ import { Status } from '../utilities/status.ts';
 import { Email, EmailOptions, EmailType } from '../utilities/email.ts';
 import Filter from 'npm:bad-words';
 import { Member } from './member.ts';
-import { Account as AccountObject, Permission } from '../../shared/db-types.ts';
+import {
+    Account as AccountObject,
+    AccountSettings,
+    Permission,
+} from '../../shared/db-types.ts';
 import env from '../utilities/env.ts';
 import { deleteUpload } from '../utilities/files.ts';
 import { Next, ServerFunction } from './app/app.ts';
@@ -983,6 +987,15 @@ export default class Account {
             id: this.id,
             passwordChange: key,
         });
+
+        this.sendEmail('Password change request', EmailType.link, {
+            constructor: {
+                link: `${env.DOMAIN}/account/change-password/${key}`,
+                linkText: 'Click here to change your password',
+                title: 'Password change request',
+                message: 'Click the button below to change your password',
+            },
+        });
         return key;
     }
 
@@ -1040,4 +1053,19 @@ export default class Account {
      * @date 1/9/2024 - 12:53:19 PM
      */
     save() {}
+
+    get settings(): AccountSettings | undefined {
+        return DB.get('account/get-settings', {
+            accountId: this.id,
+        });
+    }
+
+    set settings(settings: unknown) {
+        const str = JSON.stringify(settings);
+
+        DB.run('account/save-settings', {
+            accountId: this.id,
+            settings: str,
+        });
+    }
 }
