@@ -329,6 +329,8 @@ export type RetrievedMatchScouting = {
     checks: string; // json array
 };
 
+export type QuestionType = 'text' | 'number' | 'boolean' | 'select' | 'checkbox' | 'radio' | 'textarea';
+
 /**
  * Description placeholder
  * @date 1/11/2024 - 3:10:57 AM
@@ -344,14 +346,7 @@ export type RetrievedScoutingAnswer = {
     question: string;
     questionKey: string;
     questionDescription: string;
-    questionType:
-        | 'text'
-        | 'number'
-        | 'boolean'
-        | 'select'
-        | 'checkbox'
-        | 'radio'
-        | 'textarea';
+    questionType: QuestionType;
     groupId: string;
     eventKey: string;
     section: string;
@@ -380,3 +375,9 @@ export type TeamComment = {
     time: string;
     eventKey: string;
 };
+
+export type QuestionOptions = Partial<{
+    select: string[];
+    checkbox: string[];
+    radio: string[];
+}>;

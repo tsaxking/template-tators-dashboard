@@ -11,13 +11,21 @@ FIRSTMatch.on('select', (match: FIRSTMatch) => {
 });
 
 FIRSTEvent.on('select', async (event: FIRSTEvent) => {
-    const matches = await event.getMatches();
-    options = matches.map(m => m.tba.key);
+    const res = await event.getMatches();
+    if (res.isOk()) {
+        const matches = res.value;
+        options = matches.map(m => m.tba.key);
+    } else {
+        options = [];
+    }
 });
 
 const handleChange = async (e: any) => {
     const { detail: matchKey } = e;
-    const match = (await FIRSTEvent.current.getMatches()).find(
+    const res = await FIRSTEvent.current.getMatches();
+    if (res.isErr()) return;
+    const matches = res.value;
+    const match = matches.find(
         m => m.tba.key === matchKey
     );
     if (match) match.select();

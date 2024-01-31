@@ -24,7 +24,7 @@ ServerRequest.post('/account/get-account').then(res => {
     account = res as any;
 });
 
-export let accountLinks: string[] = [];
+export let accountLinks: (string | null)[] = [];
 </script>
 
 <nav
@@ -75,7 +75,6 @@ export let accountLinks: string[] = [];
     <div class="me-3">
         <slot />
         <ThemeSwitch />
-        <YearSelect></YearSelect>
     </div>
     <div class="me-3">
         <EventSelect></EventSelect>

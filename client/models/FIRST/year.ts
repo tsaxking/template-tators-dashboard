@@ -1,7 +1,8 @@
-import { TBAEvent } from '../../../shared/tba';
+import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { TBA } from '../../utilities/tba';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { Cache, Updates } from '../cache';
+import { attemptAsync, Result } from '../../../shared/attempt';
 
 /**
  * Events that are emitted by a {@link FIRSTYear} object
@@ -100,24 +101,31 @@ export class FIRSTYear extends Cache<YearUpdateData> {
      * @async
      * @returns {Promise<TBAEvent[]>}
      */
-    async getEvents(): Promise<TBAEvent[]> {
-        if (this.$cache.has('events')) {
-            return this.$cache.get('events') as TBAEvent[];
-        }
-        const res = await TBA.get<TBAEvent[]>(
-            `/team/frc2122/events/${this.year}`,
-        );
-        this.$cache.set('events', res.data);
+    async getEvents(): Promise<Result<TBAEvent[]>> {
+        return attemptAsync(async () => {
+            if (this.$cache.has('events')) {
+                return this.$cache.get('events') as TBAEvent[];
+            }
+            const res = await TBA.get<TBAEvent[]>(
+                `/team/frc2122/events/${this.year}`,
+            );
+    
+            if (res.isOk()) {
+                this.$cache.set('events', res.value.data);
+    
+                res.value.onUpdate(
+                    (data) => {
+                        this.$cache.set('events', data);
+                        this.$emitter.emit('update-events', data);
+                    },
+                    1000 * 60 * 60 * 24 * 7,
+                ); // 1 week
+        
+                return res.value.data;
+            }
 
-        res.onUpdate(
-            (data) => {
-                this.$cache.set('events', data);
-                this.$emitter.emit('update-events', data);
-            },
-            1000 * 60 * 60 * 24 * 7,
-        ); // 1 week
-
-        return res.data;
+            throw res.error;
+        });
     }
 
     /**

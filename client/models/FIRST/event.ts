@@ -58,7 +58,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     public static emit<K extends Updates>(event: K, data: any): void {
         FIRSTEvent.$emitter.emit(event, data);
     }
-    public static current?: FIRSTEvent = undefined;
+    public static current: FIRSTEvent | null = null;
 
     /**
      * Map of all FIRSTEvent objects

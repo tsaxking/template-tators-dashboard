@@ -11,13 +11,21 @@ FIRSTTeam.on('select', (team: FIRSTTeam) => {
 });
 
 FIRSTEvent.on('select', async (event: FIRSTEvent) => {
-    const teams = await event.getTeams();
-    options = teams.map(t => t.tba.team_number.toString());
+    const res = await event.getTeams();
+    if (res.isOk()) {
+        const teams = res.value;
+        options = teams.map(t => t.tba.team_number.toString());
+    } else {
+        options = [];
+    }
 });
 
 const handleChange = async (e: any) => {
     const { detail: teamNumber } = e;
-    const team = (await FIRSTEvent.current.getTeams()).find(
+    const res = await FIRSTEvent.current.getTeams();
+    if (res.isErr()) return;
+    const teams = res.value;
+    const team = teams.find(
         t => t.tba.team_number === +teamNumber
     );
     if (team) team.select();

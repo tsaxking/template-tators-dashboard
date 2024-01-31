@@ -16,15 +16,21 @@ const update = async (teams: FIRSTTeam[]) => {
 };
 
 FIRSTEvent.on('select', async (event: FIRSTEvent) => {
-    update(await event.getTeams());
+    const teams = await event.getTeams();
+    if (teams.isOk()) {
+        update(teams.value);
+    } else {
+        options = [];
+    }
 
     event.on('update-teams', update);
 });
 
 const handleChange = async (e: any) => {
     const { detail: teamNumber } = e;
-    const teams = await FIRSTEvent.current?.getTeams();
-    if (teams) {
+    const res = await FIRSTEvent.current?.getTeams();
+    if (res.isOk()) {
+        const teams = res.value;
         const team = teams.find(t => t.tba.team_number === +teamNumber);
         if (team) {
             team.select();

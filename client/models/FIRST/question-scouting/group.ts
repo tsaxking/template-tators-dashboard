@@ -2,6 +2,7 @@ import { attemptAsync, Result } from '../../../../shared/attempt';
 import {
     ScoutingQuestion as ScoutingQuestionObj,
     ScoutingQuestionGroup,
+    QuestionOptions,
 } from '../../../../shared/db-types-extended';
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { Cache } from '../../cache';
@@ -93,7 +94,6 @@ export class Group extends Cache<GroupUpdates> {
 
     set name(value: string) {
         this.$name = value;
-        this.update();
     }
 
     public async getQuestions(): Promise<Result<Question[]>> {
@@ -111,8 +111,10 @@ export class Group extends Cache<GroupUpdates> {
         });
     }
 
-    private async update(): Promise<Result<void>> {
-        return attemptAsync(async () => {});
+    async update(): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            throw new Error('Method not implemented.');
+        });
     }
 
     public async addQuestion(data: {
@@ -127,7 +129,7 @@ export class Group extends Cache<GroupUpdates> {
             | 'textarea';
         key: string;
         description: string;
-        options: any; // TODO: add type
+        options: QuestionOptions; // TODO: add type
     }) {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<{
