@@ -10,8 +10,8 @@ let matches: FIRSTMatch[] = [];
 FIRSTEvent.on('select', async (event: FIRSTEvent) => {
     const [t, m] = await Promise.all([event.getTeams(), event.getMatches()]);
 
-    teams = t;
-    matches = m;
+    teams = t.isOk() ? t.value : teams;
+    matches = m.isOk() ? m.value : matches;
 });
 
 // TODO: Set up links to the pages

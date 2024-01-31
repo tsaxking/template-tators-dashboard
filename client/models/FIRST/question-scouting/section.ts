@@ -44,6 +44,21 @@ export class Section extends Cache<SectionUpdates> {
         Section.$emitter.emit(event, data);
     }
 
+    static async all(): Promise<Section[]> {
+        const cache = Array.from(Section.$cache.values());
+        if (cache.length) return cache;
+
+        const res = await ServerRequest.post<ScoutingSection[]>(
+            '/api/scouting-questions/get-sections'
+        );
+
+        if (res.isOk()) {
+            return res.value.map(s => new Section(s));
+        }
+
+        return [];
+    }
+
     public static readonly $cache = new Map<string, Section>();
 
     public static async new(
@@ -78,11 +93,11 @@ export class Section extends Cache<SectionUpdates> {
         this.dateAdded = data.dateAdded;
         this.accountId = data.accountId;
 
-        if (Section.$cache.has(data.name)) {
-            Section.$cache.get(data.name)?.destroy();
+        if (Section.$cache.has(data.id)) {
+            Section.$cache.get(data.id)?.destroy();
         }
 
-        Section.$cache.set(data.name, this);
+        Section.$cache.set(data.id, this);
     }
 
     public async getGroups(): Promise<Result<Group[]>> {
@@ -128,7 +143,9 @@ export class Section extends Cache<SectionUpdates> {
 
     // sends info to server
     private async update(): Promise<Result<void>> {
-        return attemptAsync(async () => {});
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+        });
     }
 
     addGroup(group: {

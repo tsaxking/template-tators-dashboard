@@ -148,7 +148,7 @@ app.post('/*', (req, res, next) => {
 // }));
 
 app.get('/', (req, res) => {
-    res.redirect('/home');
+    res.redirect('/dashboard');
 });
 
 app.get('/*', async (req, res, next) => {
@@ -191,7 +191,14 @@ app.get('/*', (req, res, next) => {
 
 app.route('/admin', admin);
 
-app.get('/user/*', Account.isSignedIn, (req, res) => {
+// this is how the user will access the dashboard
+app.get('/dashboard/:year', (req, res) => {
+    const { year } = req.params;
+    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + year);
+});
+
+app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
 });
 

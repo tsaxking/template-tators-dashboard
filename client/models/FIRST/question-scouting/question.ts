@@ -1,6 +1,6 @@
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { Cache } from '../../cache';
-import { ScoutingQuestion as ScoutingQuestionObj } from '../../../../shared/db-types-extended';
+import { QuestionOptions, QuestionType, ScoutingQuestion as ScoutingQuestionObj } from '../../../../shared/db-types-extended';
 import { attemptAsync, Result } from '../../../../shared/attempt';
 import { ServerRequest } from '../../../utilities/requests';
 
@@ -38,19 +38,12 @@ export class Question extends Cache {
     public static new(
         data: {
             question: string;
-            type:
-                | 'text'
-                | 'number'
-                | 'boolean'
-                | 'select'
-                | 'checkbox'
-                | 'radio'
-                | 'textarea';
+            type: QuestionType;
             section: string;
             key: string;
             description: string;
             groupId: string;
-            options: any; // TODO: add type
+            options: QuestionOptions;
         },
     ): Promise<Result<Question>> {
         return attemptAsync(async () => {
@@ -68,18 +61,12 @@ export class Question extends Cache {
 
     public readonly id: string;
     public $question: string;
-    public $type:
-        | 'text'
-        | 'number'
-        | 'boolean'
-        | 'select'
-        | 'checkbox'
-        | 'radio'
-        | 'textarea';
+    public $type: QuestionType;
     public readonly section: string;
     public $key: string;
     public $description: string;
     public readonly groupId: string;
+    public readonly options: QuestionOptions;
 
     constructor(data: ScoutingQuestionObj) {
         super();
@@ -91,6 +78,7 @@ export class Question extends Cache {
         this.$key = data.key;
         this.$description = data.description;
         this.groupId = data.groupId;
+        this.options = JSON.parse(data.options) as QuestionOptions;
     }
 
     public get question(): string {
@@ -99,32 +87,18 @@ export class Question extends Cache {
 
     public set question(value: string) {
         this.$question = value;
-        this.update();
+        // this.update();
     }
 
-    public get type():
-        | 'text'
-        | 'number'
-        | 'boolean'
-        | 'select'
-        | 'checkbox'
-        | 'radio'
-        | 'textarea' {
+    public get type(): QuestionType {
         return this.$type;
     }
 
     public set type(
-        value:
-            | 'text'
-            | 'number'
-            | 'boolean'
-            | 'select'
-            | 'checkbox'
-            | 'radio'
-            | 'textarea',
+        value: QuestionType,
     ) {
         this.$type = value;
-        this.update();
+        // this.update();
     }
 
     public get key(): string {
@@ -133,7 +107,7 @@ export class Question extends Cache {
 
     public set key(value: string) {
         this.$key = value;
-        this.update();
+        // this.update();
     }
 
     public get description(): string {
@@ -142,11 +116,13 @@ export class Question extends Cache {
 
     public set description(value: string) {
         this.$description = value;
-        this.update();
+        // this.update();
     }
 
-    private async update(): Promise<Result<void>> {
-        return attemptAsync(async () => {});
+    async update(): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            throw new Error('Method not implemented.');
+        });
     }
 
     delete() {
