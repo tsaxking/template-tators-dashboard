@@ -1,3 +1,4 @@
+import { Colors } from '../server/utilities/colors.ts';
 import {
     __root,
     dirname,
@@ -23,7 +24,7 @@ export const runEntryPrompt = () => {
     addEntry(input);
 };
 
-export const addEntry = (name: string) => {
+export const addEntry = (name: string, importFile?: string) => {
     const filepath = resolve(__root, 'client', 'entries', name + '.ts');
     const dir = dirname(filepath);
 
@@ -34,9 +35,27 @@ export const addEntry = (name: string) => {
         resolve(__root, 'client', 'utilities', 'imports'),
     );
 
-    const imports = `import '${unify(importsRelative)}';`;
+    const imports = `import '${unify(importsRelative)}';
+${
+        importFile
+            ? `import App from '${
+                unify(
+                    relative(dir, resolve(__root, importFile)),
+                )
+            }';
+
+const myApp = new App({ target: document.body });
+`
+            : ''
+    }
+`;
 
     Deno.writeFileSync(filepath, new TextEncoder().encode(imports));
 };
 
-runEntryPrompt();
+if (import.meta.main) {
+    console.warn(
+        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`,
+    );
+    runEntryPrompt();
+}
