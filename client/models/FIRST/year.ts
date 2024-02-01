@@ -1,7 +1,7 @@
 import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { TBA } from '../../utilities/tba';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { Cache, Updates } from '../cache';
+import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/attempt';
 
 /**
@@ -14,6 +14,11 @@ type YearUpdateData = {
     'update-events': TBAEvent[];
 };
 
+type Updates = {
+    'select': FIRSTYear;
+    'update-events': TBAEvent[];
+}
+
 /**
  * Represents a FIRST year
  * @date 10/9/2023 - 6:59:51 PM
@@ -24,25 +29,25 @@ type YearUpdateData = {
  * @implements {FIRST}
  */
 export class FIRSTYear extends Cache<YearUpdateData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
-        Updates
+    private static readonly $emitter = new EventEmitter<
+        keyof Updates
     >();
 
-    public static on<K extends Updates>(
+    public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: Updates[K]) => void,
     ): void {
         FIRSTYear.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(
+    public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: any) => void,
+        callback?: (data: Updates[K]) => void,
     ): void {
         FIRSTYear.$emitter.off(event, callback);
     }
 
-    public static emit<K extends Updates>(event: K, data: any): void {
+    public static emit<K extends keyof Updates>(event: K, data: Updates[K]): void {
         FIRSTYear.$emitter.emit(event, data);
     }
 
