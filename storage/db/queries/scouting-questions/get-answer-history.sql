@@ -1,0 +1,1 @@
+SELECT * FROM ScoutingQuestionAnswerHistory WHERE questionId = :questionId;
