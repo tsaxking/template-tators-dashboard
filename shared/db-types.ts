@@ -41,6 +41,7 @@ export type AccountSafe = {
     created: number;
     phoneNumber: string;
     picture?: string;
+    id: string;
 };
 
 /**
@@ -150,14 +151,7 @@ export type DiscordLink = {
     username: string;
 };
 
-/**
- * Description placeholder
- * @date 1/11/2024 - 3:10:52 AM
- *
- * @export
- * @typedef {Permission}
- */
-export type Permission = 'manageMembers' | 'manageBoard';
+export type Permission = 'admin' | 'editRoles' | 'manageMembers';
 
 /**
  * Description placeholder
