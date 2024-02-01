@@ -3,6 +3,9 @@ import Setting from '../Setting.svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import { Settings } from '../../../models/settings';
 import ThemeSwitch from '../ThemeSwitch.svelte';
+import YearSelect from './GlobalYearSelect.svelte';
+import EventSelect from './GlobalEventSelect.svelte';
+import { ServerRequest } from '../../../utilities/requests';
 export let title: string;
 export let navItems: string[] = [];
 
@@ -16,6 +19,10 @@ export let account: {
     picture?: string;
     phoneNumber?: string;
 };
+
+ServerRequest.post('/account/get-account').then(res => {
+    account = res as any;
+});
 
 export let accountLinks: (string | null)[] = [];
 </script>
@@ -68,6 +75,9 @@ export let accountLinks: (string | null)[] = [];
     <div class="me-3">
         <slot />
         <ThemeSwitch />
+    </div>
+    <div class="me-3">
+        <EventSelect></EventSelect>
     </div>
 
     <a
