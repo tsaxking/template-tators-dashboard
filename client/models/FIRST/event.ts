@@ -13,7 +13,7 @@ import { TBA } from '../../utilities/tba';
 import { FIRSTMatch } from './match';
 import { FIRSTTeam } from './team';
 import { socket } from '../../utilities/socket';
-import { Cache, Updates } from '../cache';
+import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { attemptAsync, Result } from '../../../shared/attempt';
 /**
@@ -28,6 +28,10 @@ type FIRSTEventData = {
     'update-properties': EventProperties;
 };
 
+type Updates = {
+    'select': FIRSTEvent;
+}
+
 /**
  * Represents a FIRST event
  * @date 10/9/2023 - 6:36:17 PM
@@ -37,25 +41,25 @@ type FIRSTEventData = {
  * @typedef {FIRSTEvent}
  */
 export class FIRSTEvent extends Cache<FIRSTEventData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
-        Updates
+    private static readonly $emitter= new EventEmitter<
+        keyof Updates
     >();
 
-    public static on<K extends Updates>(
+    public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         FIRSTEvent.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(
+    public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: any) => void,
+        callback?: (data: Updates[K]) => void,
     ): void {
         FIRSTEvent.$emitter.off(event, callback);
     }
 
-    public static emit<K extends Updates>(event: K, data: any): void {
+    public static emit<K extends keyof Updates>(event: K, data: Updates[K]): void {
         FIRSTEvent.$emitter.emit(event, data);
     }
     public static current: FIRSTEvent | null = null;
