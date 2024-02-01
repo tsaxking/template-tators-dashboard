@@ -120,8 +120,9 @@ export type AccountRole = {
  * @typedef {RolePermission}
  */
 export type RolePermission = {
-    id: string;
+    roleId: string;
     permission: string;
+    description: string;
 };
 
 /**
@@ -151,15 +152,6 @@ export type DiscordLink = {
     username: string;
 };
 
-export type Permission = 'admin' | 'editRoles' | 'manageMembers';
-
-/**
- * Description placeholder
- * @date 1/11/2024 - 3:10:52 AM
- *
- * @export
- * @typedef {RoleName}
- */
 export type RoleName = 'admin' | 'developer' | 'user' | 'guest';
 
 export type AccountSettings = {
