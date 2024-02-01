@@ -191,19 +191,23 @@ app.get('/*', (req, res, next) => {
 
 app.route('/admin', admin);
 
+app.get('/dashboard/admin', Role.allowRoles('admin'), (req, res) => {
+    res.sendTemplate('entries/dashboard/admin');
+});
+
+app.get('/dashboard/developer', Role.allowRoles('developer'), (req, res) => {
+    res.sendTemplate('entries/dashboard/developer');
+});
+
 // this is how the user will access the dashboard
-app.get('/dashboard/:year', (req, res) => {
-    const { year } = req.params;
-    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
-    res.sendTemplate('entries/dashboard/' + year);
+app.get('/dashboard/:dashboard', Account.allowPermissions('viewData'), (req, res) => {
+    const { dashboard } = req.params;
+    if (!dashboard) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + dashboard);
 });
 
 app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
-});
-
-app.get('/admin/*', Role.allowRoles('admin'), (req, res) => {
-    res.sendTemplate('entries/admin');
 });
 
 app.final<{
