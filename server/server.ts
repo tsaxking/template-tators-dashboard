@@ -181,15 +181,23 @@ app.route('/account', account);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
-    if (!req.session?.accountId) {
-        req.session!.prevUrl = req.url;
+    if (!req.session.accountId) {
+        req.session.prevUrl = req.url;
         return res.redirect('/account/sign-in');
     }
 
     next();
 });
 
+app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
+    res.sendTemplate('entries/admin');
+});
+
 app.route('/admin', admin);
+
+app.get('/dashboard/:dashboard', (req, res) => {
+    res.sendTemplate('entries/dashboard/' + req.params.dashboard);
+});
 
 // this is how the user will access the dashboard
 app.get('/dashboard/:year', (req, res) => {
@@ -242,6 +250,6 @@ app.final<{
     });
 
     if (!res.fulfilled) {
-        return res.sendStatus('page:not-found', { page: req.url });
+        res.sendStatus('page:not-found');
     }
 });
