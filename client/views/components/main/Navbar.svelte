@@ -8,17 +8,11 @@ import EventSelect from './GlobalEventSelect.svelte';
 import { ServerRequest } from '../../../utilities/requests';
 export let title: string;
 export let navItems: string[] = [];
+import { Account } from '../../../models/account';
 
 export let active: string = '';
 
-export let account: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    email: string;
-    picture?: string;
-    phoneNumber?: string;
-};
+export let account: Account = Account.guest;
 
 ServerRequest.post('/account/get-account').then(res => {
     account = res as any;
