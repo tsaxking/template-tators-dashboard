@@ -14,6 +14,7 @@ import { FileUpload } from './middleware/stream.ts';
 import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
+import './utilities/tba/tba.ts';
 
 const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -147,7 +148,7 @@ app.post('/*', (req, res, next) => {
 // }));
 
 app.get('/', (req, res) => {
-    res.redirect('/home');
+    res.redirect('/dashboard');
 });
 
 app.get('/*', async (req, res, next) => {
@@ -169,6 +170,11 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
+// app.get('/api/webhooks/test', (req, res,next) => {
+//     console.log('worked!');
+//     next()
+// })
+
 app.route('/api', api);
 app.route('/account', account);
 
@@ -185,7 +191,14 @@ app.get('/*', (req, res, next) => {
 
 app.route('/admin', admin);
 
-app.get('/user/*', Account.isSignedIn, (req, res) => {
+// this is how the user will access the dashboard
+app.get('/dashboard/:year', (req, res) => {
+    const { year } = req.params;
+    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + year);
+});
+
+app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
 });
 
