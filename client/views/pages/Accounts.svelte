@@ -24,6 +24,8 @@ let accountObjs: {
 
 const fns = {
     setAccounts: async (newAccounts: Account[]) => {
+        console.log(newAccounts);
+
         accountObjs = await Promise.all(
             newAccounts.map(async a => {
                 const [roles, permissions] = await Promise.all([
@@ -75,7 +77,7 @@ $: fns.setAccounts(accounts);
                 <tr>
                     <td>
                         {account.username}
-                        {#if account.verified}
+                        {#if account.verified === 1}
                             <i class="material-icons text-success">verified</i>
                         {:else}
                             <i class="material-icons text-warning">warning</i>
