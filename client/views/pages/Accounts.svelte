@@ -59,6 +59,10 @@ const set = async () => {
         accounts = res.value;
     }
 
+    document
+        .querySelectorAll('.tooltip.bs-tooltip-auto')
+        .forEach(e => e.remove());
+
     jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
     // jQuery(div).dataTable();
 };
@@ -122,6 +126,7 @@ Account.on('delete', set);
                                 account="{accounts.find(
                                     a => a.id === account.id
                                 )}"
+                                deletable="{true}"
                             />
                         {/each}
                     </td>
@@ -214,8 +219,8 @@ Account.on('delete', set);
                                     data-toggle="tooltip"
                                     data-tooltip="Unverify Account"
                                     data-placement="top"
-                                    on:click="{() => {
-                                        const res = prompt(
+                                    on:click="{async () => {
+                                        const res = await confirm(
                                             'Are you sure you want to unverify this account?'
                                         );
                                         if (res) {
@@ -235,8 +240,8 @@ Account.on('delete', set);
                                     data-toggle="tooltip"
                                     data-tooltip="Verify Account"
                                     data-placement="top"
-                                    on:click="{() => {
-                                        const res = prompt(
+                                    on:click="{async () => {
+                                        const res = await confirm(
                                             'Are you sure you want to verify this account?'
                                         );
                                         if (res) {
@@ -256,8 +261,8 @@ Account.on('delete', set);
                                 data-toggle="tooltip"
                                 data-tooltip="Delete Account"
                                 data-placement="top"
-                                on:click="{() => {
-                                    const res = prompt(
+                                on:click="{async () => {
+                                    const res = await confirm(
                                         'Are you sure you want to delete this account?'
                                     );
                                     if (res) {

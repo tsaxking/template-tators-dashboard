@@ -25,9 +25,7 @@ const handleChange = async (e: any) => {
     const res = await FIRSTEvent.current.getTeams();
     if (res.isErr()) return;
     const teams = res.value;
-    const team = teams.find(
-        t => t.tba.team_number === +teamNumber
-    );
+    const team = teams.find(t => t.tba.team_number === +teamNumber);
     if (team) team.select();
     else console.error(`Team ${teamNumber} not found`);
 };

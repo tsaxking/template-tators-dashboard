@@ -15,7 +15,7 @@ type YearUpdateData = {
 };
 
 type Updates = {
-    'select': FIRSTYear;
+    select: FIRSTYear;
     'update-events': TBAEvent[];
 };
 
@@ -29,9 +29,7 @@ type Updates = {
  * @implements {FIRST}
  */
 export class FIRSTYear extends Cache<YearUpdateData> {
-    private static readonly $emitter = new EventEmitter<
-        keyof Updates
-    >();
+    private static readonly $emitter = new EventEmitter<keyof Updates>();
 
     public static on<K extends keyof Updates>(
         event: K,

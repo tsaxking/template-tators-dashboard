@@ -39,24 +39,19 @@ export class Question extends Cache {
         Question.$emitter.emit(event, data);
     }
 
-    public static new(
-        data: {
-            question: string;
-            type: QuestionType;
-            section: string;
-            key: string;
-            description: string;
-            groupId: string;
-            options: QuestionOptions;
-        },
-    ): Promise<Result<Question>> {
+    public static new(data: {
+        question: string;
+        type: QuestionType;
+        section: string;
+        key: string;
+        description: string;
+        groupId: string;
+        options: QuestionOptions;
+    }): Promise<Result<Question>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<{
                 data: ScoutingQuestionObj;
-            }>(
-                '/api/scouting-questions/new-question',
-                data,
-            );
+            }>('/api/scouting-questions/new-question', data);
 
             if (res.isOk()) return new Question(res.value.data);
             throw res.error;
@@ -98,9 +93,7 @@ export class Question extends Cache {
         return this.$type;
     }
 
-    public set type(
-        value: QuestionType,
-    ) {
+    public set type(value: QuestionType) {
         this.$type = value;
         // this.update();
     }

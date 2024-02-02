@@ -9,14 +9,14 @@ import { Cache } from '../../cache';
 import { Group } from './group';
 
 type Updates = {
-    'new': Section;
-    'update': Section;
+    new: Section;
+    update: Section;
 };
 
 type SectionUpdates = {
     'new-group': Group;
     'delete-group': string; // id
-    'update': Section;
+    update: Section;
 };
 
 // pitscouting/prescouting/mechanical/programming/electrical/strategical etc.
@@ -61,9 +61,7 @@ export class Section extends Cache<SectionUpdates> {
 
     public static readonly $cache = new Map<string, Section>();
 
-    public static async new(
-        data: ScoutingSection,
-    ): Promise<Result<Section>> {
+    public static async new(data: ScoutingSection): Promise<Result<Section>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post(
                 '/api/scouting-questions/new-section',
@@ -148,10 +146,7 @@ export class Section extends Cache<SectionUpdates> {
         });
     }
 
-    addGroup(group: {
-        name: string;
-        eventKey: string;
-    }) {
+    addGroup(group: { name: string; eventKey: string }) {
         return Group.new({
             name: group.name,
             eventKey: group.eventKey,

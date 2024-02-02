@@ -49,8 +49,8 @@ router.post<Match>(
             eventKey,
         });
 
-        const m = matches.find((m) =>
-            m.matchNumber === matchNumber && m.compLevel === compLevel
+        const m = matches.find(
+            (m) => m.matchNumber === matchNumber && m.compLevel === compLevel,
         );
         if (!m) {
             return res.json({
@@ -149,19 +149,17 @@ router.post<{
     },
 );
 
-router.post(
-    '/get-accounts',
-    auth,
-    (_req, res) => {
-        const accounts = Account.all;
-        res.json(accounts.map((a) => ({
+router.post('/get-accounts', auth, (_req, res) => {
+    const accounts = Account.all;
+    res.json(
+        accounts.map((a) => ({
             username: a.username,
             firstName: a.firstName,
             lastName: a.lastName,
             email: a.email,
-        })));
-    },
-);
+        })),
+    );
+});
 
 router.post<{
     username: string;
@@ -185,10 +183,6 @@ router.post<{
     },
 );
 
-router.post(
-    '/ping',
-    auth,
-    (_req, res) => {
-        res.json(true);
-    },
-);
+router.post('/ping', auth, (_req, res) => {
+    res.json(true);
+});

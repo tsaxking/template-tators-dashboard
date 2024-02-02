@@ -934,13 +934,9 @@ export type FilesStatusId =
 
 export type MatchStatusId = 'not-found';
 
-export type MatchcommentsStatusId =
-    | 'delete'
-    | 'new';
+export type MatchcommentsStatusId = 'delete' | 'new';
 
-export type MatchscoutingStatusId =
-    | 'delete'
-    | 'new';
+export type MatchscoutingStatusId = 'delete' | 'new';
 
 export type MemberStatusId =
     | 'accepted'
@@ -970,10 +966,7 @@ export type PermissionsStatusId =
 
 export type ProfanityStatusId = 'detected';
 
-export type PitscoutingStatusId =
-    | 'delete'
-    | 'new';
-
+export type PitscoutingStatusId = 'delete' | 'new';
 
 export type ServerStatusId =
     | 'invalid-data'
@@ -981,11 +974,7 @@ export type ServerStatusId =
     | 'not-implemented';
 export type RoleStatusId = 'not-found';
 
-export type RolesStatusId =
-    | 'added'
-    | 'invalid-role'
-    | 'not-found'
-    | 'removed';
+export type RolesStatusId = 'added' | 'invalid-role' | 'not-found' | 'removed';
 
 export type ScoutingquestionStatusId =
     | 'answer-not-found'
@@ -1005,19 +994,13 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
-export type StrategyStatusId =
-    | 'delete'
-    | 'new';
+export type StrategyStatusId = 'delete' | 'new';
 
-export type TestStatusId =
-    | 'fail'
-    | 'success';
+export type TestStatusId = 'fail' | 'success';
 
 export type UnknownStatusId = 'error';
 
-export type WebhookStatusId =
-    | 'invalid-url'
-    | 'not-found';
+export type WebhookStatusId = 'invalid-url' | 'not-found';
 
 export type WhiteboardStatusId =
     | 'created'

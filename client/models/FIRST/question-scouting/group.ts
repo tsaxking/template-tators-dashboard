@@ -10,12 +10,12 @@ import { Question } from './question';
 import { ServerRequest } from '../../../utilities/requests';
 
 type Updates = {
-    'new': Group;
-    'delete': string; // id
+    new: Group;
+    delete: string; // id
 };
 
 type GroupUpdates = {
-    'update': Group;
+    update: Group;
     'new-question': Question;
     'delete-question': string; // id
 };
@@ -47,22 +47,17 @@ export class Group extends Cache<GroupUpdates> {
 
     public static readonly $cache = new Map<string, Group>();
 
-    public static new(
-        data: {
-            name: string;
-            eventKey: string;
-            section: string;
-        },
-    ): Promise<Result<Group>> {
+    public static new(data: {
+        name: string;
+        eventKey: string;
+        section: string;
+    }): Promise<Result<Group>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<{
                 data: ScoutingQuestionGroup;
-            }>(
-                '/api/scouting-questions/new-group',
-                {
-                    ...data,
-                },
-            );
+            }>('/api/scouting-questions/new-group', {
+                ...data,
+            });
 
             if (res.isOk()) return new Group(res.value.data);
             throw res.error;
@@ -134,14 +129,11 @@ export class Group extends Cache<GroupUpdates> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<{
                 data: ScoutingQuestionObj;
-            }>(
-                '/api/scouting-questions/new-question',
-                {
-                    ...data,
-                    groupId: this.id,
-                    section: this.section,
-                },
-            );
+            }>('/api/scouting-questions/new-question', {
+                ...data,
+                groupId: this.id,
+                section: this.section,
+            });
 
             if (res.isOk()) return new Question(res.value.data);
             throw res.error;

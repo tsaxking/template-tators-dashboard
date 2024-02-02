@@ -25,9 +25,7 @@ const handleChange = async (e: any) => {
     const res = await FIRSTEvent.current.getMatches();
     if (res.isErr()) return;
     const matches = res.value;
-    const match = matches.find(
-        m => m.tba.key === matchKey
-    );
+    const match = matches.find(m => m.tba.key === matchKey);
     if (match) match.select();
 };
 </script>
