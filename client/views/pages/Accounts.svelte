@@ -52,9 +52,7 @@ const fns = {
     }
 };
 
-let div: HTMLDivElement;
-
-onMount(async () => {
+const set = async () => {
     const res = await Account.all();
 
     if (res.isOk()) {
@@ -63,9 +61,17 @@ onMount(async () => {
 
     jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
     // jQuery(div).dataTable();
-});
+};
+
+let div: HTMLDivElement;
+
+onMount(set);
 
 $: fns.setAccounts(accounts);
+
+Account.on('new', set);
+Account.on('update', set);
+Account.on('delete', set);
 </script>
 
 <div class="table-responsive">
