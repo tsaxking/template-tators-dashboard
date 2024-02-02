@@ -828,60 +828,74 @@ export type Queries = {
     // // █▄ ▄█ ▄▀▄ ▀█▀ ▄▀▀ █▄█ ▄▀▀ ▄▀▄ █▄ ▄█ █▄ ▄█ ██▀ █▄ █ ▀█▀ ▄▀▀
     // // █ ▀ █ █▀█  █  ▀▄▄ █ █ ▀▄▄ ▀▄▀ █ ▀ █ █ ▀ █ █▄▄ █ ▀█  █  ▄█▀
     'team-comments/new': [
-        [{
-            id: string;
-            team: number;
-            comment: string;
-            type: string;
-            matchScoutingId: string | null;
-            accountId: string | null;
-            time: string;
-            eventKey: string;
-        }],
+        [
+            {
+                id: string;
+                team: number;
+                comment: string;
+                type: string;
+                matchScoutingId: string | null;
+                accountId: string | null;
+                time: string;
+                eventKey: string;
+            },
+        ],
         unknown,
     ];
     'team-comments/update': [
-        [{
-            team: number;
-            comment: string;
-            type: string;
-            matchScoutingId: string | null;
-            accountId: string | null;
-            time: string;
-            eventKey: string;
-            id: string;
-        }],
+        [
+            {
+                team: number;
+                comment: string;
+                type: string;
+                matchScoutingId: string | null;
+                accountId: string | null;
+                time: string;
+                eventKey: string;
+                id: string;
+            },
+        ],
         unknown,
     ];
     'team-comments/from-event': [
-        [{
-            eventKey: string;
-        }],
+        [
+            {
+                eventKey: string;
+            },
+        ],
         TeamComment,
     ];
     'team-comments/from-team': [
-        [{
-            team: number;
-            eventKey: string;
-        }],
+        [
+            {
+                team: number;
+                eventKey: string;
+            },
+        ],
         TeamComment,
     ];
     'team-comment/from-match-scouting': [
-        [{
-            matchScoutingId: string | null;
-        }],
+        [
+            {
+                matchScoutingId: string | null;
+            },
+        ],
         TeamComment,
     ];
     'team-comment/from-account': [
-        [{
-            accountId: string | null;
-        }],
+        [
+            {
+                accountId: string | null;
+            },
+        ],
         TeamComment,
     ];
     'team-comment/delete': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
 
@@ -898,9 +912,11 @@ export type Queries = {
         RetrievedScoutingAnswer,
     ];
     'scouting-questions/get-answer-history': [
-        [{
-            questionId: string;
-        }],
+        [
+            {
+                questionId: string;
+            },
+        ],
         QuestionHistory,
     ];
     'scouting-questions/groups-from-event': [
@@ -962,9 +978,11 @@ export type Queries = {
         unknown,
     ];
     'scouting-questions/answer-from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         ScoutingAnswer,
     ];
     'scouting-questions/new-section': [

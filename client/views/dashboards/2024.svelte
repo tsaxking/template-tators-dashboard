@@ -33,7 +33,6 @@ let active = 'robot-display';
 
 const domain = 'tatorscout.org';
 
-
 const navItems = [
     // 'app'
 ];
@@ -48,12 +47,11 @@ const accountLinks = [
 <Main
     title="Team Tators"
     {groups}
-    on:openPage="{(e) => active = e.detail}"
+    on:openPage="{e => (active = e.detail)}"
     {active}
     {navItems}
     {accountLinks}
 >
-
     <Page {active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
     </Page>

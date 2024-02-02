@@ -352,15 +352,8 @@ router.post<{
         options: (value) => value !== undefined,
     }),
     (req, res) => {
-        const {
-            question,
-            type,
-            section,
-            key,
-            description,
-            groupId,
-            options,
-        } = req.body;
+        const { question, type, section, key, description, groupId, options } =
+            req.body;
 
         const accountId = req.session.account?.id;
         if (!accountId) return res.sendStatus('account:not-logged-in');

@@ -57,8 +57,8 @@ const handleChange = async (e: any) => {
     const res = await FIRSTYear.current.getEvents();
     if (res.isOk()) {
         const events = res.value;
-    const event = events.find(evt => evt.key === e.detail);
-    if (event) new FIRSTEvent(event).select();
+        const event = events.find(evt => evt.key === e.detail);
+        if (event) new FIRSTEvent(event).select();
     }
 };
 </script>

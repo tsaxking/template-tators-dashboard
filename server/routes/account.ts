@@ -128,7 +128,7 @@ router.post<{
         res.sendStatus(('account:' + status) as StatusId, { username });
 
         if (status === 'created') {
-            req.io.emit('account:created', username);
+            req.io.emit('account:created', Account.fromUsername(username));
         }
     },
 );
@@ -284,6 +284,9 @@ router.post<{
         if (!role) return res.sendStatus('role:not-found', { roleId });
 
         const status = account.addRole(role);
+        if (status === 'role-added') {
+            req.io.emit('account:role-added', accountId, roleId);
+        }
         if (!messages[('role:' + status) as keyof typeof messages]) {
             return res.sendStatus(('account:' + status) as StatusId, {
                 accountId,
@@ -291,10 +294,6 @@ router.post<{
             });
         }
         res.sendStatus(('role:' + status) as StatusId, { accountId, role });
-
-        if (status === 'added') {
-            req.io.emit('account:role-added', accountId, roleId);
-        }
     },
 );
 
@@ -322,17 +321,17 @@ router.post<{
         if (!role) return res.sendStatus('role:not-found', { roleId });
 
         const status = account.removeRole(role);
+        if (status === 'role-removed') {
+            req.io.emit('account:role-removed', accountId, roleId);
+        }
         if (!messages[('role:' + status) as keyof typeof messages]) {
             return res.sendStatus(('account:' + status) as StatusId, {
                 accountId,
                 roleId,
             });
         }
-        res.sendStatus(('role:' + status) as StatusId, { accountId, roleId });
 
-        if (status === 'removed') {
-            req.io.emit('account:role-removed', accountId, roleId);
-        }
+        res.sendStatus(('role:' + status) as StatusId, { accountId, roleId });
     },
 );
 

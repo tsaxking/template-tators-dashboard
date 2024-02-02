@@ -1,5 +1,5 @@
 <script lang="ts">
-    export let text: string = '';
+export let text: string = '';
 </script>
 
 <div class="card">
@@ -12,7 +12,12 @@
         <div class="container">
             <div class="row mb-3">
                 <label for="text">Option Text</label>
-                <input type="text" class="form-control" id="text" bind:value="{text}" />
+                <input
+                    type="text"
+                    class="form-control"
+                    id="text"
+                    bind:value="{text}"
+                />
             </div>
         </div>
     </div>
