@@ -1,9 +1,7 @@
 import { Route } from '../../structure/app/app.ts';
 import Account from '../../structure/accounts.ts';
 import {
-    ScoutingQuestion,
-    ScoutingQuestionGroup,
-    ScoutingSection,
+    QuestionOptions
 } from '../../../shared/db-types-extended.ts';
 import { validate } from '../../middleware/data-type.ts';
 import { DB } from '../../utilities/databases.ts';
@@ -80,7 +78,7 @@ router.post<{
     teamNumber: number;
 }>(
     '/submit-answer',
-    Account.allowPermissions('submit-scouting-questions'),
+    Account.allowPermissions('submitScoutingAnswers'),
     validate({
         questionId: 'string',
         answer: 'string',
@@ -130,7 +128,7 @@ router.post<{
     answer: string;
 }>(
     '/update-answer',
-    Account.allowPermissions('submit-scouting-questions'),
+    Account.allowPermissions('submitScoutingAnswers'),
     (req, res) => {
         const { answerId, answer } = req.body;
         const accountId = req.session.account?.id;
@@ -173,7 +171,7 @@ router.post<{
     },
 );
 
-const canEdit = Account.allowPermissions('edit-scouting-questions');
+const canEdit = Account.allowPermissions('editScoutingQuestions');
 
 // TODO: Add delete information
 // user must have permissions to update scouting questions
@@ -248,6 +246,7 @@ router.post<{
             multiple,
             id,
             accountId,
+            dateAdded
         });
 
         res.sendStatus('scouting-question:update-section', {
@@ -330,7 +329,7 @@ router.post<{
     key: string;
     description: string;
     groupId: string;
-    options: any; // TODO: add type
+    options: QuestionOptions; // TODO: add type
 }>(
     '/new-question',
     canEdit,
@@ -360,6 +359,8 @@ router.post<{
         const dateAdded = Date.now().toString();
         const id = uuid();
 
+        const o = JSON.stringify(options);
+
         DB.run('scouting-questions/new-question', {
             id,
             question,
@@ -370,7 +371,7 @@ router.post<{
             groupId,
             accountId,
             dateAdded,
-            options,
+            options: o,
         });
 
         res.sendStatus('scouting-question:new-question', {
@@ -383,7 +384,7 @@ router.post<{
             groupId,
             accountId,
             dateAdded,
-            options,
+            options: o, // must be string to keep consistency
         });
 
         req.io.emit('scouting-question:new-question', {
@@ -396,7 +397,7 @@ router.post<{
             groupId,
             accountId,
             dateAdded,
-            options,
+            options: o,
         });
     },
 );
