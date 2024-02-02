@@ -147,6 +147,21 @@ const createEnv = () => {
         undefined,
         true,
     );
+    setKey('WEBHOOK_AUTH', 'Webhook Auth: (no default)', '', undefined, true);
+    setKey(
+        'HASH_SERVER',
+        'Hash Server: (default: http://localhost:4000)',
+        'http://localhost:4000',
+        (i) => i.length > 0,
+        true,
+    );
+    setKey(
+        'HASH_SERVER_AUTH',
+        'Hash Server Auth: (secret)',
+        'secret',
+        undefined,
+        true,
+    );
 
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)
