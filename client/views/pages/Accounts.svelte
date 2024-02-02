@@ -5,6 +5,7 @@ import type { Role as R } from '../../../shared/db-types';
 import type { Permission as P } from '../../../shared/permissions';
 import { confirm, select } from '../../utilities/notifications';
 import { Role } from '../../models/roles';
+import RoleBadge from '../components/accounts/RoleBadge.svelte';
 
 let accounts: Account[] = [];
 
@@ -51,21 +52,27 @@ const fns = {
     }
 };
 
+let div: HTMLDivElement;
+
 onMount(async () => {
     const res = await Account.all();
 
     if (res.isOk()) {
         accounts = res.value;
     }
+
+    jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
+    jQuery(div).dataTable();
 });
 
 $: fns.setAccounts(accounts);
 </script>
 
 <div class="table-responsive">
-    <table class="table table-striped table-dark table-hover">
+    <table class="table table-striped table-dark table-hover" bind:this="{div}">
         <thead>
             <tr>
+                <th scope="col">Name</th>
                 <th scope="col">Username</th>
                 <th scope="col">Email</th>
                 <th scope="col">Roles</th>
@@ -76,20 +83,40 @@ $: fns.setAccounts(accounts);
             {#each accountObjs as account}
                 <tr>
                     <td>
+                        {account.firstName}
+                        {account.lastName}
+                    </td>
+                    <td>
                         {account.username}
-                        {#if account.verified === 1}
-                            <i class="material-icons text-success">verified</i>
+                        {#if account.verified}
+                            <span
+                                class="badge bg-success ms-1"
+                                data-toggle="tooltip"
+                                title="Verified"
+                                data-placement="top"
+                            >
+                                <i class="material-icons">verified</i>
+                            </span>
                         {:else}
-                            <i class="material-icons text-warning">warning</i>
+                            <span
+                                class="badge bg-warning ms-1"
+                                data-toggle="tooltip"
+                                title="Not Verified"
+                                data-placement="top"
+                            >
+                                <i class="material-icons">dangerous</i>
+                            </span>
                         {/if}
                     </td>
                     <td>{account.email}</td>
                     <td>
                         {#each account.roles as role}
-                            <span class="badge bg-primary me-1">
-                                <i class="material-icons">close</i>
-                                {role.name}
-                            </span>
+                            <RoleBadge
+                                {role}
+                                account="{accounts.find(
+                                    a => a.id === account.id
+                                )}"
+                            />
                         {/each}
                     </td>
                     <td>
@@ -97,21 +124,69 @@ $: fns.setAccounts(accounts);
                             <button
                                 type="button"
                                 class="btn btn-primary"
+                                data-toggle="tooltip"
+                                data-tooltip="Add Role"
+                                data-placement="top"
                                 on:click="{async () => {
                                     const res = await Role.all();
                                     if (res.isOk()) {
                                         const roles = res.value;
                                         const selected = await select(
                                             'Select a role to add',
-                                            roles
-                                                .filter(
-                                                    r =>
-                                                        !account.roles.some(
-                                                            ar => ar.id === r.id
-                                                        )
-                                                )
-                                                .map(r => r.name)
+                                            [
+                                                ...roles
+                                                    .filter(
+                                                        r =>
+                                                            !account.roles.some(
+                                                                ar =>
+                                                                    ar.id ===
+                                                                    r.id
+                                                            )
+                                                    )
+                                                    .map(r => r.name),
+                                                'Create New Role'
+                                            ]
                                         );
+
+                                        if (selected === roles.length) {
+                                            // Create New Role
+                                            const name = await prompt(
+                                                'Enter the name of the new role'
+                                            );
+                                            if (name) {
+                                                const description =
+                                                    await prompt(
+                                                        'Enter the description of the new role'
+                                                    );
+                                                if (description) {
+                                                    const r = await Role.new({
+                                                        name,
+                                                        description
+                                                    });
+                                                    if (r.isOk()) {
+                                                        const a = accounts.find(
+                                                            a =>
+                                                                a.id ===
+                                                                account.id
+                                                        );
+                                                        a.addRole(r.value);
+                                                    } else {
+                                                        return console.error(
+                                                            'Failed to create role: ',
+                                                            r.error
+                                                        );
+                                                    }
+                                                } else {
+                                                    return console.error(
+                                                        'Description not provided'
+                                                    );
+                                                }
+                                            } else {
+                                                return console.error(
+                                                    'Name not provided'
+                                                );
+                                            }
+                                        }
 
                                         const role = roles[selected];
 
@@ -125,14 +200,16 @@ $: fns.setAccounts(accounts);
                                 }}"
                             >
                                 <i class="material-icons">add</i>
-                                Add Role
                             </button>
                             {#if account.verified}
                                 <button
                                     type="button"
                                     class="btn btn-warning"
-                                    on:click="{async () => {
-                                        const res = await confirm(
+                                    data-toggle="tooltip"
+                                    data-tooltip="Unverify Account"
+                                    data-placement="top"
+                                    on:click="{() => {
+                                        const res = prompt(
                                             'Are you sure you want to unverify this account?'
                                         );
                                         if (res) {
@@ -143,15 +220,17 @@ $: fns.setAccounts(accounts);
                                         }
                                     }}"
                                 >
-                                    <i class="material-icons">warning</i>
-                                    Unverify
+                                    <i class="material-icons">block</i>
                                 </button>
                             {:else}
                                 <button
                                     type="button"
                                     class="btn btn-success"
-                                    on:click="{async () => {
-                                        const res = await confirm(
+                                    data-toggle="tooltip"
+                                    data-tooltip="Verify Account"
+                                    data-placement="top"
+                                    on:click="{() => {
+                                        const res = prompt(
                                             'Are you sure you want to verify this account?'
                                         );
                                         if (res) {
@@ -163,14 +242,16 @@ $: fns.setAccounts(accounts);
                                     }}"
                                 >
                                     <i class="material-icons">verified</i>
-                                    Verify
                                 </button>
                             {/if}
                             <button
                                 type="button"
                                 class="btn btn-danger"
-                                on:click="{async () => {
-                                    const res = await confirm(
+                                data-toggle="tooltip"
+                                data-tooltip="Delete Account"
+                                data-placement="top"
+                                on:click="{() => {
+                                    const res = prompt(
                                         'Are you sure you want to delete this account?'
                                     );
                                     if (res) {

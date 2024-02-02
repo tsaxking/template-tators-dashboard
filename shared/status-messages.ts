@@ -636,6 +636,12 @@ export const messages: {
         code: 400,
         instructions: '',
     },
+    'server:not-implemented': {
+        message: "This request's handler has not been implemented yet.",
+        color: 'warning',
+        code: 501,
+        instructions: '',
+    },
     'server:unknown-server-error': {
         message:
             'There was an unknown error. If this persists, please contact an administrator/developer.',
@@ -847,6 +853,7 @@ export type StatusId =
     | 'scouting-question:update-section'
     | 'scouting-question:updated-answer'
     | 'server:invalid-data'
+    | 'server:not-implemented'
     | 'server:unknown-server-error'
     | 'skills:added'
     | 'skills:has-skill'
@@ -961,12 +968,17 @@ export type PermissionsStatusId =
     | 'invalid'
     | 'unauthorized';
 
+export type ProfanityStatusId = 'detected';
+
 export type PitscoutingStatusId =
     | 'delete'
     | 'new';
 
-export type ProfanityStatusId = 'detected';
 
+export type ServerStatusId =
+    | 'invalid-data'
+    | 'unknown-server-error'
+    | 'not-implemented';
 export type RoleStatusId = 'not-found';
 
 export type RolesStatusId =
@@ -983,10 +995,6 @@ export type ScoutingquestionStatusId =
     | 'new-section'
     | 'update-section'
     | 'updated-answer';
-
-export type ServerStatusId =
-    | 'invalid-data'
-    | 'unknown-server-error';
 
 export type SkillsStatusId =
     | 'added'
