@@ -1,8 +1,9 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { Account } from '../../models/account';
+import type { Role as R } from '../../../shared/db-types';
 import type { Permission as P } from '../../../shared/permissions';
-import { prompt, select } from '../../utilities/notifications';
+import { confirm, select } from '../../utilities/notifications';
 import { Role } from '../../models/roles';
 
 let accounts: Account[] = [];
@@ -75,13 +76,9 @@ $: fns.setAccounts(accounts);
                     <td>
                         {account.username}
                         {#if account.verified}
-                            <span class="badge bg-success ms-1">
-                                <i class="material-icons">verified</i>
-                            </span>
+                            <i class="material-icons text-success">verified</i>
                         {:else}
-                            <span class="badge bg-warning ms-1">
-                                <i class="material-icons">dangerous</i>
-                            </span>
+                            <i class="material-icons text-warning">warning</i>
                         {/if}
                     </td>
                     <td>{account.email}</td>
@@ -132,8 +129,8 @@ $: fns.setAccounts(accounts);
                                 <button
                                     type="button"
                                     class="btn btn-warning"
-                                    on:click="{() => {
-                                        const res = prompt(
+                                    on:click="{async () => {
+                                        const res = await confirm(
                                             'Are you sure you want to unverify this account?'
                                         );
                                         if (res) {
@@ -151,8 +148,8 @@ $: fns.setAccounts(accounts);
                                 <button
                                     type="button"
                                     class="btn btn-success"
-                                    on:click="{() => {
-                                        const res = prompt(
+                                    on:click="{async () => {
+                                        const res = await confirm(
                                             'Are you sure you want to verify this account?'
                                         );
                                         if (res) {
@@ -170,8 +167,8 @@ $: fns.setAccounts(accounts);
                             <button
                                 type="button"
                                 class="btn btn-danger"
-                                on:click="{() => {
-                                    const res = prompt(
+                                on:click="{async () => {
+                                    const res = await confirm(
                                         'Are you sure you want to delete this account?'
                                     );
                                     if (res) {

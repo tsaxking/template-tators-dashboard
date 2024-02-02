@@ -946,17 +946,19 @@ export default class Account {
      */
     async testPassword(password: string): Promise<boolean> {
         const hash = Account.hash(password, this.salt);
-        if (hash === this.key) return true; // it works in this database        
+        if (hash === this.key) return true; // it works in this database
 
         // test in the other database because something is wrong with the new hashing algorithm
-        const result = await attemptAsync<{
-            success: true;
-            hash: string;
-            salt: string;
-        } | {
-            success: false;
-            error: string;
-        }>(async () => {
+        const result = await attemptAsync<
+            {
+                success: true;
+                hash: string;
+                salt: string;
+            } | {
+                success: false;
+                error: string;
+            }
+        >(async () => {
             const { HASH_SERVER_AUTH, HASH_SERVER } = env;
             if (!HASH_SERVER_AUTH) throw new Error('No hash server auth');
             if (!HASH_SERVER) throw new Error('No hash server');
@@ -964,13 +966,13 @@ export default class Account {
                 HASH_SERVER + '/api/login',
                 {
                     headers: {
-                        'x-auth-key': HASH_SERVER_AUTH
-                    }
-                }
+                        'x-auth-key': HASH_SERVER_AUTH,
+                    },
+                },
             );
 
             const json = await data.json() as {
-                success: true
+                success: true;
                 hash: string;
                 salt: string;
             } | {
@@ -980,11 +982,16 @@ export default class Account {
 
             if (json.success) {
                 // update the database with the new account hash
-                DB.unsafe.run(`
+                DB.unsafe.run(
+                    `
                     UPDATE Accounts
                     SET key = ?, salt = ?
                     WHERE id = ?
-                `, json.hash, json.salt, this.id);
+                `,
+                    json.hash,
+                    json.salt,
+                    this.id,
+                );
             }
 
             return json;

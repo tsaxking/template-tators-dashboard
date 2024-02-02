@@ -1,6 +1,10 @@
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { Cache } from '../../cache';
-import { QuestionOptions, QuestionType, ScoutingQuestion as ScoutingQuestionObj } from '../../../../shared/db-types-extended';
+import {
+    QuestionOptions,
+    QuestionType,
+    ScoutingQuestion as ScoutingQuestionObj,
+} from '../../../../shared/db-types-extended';
 import { attemptAsync, Result } from '../../../../shared/attempt';
 import { ServerRequest } from '../../../utilities/requests';
 

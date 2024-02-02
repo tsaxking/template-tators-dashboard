@@ -174,6 +174,12 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.',
     },
+    'account:invalid-settings': {
+        message: 'Your settings were invalid, please fix the data structure',
+        color: 'danger',
+        code: 406,
+        instructions: '',
+    },
     'account:invalid-username': {
         message: 'That username is invalid.',
         color: 'danger',
@@ -272,6 +278,12 @@ export const messages: {
         color: 'danger',
         code: 500,
         instructions: 'Please try again.',
+    },
+    'account:settings-set': {
+        message: 'Your settings have been successfully saved',
+        color: 'success',
+        code: 202,
+        instructions: '',
     },
     'account:unverified': {
         message: 'Account has been unverified',
@@ -580,7 +592,8 @@ export const messages: {
         message: 'Answer was not found, nothing was changed',
         color: 'danger',
         code: 404,
-        instructions: 'please ensure you have selected a valid answer to update',
+        instructions:
+            'please ensure you have selected a valid answer to update',
     },
     'scouting-question:new-answer': {
         message: 'New answer submitted',
@@ -759,6 +772,7 @@ export type StatusId =
     | 'account:invalid-last-name'
     | 'account:invalid-password'
     | 'account:invalid-password-reset-key'
+    | 'account:invalid-settings'
     | 'account:invalid-username'
     | 'account:invalid-verification-key'
     | 'account:logged-in'
@@ -775,6 +789,7 @@ export type StatusId =
     | 'account:role-added'
     | 'account:role-removed'
     | 'account:server-error'
+    | 'account:settings-set'
     | 'account:unverified'
     | 'account:updated'
     | 'account:username-changed'
@@ -817,9 +832,9 @@ export type StatusId =
     | 'permissions:forbidden'
     | 'permissions:invalid'
     | 'permissions:unauthorized'
-    | 'profanity:detected'
     | 'pit-scouting:delete'
     | 'pit-scouting:new'
+    | 'profanity:detected'
     | 'role:not-found'
     | 'roles:added'
     | 'roles:invalid-role'
@@ -870,6 +885,7 @@ export type AccountStatusId =
     | 'invalid-last-name'
     | 'invalid-password'
     | 'invalid-password-reset-key'
+    | 'invalid-settings'
     | 'invalid-username'
     | 'invalid-verification-key'
     | 'logged-in'
@@ -886,12 +902,12 @@ export type AccountStatusId =
     | 'role-added'
     | 'role-removed'
     | 'server-error'
-    | 'settings-set'
     | 'unverified'
     | 'updated'
     | 'username-changed'
     | 'username-taken'
-    | 'verified';
+    | 'verified'
+    | 'settings-set';
 
 export type AdminStatusId = 'invalid-key';
 
@@ -950,7 +966,9 @@ export type PitscoutingStatusId =
     | 'delete'
     | 'new';
 
-export type ProfanityStatusId = 'undefined';
+export type ProfanityStatusId = 'detected';
+
+export type RoleStatusId = 'not-found';
 
 export type RolesStatusId =
     | 'added'
@@ -964,8 +982,8 @@ export type ScoutingquestionStatusId =
     | 'new-group'
     | 'new-question'
     | 'new-section'
-    | 'updated-answer'
-    | 'update-section';
+    | 'update-section'
+    | 'updated-answer';
 
 export type ServerStatusId =
     | 'invalid-data'
@@ -990,9 +1008,6 @@ export type TestStatusId =
 
 export type UnknownStatusId = 'error';
 
-export type RoleStatusId = 'not-found';
-
-export type Profanity = 'detected';
 export type WebhookStatusId =
     | 'invalid-url'
     | 'not-found';

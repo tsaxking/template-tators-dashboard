@@ -30,7 +30,7 @@ type FIRSTEventData = {
 
 type Updates = {
     'select': FIRSTEvent;
-}
+};
 
 /**
  * Represents a FIRST event
@@ -41,13 +41,13 @@ type Updates = {
  * @typedef {FIRSTEvent}
  */
 export class FIRSTEvent extends Cache<FIRSTEventData> {
-    private static readonly $emitter= new EventEmitter<
+    private static readonly $emitter = new EventEmitter<
         keyof Updates
     >();
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void
+        callback: (data: Updates[K]) => void,
     ): void {
         FIRSTEvent.$emitter.on(event, callback);
     }
@@ -59,7 +59,10 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         FIRSTEvent.$emitter.off(event, callback);
     }
 
-    public static emit<K extends keyof Updates>(event: K, data: Updates[K]): void {
+    public static emit<K extends keyof Updates>(
+        event: K,
+        data: Updates[K],
+    ): void {
         FIRSTEvent.$emitter.emit(event, data);
     }
     public static current: FIRSTEvent | null = null;

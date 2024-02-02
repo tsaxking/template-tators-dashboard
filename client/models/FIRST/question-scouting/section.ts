@@ -49,11 +49,11 @@ export class Section extends Cache<SectionUpdates> {
         if (cache.length) return cache;
 
         const res = await ServerRequest.post<ScoutingSection[]>(
-            '/api/scouting-questions/get-sections'
+            '/api/scouting-questions/get-sections',
         );
 
         if (res.isOk()) {
-            return res.value.map(s => new Section(s));
+            return res.value.map((s) => new Section(s));
         }
 
         return [];

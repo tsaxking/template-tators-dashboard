@@ -1,8 +1,8 @@
 import { attemptAsync, Result } from '../../../../shared/attempt';
 import {
+    QuestionOptions,
     ScoutingQuestion as ScoutingQuestionObj,
     ScoutingQuestionGroup,
-    QuestionOptions,
 } from '../../../../shared/db-types-extended';
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { Cache } from '../../cache';
