@@ -1,8 +1,9 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { Account } from '../../models/account';
+import type { Role as R } from '../../../shared/db-types';
 import type { Permission as P } from '../../../shared/permissions';
-import { prompt, select } from '../../utilities/notifications';
+import { confirm, select } from '../../utilities/notifications';
 import { Role } from '../../models/roles';
 import RoleBadge from '../components/accounts/RoleBadge.svelte';
 
@@ -24,6 +25,8 @@ let accountObjs: {
 
 const fns = {
     setAccounts: async (newAccounts: Account[]) => {
+        console.log(newAccounts);
+
         accountObjs = await Promise.all(
             newAccounts.map(async a => {
                 const [roles, permissions] = await Promise.all([

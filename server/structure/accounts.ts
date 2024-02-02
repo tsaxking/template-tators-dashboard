@@ -951,12 +951,11 @@ export default class Account {
 
         // test in the other database because something is wrong with the new hashing algorithm
         const result = await attemptAsync<
-            | {
+            {
                 success: true;
                 hash: string;
                 salt: string;
-            }
-            | {
+            } | {
                 success: false;
                 error: string;
             }
@@ -964,22 +963,23 @@ export default class Account {
             const { HASH_SERVER_AUTH, HASH_SERVER } = env;
             if (!HASH_SERVER_AUTH) throw new Error('No hash server auth');
             if (!HASH_SERVER) throw new Error('No hash server');
-            const data = await fetch(HASH_SERVER + '/api/login', {
-                headers: {
-                    'x-auth-key': HASH_SERVER_AUTH,
+            const data = await fetch(
+                HASH_SERVER + '/api/login',
+                {
+                    headers: {
+                        'x-auth-key': HASH_SERVER_AUTH,
+                    },
                 },
-            });
+            );
 
-            const json = (await data.json()) as
-                | {
-                    success: true;
-                    hash: string;
-                    salt: string;
-                }
-                | {
-                    success: false;
-                    error: string;
-                };
+            const json = await data.json() as {
+                success: true;
+                hash: string;
+                salt: string;
+            } | {
+                success: false;
+                error: string;
+            };
 
             if (json.success) {
                 // update the database with the new account hash
