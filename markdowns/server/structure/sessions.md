@@ -21,6 +21,8 @@ const app = new App(3000, 'https://localhost:3000');
 app.use(Session.middleware());
 ```
 
+<<<<<<< HEAD
+
 ## Accounts
 
 The user's account is accessible through their session object.
