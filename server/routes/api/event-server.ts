@@ -58,10 +58,10 @@ router.post<Match>(
                 error: 'Match not found',
             });
         }
-        
+
         // check if duplicate
         const existing = DB.get('match-scouting/from-match', {
-            matchId: m.id
+            matchId: m.id,
         });
 
         if (existing) {

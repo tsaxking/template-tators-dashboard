@@ -329,7 +329,14 @@ export type RetrievedMatchScouting = {
     checks: string; // json array
 };
 
-export type QuestionType = 'text' | 'number' | 'boolean' | 'select' | 'checkbox' | 'radio' | 'textarea';
+export type QuestionType =
+    | 'text'
+    | 'number'
+    | 'boolean'
+    | 'select'
+    | 'checkbox'
+    | 'radio'
+    | 'textarea';
 
 /**
  * Description placeholder

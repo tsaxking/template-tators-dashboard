@@ -8,6 +8,7 @@ export type SocketEvent =
     | 'account:removed'
     | 'account:role-added'
     | 'account:role-removed'
+    | 'account:settings-set'
     | 'account:unverified'
     | 'account:update-email'
     | 'account:update-first-name'

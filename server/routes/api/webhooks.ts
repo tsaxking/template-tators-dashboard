@@ -17,7 +17,7 @@ router.post(
     '/test',
     (req, res) => {
         res.send(JSON.stringify({ success: true }));
-    }
+    },
 );
 
 router.post(
@@ -34,7 +34,7 @@ router.post(
                 team,
                 matchNumber,
                 compLevel,
-                trace: JSON.parse(trace)
+                trace: JSON.parse(trace),
             };
         });
 
@@ -75,9 +75,9 @@ router.post(
         if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
         const matches = DB.all('match-scouting/from-event', { eventKey });
-    
+
         res.json(matches);
-    }
+    },
 );
 
 router.post(
@@ -85,12 +85,17 @@ router.post(
     auth,
     (req, res) => {
         const { eventKey, teamNumber } = req.params;
-        if (!eventKey || !teamNumber) return res.sendStatus('webhook:invalid-url');
+        if (!eventKey || !teamNumber) {
+            return res.sendStatus('webhook:invalid-url');
+        }
 
-        const matches = DB.all('match-scouting/from-team', { eventKey, team: +teamNumber });
-    
+        const matches = DB.all('match-scouting/from-team', {
+            eventKey,
+            team: +teamNumber,
+        });
+
         res.json(matches);
-    }
+    },
 );
 
 router.post(
@@ -98,12 +103,17 @@ router.post(
     auth,
     (req, res) => {
         const { eventKey, teamNumber } = req.params;
-        if (!eventKey || !teamNumber) return res.sendStatus('webhook:invalid-url');
+        if (!eventKey || !teamNumber) {
+            return res.sendStatus('webhook:invalid-url');
+        }
 
-        const comments = DB.all('team-comments/from-team', { eventKey, team: +teamNumber });
-    
+        const comments = DB.all('team-comments/from-team', {
+            eventKey,
+            team: +teamNumber,
+        });
+
         res.json(comments);
-    }
+    },
 );
 
 router.post(
@@ -114,7 +124,7 @@ router.post(
         if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
         const comments = DB.all('team-comments/from-event', { eventKey });
-    
+
         res.json(comments);
-    }
+    },
 );
