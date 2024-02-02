@@ -62,7 +62,7 @@ onMount(async () => {
     }
 
     jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
-    jQuery(div).dataTable();
+    // jQuery(div).dataTable();
 });
 
 $: fns.setAccounts(accounts);
