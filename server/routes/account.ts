@@ -56,7 +56,7 @@ router.post<{
         username: 'string',
         password: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { username, password } = req.body;
 
         const account = Account.fromUsername(username) ||
@@ -66,6 +66,11 @@ router.post<{
         if (!account) {
             return res.sendStatus('account:incorrect-username-or-password');
         }
+
+        const result = await account.testPassword(password);
+
+
+
 
         const hash = Account.hash(password, account.salt);
         if (hash !== account.key) {
