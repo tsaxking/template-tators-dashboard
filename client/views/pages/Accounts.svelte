@@ -1,8 +1,8 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { Account } from '../../models/account';
-import type { Role as R, Permission as P } from '../../../shared/db-types';
-import { alert, prompt, choose, select } from '../../utilities/notifications';
+import type { Permission as P } from '../../../shared/permissions';
+import { prompt, select } from '../../utilities/notifications';
 import { Role } from '../../models/roles';
 
 let accounts: Account[] = [];

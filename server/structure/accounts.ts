@@ -752,6 +752,7 @@ export default class Account {
         memberInfo?: boolean;
         permissions?: boolean;
         email?: boolean;
+        id?: boolean;
     }) {
         return {
             username: this.username,
@@ -762,6 +763,7 @@ export default class Account {
             roles: include?.roles ? this.roles : [],
             memberInfo: include?.memberInfo ? this.memberInfo : undefined,
             permissions: include?.permissions ? this.permissions : [],
+            id: include?.id ? this.id : undefined,
         };
     }
 
