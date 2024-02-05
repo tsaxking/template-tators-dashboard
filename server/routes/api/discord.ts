@@ -3,16 +3,18 @@ import { DB } from '../../utilities/databases.ts';
 
 export const router = new Route();
 
-router.get('/link/:key', async (req, res, next) => {
+router.get('/link/:key', async (req, res) => {
     const { key } = req.params;
 
     if (!key) return res.sendStatus('discord:invalid-link');
 
-    const pair = DB.get('discord/get', {
+    const result = await DB.get('discord/get', {
         key,
     });
 
-    if (pair) {
+    if (result.isOk()) {
+        const pair = result.value;
+        if (!pair) return res.sendStatus('discord:invalid-link')
         const now = Date.now();
         const then = +pair.date;
 
@@ -21,12 +23,12 @@ router.get('/link/:key', async (req, res, next) => {
                 key,
             });
         } else {
-            const act = req.session.account;
-            if (!act) return res.sendStatus('account:not-logged-in');
+            const { accountId } = req.session;
+            if (!accountId) return res.sendStatus('account:not-logged-in');
 
             DB.run('account/set-discord-id', {
                 discordId: pair.id,
-                id: act.id,
+                id: accountId,
             });
 
             DB.run('discord/delete', {
