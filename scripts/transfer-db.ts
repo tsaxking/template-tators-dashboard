@@ -1,7 +1,6 @@
 import { Database } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
 import { DB } from '../server/utilities/databases.ts';
 import { uuid } from '../server/utilities/uuid.ts';
-import { makeBackup, restore } from '../storage/db/scripts/backups.ts';
 import fs from 'node:fs';
 import { __root } from '../server/utilities/env.ts';
 import path from 'node:path';
@@ -109,7 +108,7 @@ type Match2022 = {
     orientedTrace: string | null; // ignore
 };
 
-const transferMatch2022Scouting = (matches: Match2022[]) => {
+const transferMatch2022Scouting = async (matches: Match2022[]) => {
     type Section = Partial<{
         ballsHigh: number;
         ballsLow: number;
@@ -144,14 +143,19 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
     }>;
 
     for (const match of matches) {
-        const foundMatch = DB.unsafe.get(
+        const foundMatch = await DB.unsafe.get<Match>(
             `
-            SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
+            SELECT * FROM Matches 
+            WHERE eventKey = :eventKey AND matchNumber = :matchNumber AND compLevel = :compLevel
         `,
-            ...[match.eventKey, match.matchNumber, match.compLevel],
-        ) as Match | undefined;
+            {
+                eventKey: match.eventKey,
+                matchNumber: match.matchNumber,
+                compLevel: match.compLevel,
+            },
+        );
 
-        if (!foundMatch) continue;
+        if (foundMatch.isErr() || !foundMatch.value) continue;
 
         const id = uuid();
 
@@ -172,7 +176,7 @@ const transferMatch2022Scouting = (matches: Match2022[]) => {
         `,
             ...[
                 id,
-                foundMatch?.id ?? null,
+                foundMatch.value?.id ?? null,
                 match.teamNumber,
                 match.scout,
                 match.group,
@@ -322,7 +326,7 @@ type Match2023 = {
     orientedTrace: string | null; // ignore
 };
 
-const transferMatch2023Scouting = (matches: Match2023[]) => {
+const transferMatch2023Scouting = async (matches: Match2023[]) => {
     type Section = Partial<{
         autoMobility: boolean;
         grid: string;
@@ -338,14 +342,14 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
     }>;
 
     for (const match of matches) {
-        const foundMatch = DB.unsafe.get(
+        const foundMatch = await DB.unsafe.get<Match>(
             `
             SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
         `,
             ...[match.eventKey, match.matchNumber, match.compLevel],
-        ) as Match | undefined;
+        );
 
-        if (!foundMatch) continue;
+        if (foundMatch.isErr() || !foundMatch.value) continue;
 
         const id = uuid();
 
@@ -366,7 +370,7 @@ const transferMatch2023Scouting = (matches: Match2023[]) => {
         `,
             ...[
                 id,
-                foundMatch?.id ?? null,
+                foundMatch.value?.id ?? null,
                 match.teamNumber,
                 match.scout,
                 match.group,
@@ -664,7 +668,7 @@ const populateQuestions = () => {
     }
 };
 
-const transferTeams = () => {
+const transferTeams = async() => {
     const q = db.prepare('SELECT * FROM Teams');
 
     const teams = q.all() as {
@@ -707,7 +711,7 @@ const transferTeams = () => {
             ...[t.number, t.eventKey, t.picture ?? '', Date.now().toString()],
         );
 
-        const questions = DB.unsafe.all(
+        const questions = await DB.unsafe.all<{ id: string; key: string }>(
             `
             SELECT 
                 ScoutingQuestions.id,
@@ -717,7 +721,12 @@ const transferTeams = () => {
             WHERE ScoutingQuestionGroups.eventKey = ?
         `,
             t.eventKey,
-        ) as { id: string; key: string }[];
+        );
+
+        if (questions.isErr()) {
+            console.log(questions.error);
+            continue;
+        }
 
         const pit = t.pitScouting ? parse<unknown>(t.pitScouting) : {};
         const pre = t.preScouting ? parse<unknown[]>(t.preScouting) : [];
@@ -730,7 +739,7 @@ const transferTeams = () => {
 
         const save = (data: { [key: string]: string }) => {
             for (const [key, value] of Object.entries(data)) {
-                const q = questions.find((q) => q.key === key);
+                const q = questions.value.find((q) => q.key === key);
                 if (!q) continue;
 
                 if (typeof value === 'object') {
@@ -855,24 +864,24 @@ const transferAccountsAndRoles = () => {
     }
 };
 
-const run = (fn: () => void) => {
+const run = async (fn: () => void|Promise<void>) => {
     console.log(`Running ${fn.name}`);
     const start = Date.now();
     try {
-        fn();
+        await fn();
     } catch (e) {
         log('Error running database transfer, restoring backup');
         error(e);
 
-        restore(DB.db);
         Deno.exit(1);
     }
     const end = Date.now();
     console.log(`${fn.name} | ${end - start}ms`);
 };
 
-export const transfer = () => {
-    if (DB.version.join('.') !== '1.0.4') {
+export const transfer = async () => {
+    const v = await DB.getVersion();
+    if (v.join('.') !== '1.0.4') {
         throw new Error(
             'The database transfer script is only compatible with version 1.0.4',
         );
@@ -894,12 +903,12 @@ export const transfer = () => {
 
     db = new Database('./scripts/old.db');
 
-    makeBackup(DB.db);
-    run(transferMatchScouting);
-    run(createScoutingQuestionGroups);
-    run(populateQuestions);
-    run(transferAccountsAndRoles);
-    run(transferTeams);
+    await DB.makeBackup();
+    await run(transferMatchScouting);
+    await run(createScoutingQuestionGroups);
+    await run(populateQuestions);
+    await run(transferAccountsAndRoles);
+    await run(transferTeams);
 };
 
 if (Deno.args.includes('--transfer')) transfer();

@@ -1,13 +1,5 @@
 SELECT 
-    MatchScouting.id as id,
-    MatchScouting.team as team,
-    MatchScouting.matchId as matchId,
-    MatchScouting.scoutId as scoutId,
-    MatchScouting.time as time,
-    MatchScouting.scoutGroup as scoutGroup,
-    MatchScouting.prescouting as prescouting,
-    MatchScouting.trace as trace,
-    Matches.eventKey as eventKey,
+    MatchScouting.*,
     Matches.matchNumber as matchNumber,
     Matches.compLevel as compLevel,
     MatchScouting.checks as checks

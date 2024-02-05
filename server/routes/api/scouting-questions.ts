@@ -87,7 +87,7 @@ router.post<{
     (req, res) => {
         const { questionId, answer, teamNumber } = req.body;
 
-        const accountId = req.session.account?.id;
+        const { accountId } = req.session;
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
@@ -129,16 +129,19 @@ router.post<{
 }>(
     '/update-answer',
     Account.allowPermissions('submitScoutingAnswers'),
-    (req, res) => {
+    async (req, res) => {
         const { answerId, answer } = req.body;
-        const accountId = req.session.account?.id;
+        const { accountId } = req.session;
         const date = Date.now().toString();
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
-        const q = DB.get('scouting-questions/answer-from-id', {
+        const answerRes = await DB.get('scouting-questions/answer-from-id', {
             id: answerId,
         });
+
+        if (answerRes.isErr()) return res.sendStatus('scouting-question:answer-not-found');
+        const q = answerRes.value;
 
         if (!q) return res.sendStatus('scouting-question:answer-not-found');
 
@@ -188,7 +191,7 @@ router.post<{
     }),
     (req, res) => {
         const { name, multiple } = req.body;
-        const accountId = req.session.account?.id;
+        const { accountId } = req.session;
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
@@ -235,7 +238,7 @@ router.post<{
     }),
     (req, res) => {
         const { name, multiple, id } = req.body;
-        const accountId = req.session.account?.id;
+        const { accountId } = req.session;
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
@@ -243,7 +246,7 @@ router.post<{
 
         DB.run('scouting-questions/update-section', {
             name,
-            multiple,
+            multiple: !!multiple,
             id,
             accountId,
             dateAdded
@@ -281,7 +284,7 @@ router.post<{
     }),
     (req, res) => {
         const { eventKey, section, name } = req.body;
-        const accountId = req.session.account?.id;
+        const { accountId } = req.session;
         if (!accountId) return res.sendStatus('account:not-logged-in');
         const dateAdded = Date.now().toString();
         const id = uuid();
@@ -354,7 +357,7 @@ router.post<{
         const { question, type, section, key, description, groupId, options } =
             req.body;
 
-        const accountId = req.session.account?.id;
+        const { accountId } = req.session;
         if (!accountId) return res.sendStatus('account:not-logged-in');
         const dateAdded = Date.now().toString();
         const id = uuid();
@@ -365,7 +368,6 @@ router.post<{
             id,
             question,
             type,
-            section,
             key,
             description,
             groupId,
