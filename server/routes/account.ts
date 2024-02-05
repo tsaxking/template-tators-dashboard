@@ -71,9 +71,9 @@ router.post<{
         if (!account) {
             return res.sendStatus('account:incorrect-username-or-password');
         }
+        const result = await account.testPassword(password);
 
-        const hash = Account.hash(password, account.salt);
-        if (hash !== account.key) {
+        if (!result) {
             return Status.from('account:password-mismatch', req, {
                 username: username,
             }).send(res);
@@ -139,7 +139,7 @@ router.post<{
         res.sendStatus(('account:' + status) as StatusId, { username });
 
         if (status === 'created') {
-            req.io.emit('account:created', username);
+            req.io.emit('account:created', Account.fromUsername(username));
         }
     },
 );
