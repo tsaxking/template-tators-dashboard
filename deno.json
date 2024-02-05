@@ -14,7 +14,9 @@
         "view-paths": "deno run --allow-all ./scripts/view-paths.ts",
         "tree": "deno run --allow-all ./scripts/dir-tree.ts",
         "manager": "deno run --allow-all ./scripts/manager.ts",
-        "parse-sql": "deno run --allow-all ./scripts/parse-sql.ts"
+        "parse-sql": "deno run --allow-all ./scripts/parse-sql.ts",
+        "scout-group": "deno run --allow-all ./scripts/scout-groups.ts",
+        "strategy": "deno run --allow-all ./scripts/strategy.ts"
     },
     "compilerOptions": {
         "noImplicitAny": false,
@@ -27,7 +29,8 @@
             "dist/",
             "**/require.js",
             "**/submodules/",
-            "**/declaration-merging/"
+            "**/declaration-merging/",
+            "*.js"
         ],
         "rules": {
             "include": [
