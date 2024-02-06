@@ -174,40 +174,38 @@ CREATE TABLE IF NOT EXISTS Whiteboards (
 
 CREATE TABLE IF NOT EXISTS MatchScouting (
     id TEXT PRIMARY KEY,
-    matchId TEXT NOT NULL, -- removed NOT NULL in 1-0-4.sql in case of prescouting
+    matchId TEXT, -- can be null in case of prescouting
     team INTEGER NOT NULL,
-    scoutId TEXT NOT NULL, -- account id of scout, removed NOT NULL in 1-0-4.sql in case of prescouting
+    scoutId TEXT, -- account id of scout, can be null in case of prescouting
     scoutGroup INTEGER NOT NULL, -- 0 thru 5
-    time INTEGER NOT NULL, -- time of submission (in ms), changed to TEXT in 1-0-4.sql
-    prescouting INTEGER NOT NULL DEFAULT 0, -- changed to TEXT in 1-0-4.sql for event key. Renamed to preScouting
+    time BIGINT NOT NULL, -- time of submission (in ms)
+    prescouting TEXT, 
 
 
 
-    trace TEXT NOT NULL DEFAULT '[]' -- JSON array of objects
-
-    -- added checks column in 1-1-1.sql
+    trace TEXT NOT NULL DEFAULT '[]', -- JSON array of objects
+    checks TEXT NOT NULL DEFAULT '[]'
 );
 
 
--- Renamed to TeamComments in 1-0-4.sql
-CREATE TABLE IF NOT EXISTS MatchComments (
+CREATE TABLE IF NOT EXISTS TeamComments (
     id TEXT PRIMARY KEY,
-    matchId TEXT NOT NULL, -- now matchScoutingId
-    accountId TEXT NOT NULL,
+    matchScoutingId TEXT NOT NULL, -- now matchScoutingId
+    accountId TEXT, -- can be null if not logged in
     team INTEGER NOT NULL,
     comment TEXT NOT NULL,
-    time INTEGER NOT NULL -- time of submission (in ms)
-    -- added type column in 1-0-4.sql
-    -- added eventKey column in 1-1-1.sql
+    time BIGINT NOT NULL, -- time of submission (in ms)
+    type TEXT NOT NULL,
+    eventKey TEXT NOT NULL
 );
 
 
 CREATE TABLE IF NOT EXISTS ScoutingQuestionSections (
+    id TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    multiple INTEGER NOT NULL DEFAULT 0 -- 0 = there cannot be multiple answers for a submission
-    -- id column added in 1-0-5.sql
-    -- dateAdded column added in 1-0-5.sql
-    -- accountId column added in 1-0-5.sql
+    multiple INTEGER NOT NULL DEFAULT 0, -- 0 = there cannot be multiple answers for a submission
+    dateAdded BIGINT NOT NULL,
+    accountId TEXT NOT NULL
 );
 
 
@@ -217,9 +215,9 @@ CREATE TABLE IF NOT EXISTS ScoutingQuestionGroups (
     id TEXT PRIMARY KEY,
     eventKey TEXT NOT NULL,
     section TEXT NOT NULL, -- section name (references ScoutingQuestionSections)
-    name TEXT NOT NULL
-    -- added dateAdded column in 1-0-5.sql
-    -- added accountId column in 1-0-5.sql
+    name TEXT NOT NULL,
+    dateAdded BIGINT NOT NULL,
+    accountId TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS ScoutingQuestions (
@@ -228,10 +226,10 @@ CREATE TABLE IF NOT EXISTS ScoutingQuestions (
     key TEXT NOT NULL,
     description TEXT NOT NULL,
     type TEXT NOT NULL, -- boolean/number/text/textarea etc.
-    groupId TEXT NOT NULL -- group id
-    -- added dateAdded column in 1-0-5.sql
-    -- added accountId column in 1-0-5.sql
-    -- added options column in 1-0-5.sql (JSON)
+    groupId TEXT NOT NULL, -- group id
+    dateAdded BIGINT NOT NULL,
+    accountId TEXT NOT NULL,
+    options TEXT NOT NULL -- JSON
 );
 
 -- Added table for select/checkbox/radio etc. options in 1-0-4.sql
@@ -240,16 +238,16 @@ CREATE TABLE IF NOT EXISTS ScoutingAnswers (
     id TEXT PRIMARY KEY,
     questionId TEXT NOT NULL,
     answer TEXT NOT NULL,
-    teamNumber INTEGER NOT NULL
-    -- added date column in 1-0-5.sql
-    -- added accountId column in 1-0-5.sql
+    teamNumber INTEGER NOT NULL,
+    date BIGINT NOT NULL, -- time of submission (in ms)
+    accountId TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS TBARequests (
     url TEXT PRIMARY KEY,
     response TEXT, -- JSON
     updated INTEGER NOT NULL, -- Date of last update (in ms)
-    'update' INTEGER NOT NULL DEFAULT 0
+    update INTEGER NOT NULL DEFAULT 0
 );
 
 
@@ -328,4 +326,109 @@ CREATE TABLE IF NOT EXISTS Strategy (
     comment TEXT NOT NULL
 );
 
--- END OF FIRST ROBOTICS
+
+
+
+
+CREATE TABLE IF NOT EXISTS TeamPictures (
+    teamNumber INTEGER NOT NULL,
+    eventKey TEXT NOT NULL,
+    picture TEXT NOT NULL,
+    time TEXT NOT NULL DEFAULT '0',
+    accountId TEXT NOT NULL DEFAULT '0'
+);
+
+
+CREATE TABLE IF NOT EXISTS MatchScouting2022 (
+    id TEXT PRIMARY KEY,
+    matchScoutingId TEXT NOT NULL,
+    section TEXT NOT NULL, -- auto, teleop, endgame, etc.
+    ballsHigh INTEGER NOT NULL DEFAULT 0,
+    ballsLow INTEGER NOT NULL DEFAULT 0,
+    missed INTEGER NOT NULL DEFAULT 0,
+    leaveTarmac INTEGER NOT NULL DEFAULT 0,
+    climb4 INTEGER NOT NULL DEFAULT 0,
+    climb6 INTEGER NOT NULL DEFAULT 0,
+    climb10 INTEGER NOT NULL DEFAULT 0,
+    climb15 INTEGER NOT NULL DEFAULT 0,
+    totalTime INTEGER NOT NULL DEFAULT 0,
+    timeStart INTEGER NOT NULL DEFAULT 0,
+    noClimb INTEGER NOT NULL DEFAULT 0,
+    fell INTEGER NOT NULL DEFAULT 0,
+    climbLevel INTEGER NOT NULL DEFAULT 0,
+    stage1Time INTEGER NOT NULL DEFAULT 0,
+    stage2Time INTEGER NOT NULL DEFAULT 0,
+    stage3Time INTEGER NOT NULL DEFAULT 0,
+
+    misses INTEGER NOT NULL DEFAULT 0,
+    bouncedOut INTEGER NOT NULL DEFAULT 0,
+    problemsDriving INTEGER NOT NULL DEFAULT 0,
+    dead INTEGER NOT NULL DEFAULT 0,
+    tippy INTEGER NOT NULL DEFAULT 0,
+    easilyDefended INTEGER NOT NULL DEFAULT 0,
+    foulsPinningOrHerdingCargo INTEGER NOT NULL DEFAULT 0,
+    shootsCargoOverHub INTEGER NOT NULL DEFAULT 0,
+    pushesBots INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS MatchScouting2023 (
+    id TEXT PRIMARY KEY,
+    matchScoutingId TEXT NOT NULL,
+    section TEXT NOT NULL, -- auto, teleop, endgame, etc.
+    autoMobility INTEGER NOT NULL DEFAULT 0,
+    grid TEXT NOT NULL DEFAULT '000000000-000000000-000000000',
+    parked INTEGER NOT NULL DEFAULT 0,
+    totalDistance INTEGER NOT NULL DEFAULT 0,
+    velocity INTEGER NOT NULL DEFAULT 0,
+    velocityNoAuto INTEGER NOT NULL DEFAULT 0
+);
+
+
+
+CREATE TABLE IF NOT EXISTS ScoutingQuestionAnswerHistory (
+    questionId TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    teamNumber INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    accountId TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ScoutingQuestionHistory (
+    id TEXT NOT NULL,
+    question TEXT NOT NULL,
+    key TEXT NOT NULL,
+    description TEXT NOT NULL,
+    type TEXT NOT NULL,
+    groupId TEXT NOT NULL,
+    dateAdded TEXT NOT NULL,
+    accountId TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ScoutingQuestionGroupHistory (
+    id TEXT NOT NULL,
+    eventKey TEXT NOT NULL,
+    section TEXT NOT NULL,
+    name TEXT NOT NULL,
+    dateAdded TEXT NOT NULL,
+    accountId TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ScoutingQuestionSectionHistory (
+    id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    multiple INTEGER NOT NULL,
+    dateAdded TEXT NOT NULL,
+    accountId TEXT NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS TeamCommentsHistory (
+    id TEXT NOT NULL,
+    team INTEGER NOT NULL,
+    comment TEXT NOT NULL,
+    type TEXT NOT NULL,
+    matchScoutingId TEXT,
+    accountId TEXT,
+    time TEXT NOT NULL,
+    eventKey TEXT NOT NULL
+);

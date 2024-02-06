@@ -18,7 +18,8 @@
         "scout-group": "deno run --allow-all ./scripts/scout-groups.ts",
         "strategy": "deno run --allow-all ./scripts/strategy.ts",
         "check-db": "deno run --allow-all ./scripts/check-db-connection.ts",
-        "view-table": "deno run --allow-all ./scripts/view-table.ts"
+        "view-table": "deno run --allow-all ./scripts/view-table.ts",
+        "transfer-db": "deno run --allow-all --unstable-ffi ./scripts/transfer-db.ts"
     },
     "compilerOptions": {
         "noImplicitAny": false,
