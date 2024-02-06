@@ -14,19 +14,19 @@ export const saveEvent = async (eventKey: string) => {
     if (!event) return error(`Error getting event ${eventKey} from TBA API!`);
 
     // check if event exists
-    const exists = DB.get('events/from-key', {
+    const exists = await DB.get('events/from-key', {
         eventKey,
     });
 
-    if (exists) {
+    if (exists.isOk()) {
         if (Deno.args.includes('--force') && Deno.args.includes('--tba-task')) {
             DB.unsafe.run(`DELETE FROM Teams WHERE eventKey = ?`, eventKey);
             DB.unsafe.run(`DELETE FROM Matches WHERE eventKey = ?`, eventKey);
             DB.unsafe.run(`DELETE FROM Events WHERE eventKey = ?`, eventKey);
             DB.run('events/new-event', {
                 eventKey,
-                flipX: false,
-                flipY: false,
+                flipX: 0,
+                flipY: 0,
             });
         } else {
             log('Event already exists in database!');
@@ -34,8 +34,8 @@ export const saveEvent = async (eventKey: string) => {
     } else {
         DB.run('events/new-event', {
             eventKey,
-            flipX: false,
-            flipY: false,
+            flipX: 0,
+            flipY: 0,
         });
     }
 
@@ -48,21 +48,26 @@ export const saveMatches = async (eventKey: string) => {
     const matches = await TBA.get<TBAMatch[]>(
         '/event/' + eventKey + '/matches',
     );
-    if (!matches) {
+    if (matches.isErr() || !matches.value) {
         return error(
             `Error getting matches for event ${eventKey} from TBA API!`,
         );
     }
 
-    const existingMatches = DB.all('matches/from-event', {
+
+    const existingMatches = await DB.all('matches/from-event', {
         eventKey,
     });
 
+    if (existingMatches.isErr()) {
+        return error('Error getting existing matches from database!');
+    }
+
     let saved = 0;
-    for (const match of matches) {
+    for (const match of matches.value) {
         // check if match exists
         if (
-            existingMatches?.some(
+            existingMatches.value.some(
                 (m) =>
                     m.matchNumber === match.match_number &&
                     m.compLevel === match.comp_level,
@@ -102,18 +107,22 @@ export const saveTeams = async (eventKey: string) => {
     const teams = await TBA.get<TBATeam[]>(
         '/event/' + eventKey + '/teams/simple',
     );
-    if (!teams) {
+    if (teams.isErr() || !teams.value) {
         return error(`Error getting teams for event ${eventKey} from TBA API!`);
     }
 
-    const existingTeams = DB.all('teams/from-event', {
+    const existingTeams = await DB.all('teams/from-event', {
         eventKey,
     });
 
+    if (existingTeams.isErr()) {
+        return error('Error getting existing teams from database!');
+    }
+
     let saved = 0;
-    for (const team of teams) {
+    for (const team of teams.value) {
         // check if team exists
-        if (existingTeams?.some((t) => t.number === team.team_number)) {
+        if (existingTeams.value.some((t) => t.number === team.team_number)) {
             if (
                 Deno.args.includes('--force') &&
                 Deno.args.includes('--tba-task')

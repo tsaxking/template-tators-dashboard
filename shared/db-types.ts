@@ -69,7 +69,7 @@ export type MembershipStatus =
 export type Member = {
     id: string;
     title?: string;
-    status: string;
+    status?: string;
     bio?: string;
     resume?: string;
 };

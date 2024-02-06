@@ -4,18 +4,22 @@ import { DB } from '../../utilities/databases.ts';
 
 export const router = new Route();
 
-router.post(
+router.post<{
+    whiteboardId: string;
+}>(
     '/whiteboards',
     validate({
         whiteboardId: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { whiteboardId } = req.body;
 
-        const whiteboards = DB.all('whiteboards/from-id', {
+        const whiteboards = await DB.all('whiteboards/from-id', {
             id: whiteboardId,
         });
 
-        res.stream(whiteboards.map((s) => JSON.stringify(s)));
+        if (whiteboards.isErr()) return res.sendStatus('unknown:error');
+
+        res.stream(whiteboards.value.map((s) => JSON.stringify(s)));
     },
 );
