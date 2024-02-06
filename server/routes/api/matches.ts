@@ -4,23 +4,29 @@ import { DB } from '../../utilities/databases.ts';
 
 export const router = new Route();
 
-router.post(
+router.post<{
+    eventKey: string;
+    matchNumber: number;
+    compLevel: 'qm' | 'qf' | 'sf' | 'f';
+}>(
     '/strategy',
     validate({
         eventKey: 'string',
         matchNumber: 'number',
         compLevel: ['qm', 'qf', 'sf', 'f'],
     }),
-    (req, res) => {
+    async (req, res) => {
         const { eventKey, matchNumber, compLevel } = req.body;
 
-        const strategies = DB.all('strategy/from-match', {
+        const result = await DB.all('strategy/from-match', {
             eventKey,
             matchNumber,
             compLevel,
         });
 
-        res.stream(strategies.map((s) => JSON.stringify(s)));
+        if (result.isErr()) return res.sendStatus('unknown:error');
+
+        res.stream(result.value.map((s) => JSON.stringify(s)));
     },
 );
 
@@ -31,32 +37,40 @@ router.post<{
     validate({
         eventKey: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { eventKey } = req.body;
 
-        const matches = DB.all('matches/from-event', {
+        const matchesRes = await DB.all('matches/from-event', {
             eventKey,
         });
 
-        res.stream(matches.map((m) => JSON.stringify(m)));
+        if (matchesRes.isErr()) return res.sendStatus('unknown:error');
+
+        res.stream(matchesRes.value.map((m) => JSON.stringify(m)));
     },
 );
 
-router.post(
+router.post<{
+    eventKey: string;
+    matchNumber: number;
+    compLevel: 'qm' | 'qf' | 'sf' | 'f';
+}>(
     '/info',
     validate({
         eventKey: 'string',
         matchNumber: 'number',
         compLevel: ['qm', 'qf', 'sf', 'f'],
     }),
-    (req, res) => {
+    async (req, res) => {
         const { eventKey, matchNumber, compLevel } = req.body;
 
-        const matches = DB.all('matches/from-event', {
+        const matches = await DB.all('matches/from-event', {
             eventKey,
         });
 
-        const match = matches.find(
+        if (matches.isErr()) return res.sendStatus('unknown:error');
+
+        const match = matches.value.find(
             (m) => m.matchNumber === matchNumber && m.compLevel === compLevel,
         );
 

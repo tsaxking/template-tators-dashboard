@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
 CREATE TABLE IF NOT EXISTS DiscordAccount (
     key TEXT PRIMARY KEY, -- url key
     id TEXT NOT NULL,
-    date TEXT NOT NULL
+    date INTEGER NOT NULL
 );
 
 

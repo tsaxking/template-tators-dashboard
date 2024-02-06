@@ -3,14 +3,14 @@ import { TBAMatch } from '../shared/submodules/tatorscout-calculations/tba.ts';
 
 const matches = await TBA.get<TBAMatch[]>('/event/2018utwv/matches');
 
-if (!matches) {
+if (matches.isErr() || !matches.value) {
     console.log('No matches found');
     Deno.exit(0);
 }
 
 console.log(matches);
 
-const [m] = matches;
+const [m] = matches.value;
 
 console.log(m);
 
