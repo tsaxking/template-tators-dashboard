@@ -1,1 +1,0 @@
-ALTER TABLE CustomMatches ADD COLUMN 'name' TEXT NOT NULL DEFAULT '';

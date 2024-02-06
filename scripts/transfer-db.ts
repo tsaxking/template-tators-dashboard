@@ -15,9 +15,14 @@ const parse = <T>(str: string) => {
     }
 };
 
-const test = (): boolean => {
-    const q = DB.unsafe.get('SELECT * FROM ScoutingQuestions LIMIT 1');
-    return !!q;
+const test = async (): Promise<boolean> => {
+    const q = await DB.unsafe.get('SELECT * FROM ScoutingQuestions LIMIT 1');
+    if (q.isOk()) {
+        console.log(q.value);
+        return !!q.value;
+    } else {
+        throw new Error('The database hasn\'t been updated to include the new tables!');
+    }
 };
 
 let db: Database;
@@ -881,13 +886,14 @@ const run = async (fn: () => void|Promise<void>) => {
 
 export const transfer = async () => {
     const v = await DB.getVersion();
-    if (v.join('.') !== '1.0.4') {
+    console.log(v);
+    if (v.join('.') !== '1.0.1') {
         throw new Error(
-            'The database transfer script is only compatible with version 1.0.4',
+            'The database transfer script is only compatible with version 1.0.1',
         );
     }
 
-    if (test()) {
+    if (await test()) {
         log(
             'The database has already been transferred! Nothing has changed :)',
         );
@@ -911,4 +917,14 @@ export const transfer = async () => {
     await run(transferTeams);
 };
 
-if (Deno.args.includes('--transfer')) transfer();
+
+
+const res = prompt(
+    'This version is the latest that will work with the current database transfer script. Would you like to transfer the database? (y/n)',
+);
+if (res === 'y') {
+    prompt(
+        'Alright, please place the old database file in /scripts/old.db and press enter.',
+    );
+    transfer();
+}
