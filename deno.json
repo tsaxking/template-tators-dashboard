@@ -17,7 +17,8 @@
         "parse-sql": "deno run --allow-all ./scripts/parse-sql.ts",
         "scout-group": "deno run --allow-all ./scripts/scout-groups.ts",
         "strategy": "deno run --allow-all ./scripts/strategy.ts",
-        "check-db": "deno run --allow-all ./scripts/check-db-connection.ts"
+        "check-db": "deno run --allow-all ./scripts/check-db-connection.ts",
+        "view-table": "deno run --allow-all ./scripts/view-table.ts"
     },
     "compilerOptions": {
         "noImplicitAny": false,
