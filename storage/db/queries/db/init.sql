@@ -232,7 +232,6 @@ CREATE TABLE IF NOT EXISTS ScoutingQuestions (
     options TEXT NOT NULL -- JSON
 );
 
--- Added table for select/checkbox/radio etc. options in 1-0-4.sql
 
 CREATE TABLE IF NOT EXISTS ScoutingAnswers (
     id TEXT PRIMARY KEY,
@@ -246,7 +245,7 @@ CREATE TABLE IF NOT EXISTS ScoutingAnswers (
 CREATE TABLE IF NOT EXISTS TBARequests (
     url TEXT PRIMARY KEY,
     response TEXT, -- JSON
-    updated INTEGER NOT NULL, -- Date of last update (in ms)
+    updated BIGINT NOT NULL, -- Date of last update (in ms)
     update INTEGER NOT NULL DEFAULT 0
 );
 

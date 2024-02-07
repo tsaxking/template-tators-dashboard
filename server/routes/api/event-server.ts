@@ -88,7 +88,7 @@ router.post<Match>(
             scoutGroup: group,
             trace: traceStr,
             preScouting: undefined,
-            time: date.toString(),
+            time: date,
             checks: JSON.stringify(checks),
         });
 
@@ -102,7 +102,7 @@ router.post<Match>(
                 type: key,
                 eventKey,
                 team: teamNumber,
-                time: date.toString(),
+                time: date,
             });
         }
 

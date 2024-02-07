@@ -149,25 +149,26 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
         pushesBots: boolean;
     }>;
 
-    return Promise.all(matches.map(async (match) => {
-        const foundMatch = await DB.unsafe.get<Match>(
-            `
+    return Promise.all(
+        matches.map(async (match) => {
+            const foundMatch = await DB.unsafe.get<Match>(
+                `
             SELECT * FROM Matches 
             WHERE eventKey = :eventKey AND matchNumber = :matchNumber AND compLevel = :compLevel
         `,
-            {
-                eventKey: match.eventKey,
-                matchNumber: match.matchNumber,
-                compLevel: match.compLevel,
-            },
-        );
+                {
+                    eventKey: match.eventKey,
+                    matchNumber: match.matchNumber,
+                    compLevel: match.compLevel,
+                },
+            );
 
-        if (foundMatch.isErr() || !foundMatch.value) return;
+            if (foundMatch.isErr() || !foundMatch.value) return;
 
-        const id = uuid();
+            const id = uuid();
 
-        DB.unsafe.run(
-            `
+            DB.unsafe.run(
+                `
             INSERT INTO MatchScouting (
                 id,
                 matchId,
@@ -181,28 +182,28 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
                 ?, ?, ?, ?, ?, ?, ?, ?
             )
         `,
-            ...[
-                id,
-                foundMatch.value?.id ?? null,
-                match.teamNumber,
-                match.scout,
-                match.group,
-                (match.time ?? 0).toString(),
-                match.preScoutingKey,
-                match.trace,
-            ],
-        );
+                ...[
+                    id,
+                    foundMatch.value?.id ?? null,
+                    match.teamNumber,
+                    match.scout,
+                    match.group,
+                    (match.time ?? 0).toString(),
+                    match.preScoutingKey,
+                    match.trace,
+                ],
+            );
 
-        const sections = {
-            auto: parse<Section>(match.auto),
-            tele: parse<Section>(match.teleop),
-            endgame: parse<Section>(match.endgame),
-            overall: parse<Section>(match.overall),
-        };
+            const sections = {
+                auto: parse<Section>(match.auto),
+                tele: parse<Section>(match.teleop),
+                endgame: parse<Section>(match.endgame),
+                overall: parse<Section>(match.overall),
+            };
 
-        for (const [section, data] of Object.entries(sections)) {
-            DB.unsafe.run(
-                `
+            for (const [section, data] of Object.entries(sections)) {
+                DB.unsafe.run(
+                    `
                 INSERT INTO MatchScouting2022 (
                     id,
                     matchScoutingId,
@@ -251,41 +252,41 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
                     ?, ?, ?, ?
                 )
             `,
-                ...[
-                    uuid() as string,
-                    id,
-                    section as 'auto' | 'tele' | 'endgame',
-                    data.ballsHigh ?? 0,
-                    data.ballsLow ?? 0,
-                    data.ballsLowCopy ?? 0,
-                    data.leaveTarmac ?? 0,
-                    data.climb4 ?? 0,
-                    data.climb6 ?? 0,
-                    data.climb10 ?? 0,
-                    data.climb15 ?? 0,
-                    data.totalTime ?? 0,
-                    data.timeStart ?? 0,
-                    data.noClimb ?? 0,
-                    data.fell ?? 0,
-                    data.climbLevel ?? 0,
-                    data.stage1Time ?? 0,
-                    data.stage2Time ?? 0,
-                    data.stage3Time ?? 0,
-                    data.misses ?? 0,
-                    data.bouncedOut ?? 0,
-                    data.problemsDriving ?? 0,
-                    data.dead ?? 0,
-                    data.tippy ?? 0,
-                    data.easilyDefended ?? 0,
-                    data.foulsPinningOrHerdingCargo ?? 0,
-                    data.shootsCargoOverHub ?? 0,
-                    data.pushesBots ?? 0,
-                ],
-            );
+                    ...[
+                        uuid() as string,
+                        id,
+                        section as 'auto' | 'tele' | 'endgame',
+                        data.ballsHigh ?? 0,
+                        data.ballsLow ?? 0,
+                        data.ballsLowCopy ?? 0,
+                        data.leaveTarmac ?? 0,
+                        data.climb4 ?? 0,
+                        data.climb6 ?? 0,
+                        data.climb10 ?? 0,
+                        data.climb15 ?? 0,
+                        data.totalTime ?? 0,
+                        data.timeStart ?? 0,
+                        data.noClimb ?? 0,
+                        data.fell ?? 0,
+                        data.climbLevel ?? 0,
+                        data.stage1Time ?? 0,
+                        data.stage2Time ?? 0,
+                        data.stage3Time ?? 0,
+                        data.misses ?? 0,
+                        data.bouncedOut ?? 0,
+                        data.problemsDriving ?? 0,
+                        data.dead ?? 0,
+                        data.tippy ?? 0,
+                        data.easilyDefended ?? 0,
+                        data.foulsPinningOrHerdingCargo ?? 0,
+                        data.shootsCargoOverHub ?? 0,
+                        data.pushesBots ?? 0,
+                    ],
+                );
 
-            const { comments } = data;
+                const { comments } = data;
 
-            const query = `
+                const query = `
                 INSERT INTO TeamComments (
                     id,
                     matchScoutingId,
@@ -299,20 +300,21 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
                 )
             `;
 
-            DB.unsafe.run(
-                query,
-                ...[
-                    uuid(),
-                    id,
-                    match.scout,
-                    match.teamNumber,
-                    comments ?? '',
-                    (match.time ?? 0).toString(),
-                    'match',
-                ],
-            );
-        }
-    }));
+                DB.unsafe.run(
+                    query,
+                    ...[
+                        uuid(),
+                        id,
+                        match.scout,
+                        match.teamNumber,
+                        comments ?? '',
+                        (match.time ?? 0).toString(),
+                        'match',
+                    ],
+                );
+            }
+        }),
+    );
 };
 type Match2023 = {
     eventKey: string;
@@ -348,20 +350,21 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
         'Velocity (excluding auto)': number;
     }>;
 
-    return Promise.all(matches.map(async (match) => {
-        const foundMatch = await DB.unsafe.get<Match>(
-            `
+    return Promise.all(
+        matches.map(async (match) => {
+            const foundMatch = await DB.unsafe.get<Match>(
+                `
             SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
         `,
-            ...[match.eventKey, match.matchNumber, match.compLevel],
-        );
+                ...[match.eventKey, match.matchNumber, match.compLevel],
+            );
 
-        if (foundMatch.isErr() || !foundMatch.value) return;
+            if (foundMatch.isErr() || !foundMatch.value) return;
 
-        const id = uuid();
+            const id = uuid();
 
-        DB.unsafe.run(
-            `
+            DB.unsafe.run(
+                `
             INSERT INTO MatchScouting (
                 id,
                 matchId,
@@ -375,28 +378,28 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
                 ?, ?, ?, ?, ?, ?, ?, ?
             )
         `,
-            ...[
-                id,
-                foundMatch.value?.id ?? null,
-                match.teamNumber,
-                match.scout,
-                match.group,
-                (match.time ?? 0).toString(),
-                match.preScoutingKey,
-                match.trace,
-            ],
-        );
+                ...[
+                    id,
+                    foundMatch.value?.id ?? null,
+                    match.teamNumber,
+                    match.scout,
+                    match.group,
+                    (match.time ?? 0).toString(),
+                    match.preScoutingKey,
+                    match.trace,
+                ],
+            );
 
-        const sections = {
-            auto: parse<Section>(match.auto),
-            tele: parse<Section>(match.teleop),
-            endgame: parse<Section>(match.endgame),
-            overall: parse<Section>(match.overall),
-        };
+            const sections = {
+                auto: parse<Section>(match.auto),
+                tele: parse<Section>(match.teleop),
+                endgame: parse<Section>(match.endgame),
+                overall: parse<Section>(match.overall),
+            };
 
-        for (const [section, data] of Object.entries(sections)) {
-            DB.unsafe.run(
-                `
+            for (const [section, data] of Object.entries(sections)) {
+                DB.unsafe.run(
+                    `
                 INSERT INTO MatchScouting2023 (
                     id,
                     matchScoutingId,
@@ -410,21 +413,21 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
                     ?, ?, ?, ?, ?, ?, ?, ?
                 )
             `,
-                ...[
-                    uuid() as string,
-                    id,
-                    section as 'auto' | 'tele' | 'endgame' | 'overall',
-                    data.autoMobility ?? 0,
-                    data.grid ?? '',
-                    data['Total Distance (Ft)'] ?? 0,
-                    data['Velocity (ft/s)'] ?? 0,
-                    data.parked ?? 0,
-                ],
-            );
+                    ...[
+                        uuid() as string,
+                        id,
+                        section as 'auto' | 'tele' | 'endgame' | 'overall',
+                        data.autoMobility ?? 0,
+                        data.grid ?? '',
+                        data['Total Distance (Ft)'] ?? 0,
+                        data['Velocity (ft/s)'] ?? 0,
+                        data.parked ?? 0,
+                    ],
+                );
 
-            const { comments, defensiveComments } = data;
+                const { comments, defensiveComments } = data;
 
-            const query = `
+                const query = `
                 INSERT INTO TeamComments (
                     id,
                     matchScoutingId,
@@ -438,33 +441,34 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
                 )
             `;
 
-            DB.unsafe.run(
-                query,
-                ...[
-                    uuid(),
-                    id,
-                    match.scout,
-                    match.teamNumber,
-                    comments ?? '',
-                    (match.time ?? 0).toString(),
-                    'match',
-                ],
-            );
+                DB.unsafe.run(
+                    query,
+                    ...[
+                        uuid(),
+                        id,
+                        match.scout,
+                        match.teamNumber,
+                        comments ?? '',
+                        (match.time ?? 0).toString(),
+                        'match',
+                    ],
+                );
 
-            DB.unsafe.run(
-                query,
-                ...[
-                    uuid(),
-                    id,
-                    match.scout,
-                    match.teamNumber,
-                    defensiveComments ?? '',
-                    (match.time ?? 0).toString(),
-                    'defensive',
-                ],
-            );
-        }
-    }));
+                DB.unsafe.run(
+                    query,
+                    ...[
+                        uuid(),
+                        id,
+                        match.scout,
+                        match.teamNumber,
+                        defensiveComments ?? '',
+                        (match.time ?? 0).toString(),
+                        'defensive',
+                    ],
+                );
+            }
+        }),
+    );
 };
 
 const transferMatchScouting = () => {
@@ -690,9 +694,10 @@ const transferTeams = async () => {
         active: boolean;
     }[];
 
-    return Promise.all(teams.map(async t => {
-        DB.unsafe.run(
-            `
+    return Promise.all(
+        teams.map(async (t) => {
+            DB.unsafe.run(
+                `
             INSERT INTO Teams (
                 number,
                 eventKey
@@ -700,12 +705,12 @@ const transferTeams = async () => {
                 ?, ?
             )
         `,
-            t.number,
-            t.eventKey,
-        );
+                t.number,
+                t.eventKey,
+            );
 
-        DB.unsafe.run(
-            `
+            DB.unsafe.run(
+                `
             INSERT INTO TeamPictures (
                 teamNumber,
                 eventKey,
@@ -715,11 +720,16 @@ const transferTeams = async () => {
                 ?, ?, ?, ?
             )
         `,
-            ...[t.number, t.eventKey, t.picture ?? '', Date.now().toString()],
-        );
+                ...[
+                    t.number,
+                    t.eventKey,
+                    t.picture ?? '',
+                    Date.now().toString(),
+                ],
+            );
 
-        const questions = await DB.unsafe.all<{ id: string; key: string }>(
-            `
+            const questions = await DB.unsafe.all<{ id: string; key: string }>(
+                `
             SELECT 
                 ScoutingQuestions.id,
                 ScoutingQuestions.key
@@ -727,35 +737,35 @@ const transferTeams = async () => {
             INNER JOIN ScoutingQuestionGroups ON ScoutingQuestionGroups.id = ScoutingQuestions.groupId
             WHERE ScoutingQuestionGroups.eventKey = ?
         `,
-            t.eventKey,
-        );
+                t.eventKey,
+            );
 
-        if (questions.isErr()) {
-            console.log(questions.error);
-            return;
-        }
+            if (questions.isErr()) {
+                console.log(questions.error);
+                return;
+            }
 
-        const pit = t.pitScouting ? parse<unknown>(t.pitScouting) : {};
-        const pre = t.preScouting ? parse<unknown[]>(t.preScouting) : [];
-        const electrical = t.electricalScouting
-            ? parse<unknown>(t.electricalScouting)
-            : {};
-        const mechanical = t.mechanicalScouting
-            ? parse<unknown>(t.mechanicalScouting)
-            : {};
+            const pit = t.pitScouting ? parse<unknown>(t.pitScouting) : {};
+            const pre = t.preScouting ? parse<unknown[]>(t.preScouting) : [];
+            const electrical = t.electricalScouting
+                ? parse<unknown>(t.electricalScouting)
+                : {};
+            const mechanical = t.mechanicalScouting
+                ? parse<unknown>(t.mechanicalScouting)
+                : {};
 
-        const save = (data: { [key: string]: string }) => {
-            for (const [key, value] of Object.entries(data)) {
-                const q = questions.value.find((q) => q.key === key);
-                if (!q) continue;
+            const save = (data: { [key: string]: string }) => {
+                for (const [key, value] of Object.entries(data)) {
+                    const q = questions.value.find((q) => q.key === key);
+                    if (!q) continue;
 
-                if (typeof value === 'object') {
-                    save(value);
-                    continue;
-                }
+                    if (typeof value === 'object') {
+                        save(value);
+                        continue;
+                    }
 
-                DB.unsafe.run(
-                    `
+                    DB.unsafe.run(
+                        `
                     INSERT INTO ScoutingAnswers (
                         id,
                         teamNumber,
@@ -765,17 +775,18 @@ const transferTeams = async () => {
                         ?, ?, ?, ?
                     )
                 `,
-                    ...[uuid(), t.number, q.id, value],
-                );
-            }
-        };
+                        ...[uuid(), t.number, q.id, value],
+                    );
+                }
+            };
 
-        save(pit as { [key: string]: string });
-        save(electrical as { [key: string]: string });
-        save(mechanical as { [key: string]: string });
+            save(pit as { [key: string]: string });
+            save(electrical as { [key: string]: string });
+            save(mechanical as { [key: string]: string });
 
-        pre.forEach((p) => save(p as { [key: string]: string }));
-    }));
+            pre.forEach((p) => save(p as { [key: string]: string }));
+        }),
+    );
 };
 
 const transferAccountsAndRoles = () => {
