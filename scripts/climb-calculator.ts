@@ -190,7 +190,9 @@ const weekCount = async <y extends keyof YearTBAMatch>(
 
 const test = async <y extends keyof YearTBAMatch>(year: y) => {
     const allEvents = await TBA.get<TBAEvent[]>(`/events/${year}`);
-    if (allEvents.isErr() || !allEvents.value) throw new Error('No events found');
+    if (allEvents.isErr() || !allEvents.value) {
+        throw new Error('No events found');
+    }
 
     // sort by date
     allEvents.value.sort((a: TBAEvent, b: TBAEvent) => {

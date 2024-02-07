@@ -1,8 +1,6 @@
 import { Route } from '../../structure/app/app.ts';
 import Account from '../../structure/accounts.ts';
-import {
-    QuestionOptions
-} from '../../../shared/db-types-extended.ts';
+import { QuestionOptions } from '../../../shared/db-types-extended.ts';
 import { validate } from '../../middleware/data-type.ts';
 import { DB } from '../../utilities/databases.ts';
 import { uuid } from '../../utilities/uuid.ts';
@@ -140,7 +138,9 @@ router.post<{
             id: answerId,
         });
 
-        if (answerRes.isErr()) return res.sendStatus('scouting-question:answer-not-found');
+        if (answerRes.isErr()) {
+            return res.sendStatus('scouting-question:answer-not-found');
+        }
         const q = answerRes.value;
 
         if (!q) return res.sendStatus('scouting-question:answer-not-found');
@@ -249,7 +249,7 @@ router.post<{
             multiple: !!multiple,
             id,
             accountId,
-            dateAdded
+            dateAdded,
         });
 
         res.sendStatus('scouting-question:update-section', {

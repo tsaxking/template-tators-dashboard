@@ -21,7 +21,9 @@ const test = async (): Promise<boolean> => {
         console.log(q.value);
         return !!q.value;
     } else {
-        throw new Error('The database hasn\'t been updated to include the new tables!');
+        throw new Error(
+            "The database hasn't been updated to include the new tables!",
+        );
     }
 };
 
@@ -147,7 +149,7 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
         pushesBots: boolean;
     }>;
 
-    for (const match of matches) {
+    return Promise.all(matches.map(async (match) => {
         const foundMatch = await DB.unsafe.get<Match>(
             `
             SELECT * FROM Matches 
@@ -160,7 +162,7 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
             },
         );
 
-        if (foundMatch.isErr() || !foundMatch.value) continue;
+        if (foundMatch.isErr() || !foundMatch.value) return;
 
         const id = uuid();
 
@@ -310,7 +312,7 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
                 ],
             );
         }
-    }
+    }));
 };
 type Match2023 = {
     eventKey: string;
@@ -346,7 +348,7 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
         'Velocity (excluding auto)': number;
     }>;
 
-    for (const match of matches) {
+    return Promise.all(matches.map(async (match) => {
         const foundMatch = await DB.unsafe.get<Match>(
             `
             SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
@@ -354,7 +356,7 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
             ...[match.eventKey, match.matchNumber, match.compLevel],
         );
 
-        if (foundMatch.isErr() || !foundMatch.value) continue;
+        if (foundMatch.isErr() || !foundMatch.value) return;
 
         const id = uuid();
 
@@ -462,7 +464,7 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
                 ],
             );
         }
-    }
+    }));
 };
 
 const transferMatchScouting = () => {
@@ -673,7 +675,7 @@ const populateQuestions = () => {
     }
 };
 
-const transferTeams = async() => {
+const transferTeams = async () => {
     const q = db.prepare('SELECT * FROM Teams');
 
     const teams = q.all() as {
@@ -688,7 +690,7 @@ const transferTeams = async() => {
         active: boolean;
     }[];
 
-    for (const t of teams) {
+    return Promise.all(teams.map(async t => {
         DB.unsafe.run(
             `
             INSERT INTO Teams (
@@ -730,7 +732,7 @@ const transferTeams = async() => {
 
         if (questions.isErr()) {
             console.log(questions.error);
-            continue;
+            return;
         }
 
         const pit = t.pitScouting ? parse<unknown>(t.pitScouting) : {};
@@ -773,7 +775,7 @@ const transferTeams = async() => {
         save(mechanical as { [key: string]: string });
 
         pre.forEach((p) => save(p as { [key: string]: string }));
-    }
+    }));
 };
 
 const transferAccountsAndRoles = () => {
@@ -869,7 +871,7 @@ const transferAccountsAndRoles = () => {
     }
 };
 
-const run = async (fn: () => void|Promise<void>) => {
+const run = async (fn: () => unknown) => {
     console.log(`Running ${fn.name}`);
     const start = Date.now();
     try {
@@ -910,14 +912,14 @@ export const transfer = async () => {
     db = new Database('./scripts/old.db');
 
     await DB.makeBackup();
-    await run(transferMatchScouting);
-    await run(createScoutingQuestionGroups);
-    await run(populateQuestions);
-    await run(transferAccountsAndRoles);
-    await run(transferTeams);
+    await Promise.all([
+        run(transferMatchScouting),
+        run(createScoutingQuestionGroups),
+        run(populateQuestions),
+        run(transferAccountsAndRoles),
+        run(transferTeams),
+    ]);
 };
-
-
 
 const res = prompt(
     'This version is the latest that will work with the current database transfer script. Would you like to transfer the database? (y/n)',

@@ -13,7 +13,7 @@ router.post<{
     }),
     (req, res) => {
         const p = DB.get('events/from-key', {
-            eventKey: req.body.eventKey
+            eventKey: req.body.eventKey,
         });
         res.json(p);
     },

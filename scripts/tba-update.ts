@@ -54,7 +54,6 @@ export const saveMatches = async (eventKey: string) => {
         );
     }
 
-
     const existingMatches = await DB.all('matches/from-event', {
         eventKey,
     });

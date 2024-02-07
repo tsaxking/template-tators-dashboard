@@ -158,853 +158,850 @@ import { Insert_whiteboards_new } from './tables.ts';
 import { Select_whiteboards_from_match } from './tables.ts';
 import { Select_whiteboards_from_id } from './tables.ts';
 
-
 export type Queries = {
-'permissions/all': [
+    'permissions/all': [
         [
-            Select_permissions_all
+            Select_permissions_all,
         ],
-        Permissions
+        Permissions,
     ];
-'permissions/from-role': [
+    'permissions/from-role': [
         [
-            {roleId:string;},
+            { roleId: string },
         ],
-        Permissions
+        Permissions,
     ];
-'permissions/remove-from-role': [
+    'permissions/remove-from-role': [
         [
-            {roleId:string;permission:string;},
+            { roleId: string; permission: string },
         ],
-        unknown
+        unknown,
     ];
-'permissions/add-to-role': [
+    'permissions/add-to-role': [
         [
-            {roleId:string;permission:string;},
+            { roleId: string; permission: string },
         ],
-        unknown
+        unknown,
     ];
-'roles/from-name': [
+    'roles/from-name': [
         [
-            Select_roles_from_name
+            Select_roles_from_name,
         ],
-        Roles
+        Roles,
     ];
-'roles/delete': [
+    'roles/delete': [
         [
-            Delete_roles_delete
+            Delete_roles_delete,
         ],
-        unknown
+        unknown,
     ];
-'roles/update': [
+    'roles/update': [
         [
-            Update_roles_update
+            Update_roles_update,
         ],
-        unknown
+        unknown,
     ];
-'roles/new': [
+    'roles/new': [
         [
-            Insert_roles_new
+            Insert_roles_new,
         ],
-        unknown
+        unknown,
     ];
-'roles/from-id': [
+    'roles/from-id': [
         [
-            Select_roles_from_id
+            Select_roles_from_id,
         ],
-        Roles
+        Roles,
     ];
-'roles/all': [
+    'roles/all': [
         [
-            Select_roles_all
+            Select_roles_all,
         ],
-        Roles
+        Roles,
     ];
-'roles/from-username': [
+    'roles/from-username': [
         [
-            {username:string;},
+            { username: string },
         ],
-        Roles
+        Roles,
     ];
-'sessions/delete': [
+    'sessions/delete': [
         [
-            Delete_sessions_delete
+            Delete_sessions_delete,
         ],
-        unknown
+        unknown,
     ];
-'sessions/delete-all': [
+    'sessions/delete-all': [
         [
-            Delete_sessions_delete_all
+            Delete_sessions_delete_all,
         ],
-        unknown
+        unknown,
     ];
-'sessions/update': [
+    'sessions/update': [
         [
-            Update_sessions_update
+            Update_sessions_update,
         ],
-        unknown
+        unknown,
     ];
-'sessions/new': [
+    'sessions/new': [
         [
-            Insert_sessions_new
+            Insert_sessions_new,
         ],
-        unknown
+        unknown,
     ];
-'sessions/get': [
+    'sessions/get': [
         [
-            Select_sessions_get
+            Select_sessions_get,
         ],
-        Sessions
+        Sessions,
     ];
-'sessions/all': [
+    'sessions/all': [
         [
-            Select_sessions_all
+            Select_sessions_all,
         ],
-        Sessions
+        Sessions,
     ];
-'member/delete': [
+    'member/delete': [
         [
-            Delete_member_delete
+            Delete_member_delete,
         ],
-        unknown
+        unknown,
     ];
-'member/update-title': [
+    'member/update-title': [
         [
-            Update_member_update_title
+            Update_member_update_title,
         ],
-        unknown
+        unknown,
     ];
-'member/update-status': [
+    'member/update-status': [
         [
-            Update_member_update_status
+            Update_member_update_status,
         ],
-        unknown
+        unknown,
     ];
-'member/update-resume': [
+    'member/update-resume': [
         [
-            Update_member_update_resume
+            Update_member_update_resume,
         ],
-        unknown
+        unknown,
     ];
-'member/remove-from-board': [
+    'member/remove-from-board': [
         [
-            Update_member_remove_from_board
+            Update_member_remove_from_board,
         ],
-        unknown
+        unknown,
     ];
-'member/new': [
+    'member/new': [
         [
-            Insert_member_new
+            Insert_member_new,
         ],
-        unknown
+        unknown,
     ];
-'member/update-bio': [
+    'member/update-bio': [
         [
-            Update_member_update_bio
+            Update_member_update_bio,
         ],
-        unknown
+        unknown,
     ];
-'member/add-to-board': [
+    'member/add-to-board': [
         [
-            Update_member_add_to_board
+            Update_member_add_to_board,
         ],
-        unknown
+        unknown,
     ];
-'member/all': [
+    'member/all': [
         [
-            Select_member_all
+            Select_member_all,
         ],
-        Members
+        Members,
     ];
-'member/from-username': [
+    'member/from-username': [
         [
-            {username:string;},
+            { username: string },
         ],
-        Members
+        Members,
     ];
-'account/unverify': [
+    'account/unverify': [
         [
-            Update_account_unverify
+            Update_account_unverify,
         ],
-        unknown
+        unknown,
     ];
-'account/set-verification': [
+    'account/set-verification': [
         [
-            Update_account_set_verification
+            Update_account_set_verification,
         ],
-        unknown
+        unknown,
     ];
-'account/delete': [
+    'account/delete': [
         [
-            Delete_account_delete
+            Delete_account_delete,
         ],
-        unknown
+        unknown,
     ];
-'account/unverified': [
+    'account/unverified': [
         [
-            Select_account_unverified
+            Select_account_unverified,
         ],
-        Accounts
+        Accounts,
     ];
-'account/change-password': [
+    'account/change-password': [
         [
-            Update_account_change_password
+            Update_account_change_password,
         ],
-        unknown
+        unknown,
     ];
-'account/save-settings': [
+    'account/save-settings': [
         [
-            Insert_account_save_settings
+            Insert_account_save_settings,
         ],
-        unknown
+        unknown,
     ];
-'account/from-username': [
+    'account/from-username': [
         [
-            Select_account_from_username
+            Select_account_from_username,
         ],
-        Accounts
+        Accounts,
     ];
-'account/update-picture': [
+    'account/update-picture': [
         [
-            Update_account_update_picture
+            Update_account_update_picture,
         ],
-        unknown
+        unknown,
     ];
-'account/from-verification-key': [
+    'account/from-verification-key': [
         [
-            Select_account_from_verification_key
+            Select_account_from_verification_key,
         ],
-        Accounts
+        Accounts,
     ];
-'account/verified': [
+    'account/verified': [
         [
-            Select_account_verified
+            Select_account_verified,
         ],
-        Accounts
+        Accounts,
     ];
-'account/verify': [
+    'account/verify': [
         [
-            Update_account_verify
+            Update_account_verify,
         ],
-        unknown
+        unknown,
     ];
-'account/get-settings': [
+    'account/get-settings': [
         [
-            Select_account_get_settings
+            Select_account_get_settings,
         ],
-        AccountSettings
+        AccountSettings,
     ];
-'account/change-email': [
+    'account/change-email': [
         [
-            Update_account_change_email
+            Update_account_change_email,
         ],
-        unknown
+        unknown,
     ];
-'account/remove-role': [
+    'account/remove-role': [
         [
-            Delete_account_remove_role
+            Delete_account_remove_role,
         ],
-        unknown
+        unknown,
     ];
-'account/add-role': [
+    'account/add-role': [
         [
-            Insert_account_add_role
+            Insert_account_add_role,
         ],
-        unknown
+        unknown,
     ];
-'account/from-email': [
+    'account/from-email': [
         [
-            Select_account_from_email
+            Select_account_from_email,
         ],
-        Accounts
+        Accounts,
     ];
-'account/new': [
+    'account/new': [
         [
-            Insert_account_new
+            Insert_account_new,
         ],
-        unknown
+        unknown,
     ];
-'account/request-password-change': [
+    'account/request-password-change': [
         [
-            Update_account_request_password_change
+            Update_account_request_password_change,
         ],
-        unknown
+        unknown,
     ];
-'account/from-password-change': [
+    'account/from-password-change': [
         [
-            Select_account_from_password_change
+            Select_account_from_password_change,
         ],
-        Accounts
+        Accounts,
     ];
-'account/from-id': [
+    'account/from-id': [
         [
-            Select_account_from_id
+            Select_account_from_id,
         ],
-        Accounts
+        Accounts,
     ];
-'account/all': [
+    'account/all': [
         [
-            Select_account_all
+            Select_account_all,
         ],
-        Accounts
+        Accounts,
     ];
-'account/request-email-change': [
+    'account/request-email-change': [
         [
-            Update_account_request_email_change
+            Update_account_request_email_change,
         ],
-        unknown
+        unknown,
     ];
-'account/change-username': [
+    'account/change-username': [
         [
-            Update_account_change_username
+            Update_account_change_username,
         ],
-        unknown
+        unknown,
     ];
-'account/roles': [
+    'account/roles': [
         [
-            {id:string;},
+            { id: string },
         ],
-        Roles
+        Roles,
     ];
-'db/get-version': [
+    'db/get-version': [
         [
-            Select_db_get_version
+            Select_db_get_version,
         ],
-        Version
+        Version,
     ];
-'db/change-version': [
+    'db/change-version': [
         [
-            Update_db_change_version
+            Update_db_change_version,
         ],
-        unknown
+        unknown,
     ];
-'db/init': [
+    'db/init': [
         [
-            Insert_db_init
+            Insert_db_init,
         ],
-        unknown
+        unknown,
     ];
-'checklists/checklists-from-event': [
+    'checklists/checklists-from-event': [
         [
-            Select_checklists_checklists_from_event
+            Select_checklists_checklists_from_event,
         ],
-        Checklists
+        Checklists,
     ];
-'checklists/update-checklist': [
+    'checklists/update-checklist': [
         [
-            Update_checklists_update_checklist
+            Update_checklists_update_checklist,
         ],
-        unknown
+        unknown,
     ];
-'checklists/new-assignment': [
+    'checklists/new-assignment': [
         [
-            Insert_checklists_new_assignment
+            Insert_checklists_new_assignment,
         ],
-        unknown
+        unknown,
     ];
-'checklists/delete-question': [
+    'checklists/delete-question': [
         [
-            Delete_checklists_delete_question
+            Delete_checklists_delete_question,
         ],
-        unknown
+        unknown,
     ];
-'checklists/new-checklist': [
+    'checklists/new-checklist': [
         [
-            Insert_checklists_new_checklist
+            Insert_checklists_new_checklist,
         ],
-        unknown
+        unknown,
     ];
-'checklists/questions-from-checklist': [
+    'checklists/questions-from-checklist': [
         [
-            Select_checklists_questions_from_checklist
+            Select_checklists_questions_from_checklist,
         ],
-        ChecklistQuestions
+        ChecklistQuestions,
     ];
-'checklists/delete-assignment': [
+    'checklists/delete-assignment': [
         [
-            Delete_checklists_delete_assignment
+            Delete_checklists_delete_assignment,
         ],
-        unknown
+        unknown,
     ];
-'checklists/update-question': [
+    'checklists/update-question': [
         [
-            Update_checklists_update_question
+            Update_checklists_update_question,
         ],
-        unknown
+        unknown,
     ];
-'checklists/delete-checklist': [
+    'checklists/delete-checklist': [
         [
-            Delete_checklists_delete_checklist
+            Delete_checklists_delete_checklist,
         ],
-        unknown
+        unknown,
     ];
-'checklists/new-answer': [
+    'checklists/new-answer': [
         [
-            Insert_checklists_new_answer
+            Insert_checklists_new_answer,
         ],
-        unknown
+        unknown,
     ];
-'checklists/delete-answer': [
+    'checklists/delete-answer': [
         [
-            Delete_checklists_delete_answer
+            Delete_checklists_delete_answer,
         ],
-        unknown
+        unknown,
     ];
-'checklists/assignments-from-checklist': [
+    'checklists/assignments-from-checklist': [
         [
-            Select_checklists_assignments_from_checklist
+            Select_checklists_assignments_from_checklist,
         ],
-        ChecklistAssignments
+        ChecklistAssignments,
     ];
-'checklists/new-question': [
+    'checklists/new-question': [
         [
-            Insert_checklists_new_question
+            Insert_checklists_new_question,
         ],
-        unknown
+        unknown,
     ];
-'custom-matches/from-event': [
+    'custom-matches/from-event': [
         [
-            Select_custom_matches_from_event
+            Select_custom_matches_from_event,
         ],
-        CustomMatches
+        CustomMatches,
     ];
-'custom-matches/new': [
+    'custom-matches/new': [
         [
-            Insert_custom_matches_new
+            Insert_custom_matches_new,
         ],
-        unknown
+        unknown,
     ];
-'custom-matches/from-id': [
+    'custom-matches/from-id': [
         [
-            Select_custom_matches_from_id
+            Select_custom_matches_from_id,
         ],
-        CustomMatches
+        CustomMatches,
     ];
-'scouting-questions/update-group': [
+    'scouting-questions/update-group': [
         [
-            Update_scouting_questions_update_group
+            Update_scouting_questions_update_group,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/delete-question': [
+    'scouting-questions/delete-question': [
         [
-            Delete_scouting_questions_delete_question
+            Delete_scouting_questions_delete_question,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/new-group': [
+    'scouting-questions/new-group': [
         [
-            Insert_scouting_questions_new_group
+            Insert_scouting_questions_new_group,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/all-sections': [
+    'scouting-questions/all-sections': [
         [
-            Select_scouting_questions_all_sections
+            Select_scouting_questions_all_sections,
         ],
-        ScoutingQuestionSections
+        ScoutingQuestionSections,
     ];
-'scouting-questions/questions-from-group': [
+    'scouting-questions/questions-from-group': [
         [
-            Select_scouting_questions_questions_from_group
+            Select_scouting_questions_questions_from_group,
         ],
-        ScoutingQuestions
+        ScoutingQuestions,
     ];
-'scouting-questions/new-question': [
+    'scouting-questions/new-question': [
         [
-            Insert_scouting_questions_new_question
+            Insert_scouting_questions_new_question,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/delete-section': [
+    'scouting-questions/delete-section': [
         [
-            Delete_scouting_questions_delete_section
+            Delete_scouting_questions_delete_section,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/answer-from-id': [
+    'scouting-questions/answer-from-id': [
         [
-            Select_scouting_questions_answer_from_id
+            Select_scouting_questions_answer_from_id,
         ],
-        ScoutingAnswers
+        ScoutingAnswers,
     ];
-'scouting-questions/update-question': [
+    'scouting-questions/update-question': [
         [
-            Update_scouting_questions_update_question
+            Update_scouting_questions_update_question,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/groups-from-event': [
+    'scouting-questions/groups-from-event': [
         [
-            Select_scouting_questions_groups_from_event
+            Select_scouting_questions_groups_from_event,
         ],
-        ScoutingQuestionGroups
+        ScoutingQuestionGroups,
     ];
-'scouting-questions/get-answer-history': [
+    'scouting-questions/get-answer-history': [
         [
-            Select_scouting_questions_get_answer_history
+            Select_scouting_questions_get_answer_history,
         ],
-        ScoutingQuestionAnswerHistory
+        ScoutingQuestionAnswerHistory,
     ];
-'scouting-questions/update-answer': [
+    'scouting-questions/update-answer': [
         [
-            Insert_scouting_questions_update_answer
+            Insert_scouting_questions_update_answer,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/new-answer': [
+    'scouting-questions/new-answer': [
         [
-            Insert_scouting_questions_new_answer
+            Insert_scouting_questions_new_answer,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/delete-answer': [
+    'scouting-questions/delete-answer': [
         [
-            Insert_scouting_questions_delete_answer
+            Insert_scouting_questions_delete_answer,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/delete-group': [
+    'scouting-questions/delete-group': [
         [
-            Delete_scouting_questions_delete_group
+            Delete_scouting_questions_delete_group,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/new-section': [
+    'scouting-questions/new-section': [
         [
-            Insert_scouting_questions_new_section
+            Insert_scouting_questions_new_section,
         ],
-        unknown
+        unknown,
     ];
-'scouting-questions/update-section': [
-    [
-        {
-            id: string;
-            name: string;
-            multiple: boolean;
-            accountId: string;
-            dateAdded: string;
-        }
-    ],
-    unknown
-];
-'scouting-questions/answer-from-team': [
-    [
-        {
-            teamNumber: number;
-            eventKey: string;
-        }
-    ],
-    ScoutingAnswers
-];
-'events/from-key': [
+    'scouting-questions/update-section': [
         [
-            Select_events_from_key
+            {
+                id: string;
+                name: string;
+                multiple: boolean;
+                accountId: string;
+                dateAdded: string;
+            },
         ],
-        Events
+        unknown,
     ];
-'events/all-alliances': [
+    'scouting-questions/answer-from-team': [
         [
-            Select_events_all_alliances
+            {
+                teamNumber: number;
+                eventKey: string;
+            },
         ],
-        Alliances
+        ScoutingAnswers,
     ];
-'events/new-event': [
+    'events/from-key': [
         [
-            Insert_events_new_event
+            Select_events_from_key,
         ],
-        unknown
+        Events,
     ];
-'events/delete-event': [
+    'events/all-alliances': [
         [
-            Delete_events_delete_event
+            Select_events_all_alliances,
         ],
-        unknown
+        Alliances,
     ];
-'events/new-alliance': [
+    'events/new-event': [
         [
-            Insert_events_new_alliance
+            Insert_events_new_event,
         ],
-        unknown
+        unknown,
     ];
-'events/delete-alliance': [
+    'events/delete-event': [
         [
-            Delete_events_delete_alliance
+            Delete_events_delete_event,
         ],
-        unknown
+        unknown,
     ];
-'match-scouting/update': [
+    'events/new-alliance': [
         [
-            Update_match_scouting_update
+            Insert_events_new_alliance,
         ],
-        unknown
+        unknown,
     ];
-'match-scouting/new': [
+    'events/delete-alliance': [
         [
-            Insert_match_scouting_new
+            Delete_events_delete_alliance,
         ],
-        unknown
+        unknown,
     ];
-'match-scouting/from-match': [
+    'match-scouting/update': [
         [
-            {matchId:string;},
+            Update_match_scouting_update,
         ],
-        RetrievedMatchScouting
-    
-];
-'match-scouting/from-team': [
-    [
-        {
-            team: number;
-            eventKey: string;
-        }
-    ],
-    RetrievedMatchScouting
-];
-'match-scouting/from-event': [
-    [
-        {
-            eventKey: string;
-        }
-    ],
-    RetrievedMatchScouting
-];
-'match-scouting/from-scout': [
-    [
-        {
-            scoutId: string;
-            eventKey: string;
-        }
-    ],
-    RetrievedMatchScouting
-];
-'match-scouting/from-id': [
+        unknown,
+    ];
+    'match-scouting/new': [
+        [
+            Insert_match_scouting_new,
+        ],
+        unknown,
+    ];
+    'match-scouting/from-match': [
+        [
+            { matchId: string },
+        ],
+        RetrievedMatchScouting,
+    ];
+    'match-scouting/from-team': [
+        [
+            {
+                team: number;
+                eventKey: string;
+            },
+        ],
+        RetrievedMatchScouting,
+    ];
+    'match-scouting/from-event': [
+        [
+            {
+                eventKey: string;
+            },
+        ],
+        RetrievedMatchScouting,
+    ];
+    'match-scouting/from-scout': [
+        [
+            {
+                scoutId: string;
+                eventKey: string;
+            },
+        ],
+        RetrievedMatchScouting,
+    ];
+    'match-scouting/from-id': [
         [
-            {id:string;},
+            { id: string },
         ],
-        RetrievedMatchScouting
-    
-];
-'match-scouting/from-scout-group': [
-    [
-        {
-            eventKey: string;
-            scoutGroup: string;
-        }
-    ],
-    RetrievedMatchScouting
-];
-'tba/from-url': [
+        RetrievedMatchScouting,
+    ];
+    'match-scouting/from-scout-group': [
+        [
+            {
+                eventKey: string;
+                scoutGroup: string;
+            },
+        ],
+        RetrievedMatchScouting,
+    ];
+    'tba/from-url': [
+        [
+            Select_tba_from_url,
+        ],
+        TBARequests,
+    ];
+    'tba/new': [
+        [
+            Insert_tba_new,
+        ],
+        unknown,
+    ];
+    'discord/insert': [
+        [
+            Insert_discord_insert,
+        ],
+        unknown,
+    ];
+    'discord/delete': [
+        [
+            Delete_discord_delete,
+        ],
+        unknown,
+    ];
+    'discord/get': [
         [
-            Select_tba_from_url
+            Select_discord_get,
         ],
-        TBARequests
+        DiscordAccount,
     ];
-'tba/new': [
+    'team-comments/delete': [
         [
-            Insert_tba_new
+            Insert_team_comments_delete,
         ],
-        unknown
+        unknown,
     ];
-'discord/insert': [
+    'team-comments/update': [
         [
-            Insert_discord_insert
+            Update_team_comments_update,
         ],
-        unknown
+        unknown,
     ];
-'discord/delete': [
+    'team-comments/new': [
         [
-            Delete_discord_delete
+            Insert_team_comments_new,
         ],
-        unknown
+        unknown,
     ];
-'discord/get': [
+    'team-comments/from-team': [
         [
-            Select_discord_get
+            {
+                eventKey: string;
+                team: number;
+            },
         ],
-        DiscordAccount
+        TeamComments,
     ];
-'team-comments/delete': [
+    'team-comments/from-event': [
         [
-            Insert_team_comments_delete
+            {
+                eventKey: string;
+            },
         ],
-        unknown
+        TeamComments,
     ];
-'team-comments/update': [
+    'teams/from-event': [
         [
-            Update_team_comments_update
+            Select_teams_from_event,
         ],
-        unknown
+        Teams,
     ];
-'team-comments/new': [
-    [
-        Insert_team_comments_new
-    ],
-    unknown
-];
-'team-comments/from-team': [
-    [
-        {
-            eventKey: string;
-            team: number;
-        }
-    ],
-    TeamComments
-];
-'team-comments/from-event': [
-    [
-        {
-            eventKey: string;
-        }
-    ],
-    TeamComments
-];
-'teams/from-event': [
+    'teams/new': [
         [
-            Select_teams_from_event
+            Insert_teams_new,
         ],
-        Teams
+        unknown,
     ];
-'teams/new': [
+    'account/from-discord-id': [
         [
-            Insert_teams_new
+            Select_account_from_discord_id,
         ],
-        unknown
+        Accounts,
     ];
-'account/from-discord-id': [
+    'account/set-discord-id': [
         [
-            Select_account_from_discord_id
+            Update_account_set_discord_id,
         ],
-        Accounts
+        unknown,
     ];
-'account/set-discord-id': [
+    'matches/from-event': [
         [
-            Update_account_set_discord_id
+            Select_matches_from_event,
         ],
-        unknown
+        Matches,
     ];
-'matches/from-event': [
+    'matches/new': [
         [
-            Select_matches_from_event
+            Insert_matches_new,
         ],
-        Matches
+        unknown,
     ];
-'matches/new': [
+    'matches/from-id': [
         [
-            Insert_matches_new
+            Select_matches_from_id,
         ],
-        unknown
+        Matches,
     ];
-'matches/from-id': [
+    'strategy/from-custom-match': [
         [
-            Select_matches_from_id
+            Select_strategy_from_custom_match,
         ],
-        Matches
+        Strategy,
     ];
-'strategy/from-custom-match': [
+    'strategy/from-match': [
         [
-            Select_strategy_from_custom_match
+            {
+                eventKey: string;
+                matchNumber: number;
+                compLevel: string;
+            },
         ],
-        Strategy
+        Strategy,
     ];
-'strategy/from-match': [
-    [
-        {
-            eventKey: string;
-            matchNumber: number;
-            compLevel: string;
-        }
-    ],
-    Strategy
-];
-'strategy/delete': [
+    'strategy/delete': [
         [
-            Delete_strategy_delete
+            Delete_strategy_delete,
         ],
-        unknown
+        unknown,
     ];
-'strategy/from-whiteboard': [
+    'strategy/from-whiteboard': [
         [
-            Select_strategy_from_whiteboard
+            Select_strategy_from_whiteboard,
         ],
-        Strategy
+        Strategy,
     ];
-'strategy/update': [
+    'strategy/update': [
         [
-            Update_strategy_update
+            Update_strategy_update,
         ],
-        unknown
+        unknown,
     ];
-'strategy/new': [
+    'strategy/new': [
         [
-            Insert_strategy_new
+            Insert_strategy_new,
         ],
-        unknown
+        unknown,
     ];
-'strategy/from-id': [
+    'strategy/from-id': [
         [
-            Select_strategy_from_id
+            Select_strategy_from_id,
         ],
-        Strategy
+        Strategy,
     ];
-'whiteboards/change-custom-match': [
+    'whiteboards/change-custom-match': [
         [
-            Update_whiteboards_change_custom_match
+            Update_whiteboards_change_custom_match,
         ],
-        unknown
+        unknown,
     ];
-'whiteboards/from-custom-match': [
+    'whiteboards/from-custom-match': [
         [
-            Select_whiteboards_from_custom_match
+            Select_whiteboards_from_custom_match,
         ],
-        Whiteboards
+        Whiteboards,
     ];
-'whiteboards/delete': [
+    'whiteboards/delete': [
         [
-            Delete_whiteboards_delete
+            Delete_whiteboards_delete,
         ],
-        unknown
+        unknown,
     ];
-'whiteboards/from-event': [
+    'whiteboards/from-event': [
         [
-            Select_whiteboards_from_event
+            Select_whiteboards_from_event,
         ],
-        Whiteboards
+        Whiteboards,
     ];
-'whiteboards/change-match': [
+    'whiteboards/change-match': [
         [
-            Update_whiteboards_change_match
+            Update_whiteboards_change_match,
         ],
-        unknown
+        unknown,
     ];
-'whiteboards/update-board': [
+    'whiteboards/update-board': [
         [
-            Update_whiteboards_update_board
+            Update_whiteboards_update_board,
         ],
-        unknown
+        unknown,
     ];
-'whiteboards/update-name': [
+    'whiteboards/update-name': [
         [
-            Update_whiteboards_update_name
+            Update_whiteboards_update_name,
         ],
-        unknown
+        unknown,
     ];
-'whiteboards/new': [
+    'whiteboards/new': [
         [
-            Insert_whiteboards_new
+            Insert_whiteboards_new,
         ],
-        unknown
+        unknown,
     ];
-'whiteboards/from-match': [
+    'whiteboards/from-match': [
         [
-            Select_whiteboards_from_match
+            Select_whiteboards_from_match,
         ],
-        Whiteboards
+        Whiteboards,
     ];
-'whiteboards/from-id': [
+    'whiteboards/from-id': [
         [
-            Select_whiteboards_from_id
+            Select_whiteboards_from_id,
         ],
-        Whiteboards
+        Whiteboards,
     ];
 };

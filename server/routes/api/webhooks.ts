@@ -90,21 +90,25 @@ router.post(
     },
 );
 
-router.post('/event/:eventKey/team/:teamNumber/comments', auth, async (req, res) => {
-    const { eventKey, teamNumber } = req.params;
-    if (!eventKey || !teamNumber) {
-        return res.sendStatus('webhook:invalid-url');
-    }
+router.post(
+    '/event/:eventKey/team/:teamNumber/comments',
+    auth,
+    async (req, res) => {
+        const { eventKey, teamNumber } = req.params;
+        if (!eventKey || !teamNumber) {
+            return res.sendStatus('webhook:invalid-url');
+        }
 
-    const comments = await DB.all('team-comments/from-team', {
-        eventKey,
-        team: +teamNumber,
-    });
+        const comments = await DB.all('team-comments/from-team', {
+            eventKey,
+            team: +teamNumber,
+        });
 
-    if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
+        if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
-    res.json(comments.value);
-});
+        res.json(comments.value);
+    },
+);
 
 router.post('/event/:eventKey/comments', auth, async (req, res) => {
     const { eventKey } = req.params;

@@ -368,7 +368,7 @@ export type RetrievedMatchScouting = MatchScouting & {
     eventKey: string;
     matchNumber: number;
     compLevel: string;
-}
+};
 
 export type MatchComments = {
     id: string;
@@ -1009,4 +1009,3 @@ export type Select_whiteboards_from_match = {
 export type Select_whiteboards_from_id = {
     id: string;
 };
-
