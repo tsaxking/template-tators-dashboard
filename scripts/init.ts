@@ -35,7 +35,7 @@ const createEnv = () => {
                 .trim();
         }
     } catch {
-        console.error(
+        console.warn(
             'Unable to read .env file, please make sure it exists and is formatted correctly.',
         );
     }
@@ -194,6 +194,13 @@ const createEnv = () => {
         (i) => i.length > 0,
         true,
     );
+    setKey(
+        'MINIFY',
+        'Minify: (default: n) (y/n)',
+        'n',
+        (i) => ['y', 'n'].includes(i),
+        true,
+    );
 
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)
@@ -203,7 +210,7 @@ const createEnv = () => {
     return values;
 };
 
-createEnv();
+if (import.meta.main) createEnv();
 
 if (Deno.args.includes('--db')) {
     // this will run the database setup.
