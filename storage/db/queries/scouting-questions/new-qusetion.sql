@@ -6,7 +6,8 @@ INSERT INTO ScoutingQuestions (
     type,
     groupId,
     dateAdded,
-    accountId
+    accountId,
+    options
 ) VALUES (
     :id,
     :question,
@@ -15,5 +16,6 @@ INSERT INTO ScoutingQuestions (
     :type,
     :groupId,
     :dateAdded,
-    :accountId
+    :accountId,
+    :options
 );

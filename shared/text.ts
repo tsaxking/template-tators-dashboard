@@ -58,3 +58,18 @@ export const streamDelimiter = '<';
     if (string.length <= length) return string;
     return string.substring(0, length - 3) + '...';
 };
+
+export const toByteString = (byte: number): string => {
+    const sizes = {
+        B: 1,
+        KB: 1024,
+        MB: 1048576,
+        GB: 1073741824,
+        TB: 1099511627776,
+    };
+
+    const i = Math.floor(Math.log(byte) / Math.log(1024));
+    return `${(byte / sizes[Object.keys(sizes)[i]]).toFixed(2)} ${
+        Object.keys(sizes)[i]
+    }`;
+};

@@ -20,6 +20,8 @@ token.json
 
 cached-ids.json
 
+database.json
+
 # *.js
 # !require.js
 
