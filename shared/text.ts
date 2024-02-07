@@ -73,3 +73,23 @@ export const toByteString = (byte: number): string => {
         Object.keys(sizes)[i]
     }`;
 };
+
+/**
+ * Parses each key of an object with a given parser (used to deCamelCase keys and stuff...)
+ * @date 2/7/2024 - 1:47:58 PM
+ */
+export const parseObject = (
+    obj: object,
+    parser: (str: string) => string,
+): unknown => {
+    if (typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map((o) => parseObject(o, parser));
+    const newObj: Record<string, unknown> = {};
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            // only do the keys, not the values
+            newObj[parser(key)] = obj[key];
+        }
+    }
+    return newObj;
+};
