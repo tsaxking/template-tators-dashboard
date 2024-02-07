@@ -6,6 +6,8 @@ import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';
 import {
+    capitalize,
+    fromCamelCase,
     fromSnakeCase,
     parseObject,
     toCamelCase,
@@ -114,7 +116,16 @@ export class DB {
         const deCamelCase = (str: string) =>
             str.replace(
                 /[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g,
-                toSnakeCase,
+                (word) => {
+                    // console.log(toSnakeCase(fromCamelCase(word)));
+                    let w = toSnakeCase(fromCamelCase(word));
+                    if (w.startsWith('_')) {
+                        w = w.slice(1);
+                        // capitalize first letter
+                        // w = w.charAt(0).toUpperCase() + w.slice(1);
+                    }
+                    return w;
+                },
             );
 
         const qMatches = query.match(/\?/g);
@@ -162,9 +173,7 @@ export class DB {
                 `
                 SELECT rolname
                 FROM pg_roles
-                WHERE rolname !~ '^pg_'
-                AND rolname !~ '^rds_'
-                AND rolname != 'rdsadmin'
+                WHERE rolname != 'postgres'
                 ORDER BY rolname;
             `,
             );
@@ -410,7 +419,9 @@ export class DB {
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => r.tableName);
+                return res.value.map((r) =>
+                    capitalize(toCamelCase(fromSnakeCase(r.tableName)))
+                );
             }
             throw res.error;
         });
@@ -430,7 +441,9 @@ export class DB {
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => r.columnName);
+                return res.value.map((r) =>
+                    toCamelCase(fromSnakeCase(r.columnName))
+                );
             }
             throw res.error;
         });
