@@ -14,7 +14,7 @@ router.get('/link/:key', async (req, res) => {
 
     if (result.isOk()) {
         const pair = result.value;
-        if (!pair) return res.sendStatus('discord:invalid-link')
+        if (!pair) return res.sendStatus('discord:invalid-link');
         const now = Date.now();
         const then = +pair.date;
 

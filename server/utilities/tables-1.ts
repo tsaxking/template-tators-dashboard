@@ -333,15 +333,11 @@ export type TeamCommentsHistory = {
     eventKey: string;
 };
 
-
-
 // Queries
-
 
 export type Select_roles_from_id = {
     id: string;
 };
-
 
 export type Select_roles_from_name = {
     name: string;
@@ -354,11 +350,9 @@ export type Insert_roles_new = {
     rank: number;
 };
 
-
 export type Delete_roles_delete = {
     id: string;
 };
-
 
 export type Update_roles_update = {
     name: string;
@@ -367,16 +361,7 @@ export type Update_roles_update = {
     id: string;
 };
 
-
 export type Select_roles_all = undefined;
-
-
-
-
-
-
-
-
 
 export type Insert_match_scouting_new = {
     id: string;
@@ -390,7 +375,6 @@ export type Insert_match_scouting_new = {
     checks: string | undefined;
 };
 
-
 export type Update_match_scouting_update = {
     matchId: string;
     team: number;
@@ -403,10 +387,6 @@ export type Update_match_scouting_update = {
     id: string;
 };
 
-
-
-
-
 export type Insert_sessions_new = {
     id: string;
     accountId: string | undefined;
@@ -418,13 +398,9 @@ export type Insert_sessions_new = {
     prevUrl: string | undefined;
 };
 
-
 export type Delete_sessions_delete = {
     id: string;
 };
-
-
-
 
 export type Update_sessions_update = {
     accountId: string | undefined;
@@ -436,43 +412,32 @@ export type Update_sessions_update = {
     id: string;
 };
 
-
 export type Select_sessions_get = {
     id: string;
 };
 
-
 export type Delete_sessions_delete_all = undefined;
 
-
-
-
 export type Select_sessions_all = undefined;
-
 
 export type Select_account_from_verification_key = {
     verification: string | undefined;
 };
-
 
 export type Update_account_change_email = {
     email: string;
     id: string;
 };
 
-
 export type Select_account_verified = undefined;
-
 
 export type Select_account_get_settings = {
     accountId: string;
 };
 
-
 export type Select_account_from_id = {
     id: string;
 };
-
 
 export type Update_account_unverify = {
     id: string;
@@ -483,12 +448,10 @@ export type Insert_account_add_role = {
     roleId: string;
 };
 
-
 export type Update_account_update_picture = {
     picture: string | undefined;
     id: string;
 };
-
 
 export type Select_account_from_discord_id = {
     discordId: string | undefined;
@@ -497,7 +460,7 @@ export type Select_account_from_discord_id = {
 export type Insert_account_new = {
     id: string;
     username: string;
-    "key": undefined;
+    'key': undefined;
     salt: string;
     firstName: string;
     lastName: string;
@@ -508,51 +471,42 @@ export type Insert_account_new = {
     phoneNumber: string | undefined;
 };
 
-
 export type Update_account_verify = {
     id: string;
 };
 
-
 export type Delete_account_delete = {
     id: string;
 };
-
 
 export type Update_account_change_username = {
     username: string;
     id: string;
 };
 
-
 export type Delete_account_remove_role = {
     accountId: string;
     roleId: string;
 };
-
 
 export type Update_account_request_email_change = {
     emailChange: string | undefined;
     id: string;
 };
 
-
 export type Select_account_from_username = {
     username: string;
 };
-
 
 export type Update_account_set_verification = {
     verification: string | undefined;
     id: string;
 };
 
-
 export type Update_account_set_discord_id = {
     discordId: string | undefined;
     id: string;
 };
-
 
 export type Update_account_change_password = {
     salt: string;
@@ -565,37 +519,22 @@ export type Insert_account_save_settings = {
     settings: string;
 };
 
-
 export type Select_account_from_email = {
     email: string;
 };
 
-
-
-
 export type Select_account_all = undefined;
-
 
 export type Select_account_from_password_change = {
     passwordChange: string | undefined;
 };
-
 
 export type Update_account_request_password_change = {
     passwordChange: string | undefined;
     id: string;
 };
 
-
 export type Select_account_unverified = undefined;
-
-
-
-
-
-
-
-
 
 export type Insert_team_comments_delete = {
     id: string;
@@ -619,9 +558,6 @@ export type Insert_team_comments_update = {
     eventKey: string;
 };
 
-
-
-
 export type Select_db_get_version = undefined;
 
 export type Insert_db_init = {
@@ -643,25 +579,9 @@ export type Insert_db_init = {
     discordId: string | undefined;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export type Update_db_change_version = {
     version: undefined;
 };
-
 
 export type Select_teams_from_event = {
     eventKey: string;
@@ -673,7 +593,6 @@ export type Insert_teams_new = {
     eventKey: string;
 };
 
-
 export type Select_tba_from_url = {
     url: string;
 };
@@ -684,7 +603,6 @@ export type Insert_tba_new = {
     updated: number;
     'update': number;
 };
-
 
 export type Select_strategy_from_id = {
     id: string;
@@ -701,11 +619,9 @@ export type Insert_strategy_new = {
     comment: string;
 };
 
-
 export type Delete_strategy_delete = {
     id: string;
 };
-
 
 export type Update_strategy_update = {
     name: string;
@@ -718,23 +634,17 @@ export type Update_strategy_update = {
     id: string;
 };
 
-
 export type Select_strategy_from_whiteboard = {
     whiteboardId: string | undefined;
 };
-
-
-
 
 export type Select_strategy_from_custom_match = {
     customMatchId: string | undefined;
 };
 
-
 export type Select_matches_from_id = {
     id: string;
 };
-
 
 export type Select_matches_from_event = {
     eventKey: string;
@@ -746,7 +656,6 @@ export type Insert_matches_new = {
     matchNumber: number;
     compLevel: string;
 };
-
 
 export type Select_scouting_questions_answer_from_id = {
     id: string;
@@ -761,11 +670,9 @@ export type Insert_scouting_questions_new_group = {
     accountId: string | undefined;
 };
 
-
 export type Select_scouting_questions_get_answer_history = {
     questionId: string;
 };
-
 
 export type Delete_scouting_questions_delete_group = {
     id: string;
@@ -790,16 +697,11 @@ export type Insert_scouting_questions_update_answer = {
     accountId: string;
 };
 
-
-
-
 export type Delete_scouting_questions_delete_section = {
     id: string | undefined;
 };
 
-
 export type Select_scouting_questions_all_sections = undefined;
-
 
 export type Select_scouting_questions_questions_from_group = {
     groupId: string;
@@ -829,7 +731,6 @@ export type Insert_scouting_questions_new_answer = {
     date: undefined;
 };
 
-
 export type Update_scouting_questions_update_question = {
     question: string;
     key: string;
@@ -839,7 +740,6 @@ export type Update_scouting_questions_update_question = {
     id: string;
 };
 
-
 export type Update_scouting_questions_update_group = {
     eventKey: string;
     name: string;
@@ -847,21 +747,17 @@ export type Update_scouting_questions_update_group = {
     id: string;
 };
 
-
 export type Select_scouting_questions_groups_from_event = {
     eventKey: string;
 };
-
 
 export type Delete_scouting_questions_delete_question = {
     id: string;
 };
 
-
 export type Select_custom_matches_from_id = {
     id: string;
 };
-
 
 export type Select_custom_matches_from_event = {
     eventKey: string;
@@ -880,22 +776,11 @@ export type Insert_custom_matches_new = {
     blue3: number;
 };
 
-
-
-
-
-
-
-
-
-
 export type Select_permissions_all = undefined;
-
 
 export type Select_events_from_key = {
     eventKey: string;
 };
-
 
 export type Delete_events_delete_event = {
     eventKey: string;
@@ -909,11 +794,9 @@ export type Insert_events_new_alliance = {
     team3: number;
 };
 
-
 export type Delete_events_delete_alliance = {
     id: string;
 };
-
 
 export type Select_events_all_alliances = {
     eventKey: string;
@@ -930,8 +813,6 @@ export type Insert_checklists_new_assignment = {
     accountId: string;
 };
 
-
-
 export type Insert_checklists_new_question = {
     id: string;
     checklistId: string;
@@ -939,17 +820,14 @@ export type Insert_checklists_new_question = {
     interval: number;
 };
 
-
 export type Delete_checklists_delete_assignment = {
     checklistId: string;
     accountId: string;
 };
 
-
 export type Select_checklists_questions_from_checklist = {
     checklistId: string;
 };
-
 
 export type Update_checklists_update_checklist = {
     name: string;
@@ -965,17 +843,13 @@ export type Insert_checklists_new_checklist = {
     description: string;
 };
 
-
 export type Select_checklists_assignments_from_checklist = {
     checklistId: string;
 };
 
-
 export type Delete_checklists_delete_answer = {
     id: string;
 };
-
-
 
 export type Insert_checklists_new_answer = {
     id: string;
@@ -984,7 +858,6 @@ export type Insert_checklists_new_answer = {
     matchId: string;
 };
 
-
 export type Update_checklists_update_question = {
     checklistId: string;
     question: string;
@@ -992,16 +865,13 @@ export type Update_checklists_update_question = {
     id: string;
 };
 
-
 export type Select_checklists_checklists_from_event = {
     eventKey: string;
 };
 
-
 export type Delete_checklists_delete_question = {
     id: string;
 };
-
 
 export type Delete_checklists_delete_checklist = {
     id: string;
@@ -1013,39 +883,32 @@ export type Insert_discord_insert = {
     date: string;
 };
 
-
 export type Delete_discord_delete = {
     key: string;
 };
 
-
 export type Select_discord_get = {
     key: string;
 };
-
 
 export type Update_whiteboards_change_custom_match = {
     customMatchId: string | undefined;
     id: string;
 };
 
-
 export type Update_whiteboards_change_match = {
     matchId: string | undefined;
     id: string;
 };
-
 
 export type Update_whiteboards_update_board = {
     board: string;
     id: string;
 };
 
-
 export type Select_whiteboards_from_id = {
     id: string;
 };
-
 
 export type Select_whiteboards_from_event = {
     eventKey: string;
@@ -1060,79 +923,56 @@ export type Insert_whiteboards_new = {
     board: string;
 };
 
-
 export type Delete_whiteboards_delete = {
     id: string;
 };
-
 
 export type Update_whiteboards_update_name = {
     name: string;
     id: string;
 };
 
-
 export type Select_whiteboards_from_match = {
     matchId: string | undefined;
 };
 
-
 export type Select_whiteboards_from_custom_match = {
     customMatchId: string | undefined;
 };
-
 
 export type Update_member_update_bio = {
     bio: string | undefined;
     id: string;
 };
 
-
 export type Update_member_add_to_board = {
     id: string;
 };
-
 
 export type Update_member_remove_from_board = {
     id: string;
 };
 
-
-
 export type Insert_member_new = {
     id: string;
-    "status": undefined;
+    'status': undefined;
 };
-
 
 export type Delete_member_delete = {
     id: string;
 };
 
-
 export type Update_member_update_status = {
     id: string;
 };
 
-
-
-
-
-
-
-
-
-
 export type Select_member_all = undefined;
-
 
 export type Update_member_update_resume = {
     id: string;
 };
 
-
 export type Update_member_update_title = {
     title: string | undefined;
     id: string;
 };
-
