@@ -5,6 +5,12 @@ import { Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';
+import {
+    fromSnakeCase,
+    parseObject,
+    toCamelCase,
+    toSnakeCase,
+} from '../../shared/text.ts';
 
 /**
  * The name of the main database
@@ -86,31 +92,44 @@ export class DB {
 
     static async connect() {
         return attemptAsync(async () => {
-            return DB.db.connect();
+            return new Promise((res, rej) => {
+                setTimeout(() => {
+                    rej('Database connection timed out');
+                }, 20 * 1000);
+                return DB.db.connect().then(res).catch(rej);
+            });
         });
     }
 
-    private static parse(
+    private static parseQuery(
         query: string,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         args: any[],
     ): [string, Parameter[]] {
+        const copied = JSON.parse(JSON.stringify(args)); // no dependencies
+
         // remove all comments
         query = query.replaceAll(/--.*\n/g, '');
+
+        const deCamelCase = (str: string) =>
+            str.replace(
+                /[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g,
+                toSnakeCase,
+            );
 
         const qMatches = query.match(/\?/g);
 
         if (qMatches) {
             if (qMatches.length !== args.length) {
                 throw new Error(
-                    `Number of parameters does not match number of ? in query. Query: ${query}, Parameters: ${args}`,
+                    `Number of parameters does not match number of ? in query. Query: ${query}, Parameters: ${copied}`,
                 );
             }
             // replace each ? with a $n
             for (let i = 0; i < qMatches.length; i++) {
                 query = query.replace('?', `$${i + 1}`);
             }
-            return [query, args];
+            return [deCamelCase(query), copied];
         }
 
         // get every :variable in the query
@@ -121,13 +140,41 @@ export class DB {
             for (let i = 0; i < matches.length; i++) {
                 query = query.replaceAll(matches[i], `$${i + 1}`);
                 newArgs.push(
-                    args[0] ? args[0][matches[i].replace(/:/g, '')] : args[i],
+                    copied[0]
+                        ? copied[0][matches[i].replace(/:/g, '')]
+                        : copied[i],
                 );
             }
-            return [query, newArgs];
+            return [deCamelCase(query), newArgs];
         }
 
-        return [query, args];
+        return [deCamelCase(query), copied];
+    }
+
+    private static parseObj<T extends object>(obj: T) {
+        return parseObject(obj, (str) => toCamelCase(fromSnakeCase(str)));
+    }
+
+    static async getUsers(): Promise<Result<string[]>> {
+        return attemptAsync(async () => {
+            // get all users for the postgres database
+            const res = await DB.unsafe.all<{ rolname: string }>(
+                `
+                SELECT rolname
+                FROM pg_roles
+                WHERE rolname !~ '^pg_'
+                AND rolname !~ '^rds_'
+                AND rolname != 'rdsadmin'
+                ORDER BY rolname;
+            `,
+            );
+
+            if (res.isOk()) {
+                return res.value.map((r) => r.rolname);
+            } else {
+                throw res.error;
+            }
+        });
     }
 
     // version info
@@ -352,7 +399,7 @@ export class DB {
 
     static async getTables(): Promise<Result<string[]>> {
         return attemptAsync(async () => {
-            const res = await DB.unsafe.all<{ table_name: string }>(
+            const res = await DB.unsafe.all<{ tableName: string }>(
                 `
                 -- get all tables available in the env.DATABASE_NAME
                 SELECT table_name
@@ -363,7 +410,7 @@ export class DB {
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => r.table_name);
+                return res.value.map((r) => r.tableName);
             }
             throw res.error;
         });
@@ -371,7 +418,7 @@ export class DB {
 
     static async getTableCols(table: string): Promise<Result<string[]>> {
         return attemptAsync(async () => {
-            const res = await DB.unsafe.all<{ column_name: string }>(
+            const res = await DB.unsafe.all<{ columnName: string }>(
                 `
                 -- get all columns in a table
                 SELECT column_name
@@ -383,7 +430,7 @@ export class DB {
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => r.column_name);
+                return res.value.map((r) => r.columnName);
             }
             throw res.error;
         });
@@ -407,7 +454,10 @@ export class DB {
         return attemptAsync(async () => {
             const sql = readFileSync('/storage/db/queries/' + type + '.sql');
             if (sql.isOk()) {
-                const [parsedQuery, parsedArgs] = DB.parse(sql.value, args);
+                const [parsedQuery, parsedArgs] = DB.parseQuery(
+                    sql.value,
+                    args,
+                );
                 return [parsedQuery, parsedArgs] as [string, QParams<T>];
             } else {
                 throw new Error('Unable to read query file: ' + type);
@@ -439,12 +489,13 @@ export class DB {
             }
 
             const [sql, newArgs] = q.value;
+
             const result = await DB.db.queryObject(sql, newArgs);
             if (result.warnings.length) {
                 log('Database warnings:', result.warnings);
             }
 
-            return result.rows;
+            return DB.parseObj(result.rows) as Queries[T][1][];
         });
     }
 
@@ -469,7 +520,10 @@ export class DB {
     ): Promise<Result<Queries[T][1]>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
-            if (q.isErr()) throw q.error;
+            if (q.isErr()) {
+                console.error(q.error);
+                throw q.error;
+            }
             return q.value[0];
         });
     }
@@ -490,7 +544,10 @@ export class DB {
     ): Promise<Result<Queries[T][1] | undefined>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
-            if (q.isErr()) throw q.error;
+            if (q.isErr()) {
+                console.error(q.error);
+                throw q.error;
+            }
             return q.value[0];
         });
     }
@@ -511,7 +568,10 @@ export class DB {
     ): Promise<Result<Queries[T][1][]>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
-            if (q.isErr()) throw q.error;
+            if (q.isErr()) {
+                console.error(q.error);
+                throw q.error;
+            }
             return q.value;
         });
     }
@@ -531,12 +591,12 @@ export class DB {
             ...args: Parameter[]
         ): Promise<Result<T[]>> => {
             return attemptAsync(async () => {
-                const [q, p] = DB.parse(query, args);
+                const [q, p] = DB.parseQuery(query, args);
                 const result = await DB.db.queryObject(q, p);
                 if (result.warnings.length) {
                     log('Database warnings:', result.warnings);
                 }
-                return result.rows as T[];
+                return DB.parseObj(result.rows) as T[];
             });
         };
 
@@ -547,7 +607,10 @@ export class DB {
             ): Promise<Result<unknown>> => {
                 return attemptAsync(async () => {
                     const r = await runUnsafe(query, ...args);
-                    if (r.isErr()) throw r.error;
+                    if (r.isErr()) {
+                        console.error(r.error);
+                        throw r.error;
+                    }
                     return r.value[0];
                 });
             },
@@ -557,7 +620,10 @@ export class DB {
             ): Promise<Result<type | undefined>> => {
                 return attemptAsync(async () => {
                     const r = await runUnsafe(query, ...args);
-                    if (r.isErr()) throw r.error;
+                    if (r.isErr()) {
+                        console.error(r.error);
+                        throw r.error;
+                    }
                     return r.value[0] as type;
                 });
             },
@@ -567,7 +633,10 @@ export class DB {
             ): Promise<Result<type[]>> => {
                 return attemptAsync(async () => {
                     const r = await runUnsafe(query, ...args);
-                    if (r.isErr()) throw r.error;
+                    if (r.isErr()) {
+                        console.error(r.error);
+                        throw r.error;
+                    }
                     return r.value as type[];
                 });
             },
@@ -577,7 +646,6 @@ export class DB {
 
 // when the program exits, close the database
 // this is to prevent the database from being locked after the program exits
-
 await DB.connect().then(async (result) => {
     if (result.isOk()) {
         log('Connected to the database');
@@ -591,7 +659,6 @@ await DB.connect().then(async (result) => {
         Deno.exit(1);
     }
 });
-
 // if the program exits, close the database
 Deno.addSignalListener('SIGINT', () => {
     DB.close();

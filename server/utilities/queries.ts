@@ -188,6 +188,26 @@ export type Queries = {
     'sessions/new': [[Insert_sessions_new], unknown];
     'sessions/get': [[Select_sessions_get], Sessions];
     'sessions/all': [[Select_sessions_all], Sessions];
+
+    'sessions/sign-in': [
+        [
+            {
+                id: string;
+                accountId: string;
+            },
+        ],
+        unknown,
+    ];
+
+    'sessions/sign-out': [
+        [
+            {
+                id: string;
+            },
+        ],
+        unknown,
+    ];
+
     'member/delete': [[Delete_member_delete], unknown];
     'member/update-title': [[Update_member_update_title], unknown];
     'member/update-status': [[Update_member_update_status], unknown];
