@@ -401,7 +401,7 @@ export type Queries = {
                 name: string;
                 multiple: boolean;
                 accountId: string;
-                dateAdded: string;
+                dateAdded: number;
             },
         ],
         unknown,
