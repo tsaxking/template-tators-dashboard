@@ -45,7 +45,9 @@ export const toSnakeCase = (str: string, del = '_'): string =>
  * @returns
  */
 export const fromSnakeCase = (str: string, del = '_'): string =>
-    str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
+    str
+        .replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`)
+        .replace(new RegExp(del, 'g'), ' ');
 
 export const streamDelimiter = '<';
 
