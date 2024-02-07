@@ -8,7 +8,7 @@
 export const capitalize = (str: string): string =>
     str.replace(
         /\w\S*/g,
-        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+        (txt) => txt.charAt(0).toUpperCase() + txt.substring(1),
     );
 
 /**
@@ -45,7 +45,9 @@ export const toSnakeCase = (str: string, del = '_'): string =>
  * @returns
  */
 export const fromSnakeCase = (str: string, del = '_'): string =>
-    str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
+    str
+        .replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`)
+        .replace(new RegExp(del, 'g'), ' ');
 
 export const streamDelimiter = '<';
 
@@ -72,4 +74,24 @@ export const toByteString = (byte: number): string => {
     return `${(byte / sizes[Object.keys(sizes)[i]]).toFixed(2)} ${
         Object.keys(sizes)[i]
     }`;
+};
+
+/**
+ * Parses each key of an object with a given parser (used to deCamelCase keys and stuff...)
+ * @date 2/7/2024 - 1:47:58 PM
+ */
+export const parseObject = (
+    obj: object,
+    parser: (str: string) => string,
+): unknown => {
+    if (typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map((o) => parseObject(o, parser));
+    const newObj: Record<string, unknown> = {};
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            // only do the keys, not the values
+            newObj[parser(key)] = obj[key];
+        }
+    }
+    return newObj;
 };

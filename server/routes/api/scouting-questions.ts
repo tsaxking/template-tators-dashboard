@@ -89,7 +89,7 @@ router.post<{
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
-        const date = Date.now().toString();
+        const date = Date.now();
         const id = uuid();
 
         DB.run('scouting-questions/new-answer', {
@@ -196,7 +196,7 @@ router.post<{
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
         const id = uuid();
-        const dateAdded = Date.now().toString();
+        const dateAdded = Date.now();
 
         DB.run('scouting-questions/new-section', {
             name,
@@ -242,7 +242,7 @@ router.post<{
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
-        const dateAdded = Date.now().toString();
+        const dateAdded = Date.now();
 
         DB.run('scouting-questions/update-section', {
             name,
@@ -286,7 +286,7 @@ router.post<{
         const { eventKey, section, name } = req.body;
         const { accountId } = req.session;
         if (!accountId) return res.sendStatus('account:not-logged-in');
-        const dateAdded = Date.now().toString();
+        const dateAdded = Date.now();
         const id = uuid();
 
         DB.run('scouting-questions/new-group', {
