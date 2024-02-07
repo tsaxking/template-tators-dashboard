@@ -6,6 +6,7 @@ import { CookieOptions, Next, ServerFunction } from './app/app.ts';
 import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
+import { log } from '../utilities/terminal-logging.ts';
 
 /**
  * Session object from the database
@@ -51,6 +52,10 @@ type SessionOptions = {
  * @typedef {Session}
  */
 export class Session {
+    static newId() {
+        return (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
+    }
+
     /**
      * This is not implemented yet, but it will be for rate limiting
      * @date 10/12/2023 - 3:13:58 PM
@@ -105,6 +110,10 @@ export class Session {
         if (res.isOk() && res.value) {
             return Session.fromSessObj(res.value);
         }
+
+        if (res.isErr()) {
+            console.error(res.error);
+        }
     }
 
     /**
@@ -116,13 +125,17 @@ export class Session {
      * @returns {Session}
      */
     static fromSessObj(s: SessionObj): Session {
+        log('Building from:', s);
+
         const session = new Session();
         session.ip = s.ip;
         session.id = s.id;
         session.latestActivity = s.latestActivity;
         session.$prevUrl = s.prevUrl;
         session.userAgent = s.userAgent;
-        session.accountId = s.accountId || undefined;
+        session.accountId = s.accountId;
+
+        log('Built:', session);
         return session;
     }
 
@@ -248,7 +261,7 @@ export class Session {
      * @param {?Req} [req]
      */
     constructor(req?: Req) {
-        this.id = (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
+        this.id = Session.newId();
 
         if (req) {
             this.ip = req.ip;
@@ -298,7 +311,10 @@ export class Session {
      */
     signIn(account: Account) {
         this.accountId = account.id;
-        this.save();
+        return DB.run('sessions/sign-in', {
+            id: this.id,
+            accountId: account.id,
+        });
     }
 
     /**
@@ -307,7 +323,7 @@ export class Session {
      */
     signOut() {
         this.accountId = undefined;
-        this.save();
+        return DB.run('sessions/sign-out', { id: this.id });
     }
 
     /**
@@ -328,7 +344,7 @@ export class Session {
         const s = await DB.get('sessions/get', { id: this.id });
 
         if (s.isOk() && s.value) {
-            DB.run('sessions/update', {
+            return DB.run('sessions/update', {
                 id: this.id,
                 ip: this.ip || '',
                 latestActivity: this.latestActivity,
@@ -338,7 +354,7 @@ export class Session {
                 requests: this.requests,
             });
         } else {
-            DB.run('sessions/new', {
+            return DB.run('sessions/new', {
                 id: this.id,
                 ip: this.ip || '',
                 latestActivity: this.latestActivity,

@@ -24,7 +24,9 @@ export const versionInfo = async () => {
         DB.latestVersion(),
     ]);
 
-    backToMain(`Current: ${current.join('.')}\nLatest: ${latest.join('.')}`);
+    console.log(`Current: ${current.join('.')}\nLatest: ${latest.join('.')}`);
+    await select('', ['[Back]']);
+    return main();
 };
 
 export const newVersion = async () => {
@@ -80,7 +82,7 @@ export const viewTables = async () => {
             const table = new cliffy.Table().header(keys).body(values as any);
             console.log(table.toString());
 
-            await select('Exit', ['[Back]']);
+            await select('', ['[Back]']);
             return main();
         } else {
             return backToMain('Error getting data: ' + data.error.message);
@@ -189,6 +191,7 @@ export const reset = async () => {
                         ),
                     );
                     if (res.every((r) => r.isOk())) {
+                        DB.setVersion([0, 0, 0]);
                         return DB.runAllUpdates();
                     } else {
                         const errors = res.filter((r) => r.isErr()) as Err[];
@@ -300,6 +303,32 @@ export const runUpdates = async () => {
     return backToMain('Ran all available updates');
 };
 
+export const clearTable = async () => {
+    const tables = await DB.getTables();
+    if (tables.isOk()) {
+        const table = await select(
+            'Select table to clear',
+            tables.value.map((t) => ({ name: t, value: t })),
+        );
+
+        const doClear = await confirm(
+            `Are you sure you want to clear ${table}?`,
+        );
+        if (doClear) {
+            const res = await DB.unsafe.run(`DELETE FROM ${table}`);
+            if (res.isOk()) {
+                backToMain('Table cleared');
+            } else {
+                backToMain('Error clearing table: ' + res.error.message);
+            }
+        } else {
+            backToMain('Clear cancelled');
+        }
+    } else {
+        backToMain('Error getting tables: ' + tables.error.message);
+    }
+};
+
 export const databases = [
     {
         value: buildQueries,
@@ -336,5 +365,9 @@ export const databases = [
     {
         value: runUpdates,
         icon: '🔃',
+    },
+    {
+        value: clearTable,
+        icon: '🗑️',
     },
 ];
