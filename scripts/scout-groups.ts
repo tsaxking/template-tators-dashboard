@@ -24,10 +24,7 @@ if (!regex.test(key)) {
     );
 }
 
-const [
-    matchesRes,
-    teamsRes,
-] = await Promise.all([
+const [matchesRes, teamsRes] = await Promise.all([
     TBA.get<TBAMatch[]>(`/event/${key}/matches`),
     TBA.get<TBATeam[]>(`/event/${key}/teams`),
 ]);

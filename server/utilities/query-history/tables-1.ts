@@ -179,7 +179,7 @@ export type TBARequests = {
     url: string;
     response: string | undefined;
     updated: number;
-    'update': number;
+    update: number;
 };
 
 export type Checklists = {
@@ -267,8 +267,8 @@ export type ScoutingQuestionSectionHistory = {
 export type ScoutingQuestionOptions = {
     id: string;
     questionId: string;
-    'option': string;
-    'order': number;
+    option: string;
+    order: number;
 };
 
 export type TeamPictures = {
@@ -460,7 +460,7 @@ export type Select_account_from_discord_id = {
 export type Insert_account_new = {
     id: string;
     username: string;
-    'key': undefined;
+    key: undefined;
     salt: string;
     firstName: string;
     lastName: string;
@@ -601,7 +601,7 @@ export type Insert_tba_new = {
     url: string;
     response: string | undefined;
     updated: number;
-    'update': number;
+    update: number;
 };
 
 export type Select_strategy_from_id = {
@@ -955,7 +955,7 @@ export type Update_member_remove_from_board = {
 
 export type Insert_member_new = {
     id: string;
-    'status': undefined;
+    status: undefined;
 };
 
 export type Delete_member_delete = {

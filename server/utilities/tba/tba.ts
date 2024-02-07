@@ -71,13 +71,13 @@ export class TBA {
             if (!path.startsWith('/')) path = '/' + path;
 
             if (options?.cached) {
-                const cached = DB.get('tba/from-url', {
+                const cached = await DB.get('tba/from-url', {
                     url: path,
                 });
 
-                if (cached) {
+                if (cached.isOk() && cached.value && cached.value.response) {
                     try {
-                        return JSON.parse(cached.response) as T;
+                        return JSON.parse(cached.value.response) as T;
                     } catch (e) {
                         error('Error parsing cached TBA response:', e);
                         return null;
