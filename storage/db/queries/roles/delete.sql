@@ -1,0 +1,1 @@
+delete from roles where id = :id;

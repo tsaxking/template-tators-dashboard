@@ -1,0 +1,1 @@
+delete from role_permissions where role_id = :role_id and permission = :permission;

@@ -1,0 +1,1 @@
+select * from accounts where id = :id;
