@@ -45,9 +45,12 @@ router.post<Match>(
         const matchScoutingId = uuid();
         const traceStr = JSON.stringify(trace);
 
-        const matches = DB.all('matches/from-event', {
+        const matchesRes = await DB.all('matches/from-event', {
             eventKey,
         });
+
+        if (matchesRes.isErr()) return res.sendStatus('unknown:error');
+        const matches = matchesRes.value;
 
         const m = matches.find(
             (m) => m.matchNumber === matchNumber && m.compLevel === compLevel,
@@ -60,19 +63,21 @@ router.post<Match>(
         }
 
         // check if duplicate
-        const existing = DB.get('match-scouting/from-match', {
+        const existingRes = await DB.get('match-scouting/from-match', {
             matchId: m.id,
         });
 
-        if (existing) {
+        if (existingRes.isErr()) return res.sendStatus('unknown:error');
+
+        if (existingRes.value) {
             return res.json({
                 success: false,
-                error: 'Duplicate match',
+                error: 'Match already scouted',
             });
         }
 
         let scoutId = '';
-        const s = Account.fromUsername(scout);
+        const s = await Account.fromUsername(scout);
         if (s) scoutId = s.id;
 
         DB.run('match-scouting/new', {
@@ -82,8 +87,8 @@ router.post<Match>(
             scoutId,
             scoutGroup: group,
             trace: traceStr,
-            preScouting: null,
-            time: date.toString(),
+            preScouting: undefined,
+            time: date,
             checks: JSON.stringify(checks),
         });
 
@@ -97,7 +102,7 @@ router.post<Match>(
                 type: key,
                 eventKey,
                 team: teamNumber,
-                time: date.toString(),
+                time: date,
             });
         }
 
@@ -149,8 +154,8 @@ router.post<{
     },
 );
 
-router.post('/get-accounts', auth, (_req, res) => {
-    const accounts = Account.all;
+router.post('/get-accounts', auth, async (_req, res) => {
+    const accounts = await Account.getAll();
     res.json(
         accounts.map((a) => ({
             username: a.username,
@@ -171,10 +176,10 @@ router.post<{
         username: 'string',
         password: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { username, password } = req.body;
-        let a = Account.fromUsername(username);
-        if (!a) a = Account.fromEmail(username);
+        let a = await Account.fromUsername(username);
+        if (!a) a = await Account.fromEmail(username);
 
         // account does not exist
         if (!a) return res.json(false);

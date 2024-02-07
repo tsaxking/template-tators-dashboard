@@ -24,8 +24,17 @@ if (!regex.test(key)) {
     );
 }
 
-const matches = await TBA.get<TBAMatch[]>(`/event/${key}/matches`);
-const teams = await TBA.get<TBATeam[]>(`/event/${key}/teams`);
+const [matchesRes, teamsRes] = await Promise.all([
+    TBA.get<TBAMatch[]>(`/event/${key}/matches`),
+    TBA.get<TBATeam[]>(`/event/${key}/teams`),
+]);
+
+if (matchesRes.isErr() || teamsRes.isErr()) {
+    throw new Error('Failed to fetch matches or teams');
+}
+
+const matches = matchesRes.value;
+const teams = teamsRes.value;
 
 // const str = JSON.stringify({
 //     matches,

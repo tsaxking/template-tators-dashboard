@@ -17,12 +17,15 @@ router.post('/test', (req, res) => {
     res.send(JSON.stringify({ success: true }));
 });
 
-router.post('/event/:eventKey/teams/trace', auth, (req, res) => {
+router.post('/event/:eventKey/teams/trace', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
-    const scouting = DB.all('match-scouting/from-event', { eventKey });
-    const trace = scouting.map((s) => {
+    const scouting = await DB.all('match-scouting/from-event', { eventKey });
+
+    if (scouting.isErr()) return res.sendStatus('webhook:invalid-url');
+
+    const trace = scouting.value.map((s) => {
         const { team, matchNumber, compLevel, trace } = s;
         return {
             team,
@@ -56,52 +59,64 @@ router.post('/event/:eventKey/scout-groups', auth, async (req, res) => {
     res.sendStatus('webhook:invalid-url');
 });
 
-router.post('/event/:eventKey/match-scouting', auth, (req, res) => {
+router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
-    const matches = DB.all('match-scouting/from-event', { eventKey });
+    const matches = await DB.all('match-scouting/from-event', { eventKey });
 
-    res.json(matches);
+    if (matches.isErr()) return res.sendStatus('webhook:invalid-url');
+
+    res.json(matches.value);
 });
 
 router.post(
     '/event/:eventKey/team/:teamNumber/match-scouting',
     auth,
-    (req, res) => {
+    async (req, res) => {
         const { eventKey, teamNumber } = req.params;
         if (!eventKey || !teamNumber) {
             return res.sendStatus('webhook:invalid-url');
         }
 
-        const matches = DB.all('match-scouting/from-team', {
+        const matches = await DB.all('match-scouting/from-team', {
             eventKey,
             team: +teamNumber,
         });
 
-        res.json(matches);
+        if (matches.isErr()) return res.sendStatus('webhook:invalid-url');
+
+        res.json(matches.value);
     },
 );
 
-router.post('/event/:eventKey/team/:teamNumber/comments', auth, (req, res) => {
-    const { eventKey, teamNumber } = req.params;
-    if (!eventKey || !teamNumber) {
-        return res.sendStatus('webhook:invalid-url');
-    }
+router.post(
+    '/event/:eventKey/team/:teamNumber/comments',
+    auth,
+    async (req, res) => {
+        const { eventKey, teamNumber } = req.params;
+        if (!eventKey || !teamNumber) {
+            return res.sendStatus('webhook:invalid-url');
+        }
 
-    const comments = DB.all('team-comments/from-team', {
-        eventKey,
-        team: +teamNumber,
-    });
+        const comments = await DB.all('team-comments/from-team', {
+            eventKey,
+            team: +teamNumber,
+        });
 
-    res.json(comments);
-});
+        if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
-router.post('/event/:eventKey/comments', auth, (req, res) => {
+        res.json(comments.value);
+    },
+);
+
+router.post('/event/:eventKey/comments', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
-    const comments = DB.all('team-comments/from-event', { eventKey });
+    const comments = await DB.all('team-comments/from-event', { eventKey });
 
-    res.json(comments);
+    if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
+
+    res.json(comments.value);
 });

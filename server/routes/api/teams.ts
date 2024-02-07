@@ -4,72 +4,91 @@ import { DB } from '../../utilities/databases.ts';
 
 export const router = new Route();
 
-router.post(
+router.post<{
+    team: number;
+    eventKey: string;
+}>(
     '/match-scouting',
     validate({
         team: 'number',
         eventKey: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { team, eventKey } = req.body;
 
-        const scouting = DB.all('match-scouting/from-team', {
+        const scouting = await DB.all('match-scouting/from-team', {
             team,
             eventKey,
         });
 
-        res.stream(scouting.map((s) => JSON.stringify(s)));
+        if (scouting.isErr()) return res.sendStatus('unknown:error');
+
+        res.stream(scouting.value.map((s) => JSON.stringify(s)));
     },
 );
 
-router.post(
+router.post<{
+    team: number;
+    eventKey: string;
+}>(
     '/match-comments',
     validate({
         team: 'number',
         eventKey: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { team, eventKey } = req.body;
 
-        const comments = DB.all('match-comments/from-team', {
+        const comments = await DB.all('team-comments/from-team', {
             team,
             eventKey,
         });
 
-        res.stream(comments.map((s) => JSON.stringify(s)));
+        if (comments.isErr()) return res.sendStatus('unknown:error');
+
+        res.stream(comments.value.map((s) => JSON.stringify(s)));
     },
 );
 
-router.post(
+router.post<{
+    team: number;
+    eventKey: string;
+}>(
     '/pit-scouting',
     validate({
         team: 'number',
         eventKey: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { team, eventKey } = req.body;
 
-        const scouting = DB.all('scouting-questions/answer-from-team', {
+        const scouting = await DB.all('scouting-questions/answer-from-team', {
             eventKey,
             teamNumber: team,
         });
 
-        res.stream(scouting.map((s) => JSON.stringify(s)));
+        if (scouting.isErr()) return res.sendStatus('unknown:error');
+
+        res.stream(scouting.value.map((s) => JSON.stringify(s)));
     },
 );
 
-router.post(
+router.post<{
+    eventKey: string;
+}>(
     '/all-from-event',
     validate({
         eventKey: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { eventKey } = req.body;
 
-        const teams = DB.all('teams/from-event', {
+        const teams = await DB.all('teams/from-event', {
             eventKey,
         });
 
-        res.stream(teams.map((t) => JSON.stringify(t)));
+        if (teams.isErr()) return res.sendStatus('unknown:error');
+
+        res.stream(teams.value.map((t) => JSON.stringify(t)));
     },
 );
