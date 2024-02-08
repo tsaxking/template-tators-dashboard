@@ -7,27 +7,31 @@ import { uuid } from '../../utilities/uuid.ts';
 
 export const router = new Route();
 
-router.post('/get-sections', (req, res) => {
-    const sections = DB.all('scouting-questions/all-sections');
+router.post('/get-sections', async (req, res) => {
+    const sections = await DB.all('scouting-questions/all-sections');
 
-    res.json(sections);
+    if (sections.isErr()) return res.sendStatus('server:unknown-server-error');
+
+    res.json(sections.value);
 });
 
 router.post<{
-    eventKey: string;
+    section: string;
 }>(
     '/get-groups',
     validate({
-        eventKey: 'string',
+        section: 'string',
     }),
-    (req, res) => {
-        const { eventKey } = req.body;
+    async (req, res) => {
+        const { section } = req.body;
 
-        const groups = DB.all('scouting-questions/groups-from-event', {
-            eventKey,
+        const groups = await DB.all('scouting-questions/groups-from-section', {
+            section,
         });
 
-        res.json(groups);
+        if (groups.isErr()) return res.sendStatus('server:unknown-server-error');
+
+        res.json(groups.value);
     },
 );
 
@@ -38,14 +42,16 @@ router.post<{
     validate({
         group: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { group } = req.body;
 
-        const questions = DB.all('scouting-questions/questions-from-group', {
+        const questions = await DB.all('scouting-questions/questions-from-group', {
             groupId: group,
         });
 
-        res.json(questions);
+        if (questions.isErr()) return res.sendStatus('server:unknown-server-error');
+
+        res.json(questions.value);
     },
 );
 
@@ -56,14 +62,16 @@ router.post<{
     validate({
         questionId: 'string',
     }),
-    (req, res) => {
+    async (req, res) => {
         const { questionId } = req.body;
 
-        const history = DB.all('scouting-questions/get-answer-history', {
+        const history = await DB.all('scouting-questions/get-answer-history', {
             questionId,
         });
 
-        res.json(history);
+        if (history.isErr()) return res.sendStatus('server:unknown-server-error');
+
+        res.json(history.value);
     },
 );
 

@@ -8,6 +8,7 @@ import { EventEmitter } from '../../../../shared/event-emitter';
 import { Cache } from '../../cache';
 import { Question } from './question';
 import { ServerRequest } from '../../../utilities/requests';
+import { socket } from '../../../utilities/socket';
 
 type Updates = {
     new: Group;
@@ -56,7 +57,9 @@ export class Group extends Cache<GroupUpdates> {
             const res = await ServerRequest.post<{
                 data: ScoutingQuestionGroup;
             }>('/api/scouting-questions/new-group', {
-                ...data,
+                name: data.name,
+                eventKey: data.eventKey,
+                section: data.section,
             });
 
             if (res.isOk()) return new Group(res.value.data);
@@ -168,3 +171,4 @@ export class Group extends Cache<GroupUpdates> {
         });
     }
 }
+

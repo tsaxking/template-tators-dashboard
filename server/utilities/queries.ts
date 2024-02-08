@@ -370,6 +370,10 @@ export type Queries = {
         [Select_scouting_questions_groups_from_event],
         ScoutingQuestionGroups,
     ];
+    'scouting-questions/groups-from-section': [
+        [{ section: string }],
+        ScoutingQuestionGroups,
+    ];
     'scouting-questions/get-answer-history': [
         [Select_scouting_questions_get_answer_history],
         ScoutingQuestionAnswerHistory,

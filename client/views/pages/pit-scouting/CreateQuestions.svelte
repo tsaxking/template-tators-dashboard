@@ -17,19 +17,23 @@ Section.on('new', s => {
 
 let open: Section;
 
-let tabs: string[] = [],
-    active: string = '';
-$: {
+const setSections = (sections: Section[], active: string) => {
     tabs = sections.map(s => s.name);
     open = sections.find(s => s.name === active);
 }
 
-Section.on('new', (s) => {
-    sections = [...sections, s];
+let tabs: string[] = [],
+    active: string = '';
+$: {
+    setSections(sections, active);
+}
+
+Section.on('new', async (s) => {
+    sections = await Section.all();
 });
 
-Section.on('update', (s) => {
-    sections = sections;
+Section.on('update', async () => {
+    sections = await Section.all();
 });
 </script>
 
@@ -38,18 +42,18 @@ Section.on('update', (s) => {
         <NavTabs
             {tabs}
             {active}
-            on:change="{e => {
+            on:change={e => {
                 active = e.detail;
-            }}"
+            }}
         />
-        <div class="nav-item">
+        <!-- <div class="nav-item"> -->
             <a href="javascript:void(0)" on:click="{async () => {
                 const name = await prompt('What name would you like the new section to be?');
                 // console.log(name);
                 if (name) {
                     if (tabs.includes(name)) return alert('A section with that name already exists');
                     const multiple = await choose('Would you like to add multiple questions at once?', 'Yes', 'No');
-                    const section = await Section.new({ 
+                    Section.new({ 
                         name,
                         multiple: multiple === 'Yes'
                     });
@@ -57,9 +61,9 @@ Section.on('update', (s) => {
             }}">
                 <i class="material-icons">add</i>
             </a>
-        </div>
+        <!-- </div> -->
     </div>
     <div class="row mb-3">
-        <S bind:section="{open}" />
+        <S bind:section={open} />
     </div>
 </div>
