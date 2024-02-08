@@ -5,7 +5,7 @@ import { validate } from '../../middleware/data-type.ts';
 import { DB } from '../../utilities/databases.ts';
 import { uuid } from '../../utilities/uuid.ts';
 
-const router = new Route();
+export const router = new Route();
 
 router.post('/get-sections', (req, res) => {
     const sections = DB.all('scouting-questions/all-sections');
@@ -403,5 +403,3 @@ router.post<{
         });
     },
 );
-
-export default router;
