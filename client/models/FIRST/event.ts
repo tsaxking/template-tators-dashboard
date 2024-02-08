@@ -63,6 +63,13 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     ): void {
         FIRSTEvent.$emitter.emit(event, data);
     }
+
+    public static once<K extends keyof Updates>(
+        event: K,
+        callback: (data: any) => void,
+    ): void {
+        FIRSTEvent.$emitter.once(event, callback);
+    }
     public static current: FIRSTEvent | null = null;
 
     /**

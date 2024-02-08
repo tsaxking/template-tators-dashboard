@@ -7,7 +7,7 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { RetrieveStreamEventEmitter } from '../../utilities/requests';
 import { ServerRequest } from '../../utilities/requests';
 import { WhiteboardCache } from './whiteboard';
-import { Cache, Updates } from '../cache';
+import { Cache } from '../cache';
 
 /**
  * Events that are emitted by a {@link Strategy} object
@@ -17,6 +17,10 @@ import { Cache, Updates } from '../cache';
  */
 type StrategyUpdateData = {
     update: Strategy;
+};
+
+type Updates = {
+    select: Strategy;
 };
 
 /**
@@ -57,25 +61,25 @@ type FromType = {
  * @implements {FIRST}
  */
 export class Strategy extends Cache<StrategyUpdateData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
-        Updates
+    private static readonly $emitter: EventEmitter<keyof Updates> = new EventEmitter<
+        keyof Updates
     >();
 
-    public static on<K extends Updates>(
+    public static on<K extends keyof Updates>(
         event: K,
         callback: (data: any) => void,
     ): void {
         Strategy.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(
+    public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: any) => void,
     ): void {
         Strategy.$emitter.off(event, callback);
     }
 
-    public static emit<K extends Updates>(event: K, data: any): void {
+    public static emit<K extends keyof Updates>(event: K, data: any): void {
         Strategy.$emitter.emit(event, data);
     }
 
