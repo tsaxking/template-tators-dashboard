@@ -53,7 +53,7 @@ const createGroup = async () => {
 <div class="container">
     {#each groups as group, i}
         <div class="row mb-3">
-            <G bind:group index={i}/>
+            <G bind:group index="{i}" />
         </div>
     {/each}
     <div class="row">

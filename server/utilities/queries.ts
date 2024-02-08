@@ -353,9 +353,9 @@ export type Queries = {
         [
             {
                 id: string;
-            }
+            },
         ],
-        ScoutingQuestions
+        ScoutingQuestions,
     ];
     'scouting-questions/new-question': [
         [Insert_scouting_questions_new_question],
