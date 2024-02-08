@@ -562,6 +562,18 @@ export const messages: {
     code: 200,
     instructions: '',
 },
+    'scouting-question:question-not-found': {
+    message: 'The question was not found, please try again',
+    color: 'danger',
+    code: 404,
+    instructions: '',
+},
+    'scouting-question:question-updated': {
+    message: 'Question updated successfully',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
     'scouting-question:update-section': {
     message: 'Section updated',
     color: 'success',
@@ -793,6 +805,8 @@ export type StatusId =
 	| 'scouting-question:new-group'
 	| 'scouting-question:new-question'
 	| 'scouting-question:new-section'
+	| 'scouting-question:question-not-found'
+	| 'scouting-question:question-updated'
 	| 'scouting-question:update-section'
 	| 'scouting-question:updated-answer'
 	| 'server:invalid-data'
@@ -933,13 +947,15 @@ export type RolesStatusId = 'added'
 
 
 export type ScoutingQuestionStatusId = 'answer-not-found'
+	| 'group-updated'
 	| 'new-answer'
 	| 'new-group'
 	| 'new-question'
 	| 'new-section'
+	| 'question-not-found'
 	| 'update-section'
 	| 'updated-answer'
-	| 'group-updated';
+	| 'question-updated';
 
 
 export type ServerStatusId = 'invalid-data'
