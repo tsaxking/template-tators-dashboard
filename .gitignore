@@ -37,6 +37,7 @@ ignore-list.txt
 *.csv
 *.db
 *.db-journal
+storage/db/backups/*
 
 # package.json
 # package-lock.json
