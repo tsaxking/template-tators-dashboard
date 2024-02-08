@@ -1,5 +1,5 @@
 import { CustomMatch as CustomMatchObj } from '../../../shared/db-types-extended';
-import { Cache, Updates } from '../cache';
+import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { FIRSTTeam } from './team';
 import { FIRSTEvent } from './event';
@@ -8,27 +8,38 @@ type CustomMatchEventData = {
     update: CustomMatch;
 };
 
+type Updates = {
+    select: CustomMatch;
+};
+
 export class CustomMatch extends Cache<CustomMatchEventData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
-        Updates
+    private static readonly $emitter: EventEmitter<keyof Updates> = new EventEmitter<
+    keyof Updates
     >();
 
-    public static on<K extends Updates>(
+    public static on<K extends keyof Updates>(
         event: K,
         callback: (data: any) => void,
     ): void {
         CustomMatch.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(
+    public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: any) => void,
     ): void {
         CustomMatch.$emitter.off(event, callback);
     }
 
-    public static emit<K extends Updates>(event: K, data: any): void {
+    public static emit<K extends keyof Updates>(event: K, data: any): void {
         CustomMatch.$emitter.emit(event, data);
+    }
+
+    public static once<K extends keyof Updates>(
+        event: K,
+        callback: (data: any) => void,
+    ): void {
+        CustomMatch.$emitter.once(event, callback);
     }
 
     public static current?: CustomMatch = undefined;

@@ -12,7 +12,7 @@ import {
 import { FIRSTEvent } from './event';
 import { FIRSTTeam } from './team';
 import { Strategy } from './strategy';
-import { Cache, Updates } from '../cache';
+import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/attempt';
 
 /**
@@ -26,6 +26,10 @@ type FIRSTMatchEventData = {
     'match-scouting': RetrievedMatchScouting;
 };
 
+type Updates = {
+    'select': FIRSTMatch;
+};
+
 /**
  * Represents a FIRST match
  * @date 10/9/2023 - 6:39:41 PM
@@ -35,26 +39,33 @@ type FIRSTMatchEventData = {
  * @typedef {FIRSTMatch}
  */
 export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
-        Updates
+    private static readonly $emitter: EventEmitter<keyof Updates> = new EventEmitter<
+    keyof Updates
     >();
 
-    public static on<K extends Updates>(
+    public static on<K extends keyof Updates>(
         event: K,
         callback: (data: any) => void,
     ): void {
         FIRSTMatch.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(
+    public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: any) => void,
     ): void {
         FIRSTMatch.$emitter.off(event, callback);
     }
 
-    public static emit<K extends Updates>(event: K, data: any): void {
+    public static emit<K extends keyof Updates>(event: K, data: any): void {
         FIRSTMatch.$emitter.emit(event, data);
+    }
+
+    public static once<K extends keyof Updates>(
+        event: K,
+        callback: (data: any) => void,
+    ): void {
+        FIRSTMatch.$emitter.once(event, callback);
     }
 
     public static current?: FIRSTMatch = undefined;
