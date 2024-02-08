@@ -3,13 +3,14 @@ import { StateStack } from '../../../shared/statestack';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { Canvas } from '../canvas/canvas';
 import { ServerRequest } from '../../utilities/requests';
+import { Drawable } from '../canvas/drawable';
 
 export type Path = {
     color: Color;
     points: Point2D[];
 };
 
-export class WhiteboardState {
+export class WhiteboardState extends Drawable {
     static fromJSON(json: string): WhiteboardState | undefined {
         try {
             const obj = JSON.parse(json) as any;

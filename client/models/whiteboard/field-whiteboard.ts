@@ -1,6 +1,6 @@
 import { Color } from '../../submodules/colors/color';
 import { StateStack } from '../../../shared/statestack';
-import { Point2D } from '../../submodules/calculations/src/linear-algebra/point';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { Whiteboard, WhiteboardState } from './whiteboard';
 
 const robotSize = 0.1; // % of canvas height
@@ -129,6 +129,6 @@ export class FieldBoard extends Whiteboard {
             }
         };
 
-        this.canvas.ctx.canvas.addEventListener('click', click);
+        this.canvas.$ctx.canvas.addEventListener('click', click);
     }
 }
