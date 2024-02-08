@@ -502,7 +502,7 @@ router.post<{
             id
         });
 
-        if (q.isErr()) return res.sendStatus('unknown:server-error');
+        if (q.isErr()) return res.sendStatus('server:unknown-server-error');
 
         if (!q.value) return res.sendStatus('scouting-question:question-not-found');
 

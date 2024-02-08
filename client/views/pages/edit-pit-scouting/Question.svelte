@@ -195,7 +195,7 @@ const fns = {
                 {/if}
                 <div class="btn-group">
                     <!-- {#if isEdited} -->
-                    <button class="btn btn-primary" on:click="{fns.update}">
+                    <button class="btn btn-success" on:click="{fns.update}">
                         Save <i class="material-icons"> save </i>
                     </button>
                     <!-- {/if} -->
