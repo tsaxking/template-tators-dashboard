@@ -117,6 +117,19 @@ export class FIRSTYear extends Cache<YearUpdateData> {
             );
 
             if (res.isOk()) {
+                const today = new Date();
+                
+                // sort by closest event to today
+                res.value.data.sort((a, b) => {
+                    const aDate = new Date(a.start_date);
+                    const bDate = new Date(b.start_date);
+                    
+                    const aDelta = Math.abs(today.getTime() - aDate.getTime());
+                    const bDelta = Math.abs(today.getTime() - bDate.getTime());
+
+                    return aDelta - bDelta;
+                });
+
                 this.$cache.set('events', res.value.data);
 
                 res.value.onUpdate(
