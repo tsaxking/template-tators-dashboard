@@ -2,7 +2,8 @@
 import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
 import { getOpenPage } from '../../utilities/page';
-import Dashboard from '../pages/Dashboard.svelte';
+// import Dashboard from '../pages/Dashboard.svelte';
+import Accounts from '../pages/Accounts.svelte';
 
 const groups = [
     {
@@ -20,7 +21,7 @@ const groups = [
     }
 ];
 
-let active: string = getOpenPage();
+let active: string = 'accounts';
 const domain = '';
 
 const openPage = ({ detail }) => {
@@ -44,5 +45,5 @@ const accountLinks = [
     {navItems}
     {accountLinks}
 >
-    <Page {active} {domain} title="dashboard"><Dashboard></Dashboard></Page>
+    <Page {active} {domain} title="accounts"><Accounts></Accounts></Page>
 </Main>

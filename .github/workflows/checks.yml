@@ -109,28 +109,3 @@ jobs:
 
                   echo "Pushing changes..."
                   git push origin main
-
-            - name: Push to deliver
-              run: |
-                  echo "testing if on branch 'main'"
-                  if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
-                    echo "not on branch 'main', exiting"
-                    exit 0
-                  fi
-
-                  echo "Good, we're on main. Pushing to deliver..."
-                  echo "Deleting old deliver branch"
-                  git branch -D deliver || true
-                  git push origin --delete deliver || true
-
-                  echo "Creating new deliver branch"
-                  git checkout --orphan deliver
-                  git reset --hard
-                  git commit --allow-empty -m "Initializing deliver branch"
-
-                  echo "Merging main into deliver"
-                  git merge main --strategy-option=theirs --allow-unrelated-histories -m "Merging main into gh-pages"
-                  git pull origin main --allow-unrelated-histories
-                  git add .
-                  git commit --allow-empty -m "Merging main into deliver"
-                  git push origin deliver
