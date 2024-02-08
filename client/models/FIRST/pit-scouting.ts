@@ -1,30 +1,34 @@
-import { Cache, Updates } from '../cache';
+import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 
 type PitScoutingEvents = {
     update: PitScouting;
 };
 
+type Updates = {
+    select: PitScouting;
+};
+
 export class PitScouting extends Cache<PitScoutingEvents> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
-        Updates
+    private static readonly $emitter: EventEmitter<keyof Updates> = new EventEmitter<
+        keyof Updates
     >();
 
-    public static on<K extends Updates>(
+    public static on<K extends keyof Updates>(
         event: K,
         callback: (data: any) => void,
     ): void {
         PitScouting.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(
+    public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: any) => void,
     ): void {
         PitScouting.$emitter.off(event, callback);
     }
 
-    public static emit<K extends Updates>(event: K, data: any): void {
+    public static emit<K extends keyof Updates>(event: K, data: any): void {
         PitScouting.$emitter.emit(event, data);
     }
     /**

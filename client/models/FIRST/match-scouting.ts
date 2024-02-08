@@ -1,4 +1,4 @@
-import { Cache, Updates } from '../cache';
+import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { MatchScouting as MatchScoutingObj } from '../../../shared/db-types-extended';
 
@@ -6,28 +6,40 @@ type MatchScoutingEvents = {
     update: MatchScouting;
 };
 
+type Updates = {
+    select: MatchScouting;
+};
+
 export class MatchScouting extends Cache<MatchScoutingEvents> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
-        Updates
+    private static readonly $emitter: EventEmitter<keyof Updates> = new EventEmitter<
+    keyof Updates
     >();
 
-    public static on<K extends Updates>(
+    public static on<K extends keyof Updates>(
         event: K,
         callback: (data: any) => void,
     ): void {
         MatchScouting.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(
+    public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: any) => void,
     ): void {
         MatchScouting.$emitter.off(event, callback);
     }
 
-    public static emit<K extends Updates>(event: K, data: any): void {
+    public static emit<K extends keyof Updates>(event: K, data: any): void {
         MatchScouting.$emitter.emit(event, data);
     }
+
+    public static once<K extends keyof Updates>(
+        event: K,
+        callback: (data: any) => void,
+    ): void {
+        MatchScouting.$emitter.once(event, callback);
+    }
+
     /**
      * Cache for all {@link MatchScouting} objects
      * @date 10/9/2023 - 6:59:50 PM
