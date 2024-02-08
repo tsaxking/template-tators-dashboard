@@ -11,9 +11,8 @@ type Updates = {
 };
 
 export class MatchScouting extends Cache<MatchScoutingEvents> {
-    private static readonly $emitter: EventEmitter<keyof Updates> = new EventEmitter<
-    keyof Updates
-    >();
+    private static readonly $emitter: EventEmitter<keyof Updates> =
+        new EventEmitter<keyof Updates>();
 
     public static on<K extends keyof Updates>(
         event: K,
