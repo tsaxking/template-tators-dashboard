@@ -7,7 +7,7 @@ import {
     TBATeam,
 } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
 import { generateScoutGroups } from '../../../shared/submodules/tatorscout-calculations/scout-groups.ts';
-import { attemptAsync } from '../../../shared/attempt.ts';
+import { attemptAsync } from '../../../shared/check.ts';
 import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
 import Account from '../../structure/accounts.ts';
 import {
