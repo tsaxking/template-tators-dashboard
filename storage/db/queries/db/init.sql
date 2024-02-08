@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS AccountRoles (
 );
 
 CREATE TABLE IF NOT EXISTS Permissions (
-    permission TEXT NOT NULL,
+    permission TEXT NOT NULL PRIMARY KEY,
     description TEXT
 );
 

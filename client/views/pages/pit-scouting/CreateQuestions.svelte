@@ -3,6 +3,7 @@ import { onMount } from 'svelte';
 import { Section } from '../../../models/FIRST/question-scouting/section';
 import NavTabs from '../../components/bootstrap/NavTabs.svelte';
 import S from './Section.svelte';
+import { prompt, alert, choose } from '../../../utilities/notifications';
 
 export let sections: Section[] = [];
 
@@ -22,6 +23,14 @@ $: {
     tabs = sections.map(s => s.name);
     open = sections.find(s => s.name === active);
 }
+
+Section.on('new', (s) => {
+    sections = [...sections, s];
+});
+
+Section.on('update', (s) => {
+    sections = sections;
+});
 </script>
 
 <div class="container">
@@ -33,6 +42,22 @@ $: {
                 active = e.detail;
             }}"
         />
+        <div class="nav-item">
+            <a href="javascript:void(0)" on:click="{async () => {
+                const name = await prompt('What name would you like the new section to be?');
+                // console.log(name);
+                if (name) {
+                    if (tabs.includes(name)) return alert('A section with that name already exists');
+                    const multiple = await choose('Would you like to add multiple questions at once?', 'Yes', 'No');
+                    const section = await Section.new({ 
+                        name,
+                        multiple: multiple === 'Yes'
+                    });
+                }
+            }}">
+                <i class="material-icons">add</i>
+            </a>
+        </div>
     </div>
     <div class="row mb-3">
         <S bind:section="{open}" />

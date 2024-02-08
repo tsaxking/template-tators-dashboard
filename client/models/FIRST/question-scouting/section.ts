@@ -61,16 +61,19 @@ export class Section extends Cache<SectionUpdates> {
 
     public static readonly $cache = new Map<string, Section>();
 
-    public static async new(data: ScoutingSection): Promise<Result<Section>> {
+    public static async new(data: {
+        name: string;
+        multiple: boolean;
+    }): Promise<Result<Section>> {
         return attemptAsync(async () => {
-            const res = await ServerRequest.post(
+            const res = await ServerRequest.post<ScoutingSection>(
                 '/api/scouting-questions/new-section',
                 {
                     ...data,
                 },
             );
 
-            if (res.isOk()) return new Section(data);
+            if (res.isOk()) return new Section(res.value);
 
             throw res.error;
         });

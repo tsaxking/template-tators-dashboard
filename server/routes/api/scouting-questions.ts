@@ -181,13 +181,13 @@ const canEdit = Account.allowPermissions('editScoutingQuestions');
 
 router.post<{
     name: string;
-    multiple: 0 | 1;
+    multiple: boolean;
 }>(
     '/new-section',
     canEdit,
     validate({
         name: 'string',
-        multiple: [0, 1],
+        multiple: 'boolean',
     }),
     (req, res) => {
         const { name, multiple } = req.body;
@@ -200,7 +200,7 @@ router.post<{
 
         DB.run('scouting-questions/new-section', {
             name,
-            multiple,
+            multiple: +multiple,
             id,
             dateAdded,
             accountId,
