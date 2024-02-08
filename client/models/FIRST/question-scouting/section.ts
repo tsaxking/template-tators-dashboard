@@ -110,7 +110,7 @@ export class Section extends Cache<SectionUpdates> {
             const res = await ServerRequest.post<ScoutingQuestionGroup[]>(
                 '/api/scouting-questions/get-groups',
                 {
-                    section: this.name,
+                    section: this.id,
                 },
             );
 

@@ -5,12 +5,13 @@ import Q from './Question.svelte';
 import { alert } from '../../../utilities/notifications';
 
 export let group: Group | undefined = undefined;
+export let index: number;
 
-let questions: Question[] = [],
-    name: string;
+let questions: Question[] = [];
 
 const fns = {
-    update: () => {
+    update: (name: string) => {
+        if (!group) return;
         group.name = name;
         group.update();
     },
@@ -31,7 +32,22 @@ const fns = {
     getQuestions: async (g: Group | undefined) => {
         if (!g) return;
         const res = await g.getQuestions();
-        questions = res.isOk() ? res.value : [];
+        if (res.isOk()) {
+            questions = res.value;
+        } else {
+            console.error(res.error);
+        }
+
+        const update = () => {
+            group = g;
+            g.off('new-question', update);
+            g.off('delete-question', update);
+            g.off('update', update);
+        };
+
+        g.on('new-question', update);
+        g.on('delete-question', update);
+        g.on('update', update);
     }
 };
 
@@ -42,36 +58,35 @@ $: {
 </script>
 
 {#if group}
-    <div class="card">
+    <div class="card p-0 bg-{Group.colorOrder[index]}">
         <div class="card-header">
             <div class="card-title">
                 <input
                     type="text"
                     name="name"
                     id="{group.id}-name"
-                    bind:value="{group.name}"
                     class="form-control"
+                    value={group.name}
+                    on:change={(e) => fns.update(e.currentTarget.value)}
                 />
             </div>
         </div>
         <div class="card-body">
             <div class="container">
                 {#each questions as q}
-                    <div class="row">
-                        <Q bind:question="{q}" />
+                    <div class="row mb-1">
+                        <Q question={q} />
                     </div>
                 {/each}
-                <div class="row">
-                    <div class="col">
-                        <button
-                            class="btn btn-primary"
-                            on:click="{fns.addQuestion}"
-                        >
-                            Create Question
-                        </button>
-                    </div>
-                </div>
             </div>
+        </div>
+        <div class="card-footer">
+            <button
+                class="btn btn-outline-light"
+                on:click="{fns.addQuestion}"
+            >
+                <i class="material-icons">add</i> Question
+            </button>
         </div>
     </div>
 {/if}

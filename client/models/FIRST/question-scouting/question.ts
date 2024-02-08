@@ -118,7 +118,17 @@ export class Question extends Cache {
 
     async update(): Promise<Result<void>> {
         return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
+            const res = await ServerRequest.post<ScoutingQuestionObj>(
+                '/api/scouting-questions/update-question',
+                {
+                    id: this.id,
+                    question: this.$question,
+                    type: this.$type,
+                    key: this.$key,
+                    description: this.$description,
+                    options: this.options,
+                }
+            );
         });
     }
 

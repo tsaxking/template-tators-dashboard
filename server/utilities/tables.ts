@@ -674,8 +674,9 @@ export type Select_custom_matches_from_id = {
 export type Update_scouting_questions_update_group = {
     eventKey: string;
     name: string;
-    section: string;
     id: string;
+    accountId: string;
+    dateAdded: number;
 };
 
 export type Delete_scouting_questions_delete_question = {
@@ -704,7 +705,7 @@ export type Insert_scouting_questions_new_question = {
     description: string;
     type: string;
     groupId: string;
-    dateAdded: string | undefined;
+    dateAdded: number | undefined;
     accountId: string | undefined;
     options: string | undefined;
 };
@@ -724,6 +725,9 @@ export type Update_scouting_questions_update_question = {
     type: string;
     groupId: string;
     id: string;
+    accountId: string;
+    dateAdded: number;
+    options: string;
 };
 
 export type Select_scouting_questions_groups_from_event = {
@@ -738,7 +742,7 @@ export type Insert_scouting_questions_update_answer = {
     questionId: string;
     answer: string;
     teamNumber: number;
-    date: string;
+    date: number;
     accountId: string;
     id: string;
 };
@@ -1036,18 +1040,6 @@ export type Insert_team_comments_update = {
 
 export type Select_team_comments_from_account = {
     accountId: string | undefined;
-};
-
-export type Insert_scouting_questions_new_qusetion = {
-    id: string;
-    question: string;
-    key: string;
-    description: string;
-    type: string;
-    groupId: string;
-    dateAdded: number;
-    accountId: string;
-    options: string;
 };
 
 export type Insert_permissions_add_to_role = {

@@ -162,7 +162,6 @@ import { Select_team_comments_from_event } from './tables.ts';
 import { Select_team_comments_from_team } from './tables.ts';
 import { Insert_team_comments_update } from './tables.ts';
 import { Select_team_comments_from_account } from './tables.ts';
-import { Insert_scouting_questions_new_qusetion } from './tables.ts';
 import { Insert_permissions_add_to_role } from './tables.ts';
 import { Delete_permissions_remove_from_role } from './tables.ts';
 import { RetrievedMatchScouting } from './tables.ts';
@@ -350,6 +349,14 @@ export type Queries = {
         [Select_scouting_questions_questions_from_group],
         ScoutingQuestions,
     ];
+    'scouting-questions/question-from-id': [
+        [
+            {
+                id: string;
+            }
+        ],
+        ScoutingQuestions
+    ];
     'scouting-questions/new-question': [
         [Insert_scouting_questions_new_question],
         unknown,
@@ -499,9 +506,5 @@ export type Queries = {
     'team-comments/from-account': [
         [Select_team_comments_from_account],
         TeamComments,
-    ];
-    'scouting-questions/new-qusetion': [
-        [Insert_scouting_questions_new_qusetion],
-        unknown,
     ];
 };

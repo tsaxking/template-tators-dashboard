@@ -138,7 +138,7 @@ router.post<{
     async (req, res) => {
         const { answerId, answer } = req.body;
         const { accountId } = req.session;
-        const date = Date.now().toString();
+        const date = Date.now();
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
@@ -327,6 +327,48 @@ router.post<{
 );
 
 router.post<{
+    id: string;
+    name: string;
+    eventKey: string;
+}>(
+    '/update-group',
+    canEdit,
+    validate({
+        id: 'string',
+        name: 'string',
+        eventKey: 'string'
+    }),
+    async (req, res) => {
+        const { id, name, eventKey } = req.body;
+        const { accountId } = req.session;
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+        const dateAdded = Date.now();
+
+        DB.run('scouting-questions/update-group', {
+            id,
+            name,
+            accountId,
+            dateAdded,
+            eventKey
+        });
+
+        res.sendStatus('scouting-question:group-updated', {
+            id,
+            name,
+            accountId,
+            dateAdded,
+        });
+
+        req.io.emit('scouting-question:update-group', {
+            id,
+            name,
+            accountId,
+            dateAdded,
+        });
+    }
+)
+
+router.post<{
     question: string;
     type:
         | 'text'
@@ -339,7 +381,7 @@ router.post<{
     section: string;
     key: string;
     description: string;
-    groupId: string;
+    group: string;
     options: QuestionOptions; // TODO: add type
 }>(
     '/new-question',
@@ -358,16 +400,16 @@ router.post<{
         section: 'string',
         key: 'string',
         description: 'string',
-        groupId: 'string',
+        group: 'string',
         options: (value) => value !== undefined,
     }),
     (req, res) => {
-        const { question, type, section, key, description, groupId, options } =
+        const { question, type, section, key, description, group, options } =
             req.body;
 
         const { accountId } = req.session;
         if (!accountId) return res.sendStatus('account:not-logged-in');
-        const dateAdded = Date.now().toString();
+        const dateAdded = Date.now();
         const id = uuid();
 
         const o = JSON.stringify(options);
@@ -378,7 +420,7 @@ router.post<{
             type,
             key,
             description,
-            groupId,
+            groupId: group,
             accountId,
             dateAdded,
             options: o,
@@ -391,7 +433,7 @@ router.post<{
             section,
             key,
             description,
-            groupId,
+            groupId: group,
             accountId,
             dateAdded,
             options: o, // must be string to keep consistency
@@ -404,10 +446,98 @@ router.post<{
             section,
             key,
             description,
-            groupId,
+            groupId: group,
             accountId,
             dateAdded,
             options: o,
         });
     },
+);
+
+
+router.post<{
+    id: string;
+    question: string;
+    type: 
+    | 'text'
+    | 'number'
+    | 'boolean'
+    | 'select'
+    | 'checkbox'
+    | 'radio'
+    | 'textarea';
+    key: string;
+    description: string;
+    options: QuestionOptions;
+}>(
+    '/update-question', 
+    canEdit,
+    validate({
+        id: 'string',
+        question: 'string',
+        type: [
+            'text',
+            'number',
+            'boolean',
+            'select',
+            'checkbox',
+            'radio',
+            'textarea',
+        ],
+        key: 'string',
+        description: 'string',
+        options: (value) => value !== undefined,
+    }),
+    async (req, res) => {
+        const { id, question, type, key, description, options } = req.body;
+
+        const { accountId } = req.session;
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        const dateAdded = Date.now();
+
+        const o = JSON.stringify(options);
+
+        const q = await DB.get('scouting-questions/question-from-id', {
+            id
+        });
+
+        if (q.isErr()) return res.sendStatus('unknown:server-error');
+
+        if (!q.value) return res.sendStatus('scouting-question:question-not-found');
+
+        DB.run('scouting-questions/update-question', {
+            id,
+            question,
+            type,
+            key,
+            description,
+            accountId,
+            dateAdded,
+            options: o,
+            groupId: q.value.groupId
+        });
+
+        res.sendStatus('scouting-question:question-updated', {
+            id,
+            question,
+            type,
+            key,
+            description,
+            accountId,
+            dateAdded,
+            options: o,
+        });
+
+        req.io.emit('scouting-question:update-question', {
+            id,
+            question,
+            type,
+            key,
+            description,
+            accountId,
+            dateAdded,
+            options: o,
+        });
+    }
 );
