@@ -7,6 +7,7 @@ import { EventEmitter } from '../../../../shared/event-emitter';
 import { ServerRequest } from '../../../utilities/requests';
 import { Cache } from '../../cache';
 import { Group } from './group';
+import { socket } from '../../../utilities/socket';
 
 type Updates = {
     new: Section;
@@ -64,7 +65,7 @@ export class Section extends Cache<SectionUpdates> {
     public static async new(data: {
         name: string;
         multiple: boolean;
-    }): Promise<Result<Section>> {
+    }): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<ScoutingSection>(
                 '/api/scouting-questions/new-section',
@@ -73,9 +74,8 @@ export class Section extends Cache<SectionUpdates> {
                 },
             );
 
-            if (res.isOk()) return new Section(res.value);
 
-            throw res.error;
+            if (res.isErr()) throw res.error;
         });
     }
 
@@ -188,3 +188,32 @@ export class Section extends Cache<SectionUpdates> {
         });
     }
 }
+
+socket.on('scouting-question:new-section', (data: ScoutingSection) => {
+    const s = new Section(data);
+    Section.emit('new', s);
+});
+
+socket.on('scouting-question:update-section', (data: ScoutingSection) => {
+    const s = Section.$cache.get(data.id);
+    if (!s) return;
+
+    s.$name = data.name;
+    s.$multiple = !!data.multiple;
+    Section.emit('update', s);
+    
+    s.emit('update', s);
+});
+
+socket.on('scouting-question:new-group', (data: ScoutingQuestionGroup) => {
+    const g = new Group(data);
+    const s = Section.$cache.get(data.id);
+    if (!s) return;
+
+    const groups = s.$cache.get('groups') as Group[] | undefined;
+    if (!groups) return s.$cache.set('groups', [g]);
+
+    groups.push(g);
+
+    s.emit('new-group', g);
+});

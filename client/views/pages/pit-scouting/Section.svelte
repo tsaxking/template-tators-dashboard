@@ -4,14 +4,25 @@ import { Section } from '../../../models/FIRST/question-scouting/section';
 import G from './Group.svelte';
 import { prompt, alert } from '../../../utilities/notifications';
 import { FIRSTEvent } from '../../../models/FIRST/event';
+import { onMount } from 'svelte';
 
 export let section: Section | undefined = undefined;
 let groups: Group[] = [];
 
 const getGroups = async (s: Section | undefined) => {
+    console.log('getting groups', s);
     if (!s) return;
     const res = await s.getGroups();
     groups = res.isOk() ? res.value : [];
+
+    const pull = () => {
+        getGroups(s);
+        s.off('new-group', pull);
+        s.off('delete-group', pull);
+    };
+
+    s.on('new-group', pull);
+    s.on('delete-group', pull);
 };
 
 $: {

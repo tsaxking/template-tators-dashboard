@@ -14,6 +14,7 @@ import {
     toSnakeCase,
 } from '../../shared/text.ts';
 import { bigIntDecode, bigIntEncode } from '../../shared/objects.ts';
+import { daysTimeout } from '../../shared/sleep.ts';
 
 /**
  * The name of the main database
@@ -70,7 +71,7 @@ type QueryResult<T> = {
     rows: T[];
     query: string;
     params: unknown[];
-}
+};
 
 export type Version = [number, number, number];
 
@@ -378,10 +379,7 @@ export class DB {
 
     static async makeBackup(): Promise<Result<string>> {
         return attemptAsync(async () => {
-            const [
-                tables,
-                version,
-            ] = await Promise.all([
+            const [tables, version] = await Promise.all([
                 DB.getTables(),
                 DB.getVersion(),
             ]);
@@ -501,7 +499,8 @@ export class DB {
 
                         return Promise.all(
                             rows.map(async (r) => {
-                                const q = `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
+                                const q =
+                                    `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
                                 const res = await DB.unsafe.run(q, r);
 
                                 if (res.isErr()) {
@@ -538,9 +537,69 @@ export class DB {
     }
 
     static async setIntervals() {
+        const { BACKUP_INTERVAL, BACKUP_DAYS } = env;
+        if (!BACKUP_INTERVAL || !BACKUP_DAYS) {
+            console.log(
+                'BACKUP_INTERVAL or BACKUP_DAYS not set, skipping backup intervals',
+            );
+            return;
+        }
+        const now = Date.now();
+
+        console.log(
+            'Setting backup intervals to create every',
+            BACKUP_INTERVAL,
+            'hours, and delete after',
+            BACKUP_DAYS,
+            'days',
+        );
+
         // backup each day, delete after 30 days
         return attemptAsync(async () => {
-            throw new Error('Not implemented');
+            const backups = await DB.getBackups();
+            if (backups.isErr()) throw new Error('Could not find backups');
+
+            console.log(
+                'Setting backup intervals to delete every',
+                BACKUP_DAYS,
+                'days',
+            );
+
+            const deleteAfter = (backup: string, days: number) => {
+                daysTimeout(() => {
+                    console.log('Deleting backup:', backup);
+                    Deno.remove(`storage/db/backups/${backup}`);
+                }, days);
+            };
+
+            // creates a backup every BACKUP_INTERVAL hours
+            setInterval(
+                async () => {
+                    console.log('Creating automated database backup...');
+                    const res = await DB.makeBackup();
+                    if (res.isOk()) {
+                        deleteAfter(res.value, +BACKUP_DAYS);
+                    } else {
+                        console.log('Error creating backup', res.error);
+                    }
+                },
+                +BACKUP_INTERVAL * 60 * 60 * 1000,
+            );
+
+            for (const b of backups.value) {
+                const [, time] = b.split('_');
+                const date = new Date(+time.split('.')[0]);
+                const deleteDate = new Date(+time.split('.')[0]).setDate(
+                    date.getDate() + +BACKUP_DAYS,
+                );
+
+                if (deleteDate < now) {
+                    console.log('Deleting backup:', b);
+                    await Deno.remove(`storage/db/backups/${b}`);
+                } else {
+                    deleteAfter(b, +BACKUP_DAYS);
+                }
+            }
         });
     }
 
@@ -555,7 +614,8 @@ export class DB {
             for (const v of versions.value) {
                 const [M, m, p] = v;
                 if (
-                    M < major || (M === major && m < minor) ||
+                    M < major ||
+                    (M === major && m < minor) ||
                     (M === major && m === minor && p <= patch)
                 ) {
                     const res = await DB.runUpdate(v);
@@ -564,7 +624,6 @@ export class DB {
             }
         });
     }
-
     static async runAllUpdates() {
         const res = await DB.init();
         if (res.isErr()) {
@@ -700,7 +759,7 @@ export class DB {
                 rows: DB.parseObj(result.rows) as Queries[T][1][],
                 params: newArgs,
                 query: sql,
-            }
+            };
         });
     }
 
@@ -806,7 +865,7 @@ export class DB {
                         rows: DB.parseObj(result.rows) as T[],
                         query: q,
                         params: p,
-                    }
+                    };
                 } catch (error) {
                     console.error('Error running query:', error);
                     console.log('Query:', q);
@@ -866,6 +925,8 @@ await DB.connect().then(async (result) => {
     if (result.isOk()) {
         log('Connected to the database');
         await DB.runAllUpdates();
+        await DB.makeBackup();
+        await DB.setIntervals();
     } else {
         error('FATAL:', result.error);
         error(
@@ -879,7 +940,3 @@ await DB.connect().then(async (result) => {
 Deno.addSignalListener('SIGINT', () => {
     DB.close();
 });
-
-// Deno.addSignalListener('SIGTERM', () => {
-//     DB.close();
-// });

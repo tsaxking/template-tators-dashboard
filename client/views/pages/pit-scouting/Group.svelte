@@ -38,6 +38,7 @@ const fns = {
 $: {
     fns.getQuestions(group);
 }
+
 </script>
 
 {#if group}
