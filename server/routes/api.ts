@@ -22,3 +22,6 @@ router.route('/event-server', eventServer);
 
 import { router as webhook } from './api/webhooks.ts';
 router.route('/webhooks', webhook);
+
+import { router as scoutingQuestions } from './api/scouting-questions.ts';
+router.route('/scouting-questions', scoutingQuestions);

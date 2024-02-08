@@ -146,7 +146,7 @@ app.post('/*', (req, res, next) => {
 // }));
 
 app.get('/', (req, res) => {
-    res.redirect('/dashboard');
+    res.redirect('/home');
 });
 
 app.get('/*', async (req, res, next) => {
@@ -168,10 +168,9 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
-// app.get('/api/webhooks/test', (req, res,next) => {
-//     console.log('worked!');
-//     next()
-// })
+app.get('/home', (_req, res) => {
+    res.sendTemplate('entries/home');
+});
 
 app.route('/api', api);
 app.route('/account', account);
