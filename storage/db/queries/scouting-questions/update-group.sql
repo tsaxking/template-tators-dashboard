@@ -1,6 +1,7 @@
 UPDATE ScoutingQuestionGroups
 SET
     eventKey = :eventKey,
-    name = :name
-    section = :section
+    name = :name,
+    accountId = :accountId,
+    dateAdded = :dateAdded
 WHERE id = :id;

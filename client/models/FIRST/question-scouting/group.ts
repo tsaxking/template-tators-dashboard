@@ -9,6 +9,7 @@ import { Cache } from '../../cache';
 import { Question } from './question';
 import { ServerRequest } from '../../../utilities/requests';
 import { socket } from '../../../utilities/socket';
+import { BootstrapColor } from '../../../submodules/colors/color';
 
 type Updates = {
     new: Group;
@@ -24,6 +25,16 @@ type GroupUpdates = {
 // used to organize questions into separate groups
 export class Group extends Cache<GroupUpdates> {
     private static readonly $emitter = new EventEmitter<keyof Updates>();
+
+    static readonly colorOrder: BootstrapColor[] = [
+        'primary',
+        'dark',
+        'indigo',
+        'steel',
+        'warning',
+        'grape',
+        'cyan'
+    ];
 
     public static on<K extends keyof Updates>(
         event: K,
@@ -99,7 +110,7 @@ export class Group extends Cache<GroupUpdates> {
             const res = await ServerRequest.post<ScoutingQuestionObj[]>(
                 '/api/scouting-questions/get-questions',
                 {
-                    groupId: this.id,
+                    group: this.id,
                 },
             );
 
@@ -111,7 +122,21 @@ export class Group extends Cache<GroupUpdates> {
 
     async update(): Promise<Result<void>> {
         return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
+            const res = await ServerRequest.post<ScoutingQuestionGroup>(
+                '/api/scouting-questions/update-group',
+                {
+                    id: this.id,
+                    name: this.name,
+                    eventKey: this.eventKey
+                }
+            );
+
+            if (res.isOk()) {
+                this.name = res.value.name;
+                return;
+            }
+
+            throw res.error;
         });
     }
 
@@ -134,7 +159,7 @@ export class Group extends Cache<GroupUpdates> {
                 data: ScoutingQuestionObj;
             }>('/api/scouting-questions/new-question', {
                 ...data,
-                groupId: this.id,
+                group: this.id,
                 section: this.section,
             });
 
@@ -172,3 +197,10 @@ export class Group extends Cache<GroupUpdates> {
     }
 }
 
+socket.on('scouting-question:new-question', (data: ScoutingQuestionObj) => {
+    const g = Group.$cache.get(data.groupId);
+    if (!g) return;
+
+    const q = new Question(data);
+    g.emit('new-question', q);
+});

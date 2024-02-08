@@ -4,8 +4,8 @@ import type {
     QuestionOptions,
     QuestionType
 } from '../../../../shared/db-types-extended';
-import O from './Option.svelte';
-import { alert } from '../../../utilities/notifications';
+import { alert, confirm } from '../../../utilities/notifications';
+import O from './Option.svelte'
 
 export let question: Question | undefined = undefined;
 
@@ -14,41 +14,32 @@ let type: QuestionType,
     description: string,
     key: string,
     questionText: string,
-    optionsData: string[] = [];
+    optionsData: string[] = []//,
+    // isEdited = false
+    ;
 $: {
-    if (question) {
-        type = question.type;
-        options = question.options;
-        description = question.description;
-        key = question.key;
-        questionText = question.question;
-
-        if (type === 'select') {
-            optionsData = options.select || [];
-        }
-
-        if (type === 'checkbox') {
-            optionsData = options.checkbox || [];
-        }
-
-        if (type === 'radio') {
-            optionsData = options.radio || [];
-        }
-    }
+    fns.setQuestion(question);
+    // isEdited = question?.type === type &&
+    //     question?.description === description &&
+    //     question?.key === key &&
+    //     question?.question === questionText &&
+    //     JSON.stringify(question?.options) === JSON.stringify(options);
 }
 
 // to not have svelte complain about too many variables
 const fns = {
-    update: () => {
+    update: async () => {
+        console.log('updating...');
         question.type = type;
-        question.description = description;
+        question.description = description.trim();
         question.options.checkbox = options.checkbox;
         question.options.radio = options.radio;
         question.options.select = options.select;
-        question.key = key;
-        question.question = questionText;
+        question.key = key.trim();
+        question.question = questionText.trim();
 
-        question.update();
+        const res = await question.update();
+        if (res.isErr()) console.error(res.error);
     },
     addOption: () => {
         if (type === 'select') {
@@ -86,6 +77,11 @@ const fns = {
         options = options;
     },
     delete: async () => {
+        if (!question) return alert('Cannot delete undefined question');
+
+        const doDelete = await confirm('Are you sure you want to delete this question?');
+        if (!doDelete) return;
+        
         const res = await question.delete();
         if (res.isOk()) {
             question = undefined;
@@ -94,48 +90,85 @@ const fns = {
         if (res.isErr()) {
             alert(res.error.message);
         }
+    },
+    setQuestion: (q: Question | undefined) => {
+        if (q) {
+            type = question.type;
+            options = question.options;
+            description = question.description.trim();
+            key = question.key.trim();
+            questionText = question.question.trim();
+
+            if (type === 'select') {
+                optionsData = options.select.map(o => o.trim()) || [];
+            }
+
+            if (type === 'checkbox') {
+                optionsData = options.checkbox.map(o => o.trim()) || [];
+            }
+
+            if (type === 'radio') {
+                optionsData = options.radio.map(o => o.trim()) || [];
+            }
+
+            // q.on('update', () => {})
+        }
     }
 };
 </script>
 
-{#if !!question}
+{#if question}
     <div class="card">
         <div class="card-body">
             <div class="container">
                 <div class="row mb-3">
                     <label for="{question.id}-text">Question Text</label>
+                    <small class="mb-2">
+                        This is the question that will be displayed to the scout for them to ask.
+                    </small>
                     <input
                         type="text"
                         class="form-control"
                         id="{question.id}-text"
-                        bind:value="{questionText}"
+                        bind:value={questionText}
                     />
                 </div>
                 <div class="row mb-3">
                     <label for="{question.id}-key">Question Key</label>
+                    <small class="mb-2">
+                        This is just a unique identifier to summarize the question to make reading summaries easier. (e.g. How heavy is the robot? <i class="material-icons">arrow_right</i> weight)
+                        <br>
+                        This will initialize as a random key, please change it.
+                    </small>
                     <input
                         type="text"
                         class="form-control"
                         id="{question.id}-key"
-                        bind:value="{key}"
+                        bind:value={key}
                     />
                 </div>
                 <div class="row mb-3">
                     <label for="{question.id}-description"
                         >Question Description</label
                     >
+                    <small class="mb-2">
+                        In case of any confusion, please write a description of the question. This could be good to explain why we're asking it in case that is brought up by the team's representative.
+                    </small>
                     <textarea
                         class="form-control"
                         id="{question.id}-description"
-                        bind:value="{description}"
+                        bind:value={description}
                     ></textarea>
                 </div>
                 <div class="row mb-3">
                     <label for="{question.id}-type">Question Type</label>
+                    <small class="mb-2">
+                        This is the type of question, if it's a text input, a number input, a boolean input, a select input, a checkbox input, or a radio input.
+                    </small>
                     <select
                         class="form-control"
                         id="{question.id}-type"
-                        bind:value="{type}"
+                        bind:value={type}
                     >
                         <option value="text">Text</option>
                         <option value="number">Number</option>
@@ -145,6 +178,9 @@ const fns = {
                     </select>
                 </div>
                 {#if type === 'select' || type === 'checkbox' || type === 'radio'}
+                <small class="mb-2">
+                    These are the options that will be displayed to the scout for them to select from.
+                </small>
                     {#each optionsData as o}
                         <O text="{o}" />
                     {/each}
@@ -158,12 +194,14 @@ const fns = {
                     </div>
                 {/if}
                 <div class="btn-group">
+                    <!-- {#if isEdited} -->
                     <button class="btn btn-primary" on:click="{fns.update}">
                         Save <i class="material-icons"> save </i>
                     </button>
-                    <button class="btn btn-danger" on:click="{fns.delete}">
+                    <!-- {/if} -->
+                    <!-- <button class="btn btn-danger" on:click="{fns.delete}">
                         Delete Question <i class="material-icons"> delete </i>
-                    </button>
+                    </button> -->
                 </div>
             </div>
         </div>

@@ -15,6 +15,7 @@ import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import './utilities/tba/tba.ts';
+import { emitter } from './middleware/data-type.ts';
 
 const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -38,6 +39,8 @@ if (env.ENVIRONMENT === 'dev') {
     });
     stdin.on('rb', () => builder.emit('build'));
     builder.on('error', (e) => log('Build error:', e));
+
+    emitter.on('fail', console.log);
 }
 
 app.post('/env', (req, res) => {
@@ -51,7 +54,7 @@ app.post('/socket-init', (req, res) => {
     res.json(parseCookie(cookie));
 });
 
-app.use('/*', (req, res, next) => {
+app.get('/*', (req, res, next) => {
     log(`[${req.method}] ${req.url}`);
     next();
 });
@@ -116,6 +119,7 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
+    log(`[${req.method}] ${req.url}`);
 
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {

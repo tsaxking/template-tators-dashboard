@@ -2,7 +2,7 @@
 import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
 import RobotDisplay from '../pages/RobotDisplay.svelte';
-import CreateScoutingQuestions from '../pages/pit-scouting/CreateQuestions.svelte';
+import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
 
 const groups = [
     {
@@ -29,7 +29,7 @@ const groups = [
     }
 ];
 
-let active = 'robot-display';
+let active = 'create-scouting-questions';
 
 const domain = 'tatorscout.org';
 
