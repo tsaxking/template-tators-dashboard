@@ -3,7 +3,7 @@ import { DB } from '../databases.ts';
 import env from '../env.ts';
 import { error } from '../terminal-logging.ts';
 import { saveEvent } from '../../../scripts/tba-update.ts';
-import { attemptAsync, Result } from '../../../shared/attempt.ts';
+import { attemptAsync, Result } from '../../../shared/check.ts';
 // import { TBAEvent } from "../../../shared/tba.ts";
 // import { TBA_Event } from './event.ts';
 

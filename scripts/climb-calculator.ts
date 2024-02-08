@@ -3,7 +3,7 @@ import {
     TBAEvent,
     YearTBAMatch,
 } from '../shared/submodules/tatorscout-calculations/tba.ts';
-import { attemptAsync } from '../shared/attempt.ts';
+import { attemptAsync } from '../shared/check.ts';
 
 // console.log(weekEvents.map((e) => e.length));
 

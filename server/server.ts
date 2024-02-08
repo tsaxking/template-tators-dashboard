@@ -179,6 +179,7 @@ app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
     if (!req.session.accountId) {
+        console.log('Not signed in:', req.session.id);
         req.session.prevUrl = req.url;
         return res.redirect('/account/sign-in');
     }
