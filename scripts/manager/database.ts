@@ -152,146 +152,23 @@ export const addQueryType = async () => {
     }
 };
 
-export const makeDefaultQueries = async () => {
-    return backToMain('Not implemented');
-    const tables = await getTables();
-
-    const name = await select<string>(
-        'Select table to make default queries for',
-        Object.keys(tables),
-    );
-
-    const t = tables[name];
-    if (!t) return backToMain('Table not found');
-
-    const parsedName = toSnakeCase(fromCamelCase(name), '-');
-
-    const hasNew = await readFile(`/storage/db/queries/${parsedName}/new.sql`);
-    const hasGet = await readFile(`/storage/db/queries/${parsedName}/get.sql`);
-    const hasDelete = await readFile(
-        `/storage/db/queries/${parsedName}/delete.sql`,
-    );
-};
 
 export const reset = async () => {
     const doReset = await confirm(
         'Are you sure you want to reset the database?',
     );
-    const version = await DB.getVersion();
 
     if (doReset) {
-        await DB.makeBackup();
-        const tables = await DB.getTables();
-        if (tables.isOk()) {
-            const reset = async (): Promise<Result<void>> => {
-                return attemptAsync(async () => {
-                    const res = await Promise.all(
-                        tables.value.map((t) =>
-                            DB.unsafe.run(`DROP TABLE ${t}`)
-                        ),
-                    );
-                    if (res.every((r) => r.isOk())) {
-                        DB.setVersion([0, 0, 0]);
-                        return DB.runAllUpdates();
-                    } else {
-                        const errors = res.filter((r) => r.isErr()) as Err[];
-                        throw new Error(
-                            'Error resetting database: ' +
-                                errors.map((e) => e.error).join('\n'),
-                        );
-                    }
-                });
-            };
+        const backup = await DB.makeBackup();
+        if (backup.isErr()) {
+            return backToMain('Error making backup: ' + backup.error.message);
+        }
 
-            const saveData = await select(
-                'Do you want to save all data currently stored?',
-                [
-                    {
-                        name: 'Yes, Save, Reset, and reapply data.',
-                        value: true,
-                    },
-                    {
-                        name: 'No, Reset and delete all data',
-                        value: false,
-                    },
-                ],
+        const reset = await DB.reset();
+        if (reset.isErr()) {
+            return backToMain(
+                'Error resetting database: ' + reset.error.message,
             );
-
-            if (saveData) {
-                const data = await Promise.all(
-                    tables.value.map((t) => {
-                        return DB.unsafe.all<{
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            [key: string]: any;
-                        }>(`SELECT * FROM ${t}`);
-                    }),
-                );
-
-                if (data.every((d) => d.isOk())) {
-                    const res = await reset();
-                    if (res.isOk()) {
-                        await Promise.all(
-                            data.map((d, i) => {
-                                // this shouldn't ever happen, but typescript, for some reason, doesn't know that
-                                if (d.isErr()) throw new Error(d.error.message);
-                                const table = tables.value[i];
-                                for (const col of d.value) {
-                                    const cols = Object.keys(col);
-                                    DB.unsafe
-                                        .run(
-                                            `
-                                        INSERT INTO ${table} (${
-                                                cols.join(
-                                                    ', ',
-                                                )
-                                            })
-                                        VALUES (${
-                                                cols
-                                                    .map((c) => ':' + c)
-                                                    .join(', ')
-                                            }
-                                    `,
-                                            col,
-                                        )
-                                        .then((r) => {
-                                            if (r.isErr()) {
-                                                throw new Error(
-                                                    r.error.message,
-                                                );
-                                            }
-                                        });
-                                }
-                            }),
-                        );
-                        return backToMain(
-                            'Database reset and updated to latest version. All data was saved.',
-                        );
-                    } else {
-                        DB.restoreBackup(version);
-                    }
-                } else {
-                    const errors = data.filter((d) => d.isErr()) as Err[];
-                    return backToMain(
-                        'Error saving data: ' +
-                            errors.map((e) => e.error.message).join('\n'),
-                    );
-                }
-            } else {
-                const res = await reset();
-
-                if (res.isOk()) {
-                    return backToMain(
-                        'Database reset and updated to latest version. All data was deleted.',
-                    );
-                } else {
-                    DB.restoreBackup(version);
-                    return backToMain(
-                        'Error resetting database: ' + res.error.message,
-                    );
-                }
-            }
-        } else {
-            return backToMain('Error getting tables: ' + tables.error.message);
         }
     } else {
         return backToMain('Reset cancelled');
@@ -329,6 +206,37 @@ export const clearTable = async () => {
     }
 };
 
+export const restoreBackup = async () => {
+    const backups = await readDir(resolve(__root, './storage/db/backups'));
+    if (backups.isErr()) {
+        return backToMain('Error reading backups: ' + backups.error.message);
+    }
+
+    const backup = await select(
+        'Select backup to restore',
+        backups.value.map((b) => ({
+            name: b.name,
+            value: b.name,
+        })),
+    );
+
+    const res = await DB.restoreBackup(backup);
+    if (res.isOk()) {
+        backToMain('Backup restored');
+    } else {
+        backToMain('Error restoring backup: ' + res.error.message);
+    }
+};
+
+export const backup = async () => {
+    const res = await DB.makeBackup();
+    if (res.isOk()) {
+        backToMain('Backup created');
+    } else {
+        backToMain('Error creating backup: ' + res.error.message);
+    }
+};
+
 export const databases = [
     {
         value: buildQueries,
@@ -350,14 +258,6 @@ export const databases = [
         value: viewTables,
         icon: '📇',
     },
-    // {
-    //     value: addQueryType,
-    //     icon: '📝',
-    // },
-    // {
-    //     value: makeDefaultQueries,
-    //     icon: '📄',
-    // },
     {
         value: reset,
         icon: '🔄',
@@ -369,5 +269,13 @@ export const databases = [
     {
         value: clearTable,
         icon: '🗑️',
+    },
+    {
+        value: restoreBackup,
+        icon: '🔙',
+    },
+    {
+        value: backup,
+        icon: '💾',
     },
 ];
