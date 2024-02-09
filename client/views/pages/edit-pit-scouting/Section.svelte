@@ -8,19 +8,20 @@ import { FIRSTEvent } from '../../../models/FIRST/event';
 export let section: Section | undefined = undefined;
 let groups: Group[] = [];
 
-const getGroups = async (s: Section | undefined) => {
+const getGroups = async (s: Section | undefined, event: FIRSTEvent | undefined) => {
     if (!s) return;
-    const res = await s.getGroups();
+    if (!event) return;
+    const res = await s.getGroups(event);
     if (res.isOk()) {
         groups = res.value;
     } else {
         console.error(res.error);
     }
-
-    console.log(groups);
+    
+    console.log({ groups, event, s });
 
     const pull = () => {
-        getGroups(s);
+        getGroups(s, event);
         s.off('new-group', pull);
         s.off('delete-group', pull);
     };
@@ -28,10 +29,6 @@ const getGroups = async (s: Section | undefined) => {
     s.on('new-group', pull);
     s.on('delete-group', pull);
 };
-
-$: {
-    getGroups(section);
-}
 
 const createGroup = async () => {
     if (!FIRSTEvent.current)
@@ -48,6 +45,16 @@ const createGroup = async () => {
         groups = [...groups, res.value];
     }
 };
+
+$: {
+    if (section) {
+        getGroups(section, FIRSTEvent.current);
+    }
+}
+
+FIRSTEvent.on('select', async (event) => {
+    getGroups(section, event);
+});
 </script>
 
 <div class="container">

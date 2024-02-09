@@ -4,6 +4,7 @@ import { Section } from '../../../models/FIRST/question-scouting/section';
 import NavTabs from '../../components/bootstrap/NavTabs.svelte';
 import S from './Section.svelte';
 import { prompt, alert, choose } from '../../../utilities/notifications';
+import { FIRSTEvent } from '../../../models/FIRST/event';
 
 export let sections: Section[] = [];
 
@@ -34,6 +35,12 @@ Section.on('new', async s => {
 
 Section.on('update', async () => {
     sections = await Section.all();
+});
+
+FIRSTEvent.on('select', async () => {
+    sections = await Section.all();
+    const s = sections[0];
+    if (s) active = s.name;
 });
 </script>
 
