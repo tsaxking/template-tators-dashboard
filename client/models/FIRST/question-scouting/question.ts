@@ -7,6 +7,8 @@ import {
 } from '../../../../shared/db-types-extended';
 import { attemptAsync, Result } from '../../../../shared/attempt';
 import { ServerRequest } from '../../../utilities/requests';
+import { FIRSTEvent } from '../event';
+import { FIRSTTeam } from '../team';
 
 type Updates = {
     new: unknown;
@@ -146,6 +148,51 @@ export class Question extends Cache {
             //     this.destroy();
             //     return;
             // } else throw res.error;
+        });
+    }
+
+    async getAnswers(): Promise<Result<{
+        team: number;
+        answer: string[];
+    }[]>> {
+        return attemptAsync(async () => {
+            throw new Error('Method not implemented.');
+            // const res = await ServerRequest.get<unknown>(
+            //     `/api/scouting-questions/get-answers/${this.id}`,
+            // );
+
+            // if (res.isOk()) return res;
+            // throw res.error;
+        });
+    }
+
+    async getAnswer(team: FIRSTTeam): Promise<Result<string[]>> {
+        return attemptAsync(async () => {
+            const answers = await this.getAnswers();
+            if (answers.isOk()) {
+                const t = answers.value.find((a) => a.team === team.tba.team_number);
+                if (t) return t.answer;
+                return [];
+            } else {
+                throw answers.error;
+            }
+        });
+    }
+
+    async saveAnswer(team: FIRSTTeam, answer: string[]): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            throw new Error('Method not implemented.');
+            // const res = await ServerRequest.post<void>(
+            //     '/api/scouting-questions/save-answer',
+            //     {
+            //         question: this.id,
+            //         team: team.tba.team_number,
+            //         answer,
+            //     },
+            // );
+
+            // if (res.isOk()) return;
+            // throw res.error;
         });
     }
 }

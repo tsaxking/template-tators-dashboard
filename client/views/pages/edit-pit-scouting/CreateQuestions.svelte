@@ -18,15 +18,10 @@ Section.on('new', s => {
 
 let open: Section;
 
-const setSections = (sections: Section[], active: string) => {
-    tabs = sections.map(s => s.name);
-    open = sections.find(s => s.name === active);
-};
-
 let tabs: string[] = [],
     active: string = '';
 $: {
-    setSections(sections, active);
+    fns.setSections(sections, active);
 }
 
 Section.on('new', async s => {
@@ -42,6 +37,13 @@ FIRSTEvent.on('select', async () => {
     const s = sections[0];
     if (s) active = s.name;
 });
+
+const fns = {
+    setSections(sections: Section[], active: string) {
+        tabs = sections.map(s => s.name);
+        open = sections.find(s => s.name === active);
+    }
+};
 </script>
 
 <div class="container">

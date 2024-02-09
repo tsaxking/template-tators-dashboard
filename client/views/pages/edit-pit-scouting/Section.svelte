@@ -18,8 +18,6 @@ const getGroups = async (s: Section | undefined, event: FIRSTEvent | undefined) 
         console.error(res.error);
     }
     
-    console.log({ groups, event, s });
-
     const pull = () => {
         getGroups(s, event);
         s.off('new-group', pull);
