@@ -81,6 +81,6 @@ FIRSTEvent.on('select', async () => {
         <!-- </div> -->
     </div>
     <div class="row mb-3">
-        <S bind:section="{open}" />
+        <S bind:section={open} />
     </div>
 </div>
