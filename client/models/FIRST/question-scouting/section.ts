@@ -104,7 +104,9 @@ export class Section extends Cache<SectionUpdates> {
     public async getGroups(event: FIRSTEvent): Promise<Result<Group[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has(`${event.tba.key}-groups`)) {
-                const groups = this.$cache.get(`${event.tba.key}-groups`) as Group[];
+                const groups = this.$cache.get(
+                    `${event.tba.key}-groups`,
+                ) as Group[];
                 if (groups.length) return groups;
             }
 
@@ -112,7 +114,7 @@ export class Section extends Cache<SectionUpdates> {
                 '/api/scouting-questions/get-groups',
                 {
                     section: this.id,
-                    eventKey: event.tba.key
+                    eventKey: event.tba.key,
                 },
             );
 

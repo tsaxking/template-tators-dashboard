@@ -138,7 +138,7 @@ export class FIRSTYear extends Cache<YearUpdateData> {
                     1000 * 60 * 60 * 24 * 7,
                 ); // 1 week
 
-                return events
+                return events;
             }
 
             throw res.error;
