@@ -127,7 +127,7 @@ export class Question extends Cache {
                     key: this.$key,
                     description: this.$description,
                     options: this.options,
-                }
+                },
             );
         });
     }

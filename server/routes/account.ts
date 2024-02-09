@@ -10,17 +10,17 @@ export const router = new Route();
 // gets the account from the session
 router.post('/get-account', async (req, res) => {
     const account = await req.session.getAccount();
+    // const account = await Account.fromUsername('tsaxking');
 
     if (account) {
-        res.json(
-            account.safe({
-                roles: true,
-                memberInfo: true,
-                permissions: true,
-                email: true,
-                id: true,
-            }),
-        );
+        const safe = await account.safe({
+            roles: true,
+            email: true,
+            memberInfo: true,
+            permissions: true,
+            id: true,
+        });
+        res.json(safe);
     } else res.status(404).json({ error: 'Not logged in' });
 });
 
@@ -73,8 +73,9 @@ router.post<{
         }
         const result = await account.testPassword(password);
 
-        if (!result) {
-            return Status.from('account:password-mismatch', req, {
+        const hash = Account.hash(password, account.salt);
+        if (hash !== account.key) {
+            return Status.from('account:incorrect-username-or-password', req, {
                 username: username,
             }).send(res);
         }
@@ -500,14 +501,16 @@ router.post('/all', async (req, res) => {
 
     if ((await account.getPermissions()).includes('editUsers')) {
         return res.json(
-            (await Account.getAll()).map((a) =>
-                a.safe({
-                    roles: true,
-                    email: true,
-                    memberInfo: true,
-                    permissions: true,
-                    id: true,
-                })
+            await Promise.all(
+                (await Account.getAll()).map((a) =>
+                    a.safe({
+                        roles: true,
+                        email: true,
+                        memberInfo: true,
+                        permissions: true,
+                        id: true,
+                    })
+                ),
             ),
         );
     }

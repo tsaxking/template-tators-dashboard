@@ -33,7 +33,7 @@ export class Group extends Cache<GroupUpdates> {
         'steel',
         'warning',
         'grape',
-        'cyan'
+        'cyan',
     ];
 
     public static on<K extends keyof Updates>(
@@ -127,8 +127,8 @@ export class Group extends Cache<GroupUpdates> {
                 {
                     id: this.id,
                     name: this.name,
-                    eventKey: this.eventKey
-                }
+                    eventKey: this.eventKey,
+                },
             );
 
             if (res.isOk()) {

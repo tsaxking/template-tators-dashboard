@@ -54,7 +54,6 @@ const fns = {
 $: {
     fns.getQuestions(group);
 }
-
 </script>
 
 {#if group}
@@ -66,8 +65,8 @@ $: {
                     name="name"
                     id="{group.id}-name"
                     class="form-control"
-                    value={group.name}
-                    on:change={(e) => fns.update(e.currentTarget.value)}
+                    value="{group.name}"
+                    on:change="{e => fns.update(e.currentTarget.value)}"
                 />
             </div>
         </div>
@@ -75,16 +74,13 @@ $: {
             <div class="container">
                 {#each questions as q}
                     <div class="row mb-1">
-                        <Q question={q} />
+                        <Q question="{q}" />
                     </div>
                 {/each}
             </div>
         </div>
         <div class="card-footer">
-            <button
-                class="btn btn-outline-light"
-                on:click="{fns.addQuestion}"
-            >
+            <button class="btn btn-outline-light" on:click="{fns.addQuestion}">
                 <i class="material-icons">add</i> Question
             </button>
         </div>
