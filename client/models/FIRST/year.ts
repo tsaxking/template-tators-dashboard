@@ -109,9 +109,9 @@ export class FIRSTYear extends Cache<YearUpdateData> {
      */
     async getEvents(): Promise<Result<TBAEvent[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('events')) {
-                return this.$cache.get('events') as TBAEvent[];
-            }
+            // if (this.$cache.has('events')) {
+            //     return this.$cache.get('events') as TBAEvent[];
+            // }
             const res = await TBA.get<TBAEvent[]>(
                 `/team/frc2122/events/${this.year}`,
             );
@@ -120,7 +120,7 @@ export class FIRSTYear extends Cache<YearUpdateData> {
                 const today = new Date();
 
                 // sort by closest event to today
-                res.value.data.sort((a, b) => {
+                const events = res.value.data.sort((a, b) => {
                     const aDate = new Date(a.start_date);
                     const bDate = new Date(b.start_date);
 
@@ -130,8 +130,6 @@ export class FIRSTYear extends Cache<YearUpdateData> {
                     return aDelta - bDelta;
                 });
 
-                this.$cache.set('events', res.value.data);
-
                 res.value.onUpdate(
                     (data) => {
                         this.$cache.set('events', data);
@@ -140,7 +138,7 @@ export class FIRSTYear extends Cache<YearUpdateData> {
                     1000 * 60 * 60 * 24 * 7,
                 ); // 1 week
 
-                return res.value.data;
+                return events
             }
 
             throw res.error;

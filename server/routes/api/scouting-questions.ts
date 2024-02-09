@@ -17,16 +17,19 @@ router.post('/get-sections', async (req, res) => {
 
 router.post<{
     section: string;
+    eventKey: string;
 }>(
     '/get-groups',
     validate({
         section: 'string',
+        eventKey: 'string',
     }),
     async (req, res) => {
-        const { section } = req.body;
+        const { section, eventKey } = req.body;
 
         const groups = await DB.all('scouting-questions/groups-from-section', {
             section,
+            eventKey
         });
 
         if (groups.isErr()) {
