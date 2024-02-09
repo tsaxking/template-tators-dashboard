@@ -42,34 +42,40 @@ const fns = {
     },
     addOption: () => {
         if (type === 'select') {
-            options.select = [...options.select, ''];
+            options.select = [...(options.select || [])];
+            options.select.push('');
+            optionsData = options.select;
         }
 
         if (type === 'checkbox') {
-            options.checkbox = [...options.checkbox, ''];
+            options.checkbox = [...(options.checkbox || [])];
+            options.checkbox.push('');
+            optionsData = options.checkbox;
         }
 
         if (type === 'radio') {
-            options.radio = [...options.radio, ''];
+            options.radio = [...(options.radio || [])];
+            options.radio.push('');
+            optionsData = options.radio;
         }
 
         // reassign to trigger svelte reactivity
         options = options;
     },
-    deleteOption: () => {
+    deleteOption: (option: string) => {
         if (type === 'select') {
-            options.select = options.select.slice(0, options.select.length - 1);
+            options.select = options.select.filter(o => o !== option);
+            optionsData = options.select;
         }
 
         if (type === 'checkbox') {
-            options.checkbox = options.checkbox.slice(
-                0,
-                options.checkbox.length - 1
-            );
+            options.checkbox = options.checkbox.filter(o => o !== option);
+            optionsData = options.checkbox;
         }
 
         if (type === 'radio') {
-            options.radio = options.radio.slice(0, options.radio.length - 1);
+            options.radio = options.radio.filter(o => o !== option);
+            optionsData = options.radio;
         }
 
         // reassign to trigger svelte reactivity
@@ -101,15 +107,15 @@ const fns = {
             questionText = question.question.trim();
 
             if (type === 'select') {
-                optionsData = options.select.map(o => o.trim()) || [];
+                optionsData = options.select?.map(o => o.trim()) || [];
             }
 
             if (type === 'checkbox') {
-                optionsData = options.checkbox.map(o => o.trim()) || [];
+                optionsData = options.checkbox?.map(o => o.trim()) || [];
             }
 
             if (type === 'radio') {
-                optionsData = options.radio.map(o => o.trim()) || [];
+                optionsData = options.radio?.map(o => o.trim()) || [];
             }
 
             // q.on('update', () => {})
@@ -194,9 +200,42 @@ const fns = {
                         These are the options that will be displayed to the
                         scout for them to select from.
                     </small>
-                    {#each optionsData as o}
-                        <O text="{o}" />
-                    {/each}
+                    <div class="container">
+                        <div class="row">
+                        {#each optionsData as o}
+                            <O
+                                bind:text="{o}"
+                                on:update={({ detail }) => {
+                                    const { id, text } = detail;
+                                    if (type === 'select') {
+                                        options.select = options.select.map(
+                                            (o, i) => (i === id ? text : o)
+                                        );
+                                        optionsData = options.select;
+                                    }
+
+                                    if (type === 'checkbox') {
+                                        options.checkbox = options.checkbox.map(
+                                            (o, i) => (i === id ? text : o)
+                                        );
+                                        optionsData = options.checkbox;
+                                    }
+
+                                    if (type === 'radio') {
+                                        options.radio = options.radio.map(
+                                            (o, i) => (i === id ? text : o)
+                                        );
+                                        optionsData = options.radio;
+                                    }
+                                }}
+
+                                on:delete={() => {
+                                    fns.deleteOption(o);
+                                }}
+                            />
+                        {/each}
+                        </div>
+                    </div>
                     <div class="row mb-3">
                         <button
                             class="btn btn-primary"

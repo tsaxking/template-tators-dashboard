@@ -27,7 +27,7 @@ type FIRSTMatchEventData = {
 };
 
 type Updates = {
-    'select': FIRSTMatch;
+    select: FIRSTMatch;
 };
 
 /**
@@ -39,9 +39,8 @@ type Updates = {
  * @typedef {FIRSTMatch}
  */
 export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
-    private static readonly $emitter: EventEmitter<keyof Updates> = new EventEmitter<
-    keyof Updates
-    >();
+    private static readonly $emitter: EventEmitter<keyof Updates> =
+        new EventEmitter<keyof Updates>();
 
     public static on<K extends keyof Updates>(
         event: K,

@@ -61,9 +61,8 @@ type FromType = {
  * @implements {FIRST}
  */
 export class Strategy extends Cache<StrategyUpdateData> {
-    private static readonly $emitter: EventEmitter<keyof Updates> = new EventEmitter<
-        keyof Updates
-    >();
+    private static readonly $emitter: EventEmitter<keyof Updates> =
+        new EventEmitter<keyof Updates>();
 
     public static on<K extends keyof Updates>(
         event: K,
