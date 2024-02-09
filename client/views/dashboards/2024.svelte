@@ -3,6 +3,7 @@ import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
 import RobotDisplay from '../pages/RobotDisplay.svelte';
 import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
+import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
 
 const groups = [
     {
@@ -24,12 +25,16 @@ const groups = [
             {
                 name: 'scouting-checklist',
                 icon: 'checklist'
+            },
+            {
+                name: 'answer-scouting-questions',
+                icon: 'question_answer'
             }
         ]
     }
 ];
 
-let active = 'create-scouting-questions';
+let active = 'answer-scouting-questions';
 
 const domain = 'tatorscout.org';
 
@@ -57,6 +62,9 @@ const accountLinks = [
     </Page>
     <Page {active} {domain} title="create-scouting-questions">
         <CreateScoutingQuestions />
+    </Page>
+    <Page {active} {domain} title="answer-scouting-questions">
+        <AnswerPitScouting />
     </Page>
     <!-- <Page {active} {domain} title="scouting-checklist">
         <ScoutingChecklist />
