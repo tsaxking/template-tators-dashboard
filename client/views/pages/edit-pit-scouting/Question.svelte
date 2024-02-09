@@ -7,7 +7,7 @@ import type {
 import { alert, confirm } from '../../../utilities/notifications';
 import O from './Option.svelte';
 
-export let question: Question | undefined = undefined;
+export let question: Question;
 
 let type: QuestionType,
     options: QuestionOptions,
@@ -118,105 +118,103 @@ const fns = {
 };
 </script>
 
-{#if question}
-    <div class="card">
-        <div class="card-body">
-            <div class="container">
-                <div class="row mb-3">
-                    <label for="{question.id}-text">Question Text</label>
-                    <small class="mb-2">
-                        This is the question that will be displayed to the scout
-                        for them to ask.
-                    </small>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="{question.id}-text"
-                        bind:value="{questionText}"
-                    />
-                </div>
-                <div class="row mb-3">
-                    <label for="{question.id}-key">Question Key</label>
-                    <small class="mb-2">
-                        This is just a unique identifier to summarize the
-                        question to make reading summaries easier. (e.g. How
-                        heavy is the robot? <i class="material-icons"
-                            >arrow_right</i
-                        >
-                        weight)
-                        <br />
-                        This will initialize as a random key, please change it.
-                    </small>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="{question.id}-key"
-                        bind:value="{key}"
-                    />
-                </div>
-                <div class="row mb-3">
-                    <label for="{question.id}-description"
-                        >Question Description</label
+<div class="card">
+    <div class="card-body">
+        <div class="container">
+            <div class="row mb-3">
+                <label for="{question.id}-text">Question Text</label>
+                <small class="mb-2">
+                    This is the question that will be displayed to the scout
+                    for them to ask.
+                </small>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="{question.id}-text"
+                    bind:value="{questionText}"
+                />
+            </div>
+            <div class="row mb-3">
+                <label for="{question.id}-key">Question Key</label>
+                <small class="mb-2">
+                    This is just a unique identifier to summarize the
+                    question to make reading summaries easier. (e.g. How
+                    heavy is the robot? <i class="material-icons"
+                        >arrow_right</i
                     >
-                    <small class="mb-2">
-                        In case of any confusion, please write a description of
-                        the question. This could be good to explain why we're
-                        asking it in case that is brought up by the team's
-                        representative.
-                    </small>
-                    <textarea
-                        class="form-control"
-                        id="{question.id}-description"
-                        bind:value="{description}"
-                    ></textarea>
-                </div>
+                    weight)
+                    <br />
+                    This will initialize as a random key, please change it.
+                </small>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="{question.id}-key"
+                    bind:value="{key}"
+                />
+            </div>
+            <div class="row mb-3">
+                <label for="{question.id}-description"
+                    >Question Description</label
+                >
+                <small class="mb-2">
+                    In case of any confusion, please write a description of
+                    the question. This could be good to explain why we're
+                    asking it in case that is brought up by the team's
+                    representative.
+                </small>
+                <textarea
+                    class="form-control"
+                    id="{question.id}-description"
+                    bind:value="{description}"
+                ></textarea>
+            </div>
+            <div class="row mb-3">
+                <label for="{question.id}-type">Question Type</label>
+                <small class="mb-2">
+                    This is the type of question, if it's a text input, a
+                    number input, a boolean input, a select input, a
+                    checkbox input, or a radio input.
+                </small>
+                <select
+                    class="form-control"
+                    id="{question.id}-type"
+                    bind:value="{type}"
+                >
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="boolean">Boolean</option>
+                    <option value="select">Select</option>
+                    <option value="checkbox">Checkbox</option>
+                </select>
+            </div>
+            {#if type === 'select' || type === 'checkbox' || type === 'radio'}
+                <small class="mb-2">
+                    These are the options that will be displayed to the
+                    scout for them to select from.
+                </small>
+                {#each optionsData as o}
+                    <O text="{o}" />
+                {/each}
                 <div class="row mb-3">
-                    <label for="{question.id}-type">Question Type</label>
-                    <small class="mb-2">
-                        This is the type of question, if it's a text input, a
-                        number input, a boolean input, a select input, a
-                        checkbox input, or a radio input.
-                    </small>
-                    <select
-                        class="form-control"
-                        id="{question.id}-type"
-                        bind:value="{type}"
+                    <button
+                        class="btn btn-primary"
+                        on:click="{fns.addOption}"
                     >
-                        <option value="text">Text</option>
-                        <option value="number">Number</option>
-                        <option value="boolean">Boolean</option>
-                        <option value="select">Select</option>
-                        <option value="checkbox">Checkbox</option>
-                    </select>
-                </div>
-                {#if type === 'select' || type === 'checkbox' || type === 'radio'}
-                    <small class="mb-2">
-                        These are the options that will be displayed to the
-                        scout for them to select from.
-                    </small>
-                    {#each optionsData as o}
-                        <O text="{o}" />
-                    {/each}
-                    <div class="row mb-3">
-                        <button
-                            class="btn btn-primary"
-                            on:click="{fns.addOption}"
-                        >
-                            Add Option
-                        </button>
-                    </div>
-                {/if}
-                <div class="btn-group">
-                    <!-- {#if isEdited} -->
-                    <button class="btn btn-success" on:click="{fns.update}">
-                        Save <i class="material-icons"> save </i>
+                        Add Option
                     </button>
-                    <!-- {/if} -->
-                    <!-- <button class="btn btn-danger" on:click="{fns.delete}">
-                        Delete Question <i class="material-icons"> delete </i>
-                    </button> -->
                 </div>
+            {/if}
+            <div class="btn-group">
+                <!-- {#if isEdited} -->
+                <button class="btn btn-success" on:click="{fns.update}">
+                    Save <i class="material-icons"> save </i>
+                </button>
+                <!-- {/if} -->
+                <!-- <button class="btn btn-danger" on:click="{fns.delete}">
+                    Delete Question <i class="material-icons"> delete </i>
+                </button> -->
             </div>
         </div>
     </div>
-{/if}
+</div>

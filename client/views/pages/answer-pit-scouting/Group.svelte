@@ -1,9 +1,12 @@
 <script lang="ts">
 import { Group } from '../../../models/FIRST/question-scouting/group';
 import { Question } from '../../../models/FIRST/question-scouting/question';
+import { FIRSTTeam } from '../../../models/FIRST/team';
+import Q from './ScoutingQuestion.svelte';
 
 export let group: Group | undefined = undefined;
 export let index: number;
+    export let team: FIRSTTeam | undefined = undefined;
 
 let questions: Question[] = [];
 
@@ -46,6 +49,7 @@ $: {
             <div class="container">
                 {#each questions as q}
                     <div class="row mb-1">
+                        <Q bind:question={q} {team} />
                     </div>
                 {/each}
             </div>
