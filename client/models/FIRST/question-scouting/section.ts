@@ -74,7 +74,6 @@ export class Section extends Cache<SectionUpdates> {
                 },
             );
 
-
             if (res.isErr()) throw res.error;
         });
     }
@@ -201,7 +200,7 @@ socket.on('scouting-question:update-section', (data: ScoutingSection) => {
     s.$name = data.name;
     s.$multiple = !!data.multiple;
     Section.emit('update', s);
-    
+
     s.emit('update', s);
 });
 

@@ -121,6 +121,7 @@ app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
     log(`[${req.method}] ${req.url}`);
 
+    log('[POST]', req.url);
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
             $$files?: FileUpload[];

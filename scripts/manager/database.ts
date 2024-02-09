@@ -152,7 +152,6 @@ export const addQueryType = async () => {
     }
 };
 
-
 // export const reset = async () => {
 //     const doReset = await confirm(
 //         'Are you sure you want to reset the database?',

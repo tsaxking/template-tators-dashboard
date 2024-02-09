@@ -29,7 +29,9 @@ router.post<{
             section,
         });
 
-        if (groups.isErr()) return res.sendStatus('server:unknown-server-error');
+        if (groups.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
 
         res.json(groups.value);
     },
@@ -45,11 +47,16 @@ router.post<{
     async (req, res) => {
         const { group } = req.body;
 
-        const questions = await DB.all('scouting-questions/questions-from-group', {
-            groupId: group,
-        });
+        const questions = await DB.all(
+            'scouting-questions/questions-from-group',
+            {
+                groupId: group,
+            },
+        );
 
-        if (questions.isErr()) return res.sendStatus('server:unknown-server-error');
+        if (questions.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
 
         res.json(questions.value);
     },
@@ -69,7 +76,9 @@ router.post<{
             questionId,
         });
 
-        if (history.isErr()) return res.sendStatus('server:unknown-server-error');
+        if (history.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
 
         res.json(history.value);
     },
@@ -336,7 +345,7 @@ router.post<{
     validate({
         id: 'string',
         name: 'string',
-        eventKey: 'string'
+        eventKey: 'string',
     }),
     async (req, res) => {
         const { id, name, eventKey } = req.body;
@@ -349,7 +358,7 @@ router.post<{
             name,
             accountId,
             dateAdded,
-            eventKey
+            eventKey,
         });
 
         res.sendStatus('scouting-question:group-updated', {
@@ -365,8 +374,8 @@ router.post<{
             accountId,
             dateAdded,
         });
-    }
-)
+    },
+);
 
 router.post<{
     question: string;
@@ -454,23 +463,22 @@ router.post<{
     },
 );
 
-
 router.post<{
     id: string;
     question: string;
-    type: 
-    | 'text'
-    | 'number'
-    | 'boolean'
-    | 'select'
-    | 'checkbox'
-    | 'radio'
-    | 'textarea';
+    type:
+        | 'text'
+        | 'number'
+        | 'boolean'
+        | 'select'
+        | 'checkbox'
+        | 'radio'
+        | 'textarea';
     key: string;
     description: string;
     options: QuestionOptions;
 }>(
-    '/update-question', 
+    '/update-question',
     canEdit,
     validate({
         id: 'string',
@@ -499,12 +507,14 @@ router.post<{
         const o = JSON.stringify(options);
 
         const q = await DB.get('scouting-questions/question-from-id', {
-            id
+            id,
         });
 
         if (q.isErr()) return res.sendStatus('server:unknown-server-error');
 
-        if (!q.value) return res.sendStatus('scouting-question:question-not-found');
+        if (!q.value) {
+            return res.sendStatus('scouting-question:question-not-found');
+        }
 
         DB.run('scouting-questions/update-question', {
             id,
@@ -515,7 +525,7 @@ router.post<{
             accountId,
             dateAdded,
             options: o,
-            groupId: q.value.groupId
+            groupId: q.value.groupId,
         });
 
         res.sendStatus('scouting-question:question-updated', {
@@ -539,5 +549,5 @@ router.post<{
             dateAdded,
             options: o,
         });
-    }
+    },
 );
