@@ -39,8 +39,6 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
             }
         });
 
-        events.reverse();
-
         options = events.map(e => abbreviate(e.name, 20));
         values = events.map(e => e.key);
         value = options[0];

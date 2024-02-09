@@ -378,7 +378,7 @@ export type Queries = {
         ScoutingQuestionGroups,
     ];
     'scouting-questions/groups-from-section': [
-        [{ section: string }],
+        [{ section: string, eventKey: string }],
         ScoutingQuestionGroups,
     ];
     'scouting-questions/get-answer-history': [

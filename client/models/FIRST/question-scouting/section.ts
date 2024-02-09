@@ -8,6 +8,7 @@ import { ServerRequest } from '../../../utilities/requests';
 import { Cache } from '../../cache';
 import { Group } from './group';
 import { socket } from '../../../utilities/socket';
+import { FIRSTEvent } from '../event';
 
 type Updates = {
     new: Section;
@@ -100,16 +101,18 @@ export class Section extends Cache<SectionUpdates> {
         Section.$cache.set(data.id, this);
     }
 
-    public async getGroups(): Promise<Result<Group[]>> {
+    public async getGroups(event: FIRSTEvent): Promise<Result<Group[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('groups')) {
-                return this.$cache.get('groups') as Group[];
+            if (this.$cache.has(`${event.tba.key}-groups`)) {
+                const groups = this.$cache.get(`${event.tba.key}-groups`) as Group[];
+                if (groups.length) return groups;
             }
 
             const res = await ServerRequest.post<ScoutingQuestionGroup[]>(
                 '/api/scouting-questions/get-groups',
                 {
                     section: this.id,
+                    eventKey: event.tba.key
                 },
             );
 
