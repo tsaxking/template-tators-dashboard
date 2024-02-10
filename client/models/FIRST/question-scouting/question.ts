@@ -162,11 +162,15 @@ export class Question extends Cache {
     //     });
     // }
 
-    async getAnswer(team: FIRSTTeam, event: FIRSTEvent): Promise<Result<Answer | undefined>> {
+    async getAnswer(
+        team: FIRSTTeam,
+        event: FIRSTEvent,
+    ): Promise<Result<Answer | undefined>> {
         return attemptAsync(async () => {
             const res = await Answer.fromTeam(team.number, event);
-            if (res.isOk()) return res.value.find(q => q.questionId === this.id);
-            else throw res.error;
+            if (res.isOk()) {
+                return res.value.find((q) => q.questionId === this.id);
+            } else throw res.error;
         });
     }
 

@@ -71,7 +71,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         const levels = ['qm', 'qf', 'sf', 'f'];
         const aLevel = levels.indexOf(a.compLevel);
         const bLevel = levels.indexOf(b.compLevel);
-    
+
         if (aLevel < bLevel) return -1;
         if (aLevel > bLevel) return 1;
         if (+a.number < +b.number) return -1;

@@ -20,7 +20,6 @@ Section.on('new', s => {
 
 let open: Section | undefined = undefined;
 
-
 let tabs: string[] = [],
     active: string = '';
 $: {
@@ -41,7 +40,7 @@ FIRSTEvent.on('select', async () => {
     if (s) active = s.name;
 });
 
-FIRSTTeam.on('select', (t) => {
+FIRSTTeam.on('select', t => {
     team = t;
 });
 
@@ -49,7 +48,7 @@ const fns = {
     setSections(sections: Section[], active: string) {
         tabs = sections.map(s => s.name);
         open = sections.find(s => s.name === active);
-    },
+    }
     // save: async () => {
     //     if (!team) return alert('Please select a team');
     //     if (!open) return alert('Please select a section');
@@ -102,7 +101,7 @@ const fns = {
             </div> -->
         </div>
         <div class="row mb-3">
-            <S bind:section={open} {team} />
+            <S bind:section="{open}" {team} />
         </div>
     {/if}
 </div>
