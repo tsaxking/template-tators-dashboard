@@ -107,6 +107,14 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         FIRSTTeam.$cache.set(tba.team_number, this);
     }
 
+    get number(): number {
+        return this.tba.team_number;
+    }
+
+    get name(): string {
+        return this.tba.nickname;
+    }
+
     /**
      * Requests all events from TBA
      * Also starts an update that will update the cache every 24 hours and emit 'update-events' when it does

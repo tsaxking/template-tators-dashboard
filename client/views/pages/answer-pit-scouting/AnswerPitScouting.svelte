@@ -85,8 +85,15 @@ const fns = {
     </div>
     {#if open}
         <div class="row mb-3">
-            <div class="col-lg-4 col-md-6">
+            <div class="col-md-4">
                 <GlobalTeamSelect />
+            </div>
+            <div class="col-md-8">
+                {#if team}
+                    <h3>Team {team.number} | {team.name}</h3>
+                {:else}
+                    <h3>No Team Selected, all inputs are disabled</h3>
+                {/if}
             </div>
             <!-- <div class="col-lg-4 col-md-6">
                 <button class="btn btn-success" on:click={fns.save}>

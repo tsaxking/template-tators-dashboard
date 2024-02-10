@@ -107,6 +107,14 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         FIRSTEvent.cache.set(tba.key, this);
     }
 
+    get key() {
+        return this.tba.key;
+    }
+
+    get name() {
+        return this.tba.name;
+    }
+
     /**
      * Returns an array of FIRSTMatch objects for this event
      * if it is cached, it will return the cached data

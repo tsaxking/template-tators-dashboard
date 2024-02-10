@@ -6,7 +6,7 @@ import Q from './ScoutingQuestion.svelte';
 
 export let group: Group | undefined = undefined;
 export let index: number;
-    export let team: FIRSTTeam | undefined = undefined;
+export let team: FIRSTTeam | undefined = undefined;
 
 let questions: Question[] = [];
 
@@ -39,7 +39,7 @@ $: {
 </script>
 
 {#if group}
-    <div class="card p-0 bg-{Group.colorOrder[index]}">
+    <div class="card p-0">
         <div class="card-header">
             <div class="card-title">
                 {group.name}

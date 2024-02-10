@@ -57,7 +57,7 @@ $: {
 </script>
 
 {#if group}
-    <div class="card p-0 bg-{Group.colorOrder[index]}">
+    <div class="card p-0">
         <div class="card-header">
             <div class="card-title">
                 <input
