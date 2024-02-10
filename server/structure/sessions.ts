@@ -6,6 +6,7 @@ import { CookieOptions, Next, ServerFunction } from './app/app.ts';
 import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
+// import { log } from '../utilities/terminal-logging.ts';
 
 /**
  * Session object from the database
@@ -15,10 +16,10 @@ import { Res } from './app/res.ts';
  * @typedef {SessionObj}
  */
 export type SessionObj = {
-    ip: string;
+    ip?: string;
     id: string;
-    latestActivity: number;
-    accountId: string | null;
+    latestActivity?: number;
+    accountId?: string;
     prevUrl?: string;
     userAgent?: string;
     created: number;
@@ -51,6 +52,10 @@ type SessionOptions = {
  * @typedef {Session}
  */
 export class Session {
+    static newId() {
+        return (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
+    }
+
     /**
      * This is not implemented yet, but it will be for rate limiting
      * @date 10/12/2023 - 3:13:58 PM
@@ -100,9 +105,15 @@ export class Session {
      * @param {string} id
      * @returns {(Session | undefined)}
      */
-    static get(id: string): Session | undefined {
-        const s = DB.get('sessions/get', { id });
-        return s ? Session.fromSessObj(s) : undefined;
+    static async get(id: string): Promise<Session | undefined> {
+        const res = await DB.get('sessions/get', { id });
+        if (res.isOk() && res.value) {
+            return Session.fromSessObj(res.value);
+        }
+
+        if (res.isErr()) {
+            console.error(res.error);
+        }
     }
 
     /**
@@ -114,13 +125,17 @@ export class Session {
      * @returns {Session}
      */
     static fromSessObj(s: SessionObj): Session {
+        // log('Building from:', s);
+
         const session = new Session();
         session.ip = s.ip;
         session.id = s.id;
         session.latestActivity = s.latestActivity;
-        session.prevUrl = s.prevUrl;
+        session.$prevUrl = s.prevUrl;
         session.userAgent = s.userAgent;
-        session.accountId = s.accountId || undefined;
+        session.accountId = s.accountId;
+
+        // log('Built:', session);
         return session;
     }
 
@@ -187,7 +202,7 @@ export class Session {
      *
      * @type {string}
      */
-    public ip = '';
+    public ip: string | undefined = '';
     /**
      * The id of the session
      * @date 10/12/2023 - 3:13:58 PM
@@ -208,14 +223,14 @@ export class Session {
      *
      * @type {number}
      */
-    public latestActivity: number = Date.now();
+    public latestActivity: number | undefined = Date.now();
     /**
      * The previous url (used for redirects)
      * @date 10/12/2023 - 3:13:58 PM
      *
      * @type {?string}
      */
-    public prevUrl?: string;
+    private $prevUrl: string | undefined;
     /**
      * Not implemented yet, but this will be used for rate limiting
      * @date 10/12/2023 - 3:13:58 PM
@@ -246,7 +261,7 @@ export class Session {
      * @param {?Req} [req]
      */
     constructor(req?: Req) {
-        this.id = (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
+        this.id = Session.newId();
 
         if (req) {
             this.ip = req.ip;
@@ -261,6 +276,18 @@ export class Session {
         // }
     }
 
+    get prevUrl(): string | undefined {
+        return this.$prevUrl;
+    }
+
+    set prevUrl(url: string | undefined) {
+        this.$prevUrl = url;
+        this.save();
+    }
+
+    // for caching
+    private $account?: Account;
+
     /**
      * The account object, if the user is signed in
      * @date 10/12/2023 - 3:13:57 PM
@@ -268,9 +295,12 @@ export class Session {
      * @readonly
      * @type {(Account | null)}
      */
-    get account(): Account | null {
-        if (!this.accountId) return null;
-        return Account.fromId(this.accountId);
+    async getAccount(): Promise<Account | undefined> {
+        if (this.$account) return this.$account;
+        if (!this.accountId) return;
+        const a = await Account.fromId(this.accountId);
+        this.$account = a;
+        return a;
     }
 
     /**
@@ -281,7 +311,10 @@ export class Session {
      */
     signIn(account: Account) {
         this.accountId = account.id;
-        this.save();
+        return DB.run('sessions/sign-in', {
+            id: this.id,
+            accountId: account.id,
+        });
     }
 
     /**
@@ -290,7 +323,7 @@ export class Session {
      */
     signOut() {
         this.accountId = undefined;
-        this.save();
+        return DB.run('sessions/sign-out', { id: this.id });
     }
 
     /**
@@ -305,13 +338,13 @@ export class Session {
      * Save the session to the database
      * @date 10/12/2023 - 3:13:57 PM
      */
-    save() {
-        this.account?.save();
+    async save() {
+        // this.account?.save();
 
-        const s = DB.get('sessions/get', { id: this.id });
+        const s = await DB.get('sessions/get', { id: this.id });
 
-        if (s) {
-            DB.run('sessions/update', {
+        if (s.isOk() && s.value) {
+            return DB.run('sessions/update', {
                 id: this.id,
                 ip: this.ip || '',
                 latestActivity: this.latestActivity,
@@ -321,7 +354,7 @@ export class Session {
                 requests: this.requests,
             });
         } else {
-            DB.run('sessions/new', {
+            return DB.run('sessions/new', {
                 id: this.id,
                 ip: this.ip || '',
                 latestActivity: this.latestActivity,

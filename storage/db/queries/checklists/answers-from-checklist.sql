@@ -1,11 +1,5 @@
 SELECT 
-    ChecklistAnswers.id as id,
-    ChecklistAnswers.accountId as accountId,
-    ChecklistAnswers.questionId as questionId,
-    ChecklistAnswers.matchId as matchId,
-    ChecklistQuestions.question as question,
-    ChecklistQuestions.interval as interval,
-    ChecklistQuestions.checklistId as checklistId,
+    ChecklistAnswers.*
     Checklists.name as checklistName,
     Checklists.eventKey as eventKey,
     Checklists.description as checklistDescription

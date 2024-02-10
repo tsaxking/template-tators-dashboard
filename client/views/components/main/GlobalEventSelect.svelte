@@ -9,40 +9,42 @@ let values: string[] = [];
 let value: string = '';
 
 FIRSTYear.on('select', async (year: FIRSTYear) => {
-    const events = await year.getEvents();
+    const res = await year.getEvents();
 
-    const now = new Date();
+    if (res.isOk()) {
+        const events = res.value;
 
-    events.sort((a, b) => {
-        const aStartDate = new Date(a.start_date);
-        const bStartDate = new Date(b.start_date);
-        const aEndDate = new Date(a.end_date);
-        const bEndDate = new Date(b.end_date);
+        const now = new Date();
 
-        if (aStartDate > now && bStartDate > now) {
-            return aStartDate.getTime() - bStartDate.getTime();
-        } else if (aStartDate > now) {
-            return -1;
-        } else if (bStartDate > now) {
-            return 1;
-        } else if (aEndDate > now && bEndDate > now) {
-            return aEndDate.getTime() - bEndDate.getTime();
-        } else if (aEndDate > now) {
-            return -1;
-        } else if (bEndDate > now) {
-            return 1;
-        } else {
-            return aStartDate.getTime() - bStartDate.getTime();
-        }
-    });
+        events.sort((a, b) => {
+            const aStartDate = new Date(a.start_date);
+            const bStartDate = new Date(b.start_date);
+            const aEndDate = new Date(a.end_date);
+            const bEndDate = new Date(b.end_date);
 
-    events.reverse();
+            if (aStartDate > now && bStartDate > now) {
+                return aStartDate.getTime() - bStartDate.getTime();
+            } else if (aStartDate > now) {
+                return -1;
+            } else if (bStartDate > now) {
+                return 1;
+            } else if (aEndDate > now && bEndDate > now) {
+                return aEndDate.getTime() - bEndDate.getTime();
+            } else if (aEndDate > now) {
+                return -1;
+            } else if (bEndDate > now) {
+                return 1;
+            } else {
+                return aStartDate.getTime() - bStartDate.getTime();
+            }
+        });
 
-    options = events.map(e => abbreviate(e.name, 20));
-    values = events.map(e => e.key);
-    value = options[0];
+        options = events.map(e => abbreviate(e.name, 20));
+        values = events.map(e => e.key);
+        value = options[0];
 
-    new FIRSTEvent(events[0]).select();
+        new FIRSTEvent(events[0]).select();
+    }
 });
 
 FIRSTEvent.on('select', (event: FIRSTEvent) => {
@@ -50,9 +52,12 @@ FIRSTEvent.on('select', (event: FIRSTEvent) => {
 });
 
 const handleChange = async (e: any) => {
-    const events = await FIRSTYear.current.getEvents();
-    const event = events.find(evt => evt.key === e.detail);
-    if (event) new FIRSTEvent(event).select();
+    const res = await FIRSTYear.current.getEvents();
+    if (res.isOk()) {
+        const events = res.value;
+        const event = events.find(evt => evt.key === e.detail);
+        if (event) new FIRSTEvent(event).select();
+    }
 };
 </script>
 

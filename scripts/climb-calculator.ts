@@ -3,7 +3,7 @@ import {
     TBAEvent,
     YearTBAMatch,
 } from '../shared/submodules/tatorscout-calculations/tba.ts';
-import { attemptAsync } from '../shared/attempt.ts';
+import { attemptAsync } from '../shared/check.ts';
 
 // console.log(weekEvents.map((e) => e.length));
 
@@ -73,12 +73,12 @@ const weekCount = async <y extends keyof YearTBAMatch>(
                     '/event/' + e.key + '/matches',
                 );
 
-                if (!matches) {
+                if (matches.isErr() || !matches.value) {
                     console.error('No matches found for event ' + e.key);
                     return;
                 }
 
-                const numClimbs = matches
+                const numClimbs = matches.value
                     .map((m) => {
                         if (!m.score_breakdown) return null;
 
@@ -190,10 +190,12 @@ const weekCount = async <y extends keyof YearTBAMatch>(
 
 const test = async <y extends keyof YearTBAMatch>(year: y) => {
     const allEvents = await TBA.get<TBAEvent[]>(`/events/${year}`);
-    if (!allEvents) throw new Error('No events found');
+    if (allEvents.isErr() || !allEvents.value) {
+        throw new Error('No events found');
+    }
 
     // sort by date
-    allEvents.sort((a: TBAEvent, b: TBAEvent) => {
+    allEvents.value.sort((a: TBAEvent, b: TBAEvent) => {
         const aDate = new Date(a.start_date);
         const bDate = new Date(b.start_date);
         return aDate.getTime() - bDate.getTime();
@@ -209,7 +211,7 @@ const test = async <y extends keyof YearTBAMatch>(year: y) => {
         );
     };
 
-    const weekEvents: TBAEvent[][] = allEvents
+    const weekEvents: TBAEvent[][] = allEvents.value
         .reduce((acc: TBAEvent[][], cur: TBAEvent) => {
             const week = getWeekNumber(new Date(cur.start_date));
             if (!acc[week]) acc[week] = [];

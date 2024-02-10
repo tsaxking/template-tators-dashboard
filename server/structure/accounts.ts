@@ -9,7 +9,6 @@ import { Member } from './member.ts';
 import {
     Account as AccountObject,
     AccountSettings,
-    Permission,
 } from '../../shared/db-types.ts';
 import env from '../utilities/env.ts';
 import { deleteUpload } from '../utilities/files.ts';
@@ -22,6 +21,8 @@ import {
 } from '../../shared/status-messages.ts';
 import { validate } from '../middleware/data-type.ts';
 import { Role as RoleObj } from '../../shared/db-types.ts';
+import { Permission } from '../../shared/permissions.ts';
+import { attemptAsync } from '../../shared/check.ts';
 
 /**
  * Properties that can be changed dynamically
@@ -96,17 +97,17 @@ export default class Account {
      * @returns {ServerFunction<any>}
      */
     static autoSignIn(username?: string): ServerFunction {
-        return (req, _res, next) => {
+        return async (req, _res, next) => {
             if (env.ENVIRONMENT === 'production') return next();
 
             if (!username) return next();
             const a = req.session?.accountId;
             if (a) return next();
 
-            const account = Account.fromUsername(username);
+            const account = await Account.fromUsername(username);
             if (!account) return next();
 
-            req.session!.accountId = account.id;
+            req.session.signIn(account);
             next();
         };
     }
@@ -118,10 +119,22 @@ export default class Account {
      * @static
      * @returns {*}
      */
-    static get unverifiedAccounts() {
-        return DB.all('account/unverified').map(
-            (a: AccountObject) => new Account(a),
-        );
+    static async getUnverifiedAccounts() {
+        const res = await DB.all('account/unverified');
+
+        if (res.isOk()) {
+            return res.value.map((a: AccountObject) => new Account(a));
+        }
+        return [];
+    }
+
+    static async getVerifiedAccounts() {
+        const res = await DB.all('account/verified');
+
+        if (res.isOk()) {
+            return res.value.map((a: AccountObject) => new Account(a));
+        }
+        return [];
     }
 
     /**
@@ -132,12 +145,15 @@ export default class Account {
      * @param {string} id
      * @returns {(Account|null)}
      */
-    static fromId(id: string): Account | null {
-        const data = DB.get('account/from-id', {
+    static async fromId(id: string): Promise<Account | undefined> {
+        const res = await DB.get('account/from-id', {
             id,
         });
-        if (!data) return null;
-        return new Account(data);
+        if (res.isOk()) {
+            if (res.value) return new Account(res.value);
+            else return undefined;
+        }
+        return undefined;
     }
 
     /**
@@ -148,12 +164,14 @@ export default class Account {
      * @param {string} username
      * @returns {(Account|null)}
      */
-    static fromUsername(username: string): Account | null {
-        const data = DB.get('account/from-username', {
+    static async fromUsername(username: string): Promise<Account | undefined> {
+        const res = await DB.get('account/from-username', {
             username,
         });
-        if (!data) return null;
-        return new Account(data);
+
+        if (res.isOk()) {
+            if (res.value) return new Account(res.value);
+        }
     }
 
     /**
@@ -164,12 +182,13 @@ export default class Account {
      * @param {string} email
      * @returns {(Account|null)}
      */
-    static fromEmail(email: string): Account | null {
-        const data = DB.get('account/from-email', {
+    static async fromEmail(email: string): Promise<Account | undefined> {
+        const res = await DB.get('account/from-email', {
             email,
         });
-        if (!data) return null;
-        return new Account(data);
+        if (res.isOk()) {
+            if (res.value) return new Account(res.value);
+        }
     }
 
     /**
@@ -180,12 +199,15 @@ export default class Account {
      * @param {string} key
      * @returns {(Account|null)}
      */
-    static fromVerificationKey(key: string): Account | null {
-        const data = DB.get('account/from-verification-key', {
+    static async fromVerificationKey(
+        key: string,
+    ): Promise<Account | undefined> {
+        const res = await DB.get('account/from-verification-key', {
             verification: key,
         });
-        if (!data) return null;
-        return new Account(data);
+        if (res.isOk()) {
+            if (res.value) return new Account(res.value);
+        }
     }
 
     /**
@@ -196,12 +218,15 @@ export default class Account {
      * @param {string} key
      * @returns {(Account|null)}
      */
-    static fromPasswordChangeKey(key: string): Account | null {
-        const data = DB.get('account/from-password-change', {
+    static async fromPasswordChangeKey(
+        key: string,
+    ): Promise<Account | undefined> {
+        const res = await DB.get('account/from-password-change', {
             passwordChange: key,
         });
-        if (!data) return null;
-        return new Account(data);
+        if (res.isOk()) {
+            if (res.value) return new Account(res.value);
+        }
     }
 
     /**
@@ -212,17 +237,17 @@ export default class Account {
      * @param {...string[]} permission
      * @returns {ServerFunction<any>}
      */
-    static allowPermissions(...permission: string[]): ServerFunction {
-        return (req, res, next) => {
+    static allowPermissions(...permission: Permission[]): ServerFunction {
+        return async (req, res, next) => {
             const { session } = req;
-            const { account } = session;
+            const account = await session.getAccount();
 
             if (!account) {
                 const s = Status.from('account:not-logged-in', req);
                 return s.send(res);
             }
 
-            const { permissions } = account;
+            const permissions = await account.getPermissions();
 
             if (
                 permission.every((p: string) =>
@@ -247,10 +272,8 @@ export default class Account {
      * @param {Next} next
      * @returns {*}
      */
-    static isSignedIn(req: Req<null>, res: Res, next: Next) {
-        const {
-            session: { account },
-        } = req;
+    static async isSignedIn(req: Req<null>, res: Res, next: Next) {
+        const account = await req.session.getAccount();
 
         if (!account) {
             return res.sendStatus('account:not-logged-in');
@@ -269,10 +292,8 @@ export default class Account {
      * @param {Next} next
      * @returns {*}
      */
-    static notSignedIn(req: Req, res: Res, next: Next) {
-        const {
-            session: { account },
-        } = req;
+    static async notSignedIn(req: Req, res: Res, next: Next) {
+        const account = await req.session.getAccount();
 
         if (account) {
             return res.sendStatus('account:logged-in');
@@ -288,9 +309,12 @@ export default class Account {
      * @static
      * @returns {Account[]}
      */
-    static get all(): Account[] {
-        const data = DB.all('account/all');
-        return data.map((a: AccountObject) => new Account(a));
+    static async getAll(): Promise<Account[]> {
+        const res = await DB.all('account/all');
+        if (res.isOk()) {
+            return res.value.map((a: AccountObject) => new Account(a));
+        }
+        return [];
     }
 
     // █▄ ▄█ ▄▀▄ █▄ █ ▄▀▄ ▄▀  █ █▄ █ ▄▀     ▄▀▄ ▄▀▀ ▄▀▀ ▄▀▄ █ █ █▄ █ ▀█▀ ▄▀▀
@@ -460,8 +484,8 @@ export default class Account {
         firstName: string,
         lastName: string,
     ): Promise<AccountStatusId> {
-        if (Account.fromUsername(username)) return 'username-taken';
-        if (Account.fromEmail(email)) return 'email-taken';
+        if (await Account.fromUsername(username)) return 'username-taken';
+        if (await Account.fromEmail(email)) return 'email-taken';
 
         const { isValid } = Account;
 
@@ -484,8 +508,12 @@ export default class Account {
 
         const { salt, key } = Account.newHash(password);
 
+        const id = uuid();
+        const verification = uuid();
+        const created = Date.now();
+
         DB.run('account/new', {
-            id: uuid(),
+            id,
             username,
             key,
             salt,
@@ -493,13 +521,13 @@ export default class Account {
             lastName,
             email,
             verified: 0,
-            verification: uuid(),
-            created: Date.now(),
+            verification,
+            created,
             phoneNumber: '',
         });
 
         const a = new Account({
-            id: uuid(),
+            id,
             username,
             key,
             salt,
@@ -507,8 +535,8 @@ export default class Account {
             lastName,
             email,
             verified: 0,
-            verification: uuid(),
-            created: Date.now(),
+            verification,
+            created,
             phoneNumber: '',
         });
 
@@ -525,8 +553,8 @@ export default class Account {
      * @param {string} id
      * @returns {AccountStatusId}
      */
-    static delete(id: string): AccountStatusId {
-        const account = Account.fromId(id);
+    static async delete(id: string): Promise<AccountStatusId> {
+        const account = await Account.fromId(id);
         if (!account) return 'not-found';
 
         DB.run('account/delete', {
@@ -740,11 +768,12 @@ export default class Account {
      *     }} [include]
      * @returns {{ username: string; firstName: string; lastName: string; picture: string; email: string; roles: {}; memberInfo: any; permissions: {}; }}
      */
-    safe(include?: {
+    async safe(include?: {
         roles?: boolean;
         memberInfo?: boolean;
         permissions?: boolean;
         email?: boolean;
+        id?: boolean;
     }) {
         return {
             username: this.username,
@@ -752,9 +781,13 @@ export default class Account {
             lastName: this.lastName,
             picture: this.picture,
             email: include?.email ? this.email : undefined,
-            roles: include?.roles ? this.roles : [],
-            memberInfo: include?.memberInfo ? this.memberInfo : undefined,
-            permissions: include?.permissions ? this.permissions : [],
+            roles: include?.roles ? await this.getRoles() : [],
+            memberInfo: include?.memberInfo
+                ? await this.getMemberInfo()
+                : undefined,
+            permissions: include?.permissions ? this.getPermissions : [],
+            id: include?.id ? this.id : undefined,
+            verified: this.verified,
         };
     }
 
@@ -764,7 +797,7 @@ export default class Account {
      *
      * @returns {(Member | null)}
      */
-    get memberInfo(): Member | null {
+    async getMemberInfo(): Promise<Member | undefined> {
         return Member.get(this.id);
     }
 
@@ -788,16 +821,15 @@ export default class Account {
      *
      * @returns {Role[]}
      */
-    get roles(): Role[] {
-        const data = DB.all('account/roles', {
+    async getRoles(): Promise<Role[]> {
+        const data = await DB.all('account/roles', {
             id: this.id,
         });
 
-        return data
-            .map((r: RoleObj) => {
-                return Role.fromName(r.name);
-            })
-            .filter(Boolean) as Role[];
+        if (data.isOk()) {
+            return data.value.map((r: RoleObj) => new Role(r));
+        }
+        return [];
     }
 
     /**
@@ -807,17 +839,15 @@ export default class Account {
      * @param {string} role
      * @returns {(AccountStatusId|RolesStatusId)}
      */
-    addRole(role: string): AccountStatusId | RolesStatusId {
-        const r = Role.fromName(role);
-        if (!r) return 'not-found';
-
-        if (this.roles.find((_r) => _r.name === r.name)) {
+    async addRole(role: Role): Promise<AccountStatusId | RolesStatusId> {
+        const roles = await this.getRoles();
+        if (roles.find((_r) => _r.name === role.name)) {
             return 'has-role';
         }
 
-        DB.run('account/add-role', {
+        await DB.run('account/add-role', {
             accountId: this.id,
-            roleId: r.id,
+            roleId: role.id,
         });
 
         return 'role-added';
@@ -830,17 +860,16 @@ export default class Account {
      * @param {string} role
      * @returns {(AccountStatusId|RolesStatusId)}
      */
-    removeRole(role: string): AccountStatusId | RolesStatusId {
-        const r = Role.fromName(role);
-        if (!r) return 'not-found';
+    async removeRole(role: Role): Promise<AccountStatusId | RolesStatusId> {
+        const roles = await this.getRoles();
 
-        if (!this.roles.find((_r) => _r.name === r.name)) {
+        if (!roles.find((_r) => _r.name === role.name)) {
             return 'no-role';
         }
 
         DB.run('account/remove-role', {
             accountId: this.id,
-            roleId: r.id,
+            roleId: role.id,
         });
 
         return 'role-removed';
@@ -873,9 +902,11 @@ export default class Account {
      *
      * @returns {Permission[]}
      */
-    get permissions(): Permission[] {
-        const { roles } = this;
-        return roles.flatMap((role) => role.getPermissions());
+    async getPermissions(): Promise<Permission[]> {
+        const roles = await this.getRoles();
+        return (
+            await Promise.all(roles.map((role) => role.getPermissions()))
+        ).flat();
     }
 
     /**
@@ -920,8 +951,8 @@ export default class Account {
      * @param {string} username
      * @returns {AccountStatusId}
      */
-    changeUsername(username: string): AccountStatusId {
-        const a = Account.fromUsername(username);
+    async changeUsername(username: string): Promise<AccountStatusId> {
+        const a = await Account.fromUsername(username);
         if (a) return 'username-taken';
 
         DB.run('account/change-username', {
@@ -941,9 +972,64 @@ export default class Account {
      * @param {string} password
      * @returns {boolean}
      */
-    testPassword(password: string): boolean {
+    async testPassword(password: string): Promise<boolean> {
         const hash = Account.hash(password, this.salt);
-        return hash === this.key;
+        if (hash === this.key) return true; // it works in this database
+
+        // test in the other database because something is wrong with the new hashing algorithm
+        const result = await attemptAsync<
+            | {
+                success: true;
+                hash: string;
+                salt: string;
+            }
+            | {
+                success: false;
+                error: string;
+            }
+        >(async () => {
+            const { HASH_SERVER_AUTH, HASH_SERVER } = env;
+            if (!HASH_SERVER_AUTH) throw new Error('No hash server auth');
+            if (!HASH_SERVER) throw new Error('No hash server');
+            const data = await fetch(HASH_SERVER + '/api/login', {
+                headers: {
+                    'x-auth-key': HASH_SERVER_AUTH,
+                },
+            });
+
+            const json = (await data.json()) as
+                | {
+                    success: true;
+                    hash: string;
+                    salt: string;
+                }
+                | {
+                    success: false;
+                    error: string;
+                };
+
+            if (json.success) {
+                // update the database with the new account hash
+                DB.unsafe.run(
+                    `
+                    UPDATE Accounts
+                    SET key = ?, salt = ?
+                    WHERE id = ?
+                `,
+                    json.hash,
+                    json.salt,
+                    this.id,
+                );
+            }
+
+            return json;
+        });
+
+        if (result.isOk()) {
+            return result.value.success;
+        }
+
+        return false;
     }
 
     /**
@@ -953,8 +1039,8 @@ export default class Account {
      * @param {string} email
      * @returns {AccountStatusId}
      */
-    changeEmail(email: string): AccountStatusId {
-        const exists = Account.fromEmail(email);
+    async changeEmail(email: string): Promise<AccountStatusId> {
+        const exists = await Account.fromEmail(email);
 
         if (exists) return 'email-taken';
 
@@ -1015,7 +1101,7 @@ export default class Account {
             id: this.id,
             salt,
             key: newKey,
-            passwordChange: null,
+            passwordChange: undefined,
         });
         this.key = newKey;
         this.salt = salt;
@@ -1031,8 +1117,8 @@ export default class Account {
      * @readonly
      * @type {number}
      */
-    get rank(): number {
-        const { roles } = this;
+    async getRank(): Promise<number> {
+        const roles = await this.getRoles();
         return Math.min(...roles.map((r) => r.rank));
     }
 
@@ -1054,18 +1140,22 @@ export default class Account {
      */
     save() {}
 
-    get settings(): AccountSettings | undefined {
-        return DB.get('account/get-settings', {
+    async getSettings(): Promise<AccountSettings | undefined> {
+        const res = await DB.get('account/get-settings', {
             accountId: this.id,
         });
+        if (res.isOk() && res.value) return JSON.parse(res.value.settings);
+        return undefined;
     }
 
-    set settings(settings: unknown) {
-        const str = JSON.stringify(settings);
+    async setSettings(settings: unknown) {
+        return attemptAsync(async () => {
+            const str = JSON.stringify(settings);
 
-        DB.run('account/save-settings', {
-            accountId: this.id,
-            settings: str,
+            DB.run('account/save-settings', {
+                accountId: this.id,
+                settings: str,
+            });
         });
     }
 }

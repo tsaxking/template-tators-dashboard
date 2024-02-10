@@ -1,8 +1,5 @@
 import { Drawable } from './drawable';
-import {
-    Point,
-    Point2D,
-} from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
 export class Circle extends Drawable<Circle> {
@@ -29,10 +26,10 @@ export class Circle extends Drawable<Circle> {
      * @returns {boolean}
      */
     public isIn(point: Point2D) {
-        const [x, y] = point;
+        const [px, py] = point;
+        const [x, y] = this.reflect(this.center);
         return (
-            Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2)) <
-                this.radius
+            Math.sqrt(Math.pow(px - x, 2) + Math.pow(py - y, 2)) < this.radius
         );
     }
 
@@ -53,9 +50,11 @@ export class Circle extends Drawable<Circle> {
         if (this.$properties?.fill?.color) {
             context.fillStyle = this.$properties.fill.color;
         }
+        // console.log(this.center);
+        const [x, y] = this.reflect(this.center);
         context.arc(
-            this.x * context.canvas.width,
-            this.y * context.canvas.height,
+            x * context.canvas.width,
+            y * context.canvas.height,
             this.radius * context.canvas.height,
             0,
             2 * Math.PI,

@@ -10,7 +10,8 @@ import {
 import { Next, ServerFunction } from '../structure/app/app.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
-import { Result } from '../../shared/attempt.ts';
+import { Result } from '../../shared/check.ts';
+import env from './env.ts';
 
 /**
  * Status class, used to send pre-made status messages to the client
@@ -138,7 +139,7 @@ export class Status {
      * @readonly
      * @type {?string}
      */
-    public readonly redirect?: string;
+    public redirect?: string;
     /**
      * Request object
      * @date 10/12/2023 - 3:26:23 PM
@@ -175,12 +176,15 @@ export class Status {
         this.request = req;
 
         // Log the status message in the ./storage/logs/status.csv file
-        log('status', {
-            ...message,
-            data: data ? JSON.stringify(data) : 'No data provided.',
-            ip: req.session.ip,
-            username: req.session.account?.username,
-            sessionId: req.session.id,
+        setTimeout(async () => {
+            const a = await req.session.getAccount();
+            log('status', {
+                ...message,
+                data: data ? JSON.stringify(data) : 'No data provided.',
+                ip: req.session.ip,
+                username: a?.username,
+                sessionId: req.session.id,
+            });
         });
 
         // TODO: Send email to admins if server error
@@ -220,7 +224,8 @@ export class Status {
     get html() {
         return getTemplateSync('status', {
             ...this.json,
-            data: this.data ? JSON.stringify(this.data) : 'No data provided.',
+            page: env.TITLE || 'My App',
+            // data: this.data ? JSON.stringify(this.data) : 'No data provided.',
         });
     }
 
@@ -239,7 +244,7 @@ export class Status {
             code: this.code,
             instructions: this.instructions,
             data: JSON.parse(this.data || '{}'),
-            redirect: this.redirect,
+            redirect: this.redirect || '',
             color: this.color,
         };
     }

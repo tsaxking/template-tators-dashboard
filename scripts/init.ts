@@ -1,6 +1,6 @@
-import { init } from '../storage/db/scripts/init.ts';
 import { repeatPrompt } from './prompt.ts';
 import { __root, resolve } from '../server/utilities/env.ts';
+import { runTask } from '../server/utilities/run-task.ts';
 
 const runPrompt = (
     message: string,
@@ -35,7 +35,7 @@ const createEnv = () => {
                 .trim();
         }
     } catch {
-        console.error(
+        console.warn(
             'Unable to read .env file, please make sure it exists and is formatted correctly.',
         );
     }
@@ -60,6 +60,7 @@ const createEnv = () => {
         }
     };
 
+    // APP
     setKey(
         'PORT',
         'Port: (default: 3000)',
@@ -102,6 +103,9 @@ const createEnv = () => {
         (i) => i.length > 0,
         true,
     );
+    setKey('AUTO_SIGN_IN', 'Auto Sign In: (no default)', '', undefined, true);
+
+    // API KEYS
     setKey(
         'SENDGRID_API_KEY',
         'Sendgrid API Key: (no default)',
@@ -123,15 +127,7 @@ const createEnv = () => {
         (i) => ['y', 'n'].includes(i),
         true,
     );
-    setKey('AUTO_SIGN_IN', 'Auto Sign In: (no default)', '', undefined, true);
     setKey('TBA_KEY', 'TBA Key: (no default)', '', undefined, true);
-    setKey(
-        'DATABASE_LINK',
-        'Database Link: (default: main)',
-        'main',
-        (i) => i.length > 0,
-        true,
-    );
     setKey(
         'RANDOM_KEY_AUTH',
         'Random Key Auth: (no default)',
@@ -146,11 +142,63 @@ const createEnv = () => {
         undefined,
         true,
     );
+    setKey('WEBHOOK_AUTH', 'Webhook Auth: (no default)', '', undefined, true);
     setKey(
-        'WEBHOOK_AUTH',
-        'Webhook Auth: (no default)',
-        '',
+        'HASH_SERVER',
+        'Hash Server: (default: http://localhost:4000)',
+        'http://localhost:4000',
+        (i) => i.length > 0,
+        true,
+    );
+    setKey(
+        'HASH_SERVER_AUTH',
+        'Hash Server Auth: (secret)',
+        'secret',
         undefined,
+        true,
+    );
+
+    // DATABASE
+    setKey(
+        'DATABASE_USER',
+        'Database User: (default user)',
+        'user',
+        (i) => i.length > 0,
+        true,
+    );
+    setKey(
+        'DATABASE_PASSWORD',
+        'Database Password: (default 1234)',
+        '1234',
+        (i) => i.length > 0,
+        true,
+    );
+    setKey(
+        'DATABASE_NAME',
+        'Database Name: (default template1)',
+        'template1',
+        (i) => i.length > 0,
+        true,
+    );
+    setKey(
+        'DATABASE_HOST',
+        'Database Host: (default localhost)',
+        'localhost',
+        (i) => i.length > 0,
+        true,
+    );
+    setKey(
+        'DATABASE_PORT',
+        'Database Port: (default 5432)',
+        '5432',
+        (i) => i.length > 0,
+        true,
+    );
+    setKey(
+        'MINIFY',
+        'Minify: (default: n) (y/n)',
+        'n',
+        (i) => ['y', 'n'].includes(i),
         true,
     );
 
@@ -162,7 +210,12 @@ const createEnv = () => {
     return values;
 };
 
+if (import.meta.main) createEnv();
 
-const vals = createEnv();
-
-init(vals['DATABASE_LINK'] as string);
+if (Deno.args.includes('--db')) {
+    // this will run the database setup.
+    // You cannot import DB because github actions will not have access to the database.
+    const res = await runTask('/server/utilities/databases.ts');
+    if (res.isOk()) console.log(res.value);
+    else console.error(res.error);
+}
