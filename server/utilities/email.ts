@@ -4,7 +4,7 @@ import { config } from 'npm:dotenv';
 import { Constructor, FileError, getTemplateSync } from './files.ts';
 import env from './env.ts';
 import { error } from './terminal-logging.ts';
-import { Result } from '../../shared/attempt.ts';
+import { Result } from '../../shared/check.ts';
 
 config();
 
@@ -121,29 +121,32 @@ export class Email {
                 throw new Error('Unable to get email template');
             }
 
-            const html = r.isOk() ? r.value : r.error;
+            if (r.isOk()) {
+                const html = r.value;
+                const mailOptions = {
+                    from: env.SENDGRID_DEFAULT_FROM,
+                    to,
+                    subject,
+                    html,
+                    attachments,
+                };
 
-            const mailOptions = {
-                from: env.SENDGRID_DEFAULT_FROM,
-                to,
-                subject,
-                html,
-                attachments,
-            };
+                return new Promise((resolve) => {
+                    transporter.sendMail(
+                        mailOptions,
+                        (err: Error, info: { response: string }) => {
+                            if (err) {
+                                console.error(err);
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                                resolve(info);
+                            }
+                        },
+                    );
+                });
+            }
 
-            return new Promise((resolve) => {
-                transporter.sendMail(
-                    mailOptions,
-                    (err: Error, info: { response: string }) => {
-                        if (err) {
-                            console.error(err);
-                        } else {
-                            console.log('Email sent: ' + info.response);
-                            resolve(info);
-                        }
-                    },
-                );
-            });
+            throw r.error;
         } catch (e) {
             error('Unable to send email:', e);
         }

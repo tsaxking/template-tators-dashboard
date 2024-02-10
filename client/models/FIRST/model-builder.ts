@@ -7,7 +7,3 @@ export const years: FIRSTYear[] = (() => {
     }
     return years;
 })();
-
-setTimeout(() => {
-    years[0].select();
-});

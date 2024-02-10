@@ -15,14 +15,16 @@ router.post<{
         matchNumber: 'number',
         compLevel: 'string',
     }),
-    (req, res, next) => {
+    async (req, res) => {
         const { eventKey, matchNumber, compLevel } = req.body;
 
-        const matches = DB.all('matches/from-event', {
+        const matches = await DB.all('matches/from-event', {
             eventKey,
         });
 
-        const match = matches.find(
+        if (matches.isErr()) return res.sendStatus('unknown:error');
+
+        const match = matches.value.find(
             (m) => m.matchNumber === matchNumber && m.compLevel === compLevel,
         );
 

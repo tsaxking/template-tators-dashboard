@@ -80,6 +80,12 @@ export const messages: {
         code: 400,
         instructions: 'Please log out.',
     },
+    'account:cannot-edit-other-account': {
+        message: 'You cannot edit or view information about another account',
+        color: 'danger',
+        code: 400,
+        instructions: '',
+    },
     'account:cannot-edit-self': {
         message: 'You cannot edit this part of your account presently',
         color: 'danger',
@@ -104,6 +110,7 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the login page',
+        redirect: '/account/sign-in',
     },
     'account:email-change-expired': {
         message: 'Your email change expired',
@@ -128,6 +135,12 @@ export const messages: {
         color: 'danger',
         code: 400,
         instructions: 'Please try again.',
+    },
+    'account:insufficient-permissions': {
+        message: 'You do not have the permissions to send that request',
+        color: 'danger',
+        code: 403,
+        instructions: '',
     },
     'account:invalid-email': {
         message: 'That email is invalid.',
@@ -161,6 +174,12 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.',
     },
+    'account:invalid-settings': {
+        message: 'Your settings were invalid, please fix the data structure',
+        color: 'danger',
+        code: 406,
+        instructions: '',
+    },
     'account:invalid-username': {
         message: 'That username is invalid.',
         color: 'danger',
@@ -178,7 +197,6 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
-        redirect: '/home',
     },
     'account:logged-out': {
         message: 'You have been logged out.',
@@ -229,7 +247,6 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: '',
-        redirect: '/account/sign-in',
     },
     'account:picture-updated': {
         message: 'Added a picture to this account',
@@ -261,6 +278,12 @@ export const messages: {
         code: 500,
         instructions: 'Please try again.',
     },
+    'account:settings-set': {
+        message: 'Your settings have been successfully saved',
+        color: 'success',
+        code: 202,
+        instructions: '',
+    },
     'account:unverified': {
         message: 'Account has been unverified',
         color: 'success',
@@ -289,7 +312,7 @@ export const messages: {
         message: 'Account has been verified.',
         color: 'success',
         code: 200,
-        instructions: 'You will be redirected to the home page.',
+        instructions: '',
     },
     'admin:invalid-key': {
         message: 'Invalid key',
@@ -527,11 +550,17 @@ export const messages: {
         code: 200,
         instructions: '',
     },
-    'profanity': {
+    'profanity:detected': {
         message: 'Profanity detected',
         color: 'danger',
         code: 400,
         instructions: 'Please try again.',
+    },
+    'role:not-found': {
+        message: 'Role was not found',
+        color: 'danger',
+        code: 404,
+        instructions: '',
     },
     'roles:added': {
         message: 'Role added',
@@ -561,7 +590,14 @@ export const messages: {
         message: 'Answer was not found, nothing was changed',
         color: 'danger',
         code: 404,
-        instructions: 'pleaseensureyouhaveselectedavalidanswertoupdate',
+        instructions:
+            'please ensure you have selected a valid answer to update',
+    },
+    'scouting-question:group-updated': {
+        message: 'Group has been updated',
+        color: 'success',
+        code: 200,
+        instructions: '',
     },
     'scouting-question:new-answer': {
         message: 'New answer submitted',
@@ -587,6 +623,18 @@ export const messages: {
         code: 200,
         instructions: '',
     },
+    'scouting-question:question-not-found': {
+        message: 'The question was not found, please try again',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
+    'scouting-question:question-updated': {
+        message: 'Question updated successfully',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'scouting-question:update-section': {
         message: 'Section updated',
         color: 'success',
@@ -603,6 +651,12 @@ export const messages: {
         message: 'Invalid data types received',
         color: 'danger',
         code: 400,
+        instructions: '',
+    },
+    'server:not-implemented': {
+        message: "This request's handler has not been implemented yet.",
+        color: 'warning',
+        code: 501,
         instructions: '',
     },
     'server:unknown-server-error': {
@@ -725,6 +779,7 @@ export const messages: {
 
 export type StatusId =
     | 'account:already-logged-in'
+    | 'account:cannot-edit-other-account'
     | 'account:cannot-edit-self'
     | 'account:cannot-reject-verified'
     | 'account:check-email'
@@ -733,11 +788,13 @@ export type StatusId =
     | 'account:email-taken'
     | 'account:has-role'
     | 'account:incorrect-username-or-password'
+    | 'account:insufficient-permissions'
     | 'account:invalid-email'
     | 'account:invalid-first-name'
     | 'account:invalid-last-name'
     | 'account:invalid-password'
     | 'account:invalid-password-reset-key'
+    | 'account:invalid-settings'
     | 'account:invalid-username'
     | 'account:invalid-verification-key'
     | 'account:logged-in'
@@ -754,6 +811,7 @@ export type StatusId =
     | 'account:role-added'
     | 'account:role-removed'
     | 'account:server-error'
+    | 'account:settings-set'
     | 'account:unverified'
     | 'account:updated'
     | 'account:username-changed'
@@ -798,19 +856,24 @@ export type StatusId =
     | 'permissions:unauthorized'
     | 'pit-scouting:delete'
     | 'pit-scouting:new'
-    | 'profanity'
+    | 'profanity:detected'
+    | 'role:not-found'
     | 'roles:added'
     | 'roles:invalid-role'
     | 'roles:not-found'
     | 'roles:removed'
     | 'scouting-question:answer-not-found'
+    | 'scouting-question:group-updated'
     | 'scouting-question:new-answer'
     | 'scouting-question:new-group'
     | 'scouting-question:new-question'
     | 'scouting-question:new-section'
+    | 'scouting-question:question-not-found'
+    | 'scouting-question:question-updated'
     | 'scouting-question:update-section'
     | 'scouting-question:updated-answer'
     | 'server:invalid-data'
+    | 'server:not-implemented'
     | 'server:unknown-server-error'
     | 'skills:added'
     | 'skills:has-skill'
@@ -833,6 +896,7 @@ export type StatusId =
 
 export type AccountStatusId =
     | 'already-logged-in'
+    | 'cannot-edit-other-account'
     | 'cannot-edit-self'
     | 'cannot-reject-verified'
     | 'check-email'
@@ -841,11 +905,13 @@ export type AccountStatusId =
     | 'email-taken'
     | 'has-role'
     | 'incorrect-username-or-password'
+    | 'insufficient-permissions'
     | 'invalid-email'
     | 'invalid-first-name'
     | 'invalid-last-name'
     | 'invalid-password'
     | 'invalid-password-reset-key'
+    | 'invalid-settings'
     | 'invalid-username'
     | 'invalid-verification-key'
     | 'logged-in'
@@ -862,6 +928,7 @@ export type AccountStatusId =
     | 'role-added'
     | 'role-removed'
     | 'server-error'
+    | 'settings-set'
     | 'unverified'
     | 'updated'
     | 'username-changed'
@@ -887,13 +954,9 @@ export type FilesStatusId =
 
 export type MatchStatusId = 'not-found';
 
-export type MatchcommentsStatusId =
-    | 'delete'
-    | 'new';
+export type MatchCommentsStatusId = 'delete' | 'new';
 
-export type MatchscoutingStatusId =
-    | 'delete'
-    | 'new';
+export type MatchScoutingStatusId = 'delete' | 'new';
 
 export type MemberStatusId =
     | 'accepted'
@@ -921,29 +984,29 @@ export type PermissionsStatusId =
     | 'invalid'
     | 'unauthorized';
 
-export type PitscoutingStatusId =
-    | 'delete'
-    | 'new';
+export type PitScoutingStatusId = 'delete' | 'new';
 
-export type ProfanityStatusId = 'undefined';
+export type ProfanityStatusId = 'detected';
 
-export type RolesStatusId =
-    | 'added'
-    | 'invalid-role'
-    | 'not-found'
-    | 'removed';
+export type RoleStatusId = 'not-found';
 
-export type ScoutingquestionStatusId =
+export type RolesStatusId = 'added' | 'invalid-role' | 'not-found' | 'removed';
+
+export type ScoutingQuestionStatusId =
     | 'answer-not-found'
+    | 'group-updated'
     | 'new-answer'
     | 'new-group'
     | 'new-question'
     | 'new-section'
+    | 'question-not-found'
+    | 'update-section'
     | 'updated-answer'
-    | 'update-section';
+    | 'question-updated';
 
 export type ServerStatusId =
     | 'invalid-data'
+    | 'not-implemented'
     | 'unknown-server-error';
 
 export type SkillsStatusId =
@@ -955,19 +1018,13 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
-export type StrategyStatusId =
-    | 'delete'
-    | 'new';
+export type StrategyStatusId = 'delete' | 'new';
 
-export type TestStatusId =
-    | 'fail'
-    | 'success';
+export type TestStatusId = 'fail' | 'success';
 
 export type UnknownStatusId = 'error';
 
-export type WebhookStatusId =
-    | 'invalid-url'
-    | 'not-found';
+export type WebhookStatusId = 'invalid-url' | 'not-found';
 
 export type WhiteboardStatusId =
     | 'created'

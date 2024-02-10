@@ -1,7 +1,6 @@
 import callsite from 'npm:callsite';
 import * as htmlConstructor from 'npm:node-html-constructor';
 import ObjectsToCsv from 'npm:objects-to-csv';
-import { log as terminalLog } from './terminal-logging.ts';
 import {
     __logs,
     __root,
@@ -10,8 +9,8 @@ import {
     dirname,
     resolve,
 } from './env.ts';
-import fs from 'node:fs';
-import { attempt, attemptAsync, Result } from '../../shared/attempt.ts';
+// import fs from 'node:fs';
+import { attempt, attemptAsync, Result } from '../../shared/check.ts';
 import { match, matchInstance } from '../../shared/match.ts';
 
 export type JSONError = 'InvalidJSON' | 'Unknown';
@@ -98,13 +97,15 @@ const removeComments = (content: string) => {
 export function getJSONSync<type = unknown>(
     file: string,
 ): Result<type, JSONError> {
-    const filePath = filePathBuilder(file, '.json', './storage/jsons/');
-    const data = Deno.readFileSync(filePath);
-    const decoder = new TextDecoder();
-    const decoded = decoder.decode(data);
-
     return attempt<type, JSONError>(
-        () => JSON.parse(removeComments(decoded)),
+        () => {
+            const filePath = filePathBuilder(file, '.json', './storage/jsons/');
+            const data = Deno.readFileSync(filePath);
+            const decoder = new TextDecoder();
+            const decoded = decoder.decode(data);
+
+            return JSON.parse(removeComments(decoded));
+        },
         (e) => {
             // if error
             return (
@@ -317,10 +318,7 @@ export function saveTemplate(
  */
 export const createUploadsFolder = (): Result<void, FileError> => {
     return attempt(() => {
-        if (!fs.existsSync(__uploads)) {
-            terminalLog('Creating uploads folder');
-            fs.mkdirSync(__uploads);
-        }
+        Deno.mkdirSync(__uploads, { recursive: true });
     }, matchFileError);
 };
 
@@ -330,10 +328,7 @@ export const createUploadsFolder = (): Result<void, FileError> => {
  */
 export const createLogsFolder = (): Result<void, FileError> => {
     return attempt(() => {
-        if (!fs.existsSync(__logs)) {
-            terminalLog('Creating logs folder');
-            fs.mkdirSync(__logs);
-        }
+        Deno.mkdirSync(__logs, { recursive: true });
     }, matchFileError);
 };
 
@@ -460,6 +455,76 @@ export function formatBytes(
         type: sizes[i],
     };
 }
+
+export const readFileSync = (file: string): Result<string, FileError> => {
+    return attempt(() => {
+        const p = filePathBuilder(file, '', '');
+        return Deno.readTextFileSync(p);
+    }, matchFileError);
+};
+
+export const readFile = (file: string): Promise<Result<string, FileError>> => {
+    return attemptAsync(() => {
+        const p = filePathBuilder(file, '', '');
+        return Deno.readTextFile(p);
+    }, matchFileError);
+};
+
+export const saveFileSync = (
+    file: string,
+    data: string,
+): Result<void, FileError> => {
+    return attempt(() => {
+        const p = filePathBuilder(file, '', '');
+        makeFolder(p);
+        Deno.writeTextFileSync(p, data);
+    }, matchFileError);
+};
+
+export const saveFile = (
+    file: string,
+    data: string,
+): Promise<Result<void, FileError>> => {
+    return attemptAsync(() => {
+        const p = filePathBuilder(file, '', '');
+        makeFolder(p);
+        return Deno.writeTextFile(p, data);
+    }, matchFileError);
+};
+
+export const readDir = (path: string): Promise<Result<Deno.DirEntry[]>> => {
+    return attemptAsync(async () => {
+        const dir = Deno.readDir(path);
+        const entries: Deno.DirEntry[] = [];
+        for await (const entry of dir) entries.push(entry);
+        return entries;
+    });
+};
+
+export const readDirSync = (path: string): Result<Deno.DirEntry[]> => {
+    return attempt(() => {
+        const dir = Deno.readDirSync(path);
+        const entries: Deno.DirEntry[] = [];
+        for (const entry of dir) entries.push(entry);
+        return entries;
+    });
+};
+
+export const exists = (path: string): Promise<boolean> =>
+    new Promise((res) => {
+        Deno.stat(path)
+            .then(() => res(true))
+            .catch(() => res(false));
+    });
+
+export const existsSync = (path: string): boolean => {
+    try {
+        Deno.statSync(path);
+        return true;
+    } catch {
+        return false;
+    }
+};
 
 /**
  * Types of logs

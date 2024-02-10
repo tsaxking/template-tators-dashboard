@@ -1,7 +1,8 @@
-import { TBAEvent } from '../../../shared/tba';
+import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { TBA } from '../../utilities/tba';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { Cache, Updates } from '../cache';
+import { Cache } from '../cache';
+import { attemptAsync, Result } from '../../../shared/attempt';
 
 /**
  * Events that are emitted by a {@link FIRSTYear} object
@@ -10,6 +11,11 @@ import { Cache, Updates } from '../cache';
  * @typedef {YearUpdateData}
  */
 type YearUpdateData = {
+    'update-events': TBAEvent[];
+};
+
+type Updates = {
+    select: FIRSTYear;
     'update-events': TBAEvent[];
 };
 
@@ -23,25 +29,26 @@ type YearUpdateData = {
  * @implements {FIRST}
  */
 export class FIRSTYear extends Cache<YearUpdateData> {
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
-        Updates
-    >();
+    private static readonly $emitter = new EventEmitter<keyof Updates>();
 
-    public static on<K extends Updates>(
+    public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: Updates[K]) => void,
     ): void {
         FIRSTYear.$emitter.on(event, callback);
     }
 
-    public static off<K extends Updates>(
+    public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: any) => void,
+        callback?: (data: Updates[K]) => void,
     ): void {
         FIRSTYear.$emitter.off(event, callback);
     }
 
-    public static emit<K extends Updates>(event: K, data: any): void {
+    public static emit<K extends keyof Updates>(
+        event: K,
+        data: Updates[K],
+    ): void {
         FIRSTYear.$emitter.emit(event, data);
     }
 
@@ -100,24 +107,42 @@ export class FIRSTYear extends Cache<YearUpdateData> {
      * @async
      * @returns {Promise<TBAEvent[]>}
      */
-    async getEvents(): Promise<TBAEvent[]> {
-        if (this.$cache.has('events')) {
-            return this.$cache.get('events') as TBAEvent[];
-        }
-        const res = await TBA.get<TBAEvent[]>(
-            `/team/frc2122/events/${this.year}`,
-        );
-        this.$cache.set('events', res.data);
+    async getEvents(): Promise<Result<TBAEvent[]>> {
+        return attemptAsync(async () => {
+            // if (this.$cache.has('events')) {
+            //     return this.$cache.get('events') as TBAEvent[];
+            // }
+            const res = await TBA.get<TBAEvent[]>(
+                `/team/frc2122/events/${this.year}`,
+            );
 
-        res.onUpdate(
-            (data) => {
-                this.$cache.set('events', data);
-                this.$emitter.emit('update-events', data);
-            },
-            1000 * 60 * 60 * 24 * 7,
-        ); // 1 week
+            if (res.isOk()) {
+                const today = new Date();
 
-        return res.data;
+                // sort by closest event to today
+                const events = res.value.data.sort((a, b) => {
+                    const aDate = new Date(a.start_date);
+                    const bDate = new Date(b.start_date);
+
+                    const aDelta = Math.abs(today.getTime() - aDate.getTime());
+                    const bDelta = Math.abs(today.getTime() - bDate.getTime());
+
+                    return aDelta - bDelta;
+                });
+
+                res.value.onUpdate(
+                    (data) => {
+                        this.$cache.set('events', data);
+                        this.$emitter.emit('update-events', data);
+                    },
+                    1000 * 60 * 60 * 24 * 7,
+                ); // 1 week
+
+                return events;
+            }
+
+            throw res.error;
+        });
     }
 
     /**

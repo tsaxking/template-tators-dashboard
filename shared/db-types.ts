@@ -16,12 +16,12 @@ export type Account = {
     lastName: string;
     email: string;
     passwordChange?: string;
-    verified: 0 | 1;
+    verified: number;
     verification?: string;
     emailChange?: string;
     passwordChangeDate?: number;
     created: number;
-    phoneNumber: string;
+    phoneNumber?: string;
     picture?: string;
 };
 
@@ -37,10 +37,11 @@ export type AccountSafe = {
     firstName: string;
     lastName: string;
     email: string;
-    verified: 0 | 1;
+    verified: number;
     created: number;
     phoneNumber: string;
     picture?: string;
+    id: string;
 };
 
 /**
@@ -67,9 +68,9 @@ export type MembershipStatus =
  */
 export type Member = {
     id: string;
-    title: string;
-    status: 'pending';
-    bio: string;
+    title?: string;
+    status?: string;
+    bio?: string;
     resume?: string;
 };
 
@@ -95,7 +96,7 @@ export type MemberSafe = Member & {
 export type Role = {
     id: string;
     name: string;
-    description: string;
+    description: string | undefined;
     rank: number;
 };
 
@@ -119,8 +120,8 @@ export type AccountRole = {
  * @typedef {RolePermission}
  */
 export type RolePermission = {
-    id: string;
     permission: string;
+    description?: string;
 };
 
 /**
@@ -149,24 +150,6 @@ export type DiscordLink = {
     created: number;
     username: string;
 };
-
-/**
- * Description placeholder
- * @date 1/11/2024 - 3:10:52 AM
- *
- * @export
- * @typedef {Permission}
- */
-export type Permission = 'manageMembers' | 'manageBoard';
-
-/**
- * Description placeholder
- * @date 1/11/2024 - 3:10:52 AM
- *
- * @export
- * @typedef {RoleName}
- */
-export type RoleName = 'admin' | 'developer' | 'user' | 'guest';
 
 export type AccountSettings = {
     accountId: string;

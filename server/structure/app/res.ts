@@ -19,6 +19,7 @@ import { EventEmitter } from '../../../shared/event-emitter.ts';
 import { streamDelimiter } from '../../../shared/text.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import { sleep } from '../../../shared/sleep.ts';
+import { bigIntDecode, bigIntEncode } from '../../../shared/objects.ts';
 
 /**
  * All filetype headers (used for sending files, this is not a complete list)
@@ -243,7 +244,7 @@ export class Res {
     json(data: unknown): ResponseStatus {
         this.isFulfilled();
         try {
-            const d = JSON.stringify(data);
+            const d = JSON.stringify(bigIntEncode(data));
             this.resolve?.(
                 new Response(d, {
                     status: this._status,
@@ -276,6 +277,7 @@ export class Res {
                 'Content-Type': fileTypeHeaders[filetype] || 'text/plain',
             },
         });
+        // console.log(this);
         this._setCookie(res);
         this.resolve?.(res);
 
@@ -377,6 +379,8 @@ export class Res {
             options: options,
         };
 
+        this.req.cookie[id] = value;
+
         return this;
     }
 
@@ -388,9 +392,19 @@ export class Res {
      * @param {?*} [data]
      * @returns {ResponseStatus}
      */
-    sendStatus(id: StatusId, data?: unknown): ResponseStatus {
+    sendStatus(
+        id: StatusId,
+        data?: unknown,
+        redirect?: string,
+    ): ResponseStatus {
         try {
-            Status.from(id, this.req, JSON.stringify(data)).send(this);
+            const s = Status.from(
+                id,
+                this.req,
+                JSON.stringify(bigIntEncode(data)),
+            );
+            s.redirect = redirect;
+            s.send(this);
             return ResponseStatus.success;
         } catch (error) {
             log('Error sending status', error);

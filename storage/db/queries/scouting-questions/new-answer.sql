@@ -3,11 +3,13 @@ INSERT INTO ScoutingAnswers (
     questionId,
     answer,
     teamNumber,
-    date
+    date,
+    accountId
 ) VALUES (
     :id,
     :questionId,
     :answer,
     :teamNumber,
-    :date
+    :date,
+    :accountId
 );

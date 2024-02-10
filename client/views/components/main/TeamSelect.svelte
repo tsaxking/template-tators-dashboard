@@ -9,17 +9,23 @@ let value: string | undefined;
 export let selected: FIRSTTeam | undefined = undefined;
 
 FIRSTEvent.on('select', async (event: FIRSTEvent) => {
-    const teams = await event.getTeams();
-    options = teams.map(t => t.tba.team_number.toString());
+    const result = await event.getTeams();
+    if (result.isOk()) {
+        const teams = result.value;
+        options = teams.map(t => t.tba.team_number.toString());
+    } else {
+        options = [];
+    }
 });
 
 const dispatch = createEventDispatcher();
 
 const handleChange = async (e: any) => {
     const { detail: teamNumber } = e;
-    const team = (await FIRSTEvent.current.getTeams()).find(
-        t => t.tba.team_number === +teamNumber
-    );
+    const result = await FIRSTEvent.current.getTeams();
+    if (result.isErr()) return;
+    const teams = result.value;
+    const team = teams.find(t => t.tba.team_number === +teamNumber);
     if (team) {
         dispatch('change', team);
         selected = team;
