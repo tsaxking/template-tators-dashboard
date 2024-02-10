@@ -8,7 +8,10 @@ import { FIRSTEvent } from '../../../models/FIRST/event';
 export let section: Section | undefined = undefined;
 let groups: Group[] = [];
 
-const getGroups = async (s: Section | undefined, event: FIRSTEvent | undefined) => {
+const getGroups = async (
+    s: Section | undefined,
+    event: FIRSTEvent | undefined
+) => {
     if (!s) return;
     if (!event) return;
     const res = await s.getGroups(event);
@@ -50,7 +53,7 @@ $: {
     }
 }
 
-FIRSTEvent.on('select', async (event) => {
+FIRSTEvent.on('select', async event => {
     getGroups(section, event);
 });
 </script>

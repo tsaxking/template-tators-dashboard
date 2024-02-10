@@ -26,7 +26,7 @@ export type Updates = {
     archive: number;
     restore: number;
     destroy: undefined;
-    select: FIRSTTeam;
+    select: FIRSTTeam | undefined;
     '*': { [key: string]: unknown };
 };
 
@@ -77,6 +77,11 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     }
 
     public static current?: FIRSTTeam = undefined;
+
+    public static deselect(): void {
+        FIRSTTeam.current = undefined;
+        FIRSTTeam.emit('select', undefined);
+    }
 
     /**
      * Map of all FIRSTTeam objects

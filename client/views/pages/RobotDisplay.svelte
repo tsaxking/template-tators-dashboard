@@ -1,5 +1,5 @@
 <script lang="ts">
-import RobotSelect from '../components/robot-display/RobotSelect.svelte';
+import RobotSelect from '../components/main/GlobalTeamSelect.svelte';
 import MatchViewer from '../components/robot-display/MatchViewer.svelte';
 import { FIRSTTeam } from '../../models/FIRST/team';
 import RobotBasics from '../components/robot-display/RobotBasics.svelte';
