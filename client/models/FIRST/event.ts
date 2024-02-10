@@ -4,10 +4,10 @@ import {
     Team,
 } from '../../../shared/db-types-extended';
 import {
+    matchSort,
     TBAEvent,
     TBAMatch,
     TBATeam,
-    matchSort,
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { ServerRequest } from '../../utilities/requests';
 import { TBA } from '../../utilities/tba';

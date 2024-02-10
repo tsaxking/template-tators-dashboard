@@ -49,7 +49,7 @@ $: {
             <div class="container">
                 {#each questions as q}
                     <div class="row mb-1">
-                        <Q bind:question={q} {team} />
+                        <Q bind:question="{q}" {team} />
                     </div>
                 {/each}
             </div>

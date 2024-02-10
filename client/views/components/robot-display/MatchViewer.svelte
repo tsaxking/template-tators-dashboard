@@ -29,7 +29,9 @@ onMount(() => {
     c.width = canvasEl.parentElement?.clientWidth || 0;
     c.height = c.width / 2;
 
-    const img = new Img(`/public/pictures/${FIRSTEvent.current.tba.year}field.png`);
+    const img = new Img(
+        `/public/pictures/${FIRSTEvent.current.tba.year}field.png`
+    );
     img.options.height = 1;
     img.options.width = 1;
     img.options.x = 0;

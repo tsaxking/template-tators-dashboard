@@ -22,7 +22,7 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
             </h3>
         </div>
     </div>
-    <hr>
+    <hr />
     <div class="row">
         <div class="col-md-6">
             <TeamMatchTable {team} />
