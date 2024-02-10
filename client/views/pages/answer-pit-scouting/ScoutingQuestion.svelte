@@ -44,14 +44,18 @@ const fns = {
                     break;
                 case 'checkbox':
                     value.forEach(v => {
-                        const checkbox = me.querySelector(`input[value="${v}"]`) as HTMLInputElement;
+                        const checkbox = me.querySelector(
+                            `input[value="${v}"]`
+                        ) as HTMLInputElement;
                         if (checkbox) {
                             checkbox.checked = true;
                         }
                     });
                     break;
                 case 'radio':
-                    const radio = me.querySelector(`input[value="${value[0]}"]`) as HTMLInputElement;
+                    const radio = me.querySelector(
+                        `input[value="${value[0]}"]`
+                    ) as HTMLInputElement;
                     if (radio) {
                         radio.checked = true;
                     }
@@ -85,7 +89,7 @@ const fns = {
             document
                 .querySelectorAll('.tooltip.bs-tooltip-auto')
                 .forEach(e => e.remove());
-    
+
             jQuery(me.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
         } catch {
             // console.warn('Question not mounted')
@@ -100,7 +104,7 @@ const fns = {
 // const dispatch = createEventDispatcher();
 </script>
 
-<div class="mb-3" bind:this={me}>
+<div class="mb-3" bind:this="{me}">
     <label for="q-{question.id}" class="mb-3">
         {question.question}
     </label>
@@ -109,130 +113,153 @@ const fns = {
         <div class="row">
             <div class="col-lg-11 col-md-10 col-sm-9 col-8">
                 {#if question.type === 'text'}
-                <input 
-                    type="text" 
-                    id="q-{question.id}" 
-                    class="form-control" 
-                    on:change={(event) => {
-                        value = [event.currentTarget.value];
-                        fns.setValue();
-                    }}
-                    {disabled}
-                    on:input={fns.change}
-                    value={value[0] || ''}>
-            {:else if question.type === 'textarea'}
-                <textarea 
-                    id="q-{question.id}" 
-                    class="form-control"
-                    on:change={(event) => {
-                        value = [event.currentTarget.value];
-                        fns.setValue();
-                    }}
-                    {disabled}
-                    on:input={fns.change}
-                    value={value[0] || ''}></textarea>
-            {:else if question.type === 'number'}
-                <input 
-                    type="number" 
-                    id="q-{question.id}" 
-                    class="form-control" 
-                    on:change={(event) => {
-                        value = [event.currentTarget.value];
-                        fns.setValue();
-                    }}
-                    {disabled}
-                    on:input={fns.change}
-                    value={value[0] || ''}>
-            {:else if question.type === 'checkbox'}
-                {#each question.options.checkbox as option, i}
-                    <div class="form-check">
-                        <input 
-                            type="checkbox" 
-                            id="q-{question.id}-{i}" 
-                            class="form-check-input"
-                            value={option}
-                            on:change={(event) => {
-                                if (event.currentTarget.checked) {
-                                    value = [...value, option];
-                                } else {
-                                    value = value.filter(v => v !== option);
-                                }
-                                fns.setValue();
-                            }}
-                    {disabled}
-                    on:input={fns.change}
-                            checked={value.includes(option)}
+                    <input
+                        type="text"
+                        id="q-{question.id}"
+                        class="form-control"
+                        on:change="{event => {
+                            value = [event.currentTarget.value];
+                            fns.setValue();
+                        }}"
+                        {disabled}
+                        on:input="{fns.change}"
+                        value="{value[0] || ''}"
+                    />
+                {:else if question.type === 'textarea'}
+                    <textarea
+                        id="q-{question.id}"
+                        class="form-control"
+                        on:change="{event => {
+                            value = [event.currentTarget.value];
+                            fns.setValue();
+                        }}"
+                        {disabled}
+                        on:input="{fns.change}"
+                        value="{value[0] || ''}"
+                    ></textarea>
+                {:else if question.type === 'number'}
+                    <input
+                        type="number"
+                        id="q-{question.id}"
+                        class="form-control"
+                        on:change="{event => {
+                            value = [event.currentTarget.value];
+                            fns.setValue();
+                        }}"
+                        {disabled}
+                        on:input="{fns.change}"
+                        value="{value[0] || ''}"
+                    />
+                {:else if question.type === 'checkbox'}
+                    {#each question.options.checkbox as option, i}
+                        <div class="form-check">
+                            <input
+                                type="checkbox"
+                                id="q-{question.id}-{i}"
+                                class="form-check-input"
+                                value="{option}"
+                                on:change="{event => {
+                                    if (event.currentTarget.checked) {
+                                        value = [...value, option];
+                                    } else {
+                                        value = value.filter(v => v !== option);
+                                    }
+                                    fns.setValue();
+                                }}"
+                                {disabled}
+                                on:input="{fns.change}"
+                                checked="{value.includes(option)}"
+                            />
+                            <label
+                                for="q-{question.id}-{i}"
+                                class="form-check-label"
                             >
-                        <label 
-                            for="q-{question.id}-{i}" 
-                            class="form-check-label">
-                            {option}
-                        </label>
-                    </div>
-                {/each}
-            {:else if question.type === 'radio'}
-                {#each question.options.radio as option, i}
-                    <div class="form-check
-                            form-check-inline">
-                        <input 
-                            type="radio" 
-                            id="q-{question.id}-{i}" 
-                            class="form-check-input"
-                            value={option}
-                            on:change={(event) => {
-                                value = [option];
-                        fns.setValue();
-                            }}
-                    {disabled}
-                    on:input={fns.change}
-                            checked={value[0] === option}
-                            >
-                        <label 
-                            for="q-{question.id}-{i}" 
-                            class="form-check-label">
-                            {option}
-                        </label>
-                    </div>
-                {/each}
-            {:else if question.type === 'select'}
-                <select 
-                    id="q-{question.id}" 
-                    class="form-control" 
-                    on:change={(event) => {
-                        value = [event.currentTarget.value];
-                        fns.setValue();
-                    }}
-                    {disabled}
-                    on:input={fns.change}
-                    value={value[0] || ''}
-                >
-                    {#each question.options.select as option}
-                        <option value={option}>
-                            {option}
-                        </option>
+                                {option}
+                            </label>
+                        </div>
                     {/each}
-                </select>
-            {/if}
+                {:else if question.type === 'radio'}
+                    {#each question.options.radio as option, i}
+                        <div
+                            class="form-check
+                            form-check-inline"
+                        >
+                            <input
+                                type="radio"
+                                id="q-{question.id}-{i}"
+                                class="form-check-input"
+                                value="{option}"
+                                on:change="{event => {
+                                    value = [option];
+                                    fns.setValue();
+                                }}"
+                                {disabled}
+                                on:input="{fns.change}"
+                                checked="{value[0] === option}"
+                            />
+                            <label
+                                for="q-{question.id}-{i}"
+                                class="form-check-label"
+                            >
+                                {option}
+                            </label>
+                        </div>
+                    {/each}
+                {:else if question.type === 'select'}
+                    <select
+                        id="q-{question.id}"
+                        class="form-control"
+                        on:change="{event => {
+                            value = [event.currentTarget.value];
+                            fns.setValue();
+                        }}"
+                        {disabled}
+                        on:input="{fns.change}"
+                        value="{value[0] || ''}"
+                    >
+                        {#each question.options.select as option}
+                            <option value="{option}">
+                                {option}
+                            </option>
+                        {/each}
+                    </select>
+                {/if}
             </div>
-            <div class="col-lg-1 col-md-2 col-sm-3 col-4 d-flex justify-content-between align-items-center">
+            <div
+                class="col-lg-1 col-md-2 col-sm-3 col-4 d-flex justify-content-between align-items-center"
+            >
                 {#if disabled}
-                    <i class="material-icons text-warning" data-bs-title="No team selected" data-toggle="tooltip">
+                    <i
+                        class="material-icons text-warning"
+                        data-bs-title="No team selected"
+                        data-toggle="tooltip"
+                    >
                         unpublished
                     </i>
+                {:else if changed}
+                    <i
+                        class="material-icons text-danger"
+                        data-bs-title="Unsaved changes!"
+                        data-toggle="tooltip"
+                    >
+                        warning
+                    </i>
+                    <button
+                        class="btn btn-success"
+                        data-bs-title="Save"
+                        data-toggle="tooltip"
+                    >
+                        <!-- This doesn't need an on-click, it just helps the user click out of the input, which is what saves the data -->
+                        <i class="material-icons">save</i>
+                    </button>
                 {:else}
-                    {#if changed}
-                        <i class="material-icons text-danger" data-bs-title="Unsaved changes!" data-toggle="tooltip">
-                            warning
-                        </i>
-                        <button class="btn btn-success" data-bs-title="Save" data-toggle="tooltip">
-                            <!-- This doesn't need an on-click, it just helps the user click out of the input, which is what saves the data -->
-                            <i class="material-icons">save</i>
-                        </button>
-                    {:else}
-                        <i class="material-icons text-success" data-bs-title="No unsaved changes" data-toggle="tooltip">
-                            check
-                        </i>
-                    {/if}
+                    <i
+                        class="material-icons text-success"
+                        data-bs-title="No unsaved changes"
+                        data-toggle="tooltip"
+                    >
+                        check
+                    </i>
                 {/if}
             </div>
         </div>

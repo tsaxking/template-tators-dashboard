@@ -124,8 +124,8 @@ const fns = {
             <div class="row mb-3">
                 <label for="{question.id}-text">Question Text</label>
                 <small class="mb-2">
-                    This is the question that will be displayed to the scout
-                    for them to ask.
+                    This is the question that will be displayed to the scout for
+                    them to ask.
                 </small>
                 <input
                     type="text"
@@ -137,11 +137,9 @@ const fns = {
             <div class="row mb-3">
                 <label for="{question.id}-key">Question Key</label>
                 <small class="mb-2">
-                    This is just a unique identifier to summarize the
-                    question to make reading summaries easier. (e.g. How
-                    heavy is the robot? <i class="material-icons"
-                        >arrow_right</i
-                    >
+                    This is just a unique identifier to summarize the question
+                    to make reading summaries easier. (e.g. How heavy is the
+                    robot? <i class="material-icons">arrow_right</i>
                     weight)
                     <br />
                     This will initialize as a random key, please change it.
@@ -158,10 +156,9 @@ const fns = {
                     >Question Description</label
                 >
                 <small class="mb-2">
-                    In case of any confusion, please write a description of
-                    the question. This could be good to explain why we're
-                    asking it in case that is brought up by the team's
-                    representative.
+                    In case of any confusion, please write a description of the
+                    question. This could be good to explain why we're asking it
+                    in case that is brought up by the team's representative.
                 </small>
                 <textarea
                     class="form-control"
@@ -172,9 +169,9 @@ const fns = {
             <div class="row mb-3">
                 <label for="{question.id}-type">Question Type</label>
                 <small class="mb-2">
-                    This is the type of question, if it's a text input, a
-                    number input, a boolean input, a select input, a
-                    checkbox input, or a radio input.
+                    This is the type of question, if it's a text input, a number
+                    input, a boolean input, a select input, a checkbox input, or
+                    a radio input.
                 </small>
                 <select
                     class="form-control"
@@ -190,17 +187,14 @@ const fns = {
             </div>
             {#if type === 'select' || type === 'checkbox' || type === 'radio'}
                 <small class="mb-2">
-                    These are the options that will be displayed to the
-                    scout for them to select from.
+                    These are the options that will be displayed to the scout
+                    for them to select from.
                 </small>
                 {#each optionsData as o}
                     <O text="{o}" />
                 {/each}
                 <div class="row mb-3">
-                    <button
-                        class="btn btn-primary"
-                        on:click="{fns.addOption}"
-                    >
+                    <button class="btn btn-primary" on:click="{fns.addOption}">
                         Add Option
                     </button>
                 </div>

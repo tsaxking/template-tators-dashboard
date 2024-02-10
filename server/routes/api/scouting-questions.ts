@@ -88,7 +88,7 @@ router.post<{
 
         res.json(answers.value);
     },
-);  
+);
 
 router.post<{
     questionId: string;
@@ -125,7 +125,8 @@ router.post<{
     Account.allowPermissions('submitScoutingAnswers'),
     validate({
         questionId: 'string',
-        answer: (value) => Array.isArray(value) && value.every((v) => typeof v === 'string'),
+        answer: (value) =>
+            Array.isArray(value) && value.every((v) => typeof v === 'string'),
         teamNumber: 'number',
         eventKey: 'string',
     }),
@@ -158,14 +159,18 @@ router.post<{
             date,
         });
 
-        req.io.emit('scouting-question:new-answer', {
-            id,
-            questionId,
-            answer: str,
-            teamNumber,
-            accountId,
-            date,
-        }, eventKey);
+        req.io.emit(
+            'scouting-question:new-answer',
+            {
+                id,
+                questionId,
+                answer: str,
+                teamNumber,
+                accountId,
+                date,
+            },
+            eventKey,
+        );
     },
 );
 

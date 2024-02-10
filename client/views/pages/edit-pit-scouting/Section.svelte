@@ -20,7 +20,7 @@ const getGroups = async (
     } else {
         console.error(res.error);
     }
-    
+
     const pull = () => {
         getGroups(s, event);
         s.off('new-group', pull);

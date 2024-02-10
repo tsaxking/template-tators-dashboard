@@ -9,7 +9,7 @@ let event: FIRSTEvent | undefined = FIRSTEvent.current;
 
 const fns = {
     setOptions: async (event: FIRSTEvent) => {
-        if (!event) return options = [];
+        if (!event) return (options = []);
         const res = await event.getTeams();
         if (res.isOk()) {
             const teams = res.value;
@@ -17,7 +17,7 @@ const fns = {
         } else {
             options = [];
         }
-    }, 
+    },
     handleChange: async (e: any) => {
         const { detail: teamNumber } = e;
         const res = await FIRSTEvent.current.getTeams();
@@ -30,7 +30,7 @@ const fns = {
 };
 
 FIRSTTeam.on('select', (team: FIRSTTeam | undefined) => {
-    if (!team) return value = undefined;
+    if (!team) return (value = undefined);
     value = team.number.toString();
 });
 
@@ -38,11 +38,7 @@ $: {
     fns.setOptions(event);
 }
 
-
-
-
-
-FIRSTEvent.on('select', (e) => {
+FIRSTEvent.on('select', e => {
     event = e;
     value = undefined;
 });

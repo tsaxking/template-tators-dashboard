@@ -1,4 +1,4 @@
-import { Result, attemptAsync } from '../../../../shared/check';
+import { attemptAsync, Result } from '../../../../shared/check';
 import { ScoutingAnswer } from '../../../../shared/db-types-extended';
 import { ServerRequest } from '../../../utilities/requests';
 import { Cache } from '../../cache';
@@ -44,30 +44,33 @@ export class Answer extends Cache {
         Answer.$emitter.once(event, callback);
     }
 
-
-    static async fromTeam(team: number, event: FIRSTEvent, force = false): Promise<Result<Answer[]>> {
+    static async fromTeam(
+        team: number,
+        event: FIRSTEvent,
+        force = false,
+    ): Promise<Result<Answer[]>> {
         return attemptAsync(async () => {
             if (!force && Answer.$cache.size) {
                 const current = this.$cache.values();
 
-                const answers = Array.from(current).filter(a => {
+                const answers = Array.from(current).filter((a) => {
                     return a.teamNumber === team && a.eventKey === event.key;
                 });
-    
+
                 return answers;
             }
 
             const res = await ServerRequest.post<ScoutingAnswer[]>(
-                '/api/scouting-questions/get-team-answers', 
+                '/api/scouting-questions/get-team-answers',
                 {
                     teamNumber: team,
-                    eventKey: event.key
-                }
+                    eventKey: event.key,
+                },
             );
 
             if (res.isErr()) throw res.error;
 
-            return res.value.map(a => new Answer(a, event.key));
+            return res.value.map((a) => new Answer(a, event.key));
         });
     }
 
@@ -78,7 +81,10 @@ export class Answer extends Cache {
     public date: number;
     public accountId: string;
 
-    constructor(data: ScoutingAnswer, public readonly eventKey: string) {
+    constructor(
+        data: ScoutingAnswer,
+        public readonly eventKey: string,
+    ) {
         super();
 
         this.id = data.id;
@@ -96,7 +102,9 @@ export class Answer extends Cache {
     }
 }
 
-
-socket.on('scouting-question:new-answer', (data: ScoutingAnswer, eventKey: string) => {
-    new Answer(data, eventKey);
-});
+socket.on(
+    'scouting-question:new-answer',
+    (data: ScoutingAnswer, eventKey: string) => {
+        new Answer(data, eventKey);
+    },
+);
