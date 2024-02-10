@@ -66,6 +66,31 @@ router.post<{
 );
 
 router.post<{
+    teamNumber: number;
+    eventKey: string;
+}>(
+    '/get-team-answers',
+    validate({
+        teamNumber: 'number',
+        eventKey: 'string',
+    }),
+    async (req, res) => {
+        const { teamNumber, eventKey } = req.body;
+
+        const answers = await DB.all('scouting-questions/answer-from-team', {
+            teamNumber,
+            eventKey,
+        });
+
+        if (answers.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        res.json(answers.value);
+    },
+);  
+
+router.post<{
     questionId: string;
 }>(
     '/edit-history',
@@ -92,18 +117,20 @@ router.post(Account.isSignedIn);
 
 router.post<{
     questionId: string;
-    answer: string;
+    answer: string[];
     teamNumber: number;
+    eventKey: string;
 }>(
     '/submit-answer',
     Account.allowPermissions('submitScoutingAnswers'),
     validate({
         questionId: 'string',
-        answer: 'string',
+        answer: (value) => Array.isArray(value) && value.every((v) => typeof v === 'string'),
         teamNumber: 'number',
+        eventKey: 'string',
     }),
     (req, res) => {
-        const { questionId, answer, teamNumber } = req.body;
+        const { questionId, answer, teamNumber, eventKey } = req.body;
 
         const { accountId } = req.session;
 
@@ -111,11 +138,12 @@ router.post<{
 
         const date = Date.now();
         const id = uuid();
+        const str = JSON.stringify(answer);
 
         DB.run('scouting-questions/new-answer', {
             id,
             questionId,
-            answer,
+            answer: str,
             teamNumber,
             accountId,
             date,
@@ -124,7 +152,7 @@ router.post<{
         res.sendStatus('scouting-question:new-answer', {
             id,
             questionId,
-            answer,
+            answer: str,
             teamNumber,
             accountId,
             date,
@@ -133,11 +161,11 @@ router.post<{
         req.io.emit('scouting-question:new-answer', {
             id,
             questionId,
-            answer,
+            answer: str,
             teamNumber,
             accountId,
             date,
-        });
+        }, eventKey);
     },
 );
 

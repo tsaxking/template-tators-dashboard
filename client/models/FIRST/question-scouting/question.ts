@@ -9,6 +9,7 @@ import { attemptAsync, Result } from '../../../../shared/attempt';
 import { ServerRequest } from '../../../utilities/requests';
 import { FIRSTEvent } from '../event';
 import { FIRSTTeam } from '../team';
+import { Answer } from './answer';
 
 type Updates = {
     new: unknown;
@@ -120,17 +121,18 @@ export class Question extends Cache {
 
     async update(): Promise<Result<void>> {
         return attemptAsync(async () => {
-            const res = await ServerRequest.post<ScoutingQuestionObj>(
-                '/api/scouting-questions/update-question',
-                {
-                    id: this.id,
-                    question: this.$question,
-                    type: this.$type,
-                    key: this.$key,
-                    description: this.$description,
-                    options: this.options,
-                },
-            );
+            throw new Error('Method not implemented.');
+            // const res = await ServerRequest.post<ScoutingQuestionObj>(
+            //     '/api/scouting-questions/update-question',
+            //     {
+            //         id: this.id,
+            //         question: this.$question,
+            //         type: this.$type,
+            //         key: this.$key,
+            //         description: this.$description,
+            //         options: this.options,
+            //     },
+            // );
         });
     }
 
@@ -151,48 +153,37 @@ export class Question extends Cache {
         });
     }
 
-    async getAnswers(): Promise<Result<{
-        team: number;
-        answer: string[];
-    }[]>> {
-        return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
-            // const res = await ServerRequest.get<unknown>(
-            //     `/api/scouting-questions/get-answers/${this.id}`,
-            // );
+    // async getAnswers(): Promise<Result<{
+    //     team: number;
+    //     answer: string[];
+    // }[]>> {
+    //     return attemptAsync(async () => {
+    //         throw new Error('Not implemented');
+    //     });
+    // }
 
-            // if (res.isOk()) return res;
-            // throw res.error;
-        });
-    }
-
-    async getAnswer(team: FIRSTTeam): Promise<Result<string[]>> {
+    async getAnswer(team: FIRSTTeam, event: FIRSTEvent): Promise<Result<Answer | undefined>> {
         return attemptAsync(async () => {
-            const answers = await this.getAnswers();
-            if (answers.isOk()) {
-                const t = answers.value.find((a) => a.team === team.tba.team_number);
-                if (t) return t.answer;
-                return [];
-            } else {
-                throw answers.error;
-            }
+            const res = await Answer.fromTeam(team.number, event);
+            if (res.isOk()) return res.value.find(q => q.questionId === this.id);
+            else throw res.error;
         });
     }
 
     async saveAnswer(team: FIRSTTeam, answer: string[]): Promise<Result<void>> {
         return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
-            // const res = await ServerRequest.post<void>(
-            //     '/api/scouting-questions/save-answer',
-            //     {
-            //         question: this.id,
-            //         team: team.tba.team_number,
-            //         answer,
-            //     },
-            // );
+            // throw new Error('Method not implemented.');
+            const res = await ServerRequest.post<void>(
+                '/api/scouting-questions/submit-answer',
+                {
+                    question: this.id,
+                    team: team.tba.team_number,
+                    answer,
+                },
+            );
 
-            // if (res.isOk()) return;
-            // throw res.error;
+            if (res.isOk()) return;
+            throw res.error;
         });
     }
 }

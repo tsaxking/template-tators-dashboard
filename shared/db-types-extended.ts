@@ -183,7 +183,7 @@ export type ScoutingAnswer = {
     questionId: string;
     answer: string;
     teamNumber: number;
-    dateAdded: string;
+    date: number;
     accountId: string;
 };
 
