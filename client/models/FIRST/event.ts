@@ -7,6 +7,7 @@ import {
     TBAEvent,
     TBAMatch,
     TBATeam,
+    matchSort,
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { ServerRequest } from '../../utilities/requests';
 import { TBA } from '../../utilities/tba';
@@ -140,14 +141,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
 
             if (tbaRes.isOk()) {
                 const { value } = tbaRes;
-                value.data.sort((a, b) => {
-                    const levels = ['qm', 'ef', 'qf', 'sf', 'f'];
-                    const aLevel = levels.indexOf(a.comp_level);
-                    const bLevel = levels.indexOf(b.comp_level);
-
-                    if (aLevel !== bLevel) return aLevel - bLevel;
-                    return a.match_number - b.match_number;
-                });
+                value.data.sort(matchSort);
 
                 const matches = value.data.map(
                     (match) => new FIRSTMatch(match, this),

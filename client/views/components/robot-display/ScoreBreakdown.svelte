@@ -2,7 +2,7 @@
 import type {
     Action2024,
     TraceArray
-} from './../../../shared/submodules/tatorscout-calculations/trace';
+} from '../../../../shared/submodules/tatorscout-calculations/trace';
 //import {Trace} from './../../../shared/submodules/tatorscout-calculations/trace';
 export let trace: TraceArray;
 

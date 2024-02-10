@@ -60,18 +60,23 @@ export class TBA {
         return attemptAsync(async () => {
             const start = Date.now();
             let data: T | null = null;
-            if (cached) {
-                data = TBA.retrieveCache<T>(path);
-            }
+            // if (cached) {
+            //     data = TBA.retrieveCache<T>(path);
+            // }
 
             const fetcher = async (): Promise<T | null> => {
                 return fetch('https://www.thebluealliance.com/api/v3' + path, {
                     headers: {
                         'X-TBA-Auth-Key':
                             'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ',
+                        // 'Access-Control-Allow-Origin': '*',
                     },
                     method: 'GET',
                 }).then((data) => data.json());
+
+                // const res = await ServerRequest.get<T>(`/api/tba${path}`);
+                // if (res.isOk()) return res.value;
+                // else throw res.error;
             };
 
             if (!data) data = await fetcher();

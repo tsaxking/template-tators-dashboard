@@ -103,7 +103,6 @@ export class TBA {
                     updated: Date.now(),
                     update: options?.cached ? 1 : 0,
                 });
-
                 return json as T;
             } catch (e) {
                 error('Error requesting from TBA:', e);
