@@ -196,7 +196,6 @@ export class DB {
     }
 
     static async getVersion(): Promise<Version> {
-
         const v = await DB.get('db/get-version');
         if (v.isOk() && v.value) {
             const { major, minor, patch } = v.value;

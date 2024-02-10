@@ -465,13 +465,18 @@ export type Queries = {
     ];
     'teams/from-event': [[Select_teams_from_event], Teams];
     'teams/new': [[Insert_teams_new], unknown];
-    'teams/new-picture': [[{
-        teamNumber: number;
-        eventKey: string;
-        picture: string;
-        time: number;
-        accountId: string;
-    }], unknown];
+    'teams/new-picture': [
+        [
+            {
+                teamNumber: number;
+                eventKey: string;
+                picture: string;
+                time: number;
+                accountId: string;
+            },
+        ],
+        unknown,
+    ];
     'account/from-discord-id': [[Select_account_from_discord_id], Accounts];
     'account/set-discord-id': [[Update_account_set_discord_id], unknown];
     'matches/from-event': [[Select_matches_from_event], Matches];
