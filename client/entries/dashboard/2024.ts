@@ -9,7 +9,7 @@ new Dashboard({
     target: document.body,
 });
 
-FIRSTYear.select(2023);
+FIRSTYear.select(2024);
 
 FIRSTYear.on('select', () => {
     const query = new URLSearchParams(window.location.search);
