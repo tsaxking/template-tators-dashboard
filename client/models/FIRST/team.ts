@@ -354,7 +354,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                     {
                         teamNumber: this.number,
                         eventKey: this.event.key,
-                    }
+                    },
                 );
 
                 stream.on('error', rej);

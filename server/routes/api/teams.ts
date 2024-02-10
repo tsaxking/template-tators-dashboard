@@ -119,27 +119,34 @@ router.post<{
         if (!files) return res.sendStatus('unknown:error');
         const time = Date.now();
 
-        const results = await Promise.all(files.map(async f => {
-            const { id } = f;
-            return DB.run('teams/new-picture', {
-                eventKey,
-                teamNumber,
-                picture: id,
-                accountId,
-                time
-            });
-        }));
+        const results = await Promise.all(
+            files.map(async (f) => {
+                const { id } = f;
+                return DB.run('teams/new-picture', {
+                    eventKey,
+                    teamNumber,
+                    picture: id,
+                    accountId,
+                    time,
+                });
+            }),
+        );
 
-        if (results.some(r => r.isErr())) return res.sendStatus('unknown:error');
+        if (results.some((r) => r.isErr())) {
+            return res.sendStatus('unknown:error');
+        }
 
         res.sendStatus('teams:pictures-uploaded');
 
-        req.io.emit('teams:pictures-uploaded', files.map(f => ({
-            eventKey,
-            teamNumber,
-            picture: f.id,
-            accountId,
-            time
-        })));
-    }
+        req.io.emit(
+            'teams:pictures-uploaded',
+            files.map((f) => ({
+                eventKey,
+                teamNumber,
+                picture: f.id,
+                accountId,
+                time,
+            })),
+        );
+    },
 );
