@@ -507,4 +507,6 @@ export type Queries = {
         [Select_team_comments_from_account],
         TeamComments,
     ];
+
+    'db/delete-version': [[], unknown];
 };
