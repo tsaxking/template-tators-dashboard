@@ -29,7 +29,7 @@ router.post<{
 
         const groups = await DB.all('scouting-questions/groups-from-section', {
             section,
-            eventKey
+            eventKey,
         });
 
         if (groups.isErr()) {
