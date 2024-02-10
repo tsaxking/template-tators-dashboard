@@ -12,9 +12,9 @@ export class Container extends Drawable<Container> {
         this.children = children;
     }
 
-    set children(children: (Drawable | null)[]) {
-        this.$children = children;
-        this.filter((child) => child !== null);
+    public set elements(value: Drawable[]) {
+        this.$elements = value;
+        this.$filtered = value;
     }
 
     get children() {
