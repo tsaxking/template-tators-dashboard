@@ -25,3 +25,6 @@ router.route('/webhooks', webhook);
 
 import { router as scoutingQuestions } from './api/scouting-questions.ts';
 router.route('/scouting-questions', scoutingQuestions);
+
+import { router as tba } from './api/tba.ts';
+router.route('/tba', tba);

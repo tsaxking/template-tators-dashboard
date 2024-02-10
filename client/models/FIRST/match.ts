@@ -67,6 +67,18 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         FIRSTMatch.$emitter.once(event, callback);
     }
 
+    public static sorter(a: FIRSTMatch, b: FIRSTMatch): number {
+        const levels = ['qm', 'qf', 'sf', 'f'];
+        const aLevel = levels.indexOf(a.compLevel);
+        const bLevel = levels.indexOf(b.compLevel);
+    
+        if (aLevel < bLevel) return -1;
+        if (aLevel > bLevel) return 1;
+        if (+a.number < +b.number) return -1;
+        if (+a.number > +b.number) return 1;
+        return 0;
+    }
+
     public static current?: FIRSTMatch = undefined;
 
     /**
@@ -117,6 +129,14 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
     get eventKey() {
         return this.event.tba.key;
+    }
+
+    get time(): Date {
+        return new Date(this.tba.time * 1000);
+    }
+
+    get played(): boolean {
+        return this.tba.actual_time !== -1;
     }
 
     /**
