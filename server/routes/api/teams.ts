@@ -1,7 +1,8 @@
 import { validate } from '../../middleware/data-type.ts';
 import { Route } from '../../structure/app/app.ts';
 import { DB } from '../../utilities/databases.ts';
-
+import { fileStream } from '../../middleware/stream.ts';
+import Account from '../../structure/accounts.ts';
 export const router = new Route();
 
 router.post<{
@@ -91,4 +92,54 @@ router.post<{
 
         res.stream(teams.value.map((t) => JSON.stringify(t)));
     },
+);
+
+router.post<{
+    eventKey: string;
+    teamNumber: number;
+}>(
+    '/upload-pictures',
+    validate({
+        eventKey: 'string',
+        teamNumber: 'number',
+    }),
+    Account.isSignedIn,
+    Account.allowPermissions('submitScoutingAnswers'),
+    fileStream({
+        maxFiles: 10,
+        maxFileSize: 5 * 1024 * 1024, // 5MB
+    }),
+    async (req, res) => {
+        const { files } = req;
+        const { eventKey, teamNumber } = req.body;
+        const { accountId } = req.session;
+
+        if (!accountId) return res.sendStatus('unknown:error');
+
+        if (!files) return res.sendStatus('unknown:error');
+        const time = Date.now();
+
+        const results = await Promise.all(files.map(async f => {
+            const { id } = f;
+            return DB.run('teams/new-picture', {
+                eventKey,
+                teamNumber,
+                picture: id,
+                accountId,
+                time
+            });
+        }));
+
+        if (results.some(r => r.isErr())) return res.sendStatus('unknown:error');
+
+        res.sendStatus('teams:pictures-uploaded');
+
+        req.io.emit('teams:pictures-uploaded', files.map(f => ({
+            eventKey,
+            teamNumber,
+            picture: f.id,
+            accountId,
+            time
+        })));
+    }
 );

@@ -294,6 +294,7 @@ export const reset = async () => {
                 'Error resetting database: ' + reset.error.message,
             );
         }
+        return backToMain('Database reset and updated to latest version.');
     } else {
         return backToMain('Reset cancelled');
     }
