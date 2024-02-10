@@ -13,4 +13,20 @@ const buildTable = async (eventKey: string) => {
 
 }
 
-const buildTeamRow = async (teamNumber: number, eventKey: string) => {}
+const buildTeamRow = async (teamNumber: number, eventKey: string) => {
+    // maxes and averages of each:
+
+    // scoring breakdown:
+    // auto speaker
+    // auto amp
+    // auto mobility
+    // teleop speaker
+    // teleop amp
+    // teleop climb
+    // teleop trap
+    // parked
+
+    // general:
+    // velocity
+    
+}
