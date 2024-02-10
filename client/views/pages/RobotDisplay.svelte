@@ -2,6 +2,7 @@
 import RobotSelect from '../components/main/GlobalTeamSelect.svelte';
 import { FIRSTTeam } from '../../models/FIRST/team';
 import TeamMatchTable from '../components/robot-display/TeamMatchTable.svelte';
+import TbaSummary from '../components/robot-display/TBASummary.svelte';
 
 let team: FIRSTTeam;
 
@@ -14,15 +15,20 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
             <RobotSelect></RobotSelect>
         </div>
         <div class="col-md-6">
-            {#if team}
-                {team.number} | {team.name}
-            {/if}
+            <h3>
+                {#if team}
+                    {team.number} | {team.name}
+                {/if}
+            </h3>
         </div>
     </div>
     <hr>
     <div class="row">
         <div class="col-md-6">
             <TeamMatchTable {team} />
+        </div>
+        <div class="col-md-6">
+            <TbaSummary {team} />
         </div>
     </div>
 </div>

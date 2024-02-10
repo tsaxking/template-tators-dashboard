@@ -9,6 +9,7 @@ let event: FIRSTEvent | undefined = FIRSTEvent.current;
 
 const fns = {
     setOptions: async (event: FIRSTEvent) => {
+        if (!event) return options = [];
         const res = await event.getTeams();
         if (res.isOk()) {
             const teams = res.value;
