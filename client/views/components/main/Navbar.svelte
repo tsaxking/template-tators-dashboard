@@ -1,17 +1,20 @@
 <script lang="ts">
-import Setting from '../Setting.svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
-import { Settings } from '../../../models/settings';
 import ThemeSwitch from '../ThemeSwitch.svelte';
+import EventSelect from './GlobalEventSelect.svelte';
 export let title: string;
 export let navItems: string[] = [];
 import { Account } from '../../../models/account';
 
 export let active: string = '';
 
-export let account: Account = Account.guest;
+let account: Account = Account.guest;
 
 export let accountLinks: (string | null)[] = [];
+
+Account.on('current', () => {
+    account = Account.current;
+});
 </script>
 
 <nav
@@ -62,6 +65,9 @@ export let accountLinks: (string | null)[] = [];
     <div class="me-3">
         <slot />
         <ThemeSwitch />
+    </div>
+    <div class="me-3">
+        <EventSelect></EventSelect>
     </div>
 
     <a

@@ -614,7 +614,6 @@ export class DB {
             }
         });
     }
-
     static async runAllUpdates() {
         const res = await DB.init();
         if (res.isErr()) {

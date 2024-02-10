@@ -9,8 +9,8 @@ export const router = new Route();
 
 // gets the account from the session
 router.post('/get-account', async (req, res) => {
-    // const account = await req.session.getAccount();
-    const account = await Account.fromUsername('tsaxking');
+    const account = await req.session.getAccount();
+    // const account = await Account.fromUsername('tsaxking');
 
     if (account) {
         const safe = await account.safe({
@@ -71,6 +71,7 @@ router.post<{
         if (!account) {
             return res.sendStatus('account:incorrect-username-or-password');
         }
+        const result = await account.testPassword(password);
 
         const hash = Account.hash(password, account.salt);
         if (hash !== account.key) {
@@ -138,7 +139,7 @@ router.post<{
         res.sendStatus(('account:' + status) as StatusId, { username });
 
         if (status === 'created') {
-            req.io.emit('account:created', username);
+            req.io.emit('account:created', Account.fromUsername(username));
         }
     },
 );
@@ -498,7 +499,7 @@ router.post('/all', async (req, res) => {
     const account = await req.session.getAccount();
     if (!account) return res.sendStatus('account:not-logged-in');
 
-    if ((await account.getPermissions()).includes('admin')) {
+    if ((await account.getPermissions()).includes('editUsers')) {
         return res.json(
             await Promise.all(
                 (await Account.getAll()).map((a) =>

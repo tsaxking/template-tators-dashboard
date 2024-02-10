@@ -14,6 +14,8 @@ import { FileUpload } from './middleware/stream.ts';
 import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
+import './utilities/tba/tba.ts';
+import { emitter } from './middleware/data-type.ts';
 
 const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -37,6 +39,8 @@ if (env.ENVIRONMENT === 'dev') {
     });
     stdin.on('rb', () => builder.emit('build'));
     builder.on('error', (e) => log('Build error:', e));
+
+    emitter.on('fail', console.log);
 }
 
 app.post('/env', (req, res) => {
@@ -115,6 +119,7 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
+    log(`[${req.method}] ${req.url}`);
 
     log('[POST]', req.url);
     try {
@@ -168,6 +173,10 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
+app.get('/home', (_req, res) => {
+    res.sendTemplate('entries/home');
+});
+
 app.route('/api', api);
 app.route('/account', account);
 
@@ -175,6 +184,7 @@ app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
     if (!req.session.accountId) {
+        console.log('Not signed in:', req.session.id);
         req.session.prevUrl = req.url;
         return res.redirect('/account/sign-in');
     }
@@ -192,7 +202,14 @@ app.get('/dashboard/:dashboard', (req, res) => {
     res.sendTemplate('entries/dashboard/' + req.params.dashboard);
 });
 
-app.get('/user/*', Account.isSignedIn, (req, res) => {
+// this is how the user will access the dashboard
+app.get('/dashboard/:year', (req, res) => {
+    const { year } = req.params;
+    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + year);
+});
+
+app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
 });
 
