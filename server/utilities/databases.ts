@@ -195,11 +195,7 @@ export class DB {
         });
     }
 
-    // version info
-    private static version?: Version;
-
     static async getVersion(): Promise<Version> {
-        if (DB.version) return DB.version;
 
         const v = await DB.get('db/get-version');
         if (v.isOk() && v.value) {
@@ -223,8 +219,7 @@ export class DB {
             patch,
         });
 
-        if (res.isOk()) DB.version = v;
-        else console.log('Error setting version', res.error);
+        if (res.isErr()) console.log('Error setting version', res.error);
         return res;
     }
 
@@ -374,10 +369,10 @@ export class DB {
                 DB.getVersion(),
             ]);
 
-            if (['0.0.0', '-1.-1.-1'].includes(version.join('.'))) {
-                console.log('Database not initialized');
-                throw new Error('Database not initialized');
-            }
+            // if (['0.0.0', '-1.-1.-1'].includes(version.join('.'))) {
+            //     console.log('Database not initialized');
+            //     throw new Error('Database not initialized');
+            // }
 
             if (tables.isErr()) throw tables.error;
             const backup: {
@@ -410,8 +405,14 @@ export class DB {
 
     static async reset(): Promise<Result<string>> {
         return attemptAsync(async () => {
-            const b = await DB.makeBackup();
-            if (b.isErr()) throw b.error;
+            let b = await DB.makeBackup();
+            if (b.isErr()) {
+                if (b.error.message.includes('not initialized')) {
+                    b = b.handle('0.0.0_0.json');
+                } else {
+                    throw b.error;
+                }
+            }
 
             const tables = await DB.getTables();
             if (tables.isErr()) throw tables.error;

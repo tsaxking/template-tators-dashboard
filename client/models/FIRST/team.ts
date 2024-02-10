@@ -344,6 +344,24 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         FIRSTTeam.current = this;
         FIRSTTeam.emit('select', this);
     }
+
+    public async savePicture(files: FileList): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            return new Promise((res, rej) => {
+                const stream = ServerRequest.streamFiles(
+                    '/api/teams/upload-pictures',
+                    files,
+                    {
+                        teamNumber: this.number,
+                        eventKey: this.event.key,
+                    }
+                );
+
+                stream.on('error', rej);
+                stream.on('complete', res);
+            });
+        });
+    }
 }
 
 // update sockets:
@@ -479,3 +497,4 @@ socket.on('pit-scouting:delete', (data: RetrievedScoutingAnswer) => {
 });
 
 // TODO: sockets for watch priority
+// TODO: sockets for picture upload

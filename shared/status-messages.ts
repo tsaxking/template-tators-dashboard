@@ -658,6 +658,12 @@ export const messages: {
     code: 400,
     instructions: '',
 },
+    'teams:pictures-uploaded': {
+    message: 'Team\'s picture was uploaded successfully',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
     'test:fail': {
     message: 'This test failed',
     color: 'danger',
@@ -827,6 +833,7 @@ export type StatusId =
 	| 'strategy:delete'
 	| 'strategy:new'
 	| 'tba:invalid-path'
+	| 'teams:pictures-uploaded'
 	| 'test:fail'
 	| 'test:success'
 	| 'unknown:error'
@@ -984,6 +991,9 @@ export type StrategyStatusId = 'delete'
 	| 'new';
 
 
+export type TbaStatusId = 'invalid-path';
+
+
 export type TestStatusId = 'fail'
 	| 'success';
 
@@ -1002,4 +1012,4 @@ export type WhiteboardStatusId = 'created'
 	| 'update';
 
 
-export type TbaStatusId = 'invalid-path';
+export type TeamsStatusId = 'picture-uploaded';

@@ -333,7 +333,7 @@ CREATE TABLE IF NOT EXISTS TeamPictures (
     teamNumber INTEGER NOT NULL,
     eventKey TEXT NOT NULL,
     picture TEXT NOT NULL,
-    time TEXT NOT NULL DEFAULT '0',
+    time TEXT NOT NULL DEFAULT '0', -- changed to bigint in 1.0.2
     accountId TEXT NOT NULL DEFAULT '0'
 );
 
