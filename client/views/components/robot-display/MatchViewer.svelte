@@ -13,6 +13,7 @@ import { Icon } from '../../../models/canvas/material-icons';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { FIRSTMatch } from '../../../models/FIRST/match';
 import { Color } from '../../../submodules/colors/color';
+import { FIRSTEvent } from '../../../models/FIRST/event';
 
 export let team: FIRSTTeam;
 export let match: FIRSTMatch;
@@ -28,7 +29,7 @@ onMount(() => {
     c.width = canvasEl.parentElement?.clientWidth || 0;
     c.height = c.width / 2;
 
-    const img = new Img(`/public/pictures/${this.year}field.png`);
+    const img = new Img(`/public/pictures/${FIRSTEvent.current.tba.year}field.png`);
     img.options.height = 1;
     img.options.width = 1;
     img.options.x = 0;
@@ -117,10 +118,6 @@ $: {
 }
 </script>
 
-<div class="card" style="width: 18rem;">
-    <div class="card-img-top">
-        <canvas id="canvas" bind:this="{canvasEl}"></canvas>
-    </div>
-    <div id="slider"></div>
-    <ScoreBreakdown {trace} />
-</div>
+<canvas id="canvas" bind:this="{canvasEl}"></canvas>
+<div id="slider"></div>
+<ScoreBreakdown {trace} />

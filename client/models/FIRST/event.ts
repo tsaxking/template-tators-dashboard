@@ -209,6 +209,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     new FIRSTTeam(team, this)
                 );
 
+                teams.sort((a, b) => a.number - b.number);
+
                 serverStream.on('chunk', (team) => {
                     const found = teams.find(
                         (t) => t.tba.team_number === team.number,
