@@ -29,7 +29,7 @@ const groups = [
     }
 ];
 
-let active = 'create-scouting-questions';
+let active = 'robot-display';
 
 const domain = 'tatorscout.org';
 

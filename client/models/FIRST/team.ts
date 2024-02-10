@@ -215,7 +215,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             const em = new RetrieveStreamEventEmitter<RetrievedMatchScouting>();
 
-            res.forEach((ms) => em.emit('chunk', ms));
+            setTimeout(() => res.forEach((ms) => em.emit('chunk', ms)));
 
             return em;
         }
@@ -254,7 +254,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             const em = new RetrieveStreamEventEmitter<MatchScoutingComments>();
 
-            res.forEach((ms) => em.emit('chunk', ms));
+            setTimeout(() => res.forEach((ms) => em.emit('chunk', ms)));
 
             return em;
         }
@@ -295,7 +295,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                 RetrievedScoutingAnswer
             >();
 
-            res.forEach((ms) => em.emit('chunk', ms));
+            setTimeout(() => res.forEach((ms) => em.emit('chunk', ms)));
 
             return em;
         }
