@@ -345,7 +345,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         FIRSTTeam.emit('select', this);
     }
 
-    public async savePicture(files: FileList): Promise<Result<void>> {
+    public async savePictures(files: FileList): Promise<Result<void>> {
         return attemptAsync(async () => {
             return new Promise((res, rej) => {
                 const stream = ServerRequest.streamFiles(
