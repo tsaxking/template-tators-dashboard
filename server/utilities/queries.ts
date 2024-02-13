@@ -7,6 +7,7 @@ import { AccountRoles } from './tables.ts';
 import { Permissions } from './tables.ts';
 import { Version } from './tables.ts';
 import { Sessions } from './tables.ts';
+import { Blacklist } from './tables.ts';
 import { AccountSettings } from './tables.ts';
 import { Select_permissions_all } from './tables.ts';
 import { Select_roles_from_name } from './tables.ts';
@@ -56,6 +57,11 @@ import { Update_account_change_username } from './tables.ts';
 import { Select_db_get_version } from './tables.ts';
 import { Update_db_change_version } from './tables.ts';
 import { Insert_db_init } from './tables.ts';
+import { Select_blacklist_all } from './tables.ts';
+import { Update_sessions_sign_in } from './tables.ts';
+import { Update_sessions_sign_out } from './tables.ts';
+import { Insert_db_change_version } from './tables.ts';
+import { Delete_db_delete_version } from './tables.ts';
 import { DiscordAccount } from './tables.ts';
 import { Events } from './tables.ts';
 import { Teams } from './tables.ts';
@@ -187,26 +193,8 @@ export type Queries = {
     'sessions/new': [[Insert_sessions_new], unknown];
     'sessions/get': [[Select_sessions_get], Sessions];
     'sessions/all': [[Select_sessions_all], Sessions];
-
-    'sessions/sign-in': [
-        [
-            {
-                id: string;
-                accountId: string;
-            },
-        ],
-        unknown,
-    ];
-
-    'sessions/sign-out': [
-        [
-            {
-                id: string;
-            },
-        ],
-        unknown,
-    ];
-
+    'sessions/sign-in': [[Update_sessions_sign_in], unknown];
+    'sessions/sign-out': [[Update_sessions_sign_out], unknown];
     'member/delete': [[Delete_member_delete], unknown];
     'member/update-title': [[Update_member_update_title], unknown];
     'member/update-status': [[Update_member_update_status], unknown];
@@ -254,8 +242,22 @@ export type Queries = {
     'account/change-username': [[Update_account_change_username], unknown];
     'account/roles': [[{ id: string }], Roles];
     'db/get-version': [[Select_db_get_version], Version];
-    'db/change-version': [[Update_db_change_version], unknown];
+    'db/change-version': [[Insert_db_change_version], unknown];
+    'db/delete-version': [[Delete_db_delete_version], unknown];
     'db/init': [[Insert_db_init], unknown];
+    'blacklist/all': [[Select_blacklist_all], Blacklist];
+    'blacklist/new': [
+        [
+            {
+                id: string;
+                ip: string;
+                created: number;
+                accountId: string | undefined;
+                reason: string;
+            },
+        ],
+        unknown,
+    ];
     'checklists/checklists-from-event': [
         [Select_checklists_checklists_from_event],
         Checklists,
@@ -355,8 +357,48 @@ export type Queries = {
                 id: string;
             },
         ],
-        ScoutingQuestions,
+        unknown,
     ];
+    'blacklist/from-account': [
+        [
+            {
+                accountId: string;
+            },
+        ],
+        Blacklist,
+    ];
+    'blacklist/from-ip': [
+        [
+            {
+                ip: string;
+            },
+        ],
+        Blacklist,
+    ];
+    'blacklist/delete-by-ip': [
+        [
+            {
+                ip: string;
+            },
+        ],
+        unknown
+    ];
+    'blacklist/delete-by-account': [
+        [
+            {
+                accountId: string;
+            },
+        ],
+        unknown
+    ];
+    'blacklist/delete': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
+    ]
     'scouting-questions/new-question': [
         [Insert_scouting_questions_new_question],
         unknown,
@@ -520,5 +562,4 @@ export type Queries = {
         TeamComments,
     ];
 
-    'db/delete-version': [[], unknown];
 };

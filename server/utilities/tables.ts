@@ -63,6 +63,14 @@ export type Sessions = {
     prevUrl: string | undefined;
 };
 
+export type Blacklist = {
+    id: string;
+    ip: string;
+    created: number;
+    accountId: string | undefined;
+    reason: string;
+};
+
 export type AccountSettings = {
     accountId: string;
     settings: string;
@@ -1059,3 +1067,37 @@ export type RetrievedMatchScouting = MatchScouting & {
     matchNumber: number;
     compLevel: string;
 };
+
+export type RolePermissions = {
+    roleId: string;
+    permission: string;
+};
+
+export type Insert_permissions_add_to_role = {
+    roleId: string;
+    permission: string;
+};
+
+export type Delete_permissions_remove_from_role = {
+    roleId: string;
+    permission: string;
+};
+
+export type Select_blacklist_all = undefined;
+
+export type Update_sessions_sign_in = {
+    accountId: string | undefined;
+    id: string;
+};
+
+export type Update_sessions_sign_out = {
+    id: string;
+};
+
+export type Insert_db_change_version = {
+    major: number;
+    minor: number;
+    patch: number;
+};
+
+export type Delete_db_delete_version = undefined;
