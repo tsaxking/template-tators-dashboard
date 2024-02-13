@@ -28,3 +28,6 @@ router.route('/scouting-questions', scoutingQuestions);
 
 import { router as tba } from './api/tba.ts';
 router.route('/tba', tba);
+
+import { router as comments } from './api/team-comments.ts';
+router.route('/team-comments', comments);

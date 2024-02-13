@@ -16,6 +16,7 @@ type Updates = {
     update: unknown;
 };
 
+
 export class Question extends Cache {
     public static readonly $cache = new Map<string, Question>();
 
