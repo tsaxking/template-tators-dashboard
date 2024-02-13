@@ -118,10 +118,10 @@ router.post<{
 
         if (uploads.isErr()) return res.sendStatus('unknown:error');
 
-        const files = uploads.value.map(f => f.name);
+        const files = uploads.value.map((f) => f.name);
 
-        res.json(pictures.value.filter(p => files.includes(p.picture)));
-    }
+        res.json(pictures.value.filter((p) => files.includes(p.picture)));
+    },
 );
 
 router.post<{
