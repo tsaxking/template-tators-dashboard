@@ -519,7 +519,7 @@ export type TeamComments = {
     team: number;
     comment: string;
     type: string;
-    matchScoutingId: string;
+    matchScoutingId: string | undefined;
     accountId: string | undefined;
     time: number;
     eventKey: string;

@@ -388,3 +388,16 @@ export type QuestionOptions = Partial<{
     checkbox: string[];
     radio: string[];
 }>;
+
+
+
+export type TeamComments = {
+    id: string;
+    team: number;
+    comment: string;
+    type: string;
+    matchScoutingId: string | undefined;
+    accountId: string | undefined;
+    time: number;
+    eventKey: string;
+};
