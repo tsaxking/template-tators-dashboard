@@ -666,6 +666,12 @@ export const messages: {
         code: 500,
         instructions: '',
     },
+    'session:rate-limited': {
+        message: 'You are being rate limited',
+        color: 'warning',
+        code: 418,
+        instructions: '',
+    },
     'skills:added': {
         message: 'Skill added',
         color: 'success',
@@ -887,6 +893,7 @@ export type StatusId =
     | 'server:invalid-data'
     | 'server:not-implemented'
     | 'server:unknown-server-error'
+    | 'session:rate-limited'
     | 'skills:added'
     | 'skills:has-skill'
     | 'skills:invalid-skill'
@@ -1038,6 +1045,7 @@ export type TestStatusId = 'fail' | 'success';
 
 export type UnknownStatusId = 'error';
 
+export type SessionStatusId = 'rate-limited';
 export type WebhookStatusId = 'invalid-url' | 'not-found';
 
 export type WhiteboardStatusId =

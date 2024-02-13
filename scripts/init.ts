@@ -201,6 +201,20 @@ const createEnv = () => {
         (i) => ['y', 'n'].includes(i),
         true,
     );
+    setKey(
+        'RECAPTCHA_SITE_KEY',
+        'Recaptcha Site Key: (no default)',
+        '',
+        undefined,
+        true,
+    );
+    setKey(
+        'RECAPTCHA_SECRET_KEY',
+        'Recaptcha Secret Key: (no default)',
+        '',
+        undefined,
+        true,
+    );
 
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)
