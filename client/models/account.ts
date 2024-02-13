@@ -550,7 +550,7 @@ socket.on('account:unverified', (accountId: string) => {
 
 ServerRequest.post<AccountSafe>('/account/get-account').then((res) => {
     if (res.isOk()) {
-        if (!res.value.id) return;
+        if (!res.value.id) return console.error('No account id');
         Account.current = new Account(res.value);
         Account.emit('current', Account.current);
     }

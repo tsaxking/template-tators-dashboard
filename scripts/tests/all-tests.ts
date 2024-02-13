@@ -5,6 +5,15 @@ import { log } from '../../server/utilities/terminal-logging.ts';
 import { validate } from '../../server/middleware/data-type.ts';
 import { Req } from '../../server/structure/app/req.ts';
 import { Res } from '../../server/structure/app/res.ts';
+import {
+    generateScoutGroups,
+    testAssignments,
+} from '../../shared/submodules/tatorscout-calculations/scout-groups.ts';
+import {
+    TBAMatch,
+    TBATeam,
+} from '../../shared/submodules/tatorscout-calculations/tba.ts';
+import { getJSONSync } from '../../server/utilities/files.ts';
 
 export const runTests = async () => {
     Deno.test('Run async task functionality', async () => {
@@ -128,5 +137,26 @@ export const runTests = async () => {
             } as unknown as Res,
             fail,
         );
+    });
+
+    Deno.test('Scout groups', async () => {
+        const eventKey = '2023cabl';
+        const regex = /^([0-9]{4}[a-z]{3,4})$/i;
+        if (!regex.test(eventKey)) throw new Error('Invalid event key');
+
+        const data = await getJSONSync<{
+            matches: TBAMatch[];
+            teams: TBATeam[];
+        }>('scout-group-test');
+
+        if (data.isOk()) {
+            const { matches, teams } = data.value;
+            const assignments = generateScoutGroups(teams, matches);
+            const result = testAssignments(assignments);
+
+            assertEquals(result.status, 'ok');
+        } else {
+            throw data.error;
+        }
     });
 };

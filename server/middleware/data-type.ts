@@ -50,7 +50,7 @@ export const emitter = (() => {
         | 'invalid-primitive'
         | 'missing-key';
 
-    class Event<T extends keyof Updates> {
+    class DataValidationFaliure<T extends keyof Updates> {
         constructor(
             public readonly type: T,
             public readonly data: Updates[T],
@@ -65,14 +65,14 @@ export const emitter = (() => {
 
         on<K extends keyof Updates>(
             event: K,
-            callback: (data: Event<K>) => void,
+            callback: (data: DataValidationFaliure<K>) => void,
         ): void {
             this.emitter.on(event, callback);
         }
 
         off<K extends keyof Updates>(
             event: K,
-            callback?: (data: Event<K>) => void,
+            callback?: (data: DataValidationFaliure<K>) => void,
         ): void {
             this.emitter.off(event, callback);
         }
@@ -83,7 +83,13 @@ export const emitter = (() => {
             req: Req,
             reason: Reason,
         ): void {
-            const e = new Event(event, data, req.url, req.method, reason);
+            const e = new DataValidationFaliure(
+                event,
+                data,
+                req.url,
+                req.method,
+                reason,
+            );
             this.emitter.emit(event, e);
         }
     }
