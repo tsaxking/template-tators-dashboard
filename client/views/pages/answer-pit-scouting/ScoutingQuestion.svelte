@@ -116,9 +116,7 @@ FIRSTTeam.on('select', t => {
     team = t;
     fns.setDisable(t, disabled);
     fns.getValue(question);
-})
-
-
+});
 
 // const dispatch = createEventDispatcher();
 </script>

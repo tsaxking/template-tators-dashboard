@@ -381,7 +381,7 @@ export type Queries = {
                 ip: string;
             },
         ],
-        unknown
+        unknown,
     ];
     'blacklist/delete-by-account': [
         [
@@ -389,16 +389,16 @@ export type Queries = {
                 accountId: string;
             },
         ],
-        unknown
+        unknown,
     ];
     'blacklist/delete': [
         [
             {
                 id: string;
-            }
+            },
         ],
-        unknown
-    ]
+        unknown,
+    ];
     'scouting-questions/new-question': [
         [Insert_scouting_questions_new_question],
         unknown,
@@ -561,5 +561,4 @@ export type Queries = {
         [Select_team_comments_from_account],
         TeamComments,
     ];
-
 };

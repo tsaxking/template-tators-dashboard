@@ -12,7 +12,7 @@ type Updates = {
 
 type AnswerEvents = {
     update: undefined;
-}
+};
 
 export class Answer extends Cache<AnswerEvents> {
     static readonly $cache = new Map<string, Answer>();
@@ -127,5 +127,5 @@ socket.on(
         } else {
             new Answer(data, eventKey);
         }
-    }
+    },
 );
