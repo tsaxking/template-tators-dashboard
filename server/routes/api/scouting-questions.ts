@@ -116,22 +116,22 @@ router.post<{
 router.post(Account.isSignedIn);
 
 router.post<{
-    questionId: string;
+    question: string;
     answer: string[];
-    teamNumber: number;
+    team: number;
     eventKey: string;
 }>(
     '/submit-answer',
     Account.allowPermissions('submitScoutingAnswers'),
     validate({
-        questionId: 'string',
+        question: 'string',
         answer: (value) =>
             Array.isArray(value) && value.every((v) => typeof v === 'string'),
-        teamNumber: 'number',
+        team: 'number',
         eventKey: 'string',
     }),
-    (req, res) => {
-        const { questionId, answer, teamNumber, eventKey } = req.body;
+    async (req, res) => {
+        const { question, answer, team, eventKey } = req.body;
 
         const { accountId } = req.session;
 
@@ -141,36 +141,83 @@ router.post<{
         const id = uuid();
         const str = JSON.stringify(answer);
 
-        DB.run('scouting-questions/new-answer', {
-            id,
-            questionId,
-            answer: str,
-            teamNumber,
-            accountId,
-            date,
-        });
-
-        res.sendStatus('scouting-question:new-answer', {
-            id,
-            questionId,
-            answer: str,
-            teamNumber,
-            accountId,
-            date,
-        });
-
-        req.io.emit(
-            'scouting-question:new-answer',
+        const currentAnswer = await DB.all(
+            'scouting-questions/answer-from-team',
             {
-                id,
-                questionId,
+                teamNumber: team,
+                eventKey,
+            },
+        );
+
+        if (currentAnswer.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        const a = currentAnswer.value.find((a) => a.questionId === question);
+        if (a) {
+            // update
+            DB.run('scouting-questions/update-answer', {
+                id: a.id,
+                questionId: question,
                 answer: str,
-                teamNumber,
+                teamNumber: team,
                 accountId,
                 date,
-            },
-            eventKey,
-        );
+            });
+
+            res.sendStatus('scouting-question:update-answer', {
+                id,
+                questionId: question,
+                answer: str,
+                teamNumber: team,
+                accountId,
+                date,
+            });
+
+            req.io.emit(
+                'scouting-question:update-answer',
+                {
+                    id,
+                    questionId: question,
+                    answer: str,
+                    teamNumber: team,
+                    accountId,
+                    date,
+                },
+                eventKey,
+            );
+        } else {
+            DB.run('scouting-questions/new-answer', {
+                id,
+                questionId: question,
+                answer: str,
+                teamNumber: team,
+                accountId,
+                date,
+            });
+
+            res.sendStatus('scouting-question:new-answer', {
+                id,
+                questionId: question,
+                answer: str,
+                teamNumber: team,
+                accountId,
+                date,
+            });
+
+            req.io.emit(
+                'scouting-question:new-answer',
+                {
+                    id,
+                    questionId: question,
+                    answer: str,
+                    teamNumber: team,
+                    accountId,
+                    date,
+                },
+                eventKey,
+            );
+        }
     },
 );
 

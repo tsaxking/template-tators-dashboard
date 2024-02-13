@@ -996,7 +996,6 @@ export type ScoutingQuestionStatusId = 'answer-not-found'
 
 
 export type ServerStatusId = 'invalid-data'
-	| 'not-implemented'
 	| 'unknown-server-error';
 
 
@@ -1011,16 +1010,6 @@ export type SkillsStatusId = 'added'
 
 
 export type SpamStatusId = 'detected';
-
-
-export type StrategyStatusId = 'delete'
-	| 'new';
-
-
-export type TbaStatusId = 'invalid-path';
-
-
-export type TeamsStatusId = 'pictures-uploaded';
 
 
 export type TestStatusId = 'fail'

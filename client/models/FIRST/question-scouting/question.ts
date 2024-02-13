@@ -183,6 +183,7 @@ export class Question extends Cache {
                     question: this.id,
                     team: team.tba.team_number,
                     answer,
+                    eventKey: team.event.key,
                 },
             );
 
