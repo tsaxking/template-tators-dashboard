@@ -1068,21 +1068,6 @@ export type RetrievedMatchScouting = MatchScouting & {
     compLevel: string;
 };
 
-export type RolePermissions = {
-    roleId: string;
-    permission: string;
-};
-
-export type Insert_permissions_add_to_role = {
-    roleId: string;
-    permission: string;
-};
-
-export type Delete_permissions_remove_from_role = {
-    roleId: string;
-    permission: string;
-};
-
 export type Select_blacklist_all = undefined;
 
 export type Update_sessions_sign_in = {
