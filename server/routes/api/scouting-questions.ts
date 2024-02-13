@@ -141,14 +141,19 @@ router.post<{
         const id = uuid();
         const str = JSON.stringify(answer);
 
-        const currentAnswer = await DB.all('scouting-questions/answer-from-team', {
-            teamNumber: team,
-            eventKey
-        });
+        const currentAnswer = await DB.all(
+            'scouting-questions/answer-from-team',
+            {
+                teamNumber: team,
+                eventKey,
+            },
+        );
 
-        if (currentAnswer.isErr()) return res.sendStatus('server:unknown-server-error');
+        if (currentAnswer.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
 
-        const a = currentAnswer.value.find(a => a.questionId === question);
+        const a = currentAnswer.value.find((a) => a.questionId === question);
         if (a) {
             // update
             DB.run('scouting-questions/update-answer', {
@@ -190,7 +195,7 @@ router.post<{
                 accountId,
                 date,
             });
-    
+
             res.sendStatus('scouting-question:new-answer', {
                 id,
                 questionId: question,
@@ -199,7 +204,7 @@ router.post<{
                 accountId,
                 date,
             });
-    
+
             req.io.emit(
                 'scouting-question:new-answer',
                 {
