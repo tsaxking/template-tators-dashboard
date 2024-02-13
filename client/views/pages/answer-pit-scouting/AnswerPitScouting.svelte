@@ -42,6 +42,7 @@ FIRSTEvent.on('select', async () => {
 
 FIRSTTeam.on('select', t => {
     team = t;
+    fns.setSections(sections, active);
 });
 
 const fns = {

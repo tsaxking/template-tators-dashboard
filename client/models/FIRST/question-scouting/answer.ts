@@ -8,10 +8,13 @@ import { socket } from '../../../utilities/socket';
 
 type Updates = {
     new: Answer;
-    update: Answer;
 };
 
-export class Answer extends Cache {
+type AnswerEvents = {
+    update: undefined;
+};
+
+export class Answer extends Cache<AnswerEvents> {
     static readonly $cache = new Map<string, Answer>();
 
     private static readonly $emitter = new EventEmitter<keyof Updates>();
@@ -106,5 +109,23 @@ socket.on(
     'scouting-question:new-answer',
     (data: ScoutingAnswer, eventKey: string) => {
         new Answer(data, eventKey);
+    },
+);
+
+socket.on(
+    'scouting-question:update-answer',
+    (data: ScoutingAnswer, eventKey: string) => {
+        const answer = Answer.$cache.get(data.id);
+
+        if (answer) {
+            answer.answer = JSON.parse(data.answer);
+            answer.date = data.date;
+            answer.accountId = data.accountId;
+            console.log('update answer', answer);
+
+            answer.emit('update', undefined);
+        } else {
+            new Answer(data, eventKey);
+        }
     },
 );
