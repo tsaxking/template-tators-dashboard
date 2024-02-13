@@ -357,7 +357,7 @@ export type Queries = {
                 id: string;
             },
         ],
-        unknown,
+        ScoutingQuestions,
     ];
     'blacklist/from-account': [
         [
