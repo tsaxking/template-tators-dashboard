@@ -136,11 +136,11 @@ const onInput = () => {
                         bind:this="{i}"
                     />
 
-                    <Recaptcha
+                    <!-- <Recaptcha
                         on:recaptcha="{() => {
                             recaptcha = true;
                         }}"
-                    />
+                    /> -->
                 </form>
             </div>
         </div>
