@@ -254,11 +254,11 @@ const isPasswordValid = (password: string): string[] => {
                         class="d-none"
                         bind:this="{i}"
                     />
-                    <Recaptcha
+                    <!-- <Recaptcha
                         on:recaptcha="{() => {
                             recaptcha = true;
                         }}"
-                    />
+                    /> -->
                 </form>
             </div>
         </div>
