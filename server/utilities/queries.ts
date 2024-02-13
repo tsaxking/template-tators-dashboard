@@ -477,6 +477,15 @@ export type Queries = {
         ],
         unknown,
     ];
+    'teams/get-pictures': [
+        [
+            {
+                teamNumber: number;
+                eventKey: string;
+            }
+        ],
+        TeamPictures,
+    ];
     'account/from-discord-id': [[Select_account_from_discord_id], Accounts];
     'account/set-discord-id': [[Update_account_set_discord_id], unknown];
     'matches/from-event': [[Select_matches_from_event], Matches];

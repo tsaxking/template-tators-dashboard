@@ -3,6 +3,7 @@ import {
     RetrievedMatchScouting,
     RetrievedScoutingAnswer,
     Team,
+    TeamPictures,
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
 import {
@@ -360,6 +361,30 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                 stream.on('error', rej);
                 stream.on('complete', res);
             });
+        });
+    }
+
+    public async getPictures(): Promise<Result<TeamPictures[]>> {
+        return attemptAsync(async () => {
+            if (this.$cache.has('pictures')) {
+                return this.$cache.get('pictures') as TeamPictures[];
+            }
+    
+    
+            const res = await ServerRequest.post<TeamPictures[]>(
+                '/api/teams/get-pictures',
+                {
+                    teamNumber: this.number,
+                    eventKey: this.event.key,
+                },
+            );
+
+            if (res.isOk()) {
+                this.$cache.set('pictures', res.value);
+                return res.value;
+            }
+
+            throw res.error;
         });
     }
 }

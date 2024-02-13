@@ -388,3 +388,11 @@ export type QuestionOptions = Partial<{
     checkbox: string[];
     radio: string[];
 }>;
+
+export type TeamPictures = {
+    teamNumber: number;
+    eventKey: string;
+    picture: string;
+    time: string;
+    accountId: string;
+};
