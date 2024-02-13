@@ -27,57 +27,68 @@ const fns = {
         fns.set();
         const res = await q.getAnswer(team, FIRSTEvent.current);
         if (res.isOk()) {
-            if (!res.value) return;
+            if (!res.value) {
+                value = [];
+                answer = undefined;
+            }
             value = res.value.answer;
             answer = res.value;
 
-            const input = me.querySelector('input');
+            answer.on('update', () => {
+                value = answer.answer || [];
+                fns.set();
+                fns.setValue(q, value);
+            });
 
-            if (!input) return;
-
-            switch (q.type) {
-                case 'text':
-                case 'textarea':
-                case 'number':
-                case 'select':
-                    input.value = value[0];
-                    break;
-                case 'checkbox':
-                    value.forEach(v => {
-                        const checkbox = me.querySelector(
-                            `input[value="${v}"]`
-                        ) as HTMLInputElement;
-                        if (checkbox) {
-                            checkbox.checked = true;
-                        }
-                    });
-                    break;
-                case 'radio':
-                    const radio = me.querySelector(
-                        `input[value="${value[0]}"]`
-                    ) as HTMLInputElement;
-                    if (radio) {
-                        radio.checked = true;
-                    }
-                    break;
-                case 'boolean':
-                    const checkbox = me.querySelector('input');
-                    if (checkbox) {
-                        checkbox.checked = value[0] === 'true';
-                    }
-                    break;
-            }
+            fns.setValue(q, value);
         } else {
             console.error(res.error);
         }
     },
-    setValue: async () => {
+    saveValue: async () => {
         if (!team) return console.error('Team not defined');
         fns.set();
         changed = false;
         const res = await question.saveAnswer(team, value);
         if (res.isErr()) {
             return console.error(res.error);
+        }
+    },
+    setValue: (q: Question, v: string[]) => {
+        const input = me.querySelector('input');
+        if (!input) return;
+
+        switch (q.type) {
+            case 'text':
+            case 'textarea':
+            case 'number':
+            case 'select':
+                input.value = value[0];
+                break;
+            case 'checkbox':
+                value.forEach(v => {
+                    const checkbox = me.querySelector(
+                        `input[value="${v}"]`
+                    ) as HTMLInputElement;
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+                break;
+            case 'radio':
+                const radio = me.querySelector(
+                    `input[value="${value[0]}"]`
+                ) as HTMLInputElement;
+                if (radio) {
+                    radio.checked = true;
+                }
+                break;
+            case 'boolean':
+                const checkbox = me.querySelector('input');
+                if (checkbox) {
+                    checkbox.checked = value[0] === 'true';
+                }
+                break;
         }
     },
     change: () => {
@@ -101,6 +112,14 @@ const fns = {
     }
 };
 
+FIRSTTeam.on('select', t => {
+    team = t;
+    fns.setDisable(t, disabled);
+    fns.getValue(question);
+})
+
+
+
 // const dispatch = createEventDispatcher();
 </script>
 
@@ -119,7 +138,7 @@ const fns = {
                         class="form-control"
                         on:change="{event => {
                             value = [event.currentTarget.value];
-                            fns.setValue();
+                            fns.saveValue();
                         }}"
                         {disabled}
                         on:input="{fns.change}"
@@ -131,7 +150,7 @@ const fns = {
                         class="form-control"
                         on:change="{event => {
                             value = [event.currentTarget.value];
-                            fns.setValue();
+                            fns.saveValue();
                         }}"
                         {disabled}
                         on:input="{fns.change}"
@@ -144,7 +163,7 @@ const fns = {
                         class="form-control"
                         on:change="{event => {
                             value = [event.currentTarget.value];
-                            fns.setValue();
+                            fns.saveValue();
                         }}"
                         {disabled}
                         on:input="{fns.change}"
@@ -164,7 +183,7 @@ const fns = {
                                     } else {
                                         value = value.filter(v => v !== option);
                                     }
-                                    fns.setValue();
+                                    fns.saveValue();
                                 }}"
                                 {disabled}
                                 on:input="{fns.change}"
@@ -191,7 +210,7 @@ const fns = {
                                 value="{option}"
                                 on:change="{event => {
                                     value = [option];
-                                    fns.setValue();
+                                    fns.saveValue();
                                 }}"
                                 {disabled}
                                 on:input="{fns.change}"
@@ -211,7 +230,7 @@ const fns = {
                         class="form-control"
                         on:change="{event => {
                             value = [event.currentTarget.value];
-                            fns.setValue();
+                            fns.saveValue();
                         }}"
                         {disabled}
                         on:input="{fns.change}"
