@@ -530,9 +530,13 @@ export class App {
                 Session.get(cookie) || Session.newSession(req, res);
             }
 
-            req.body = ((await req.req.json().catch(() => {})) as {
-                [key: string]: any;
-            }) || {};
+            req.body = await (async () => {
+                const hasHeader = denoReq.headers.get('X-Body');
+                if (hasHeader) return JSON.parse(hasHeader);
+
+                const body = await req.req.json().catch(() => {}) || {};
+                return body;
+            })();
 
             const runFn = async (i: number) => {
                 return new Promise<void>(async (resolve) => {

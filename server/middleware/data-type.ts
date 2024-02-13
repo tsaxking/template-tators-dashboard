@@ -109,8 +109,11 @@ export const validate = <type = unknown>(
     options?: ValidateOptions,
 ): ServerFunction<type> => {
     return (req, res, next) => {
-        const { body } = req;
+        let { body } = req;
 
+        // body can be stored here because it could be a file stream
+        if (!Object.entries(body as any).length) body = JSON.parse(req.headers.get('X-Body') || '{}');
+        
         let passed = true;
         const missing: string[] = [];
         const failed: string[] = [];
