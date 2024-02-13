@@ -33,7 +33,7 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
         </div>
         <div class="col-md-6 col-lg-4">
             <!-- {#if team} -->
-            <TeamPictures {team} upload={true} />
+            <TeamPictures {team} upload="{true}" />
             <!-- {/if} -->
         </div>
     </div>

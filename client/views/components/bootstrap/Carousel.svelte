@@ -16,7 +16,7 @@ export let items: P[] = [];
         {#each items as _item, i}
             <button
                 data-bs-target="#{id}"
-                data-bs-slide-to={i}
+                data-bs-slide-to="{i}"
                 class="{i === 0 ? 'active' : ''}"
             ></button>
         {/each}
@@ -24,7 +24,7 @@ export let items: P[] = [];
     <div class="carousel-inner">
         {#each items as item, i}
             <div class="carousel-item {i === 0 ? 'active' : ''}">
-                <img src={item.url} alt={item.name} class="w-100 d-block"/>
+                <img src="{item.url}" alt="{item.name}" class="w-100 d-block" />
                 {#if item.name}
                     <div class="carousel-caption d-none d-md-block">
                         <h5>{item.name}</h5>

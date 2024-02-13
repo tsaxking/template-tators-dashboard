@@ -58,6 +58,8 @@ const fns = {
 };
 </script>
 
-<div bind:this={me}>
-    <button class="btn btn-primary" on:click={fns.open}>Upload Pictures</button>
+<div bind:this="{me}">
+    <button class="btn btn-primary" on:click="{fns.open}"
+        >Upload Pictures</button
+    >
 </div>

@@ -369,8 +369,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             if (this.$cache.has('pictures')) {
                 return this.$cache.get('pictures') as TeamPictures[];
             }
-    
-    
+
             const res = await ServerRequest.post<TeamPictures[]>(
                 '/api/teams/get-pictures',
                 {

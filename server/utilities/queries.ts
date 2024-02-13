@@ -524,7 +524,7 @@ export type Queries = {
             {
                 teamNumber: number;
                 eventKey: string;
-            }
+            },
         ],
         TeamPictures,
     ];
