@@ -12,6 +12,7 @@ import {
 // import fs from 'node:fs';
 import { attempt, attemptAsync, Result } from '../../shared/check.ts';
 import { match, matchInstance } from '../../shared/match.ts';
+import { relative } from 'https://deno.land/std@0.61.0/path/win32.ts';
 
 export type JSONError = 'InvalidJSON' | 'Unknown';
 export type FileError = 'NoFile' | 'FileExists' | 'NoAccess' | 'Unknown';
@@ -23,14 +24,15 @@ const matchJSONError = (e: Error): JSONError =>
         [Error, () => 'Unknown'],
     ) ?? 'Unknown';
 
-const matchFileError = (e: Error): FileError =>
-    match<Error, FileError>(
+const matchFileError = (e: Error): FileError =>{
+    console.error(e);
+    return match<Error, FileError>(
         e,
         [(e) => e.message.includes('ENOENT'), () => 'NoFile'],
         [(e) => e.message.includes('EEXIST'), () => 'FileExists'],
         [(e) => e.message.includes('EACCES'), () => 'NoAccess'],
         [(e) => e.message.includes('EISDIR'), () => 'NoAccess'],
-    ) ?? 'Unknown';
+    ) ?? 'Unknown';}
 
 /**
  * Used to render html templates
@@ -347,9 +349,9 @@ export function saveUpload(
 ): Promise<Result<void, FileError>> {
     return attemptAsync(() => {
         createUploadsFolder();
-        const p = filePathBuilder(filename, '', __uploads);
-
-        return Deno.writeFile(p, data);
+        return Deno.writeFile(
+            resolve(relative(__root, __uploads), filename)
+            , data);
     }, matchFileError);
 }
 

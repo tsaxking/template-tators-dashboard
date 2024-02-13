@@ -3,6 +3,7 @@ import { Route } from '../../structure/app/app.ts';
 import { DB } from '../../utilities/databases.ts';
 import { fileStream } from '../../middleware/stream.ts';
 import Account from '../../structure/accounts.ts';
+import { readDir } from '../../utilities/files.ts';
 export const router = new Route();
 
 router.post<{
@@ -92,6 +93,35 @@ router.post<{
 
         res.stream(teams.value.map((t) => JSON.stringify(t)));
     },
+);
+
+router.post<{
+    teamNumber: number;
+    eventKey: string;
+}>(
+    '/get-pictures',
+    validate({
+        teamNumber: 'number',
+        eventKey: 'string',
+    }),
+    async (req, res) => {
+        const { teamNumber, eventKey } = req.body;
+
+        const pictures = await DB.all('teams/get-pictures', {
+            eventKey,
+            teamNumber,
+        });
+
+        if (pictures.isErr()) return res.sendStatus('unknown:error');
+
+        const uploads = await readDir('storage/uploads');
+
+        if (uploads.isErr()) return res.sendStatus('unknown:error');
+
+        const files = uploads.value.map(f => f.name);
+
+        res.json(pictures.value.filter(p => files.includes(p.picture)));
+    }
 );
 
 router.post<{
