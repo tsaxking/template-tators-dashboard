@@ -7,6 +7,7 @@ import Account from './structure/accounts.ts';
 import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
+import { router as role } from './routes/roles.ts';
 import Role from './structure/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
@@ -168,6 +169,7 @@ app.get('/home', (_req, res) => {
 
 app.route('/api', api);
 app.route('/account', account);
+app.route('/roles', role);
 
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
@@ -182,7 +184,7 @@ app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 // });
 
 app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
-    res.sendTemplate('entries/admin');
+    res.sendTemplate('entries/dashboard/admin');
 });
 
 app.route('/admin', admin);
@@ -200,10 +202,6 @@ app.get('/dashboard/:year', (req, res) => {
 
 app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
-});
-
-app.get('/admin/*', Role.allowRoles('admin'), (req, res) => {
-    res.sendTemplate('entries/admin');
 });
 
 app.final<{
