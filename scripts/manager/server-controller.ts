@@ -5,7 +5,21 @@ import { select } from '../prompt.ts';
 import { pullEvent } from '../../server/utilities/tba/pull-event.ts';
 
 export const pullEvents = async () => {
-    const events = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${new Date().getFullYear()}`)
+    const year = await select(
+        'Please select year',
+        new Array(new Date().getFullYear() - 2006).fill(0).map((_, i) => {
+            return {
+                name: (new Date().getFullYear() - i).toString(),
+                value: new Date().getFullYear() - i
+            };
+        
+        })
+    );
+
+    if (!year) return backToMain('No year selected');
+
+
+    const events = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${year}`);
 
     if (events.isOk()) {
         if (!events.value) {
