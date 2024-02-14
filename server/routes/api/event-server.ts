@@ -16,6 +16,7 @@ import {
 } from '../../../shared/submodules/tatorscout-calculations/trace.ts';
 import { uuid } from '../../utilities/uuid.ts';
 import { DB } from '../../utilities/databases.ts';
+import { bigIntEncode } from '../../../shared/objects.ts';
 
 export const router = new Route();
 
@@ -70,6 +71,14 @@ router.post<Match>(
         if (existingRes.isErr()) return res.sendStatus('unknown:error');
 
         if (existingRes.value) {
+            DB.run('match-scouting/archive', {
+                content: JSON.parse(bigIntEncode(req.body)),
+                created: Date.now(),
+                compLevel,
+                eventKey,
+                matchNumber,
+                teamNumber
+            });
             return res.json({
                 success: false,
                 error: 'Match already scouted',

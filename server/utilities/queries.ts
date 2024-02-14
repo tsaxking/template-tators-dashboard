@@ -492,6 +492,19 @@ export type Queries = {
         [{ eventKey: string; scoutGroup: string }],
         RetrievedMatchScouting,
     ];
+    'match-scouting/archive': [
+        [
+            {
+                content: string;
+                eventKey: string;
+                matchNumber: number;
+                teamNumber: number;
+                compLevel: string;
+                created: number;
+            }
+        ],
+        unknown
+    ];
     'tba/from-url': [[Select_tba_from_url], TBARequests];
     'tba/new': [[Insert_tba_new], unknown];
     'discord/insert': [[Insert_discord_insert], unknown];
