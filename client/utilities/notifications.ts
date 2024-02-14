@@ -123,12 +123,21 @@ export const prompt = async (question: string): Promise<string | null> => {
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal(id);
         m.setTitle('Prompt');
-        m.setBody(question);
+
+        const formGroup = document.createElement('div');
+        formGroup.classList.add('form-group');
+
+        const label = document.createElement('label');
+        label.innerText = question;
+        formGroup.append(label);
 
         const input = document.createElement('input');
         input.classList.add('form-control', 'mt-3');
         input.type = 'text';
         input.placeholder = 'Enter your response here...';
+        formGroup.appendChild(input);
+
+        m.setBody(formGroup);
 
         const confirm = document.createElement('button');
         const cancel = document.createElement('button');
