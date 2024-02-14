@@ -2,7 +2,7 @@ import { backToMain, main, selectFile } from '../manager.ts';
 import { __root } from '../../server/utilities/env.ts';
 import { addQuery, merge, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
-import { confirm, repeatPrompt, select } from '../prompt.ts';
+import { confirm, repeatPrompt, search, select } from '../prompt.ts';
 import {
     readDir,
     readFile,
@@ -54,7 +54,7 @@ export const newVersion = async () => {
     if (doScript) {
         saveFileSync(
             `storage/db/scripts/versions/1-${minor}-${patch}.ts`,
-            `// New version 1.${minor}.${patch}\n\n`,
+            `// New version 1.${minor}.${patch}\n\nDeno.exit(0) // Please do not remove this`,
         );
     }
 
@@ -221,15 +221,19 @@ export const restoreBackup = async () => {
         return backToMain('Error reading backups: ' + backups.error.message);
     }
 
-    const backup = await select(
-        'Select backup to restore',
+    const backup = await search(
+        'Search for a backup to restore',
         backups.value.map((b) => ({
             name: b.name,
             value: b.name,
         })),
     );
 
-    const res = await DB.restoreBackup(backup);
+    if (backup.isErr()) {
+        return backToMain('Error selecting backup: ' + backup.error);
+    }
+
+    const res = await DB.restoreBackup(backup.value);
     if (res.isOk()) {
         backToMain('Backup restored');
     } else {
@@ -250,41 +254,52 @@ export const databases = [
     {
         value: buildQueries,
         icon: '🔨',
+        description: 'Builds the query types from the sql files',
     },
     {
         value: mergeQueries,
         icon: '🔀',
+        description: 'Merges the query files into a single file',
     },
     {
         value: versionInfo,
         icon: '📊',
+        description: 'Shows the current and latest version of the database',
     },
     {
         value: newVersion,
         icon: '🆕',
+        description:
+            'Creates a new version of the database, can create a .ts file if you need to also run a script',
     },
     {
         value: viewTables,
         icon: '📇',
+        description: 'View the data in a table',
     },
     {
         value: reset,
         icon: '🔄',
+        description: 'Resets the database to the latest version',
     },
     {
         value: runUpdates,
         icon: '🔃',
+        description: 'Runs any available updates',
     },
     {
         value: clearTable,
         icon: '🗑️',
+        description: 'Clears all data from a table',
     },
     {
         value: restoreBackup,
         icon: '🔙',
+        description: 'Restores a backup',
     },
     {
         value: backup,
         icon: '💾',
+        description: 'Creates a backup',
     },
 ];

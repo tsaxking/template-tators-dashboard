@@ -56,8 +56,8 @@ export const addPermissions = async () => {
         const allPerms = await Role.getAllPermissions();
         let perm = (await select<Permission>('Select a permission to add', [
             ...allPerms.map((p) => ({
-                name: p,
-                value: p,
+                name: p.permission,
+                value: p.permission as Permission,
             })),
             {
                 name: '[New]',
@@ -72,8 +72,8 @@ export const addPermissions = async () => {
                 'Enter the permission name',
                 undefined,
                 (data) =>
-                    !perms.some((p) => p === data) &&
-                    !allPerms.some((p) => p === data),
+                    !perms.some((p) => p.permission === data) &&
+                    !allPerms.some((p) => p.permission === data),
                 false,
             ) as unknown as Permission;
             const description = repeatPrompt(
@@ -100,17 +100,19 @@ export const removePermissions = async () => {
         if (!perms.length) {
             backToMain(`Role ${role.name} has no permissions`);
         } else {
-            const perm = await select<Permission>(
+            const perm = await select(
                 'Select a permission to remove',
                 perms.map((p) => ({
-                    name: p,
+                    name: p.permission,
                     value: p,
                 })),
             );
 
             if (perm) {
-                role.removePermission(perm);
-                backToMain(`Permission ${perm} removed from role ${role.name}`);
+                role.removePermission(perm.permission);
+                backToMain(
+                    `Permission ${perm.permission} removed from role ${role.name}`,
+                );
             } else {
                 backToMain('No permissions to remove');
             }
@@ -124,9 +126,12 @@ export const permissions = [
     {
         icon: '📝',
         value: addPermissions,
+        description:
+            "Adds permissions to a role, and creates a permission if one doesn't exist",
     },
     {
         icon: '🗑️',
         value: removePermissions,
+        description: 'Removes permissions from a role',
     },
 ];

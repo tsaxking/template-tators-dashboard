@@ -456,6 +456,7 @@ export class App {
 
         if (!s) {
             setSsid = true;
+            console.log('New session');
             const obj = {
                 id: Session.newId(),
                 ip: info.remoteAddr.hostname,
@@ -509,13 +510,6 @@ export class App {
 
             const req = new Req(denoReq, info, this.io, s as Session);
             const res = new Res(this, req);
-
-            if (await s.isBlacklisted()) {
-                res.sendStatus('session:rate-limited');
-                return;
-            }
-            await s.newRequest();
-            s.latestActivity = Date.now();
 
             if (setSsid) {
                 res.cookie('ssid', s.id, Session.cookieOptions);
