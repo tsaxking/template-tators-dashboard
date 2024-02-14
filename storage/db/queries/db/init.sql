@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS Events (
 );
 
 CREATE TABLE IF NOT EXISTS Teams (
-    number INTEGER NOT NULL UNIQUE,
+    number INTEGER NOT NULL,
     eventKey TEXT NOT NULL,
     watchPriority INTEGER NOT NULL DEFAULT 0 -- 0 - 10
 );
