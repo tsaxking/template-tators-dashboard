@@ -77,7 +77,7 @@ router.post<Match>(
                 compLevel,
                 eventKey,
                 matchNumber,
-                teamNumber
+                teamNumber,
             });
             return res.json({
                 success: false,

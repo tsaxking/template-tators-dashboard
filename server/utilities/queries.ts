@@ -501,9 +501,9 @@ export type Queries = {
                 teamNumber: number;
                 compLevel: string;
                 created: number;
-            }
+            },
         ],
-        unknown
+        unknown,
     ];
     'tba/from-url': [[Select_tba_from_url], TBARequests];
     'tba/new': [[Insert_tba_new], unknown];
