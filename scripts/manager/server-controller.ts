@@ -10,14 +10,12 @@ export const pullEvents = async () => {
         new Array(new Date().getFullYear() - 2006).fill(0).map((_, i) => {
             return {
                 name: (new Date().getFullYear() - i).toString(),
-                value: new Date().getFullYear() - i
+                value: new Date().getFullYear() - i,
             };
-        
-        })
+        }),
     );
 
     if (!year) return backToMain('No year selected');
-
 
     const events = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${year}`);
 
@@ -28,10 +26,10 @@ export const pullEvents = async () => {
 
         const event = await select(
             'Select an event to pull',
-            events.value.map(e => ({
+            events.value.map((e) => ({
                 name: e.name,
-                value: e
-            }))
+                value: e,
+            })),
         );
 
         if (!event) return backToMain('No event selected');
@@ -44,14 +42,10 @@ export const pullEvents = async () => {
     }
 };
 
-
-
-
-
 export const serverController = [
     {
         value: pullEvents,
         icon: '🔄',
-        description: 'Pull events from TBA and place into database'
-    }
+        description: 'Pull events from TBA and place into database',
+    },
 ];
