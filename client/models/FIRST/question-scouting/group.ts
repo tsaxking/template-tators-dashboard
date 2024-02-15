@@ -115,7 +115,9 @@ export class Group extends Cache<GroupUpdates> {
             );
 
             if (res.isOk()) {
-                return res.value.map((q) => new Question(q));
+                const questions = res.value.map((q) => new Question(q));
+                this.$cache.set('questions', questions);
+                return questions;
             } else throw res.error;
         });
     }
@@ -202,5 +204,6 @@ socket.on('scouting-question:new-question', (data: ScoutingQuestionObj) => {
     if (!g) return;
 
     const q = new Question(data);
+    (g.$cache.get('questions') as Question[]).push(q);
     g.emit('new-question', q);
 });
