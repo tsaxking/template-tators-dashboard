@@ -29,6 +29,7 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
         </div>
         <div class="col-md-6">
             <TbaSummary {team} />
+            Comments go here
         </div>
     </div>
 </div>
