@@ -2,6 +2,7 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { Cache } from '../cache';
 import { TeamComments as TCObject } from '../../../shared/db-types-extended';
 import { attemptAsync } from '../../../shared/check';
+import { ServerRequest } from '../../utilities/requests';
 
 type TeamCommentUpdates = {
     'update': string; // comment
@@ -37,16 +38,25 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
 
     public static new(obj: TCObject) {
         return attemptAsync(async () => {
-            // your code here
+            const res = await ServerRequest.post<{
+                obj: TCObject;
+            }>('/api/scouting-questions/new-question', obj);
+
+            if (res.isOk()) return new TeamComment(res.value.obj);
+            throw res.error;
         });
     }
 
     public static fromTeam(
-        teamNumber: number,
-        eventKey: string
+        team: number,
+        key: string
     ) {
         return attemptAsync(async () => {
-            // your code here
+            const current = this.$cache.values();
+
+                const answers = Array.from(current).filter((a) => {
+                    return a.teamNumber === team && a.eventKey === event.key;
+                });
         });
     }
 
