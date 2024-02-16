@@ -69,6 +69,7 @@ Question.on('update', () => {
     fns.getQuestions(group);
 });
 
+
 $: {
     fns.getQuestions(group);
 }
