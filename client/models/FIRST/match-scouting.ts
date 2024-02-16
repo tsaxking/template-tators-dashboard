@@ -1,6 +1,10 @@
 import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { MatchScouting as MatchScoutingObj } from '../../../shared/db-types-extended';
+import { FIRSTTeam } from './team';
+import { FIRSTEvent } from './event';
+import { ServerRequest } from '../../utilities/requests';
+import { Result, attemptAsync } from '../../../shared/check';
 
 type MatchScoutingEvents = {
     update: MatchScouting;
@@ -53,7 +57,65 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         MatchScouting
     >();
 
-    constructor(public readonly data: MatchScoutingObj) {
+    public static async fromTeam(eventKey: string, teamNumber: number): Promise<Result<MatchScouting[]>> {
+        return attemptAsync(async () => {
+            const all = MatchScouting.cache.values();
+            const filtered = Array.from(all).filter((m) => {
+                return m.eventKey === eventKey && m.team === teamNumber;
+            });
+            if (filtered.length) return filtered;
+    
+            const res = await ServerRequest.post<MatchScoutingObj[]>(
+                '/api/match-scouting/from-team',
+                {
+                    eventKey,
+                    teamNumber,
+                },
+            );
+
+            if (res.isErr()) throw res.error;
+            return res.value.map((d) => new MatchScouting(d));
+        });
+    }
+
+
+
+    public readonly id: string;
+    public readonly matchId: string | undefined;
+    public readonly team: number;
+    public readonly scoutId: string | undefined;
+    public readonly scoutGroup: number;
+    public readonly scoutName: string;
+    public readonly trace: string;
+    public readonly checks: string;
+    public readonly preScouting: string | undefined;
+    public readonly time: number;
+    public readonly prescouting: string | undefined;
+    public readonly eventKey: string;
+    public readonly matchNumber: number;
+    public readonly compLevel: string;
+
+    constructor(data: MatchScoutingObj) {
         super();
+        this.id = data.id;
+        this.matchId = data.matchId;
+        this.team = data.team;
+        this.scoutId = data.scoutId;
+        this.scoutGroup = data.scoutGroup;
+        this.scoutName = data.scoutName;
+        this.trace = data.trace;
+        this.checks = data.checks;
+        this.preScouting = data.preScouting;
+        this.time = data.time;
+        this.prescouting = data.prescouting;
+        this.eventKey = data.eventKey;
+        this.matchNumber = data.matchNumber;
+        this.compLevel = data.compLevel;
+
+        if (MatchScouting.cache.has(this.id)) {
+            MatchScouting.cache.delete(this.id);
+        }
+
+        MatchScouting.cache.set(this.id, this);
     }
 }
