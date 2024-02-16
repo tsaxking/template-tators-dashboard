@@ -214,15 +214,15 @@ socket.on('scouting-question:update-section', (data: ScoutingSection) => {
 
 socket.on('scouting-question:new-group', (data: ScoutingQuestionGroup) => {
     const g = new Group(data);
-    const s = Section.$cache.get(data.id);
+    const s = Section.$cache.get(data.section);
     if (!s) return;
+    s.emit('new-group', g);
 
     const groups = s.$cache.get('groups') as Group[] | undefined;
     if (!groups) return s.$cache.set('groups', [g]);
 
     groups.push(g);
 
-    s.emit('new-group', g);
 });
 
 socket.on('scouting-question:section-deleted', (id: string) => {

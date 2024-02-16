@@ -108,6 +108,16 @@ export class Group extends Cache<GroupUpdates> {
 
     public async getQuestions(): Promise<Result<Question[]>> {
         return attemptAsync(async () => {
+            const cached = Question.$cache.values();
+            const questions = Array.from(cached).filter(
+                (q) => q.groupId === this.id,
+            );
+            if (questions.length) return questions;
+
+            if (!this.id) {
+                console.error(this);
+                throw new Error('Group id not found');
+            }
             const res = await ServerRequest.post<ScoutingQuestionObj[]>(
                 '/api/scouting-questions/get-questions',
                 {
@@ -208,6 +218,7 @@ socket.on('scouting-question:new-question', (data: ScoutingQuestionObj) => {
 
     const q = new Question(data);
     g.emit('new-question', q);
+    Question.emit('new', q);
 });
 
 socket.on('scouting-question:group-deleted', (id: string) => {
