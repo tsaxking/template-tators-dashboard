@@ -276,8 +276,106 @@ router.post<{
 
 const canEdit = Account.allowPermissions('editScoutingQuestions');
 
-// TODO: Add delete information
+// TODO: Add data to history
 // user must have permissions to update scouting questions
+
+router.post<{
+    id: string;
+}>(
+    '/delete-section', // I don't think a user should be able to do this, but I'm implementing it anyway
+    canEdit,
+    validate({
+        id: 'string',
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+
+        const result = await DB.run('scouting-questions/delete-section', {
+            id
+        });
+    }
+);
+
+router.post<{
+    id: string;
+}>(
+    '/delete-group',
+    canEdit,
+    validate({
+        id: 'string',
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+        const { accountId } = req.session;
+
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        DB.run('scouting-questions/migrate-group', { id });
+        DB.run('scouting-questions/delete-group', { id });
+
+        res.sendStatus('scouting-question:group-deleted', {
+            id,
+        });
+
+        req.io.emit('scouting-question:group-deleted', {
+            id,
+        });
+    },
+);
+
+router.post<{
+    id: string;
+}>(
+    '/delete-question',
+    canEdit,
+    validate({
+        id: 'string',
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+        const { accountId } = req.session;
+
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        DB.run('scouting-questions/migrate-question', { id });
+        DB.run('scouting-questions/delete-question', { id });
+
+        res.sendStatus('scouting-question:question-deleted', {
+            id,
+        });
+
+        req.io.emit('scouting-question:question-deleted', {
+            id,
+        });
+    },
+);
+
+router.post<{
+    id: string;
+}>(
+    '/delete-answer',
+    canEdit,
+    validate({
+        id: 'string',
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+        const { accountId } = req.session;
+
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        DB.run('scouting-questions/migrate-answer', { id });
+        DB.run('scouting-questions/delete-answer', { id });
+
+        res.sendStatus('scouting-question:answer-deleted', {
+            id,
+        });
+    },
+);
+
+
+
+
 
 router.post<{
     name: string;
