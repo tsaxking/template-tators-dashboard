@@ -436,7 +436,9 @@ export type Queries = {
         unknown,
     ];
     'scouting-questions/delete-answer': [
-        [Insert_scouting_questions_delete_answer],
+        [{
+            id: string;
+        }],
         unknown,
     ];
     'scouting-questions/delete-group': [
@@ -582,5 +584,35 @@ export type Queries = {
     'team-comments/from-account': [
         [Select_team_comments_from_account],
         TeamComments,
+    ];
+
+
+    'scouting-questions/migrate-answer': [
+        [
+            {
+                id: string;
+            }
+        ], unknown
+    ];
+    'scouting-questions/migrate-question': [
+        [
+            {
+                id: string;
+            }
+        ], unknown
+    ];
+    'scouting-questions/migrate-group': [
+        [
+            {
+                id: string;
+            }
+        ], unknown
+    ];
+    'scouting-questions/migrate-section': [
+        [
+            {
+                id: string;
+            }
+        ], unknown
     ];
 };
