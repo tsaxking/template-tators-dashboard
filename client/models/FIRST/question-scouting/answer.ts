@@ -115,12 +115,7 @@ export class Answer extends Cache<AnswerEvents> {
                 },
             );
 
-            if (res.isOk()) {
-                Answer.$cache.delete(this.id);
-                Answer.emit('delete', this.id);
-                this.emit('delete', undefined);
-                this.destroy();
-            } else throw res.error;
+            if (res.isErr()) throw res.error;
         });
     }
 }
@@ -149,3 +144,12 @@ socket.on(
         }
     },
 );
+
+socket.on('scouting-question:answer-deleted', (id: string) => {
+    const answer = Answer.$cache.get(id);
+    if (answer) {
+        Answer.$cache.delete(id);
+        answer.emit('delete', undefined);
+        answer.destroy();
+    }
+});

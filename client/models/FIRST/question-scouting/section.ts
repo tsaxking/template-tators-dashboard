@@ -191,12 +191,7 @@ export class Section extends Cache<SectionUpdates> {
                 },
             );
 
-            if (res.isOk()) {
-                Section.$cache.delete(this.id);
-                Section.emit('delete', this.id);
-                this.emit('delete', undefined);
-                this.destroy();
-            } else throw res.error;
+            if (res.isErr()) throw res.error;
         });
     }
 }
@@ -228,4 +223,13 @@ socket.on('scouting-question:new-group', (data: ScoutingQuestionGroup) => {
     groups.push(g);
 
     s.emit('new-group', g);
+});
+
+socket.on('scouting-question:section-deleted', (id: string) => {
+    const s = Section.$cache.get(id);
+    if (!s) return;
+
+    Section.$cache.delete(id);
+    s.destroy();
+    Section.emit('delete', id);
 });
