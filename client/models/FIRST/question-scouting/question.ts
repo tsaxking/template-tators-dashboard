@@ -14,9 +14,14 @@ import { Answer } from './answer';
 type Updates = {
     new: unknown;
     update: unknown;
+    delete: string;
 };
 
-export class Question extends Cache {
+type QuestionUpdates = {
+    delete: void;
+};
+
+export class Question extends Cache<QuestionUpdates> {
     public static readonly $cache = new Map<string, Question>();
 
     private static readonly $emitter = new EventEmitter<keyof Updates>();
@@ -138,22 +143,22 @@ export class Question extends Cache {
 
     delete() {
         return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
-            // const res = await ServerRequest.post<{
-            //     id: string;
-            // }>('/api/scouting-questions/delete-question', {
-            //     id: this.id,
-            // });
+            const res = await ServerRequest.post<{
+                id: string;
+            }>('/api/scouting-questions/delete-question', {
+                id: this.id,
+            });
 
-            // if (res.isOk()) {
-            //     Question.$cache.delete(this.id);
-            //     this.destroy();
-            //     return;
-            // } else throw res.error;
+            if (res.isOk()) {
+                Question.$cache.delete(this.id);
+                Question.emit('delete', this.id);
+                this.emit('delete', undefined);
+                this.destroy();
+            } else throw res.error;
         });
     }
 
-    // async getAnswers(): Promise<Result<{
+    // async getAnswers(eventKey: string): Promise<Result<{
     //     team: number;
     //     answer: string[];
     // }[]>> {

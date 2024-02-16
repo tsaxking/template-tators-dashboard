@@ -13,12 +13,14 @@ import { FIRSTEvent } from '../event';
 type Updates = {
     new: Section;
     update: Section;
+    delete: string; // id
 };
 
 type SectionUpdates = {
     'new-group': Group;
     'delete-group': string; // id
     update: Section;
+    delete: void;
 };
 
 // pitscouting/prescouting/mechanical/programming/electrical/strategical etc.
@@ -119,7 +121,13 @@ export class Section extends Cache<SectionUpdates> {
             );
 
             if (res.isOk()) {
-                const groups = res.value.map((g) => new Group(g));
+                const groups = res.value.map((g) => {
+                    const group = new Group(g);
+                    group.on('delete', () => {
+                        this.emit('delete-group', g.id);
+                    });
+                    return group;
+                });
                 this.$cache.set('groups', groups);
                 return groups;
             }
@@ -176,19 +184,19 @@ export class Section extends Cache<SectionUpdates> {
 
     delete() {
         return attemptAsync(async () => {
-            throw new Error('Not implemented');
-            // const res = await ServerRequest.post<void>(
-            //     '/api/scouting-questions/delete-section',
-            //     {
-            //         id: this.id,
-            //     },
-            // );
+            const res = await ServerRequest.post<void>(
+                '/api/scouting-questions/delete-section',
+                {
+                    id: this.id,
+                },
+            );
 
-            // if (res.isOk()) {
-            //     Section.$cache.delete(this.id);
-            //     this.destroy();
-            //     return;
-            // } else throw res.error;
+            if (res.isOk()) {
+                Section.$cache.delete(this.id);
+                Section.emit('delete', this.id);
+                this.emit('delete', undefined);
+                this.destroy();
+            } else throw res.error;
         });
     }
 }

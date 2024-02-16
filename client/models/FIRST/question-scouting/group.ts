@@ -20,6 +20,7 @@ type GroupUpdates = {
     update: Group;
     'new-question': Question;
     'delete-question': string; // id
+    delete: void;
 };
 
 // used to organize questions into separate groups
@@ -115,7 +116,13 @@ export class Group extends Cache<GroupUpdates> {
             );
 
             if (res.isOk()) {
-                return res.value.map((q) => new Question(q));
+                return res.value.map((q) => {
+                    const question = new Question(q);
+                    question.on('delete', () => {
+                        this.emit('delete-question', q.id);
+                    })
+                    return question;
+                });
             } else throw res.error;
         });
     }
@@ -182,17 +189,20 @@ export class Group extends Cache<GroupUpdates> {
 
     delete(): Promise<Result<void>> {
         return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
-            // const res = await ServerRequest.post<void>(
-            //     '/api/scouting-questions/delete-group',
-            //     {
-            //         id: this.id,
-            //     },
-            // );
+            // throw new Error('Method not implemented.');
+            const res = await ServerRequest.post<void>(
+                '/api/scouting-questions/delete-group',
+                {
+                    id: this.id,
+                },
+            );
 
-            // if (res.isOk()) {
-            //     Group.$cache.delete(this.id);
-            // } else throw res.error;
+            if (res.isOk()) {
+                Group.$cache.delete(this.id);
+                Group.emit('delete', this.id);
+                this.emit('delete', undefined);
+                this.destroy();
+            } else throw res.error;
         });
     }
 }
