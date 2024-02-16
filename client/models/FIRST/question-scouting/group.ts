@@ -197,12 +197,7 @@ export class Group extends Cache<GroupUpdates> {
                 },
             );
 
-            if (res.isOk()) {
-                Group.$cache.delete(this.id);
-                Group.emit('delete', this.id);
-                this.emit('delete', undefined);
-                this.destroy();
-            } else throw res.error;
+            if (res.isErr()) throw res.error;
         });
     }
 }
@@ -213,4 +208,13 @@ socket.on('scouting-question:new-question', (data: ScoutingQuestionObj) => {
 
     const q = new Question(data);
     g.emit('new-question', q);
+});
+
+socket.on('scouting-question:group-deleted', (id: string) => {
+    const g = Group.$cache.get(id);
+    if (!g) return;
+
+    Group.$cache.delete(id);
+    g.emit('delete', undefined);
+    g.destroy();
 });

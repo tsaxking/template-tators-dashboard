@@ -10,6 +10,7 @@ import { ServerRequest } from '../../../utilities/requests';
 import { FIRSTEvent } from '../event';
 import { FIRSTTeam } from '../team';
 import { Answer } from './answer';
+import { socket } from '../../../utilities/socket';
 
 type Updates = {
     new: unknown;
@@ -149,12 +150,7 @@ export class Question extends Cache<QuestionUpdates> {
                 id: this.id,
             });
 
-            if (res.isOk()) {
-                Question.$cache.delete(this.id);
-                Question.emit('delete', this.id);
-                this.emit('delete', undefined);
-                this.destroy();
-            } else throw res.error;
+            if (res.isErr()) throw res.error;
         });
     }
 
@@ -197,3 +193,12 @@ export class Question extends Cache<QuestionUpdates> {
         });
     }
 }
+
+socket.on('scouting-question:question-deleted', (id: string) => {
+    const q = Question.$cache.get(id);
+    if (!q) return;
+
+    Question.$cache.delete(id);
+    q.emit('delete', undefined);
+    q.destroy();
+});

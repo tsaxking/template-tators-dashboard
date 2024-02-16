@@ -297,9 +297,7 @@ router.post<{
             id,
         });
 
-        req.io.emit('scouting-question:section-deleted', {
-            id,
-        });
+        req.io.emit('scouting-question:section-deleted', id);
     }
 );
 
@@ -322,9 +320,7 @@ router.post<{
             id,
         });
 
-        req.io.emit('scouting-question:group-deleted', {
-            id,
-        });
+        req.io.emit('scouting-question:group-deleted', id);
     },
 );
 
@@ -346,9 +342,7 @@ router.post<{
             id,
         });
 
-        req.io.emit('scouting-question:question-deleted', {
-            id,
-        });
+        req.io.emit('scouting-question:question-deleted', id);
     },
 );
 
@@ -366,9 +360,7 @@ router.post<{
         DB.run('scouting-questions/migrate-answer', { id });
         DB.run('scouting-questions/delete-answer', { id });
 
-        res.sendStatus('scouting-question:answer-deleted', {
-            id,
-        });
+        res.sendStatus('scouting-question:answer-deleted', id);
     },
 );
 
