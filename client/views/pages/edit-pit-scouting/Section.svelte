@@ -2,7 +2,7 @@
 import { Group } from '../../../models/FIRST/question-scouting/group';
 import { Section } from '../../../models/FIRST/question-scouting/section';
 import G from './Group.svelte';
-import { prompt, alert } from '../../../utilities/notifications';
+import { prompt, alert, confirm } from '../../../utilities/notifications';
 import { FIRSTEvent } from '../../../models/FIRST/event';
 
 export let section: Section | undefined = undefined;
@@ -56,6 +56,17 @@ $: {
 FIRSTEvent.on('select', async event => {
     getGroups(section, event);
 });
+
+const deleteSection = async () => {
+    if (!section) return;
+    const doDelete = await confirm('Are you sure you want to delete this section?');
+    if (!doDelete) return;
+
+    const res = await section.delete();
+    if (res.isOk()) {
+        section = undefined;
+    }
+};
 </script>
 
 <div class="container">
@@ -68,6 +79,11 @@ FIRSTEvent.on('select', async event => {
         <div class="col">
             <button class="btn btn-primary" on:click="{createGroup}">
                 <i class="material-icons">add</i> Group
+            </button>
+        </div>
+        <div class="col">
+            <button class="btn btn-danger" on:click={deleteSection}>
+                <i class="material-icons">delete</i> Delete Section
             </button>
         </div>
     </div>

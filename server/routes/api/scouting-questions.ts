@@ -290,8 +290,15 @@ router.post<{
     async (req, res) => {
         const { id } = req.body;
 
-        const result = await DB.run('scouting-questions/delete-section', {
-            id
+        DB.run('scouting-questions/migrate-section', { id });
+        DB.run('scouting-questions/delete-section', { id });
+
+        res.sendStatus('scouting-question:section-deleted', {
+            id,
+        });
+
+        req.io.emit('scouting-question:section-deleted', {
+            id,
         });
     }
 );
@@ -306,9 +313,7 @@ router.post<{
     }),
     async (req, res) => {
         const { id } = req.body;
-        const { accountId } = req.session;
 
-        if (!accountId) return res.sendStatus('account:not-logged-in');
 
         DB.run('scouting-questions/migrate-group', { id });
         DB.run('scouting-questions/delete-group', { id });
@@ -333,9 +338,6 @@ router.post<{
     }),
     async (req, res) => {
         const { id } = req.body;
-        const { accountId } = req.session;
-
-        if (!accountId) return res.sendStatus('account:not-logged-in');
 
         DB.run('scouting-questions/migrate-question', { id });
         DB.run('scouting-questions/delete-question', { id });
@@ -360,9 +362,6 @@ router.post<{
     }),
     async (req, res) => {
         const { id } = req.body;
-        const { accountId } = req.session;
-
-        if (!accountId) return res.sendStatus('account:not-logged-in');
 
         DB.run('scouting-questions/migrate-answer', { id });
         DB.run('scouting-questions/delete-answer', { id });

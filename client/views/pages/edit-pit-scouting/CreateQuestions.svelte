@@ -32,6 +32,10 @@ Section.on('update', async () => {
     sections = await Section.all();
 });
 
+Section.on('delete', async () => {
+    sections = await Section.all();
+});
+
 FIRSTEvent.on('select', async () => {
     sections = await Section.all();
     const s = sections[0];

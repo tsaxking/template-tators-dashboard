@@ -205,9 +205,9 @@ const fns = {
                     Save <i class="material-icons"> save </i>
                 </button>
                 <!-- {/if} -->
-                <!-- <button class="btn btn-danger" on:click="{fns.delete}">
+                <button class="btn btn-danger" on:click="{fns.delete}">
                     Delete Question <i class="material-icons"> delete </i>
-                </button> -->
+                </button>
             </div>
         </div>
     </div>

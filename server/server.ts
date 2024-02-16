@@ -13,6 +13,7 @@ import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
+import { emitter } from './middleware/data-type.ts';
 
 const port = +(env.PORT || 3000);
 
@@ -31,6 +32,8 @@ if (env.ENVIRONMENT === 'dev') {
         console.log('Reloading clients...');
         app.io.emit('reload');
     });
+
+    emitter.on('fail', console.log);
 }
 
 app.post('/env', (req, res) => {
@@ -173,15 +176,15 @@ app.route('/roles', role);
 
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
-// app.get('/*', (req, res, next) => {
-//     if (!req.session.accountId) {
-//         console.log('Not signed in:', req.session.id);
-//         req.session.prevUrl = req.url;
-//         return res.redirect('/account/sign-in');
-//     }
+app.get('/*', (req, res, next) => {
+    if (!req.session.accountId) {
+        console.log('Not signed in:', req.session.id);
+        req.session.prevUrl = req.url;
+        return res.redirect('/account/sign-in');
+    }
 
-//     next();
-// });
+    next();
+});
 
 app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
