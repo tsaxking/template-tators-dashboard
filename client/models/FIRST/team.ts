@@ -228,7 +228,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             const res = await MatchScouting.fromTeam(
                 this.event.key,
-                this.number
+                this.number,
             );
 
             if (res.isErr()) throw res.error;
