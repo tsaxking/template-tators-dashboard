@@ -4,10 +4,25 @@ import { FIRSTTeam } from '../../models/FIRST/team';
 import TeamMatchTable from '../components/robot-display/TeamMatchTable.svelte';
 import TbaSummary from '../components/robot-display/TBASummary.svelte';
 import TeamPictures from '../components/robot-display/TeamPictures.svelte';
+import VelocityHistogram from '../components/robot-display/VelocityHistogram.svelte';
+import { type TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 
 let team: FIRSTTeam;
 
 FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
+
+let traces: TraceArray[] = [];
+
+const fns = {
+    getTeam: async (t: FIRSTTeam) => {
+        const scouting = await t.getMatchScouting();
+        if (scouting.isOk()) {
+            traces = scouting.value.map(s => s.trace)
+        }
+    }
+};
+
+$: fns.getTeam(team);
 </script>
 
 <div class="container">
@@ -32,9 +47,10 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
             <TbaSummary {team} />
         </div>
         <div class="col-md-6 col-lg-4">
-            <!-- {#if team} -->
             <TeamPictures {team} upload="{true}" />
-            <!-- {/if} -->
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <VelocityHistogram {traces} />
         </div>
     </div>
 </div>

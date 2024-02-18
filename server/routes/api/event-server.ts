@@ -114,10 +114,39 @@ router.post<Match>(
                 team: teamNumber,
                 time: date,
             });
+
+            // socket for each comment
+            // req.io.emit('team-comments:new', {
+            //     id: matchId,
+            //     accountId: scoutId,
+            //     matchScoutingId,
+            //     comment: value,
+            //     type: key,
+            //     eventKey,
+            //     team: teamNumber,
+            //     time: date,
+            // });
         }
 
         res.json({
             success: true,
+        });
+
+
+        req.io.emit('match-scouting:new', {
+            id: matchScoutingId,
+            matchId: m.id,
+            team: teamNumber,
+            scoutId,
+            scoutGroup: group,
+            trace: traceStr,
+            preScouting: undefined,
+            time: date,
+            checks: JSON.stringify(checks),
+            scoutName: scout,
+            eventKey,
+            matchNumber,
+            compLevel,
         });
     },
 );
