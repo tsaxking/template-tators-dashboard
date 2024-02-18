@@ -4,12 +4,9 @@ import { DB } from '../../utilities/databases.ts';
 
 export const router = new Route();
 
-
-
-
 router.post<{
     eventKey: string;
-    teamNumber: number; 
+    teamNumber: number;
 }>(
     '/from-team',
     validate({
@@ -29,5 +26,5 @@ router.post<{
         }
 
         return res.json(result.value);
-    }
+    },
 );
