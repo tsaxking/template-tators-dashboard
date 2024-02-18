@@ -298,13 +298,19 @@ export type Strategy = {
  */
 export type MatchScouting = {
     id: string;
-    matchId: string;
+    matchId: string | undefined;
     team: number;
-    scoutId: string;
-    scoutGroup: string;
+    scoutId: string | undefined;
+    scoutName: string;
+    scoutGroup: number;
+    trace: string;
+    checks: string;
+    preScouting: string | undefined;
     time: number;
-    preScouting: 0 | 1;
-    trace: string; // json array
+    prescouting: string | undefined;
+    eventKey: string;
+    matchNumber: number;
+    compLevel: string;
 };
 
 /**

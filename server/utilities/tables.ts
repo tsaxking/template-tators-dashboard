@@ -838,6 +838,7 @@ export type Insert_match_scouting_new = {
     preScouting: undefined;
     trace: string;
     checks: string;
+    scoutName: string;
 };
 
 export type Select_tba_from_url = {

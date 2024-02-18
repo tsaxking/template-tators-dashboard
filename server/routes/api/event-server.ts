@@ -99,6 +99,7 @@ router.post<Match>(
             preScouting: undefined,
             time: date,
             checks: JSON.stringify(checks),
+            scoutName: scout // in case there is no scout id
         });
 
         for (const [key, value] of Object.entries(comments)) {

@@ -48,7 +48,7 @@ router.post<{
 
         if (comments.isErr()) return res.sendStatus('unknown:error');
 
-        res.stream(comments.value.map((s) => JSON.stringify(s)));
+        res.stream(comments.value);
     },
 );
 
