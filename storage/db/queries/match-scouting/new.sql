@@ -7,7 +7,8 @@ INSERT INTO MatchScouting (
     time,
     preScouting,
     trace,
-    checks
+    checks,
+    scoutName
 ) VALUES (
     :id,
     :matchId,
@@ -17,5 +18,6 @@ INSERT INTO MatchScouting (
     :time,
     :preScouting,
     :trace,
-    :checks
+    :checks,
+    :scoutName
 );
