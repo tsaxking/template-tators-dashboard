@@ -17,7 +17,7 @@ const fns = {
     getTeam: async (t: FIRSTTeam) => {
         const scouting = await t.getMatchScouting();
         if (scouting.isOk()) {
-            traces = scouting.value.map(s => s.trace)
+            traces = scouting.value.map(s => s.trace);
         }
     }
 };
