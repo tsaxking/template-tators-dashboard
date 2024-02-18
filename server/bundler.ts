@@ -10,6 +10,7 @@ import env, {
     relative,
     resolve,
 } from './utilities/env.ts';
+import { attemptAsync } from '../shared/check.ts';
 
 /**
  * Recursively reads a directory, saves the template, and returns the file paths
@@ -88,28 +89,30 @@ export class Builder {
     };
 
     public build = () =>
-        esbuild.build({
-            entryPoints: entries,
-            bundle: true,
-            minify: env.MINIFY === 'y',
-            outdir: './dist',
-            mainFields: ['svelte', 'browser', 'module', 'main'],
-            conditions: ['svelte', 'browser'],
-            plugins: [
-                (sveltePlugin as any)({
-                    preprocess: [typescript()],
-                }),
-            ],
-            logLevel: 'info',
-            loader: {
-                '.png': 'dataurl',
-                '.woff': 'dataurl',
-                '.woff2': 'dataurl',
-                '.eot': 'dataurl',
-                '.ttf': 'dataurl',
-                '.svg': 'dataurl',
-            },
-        });
+        attemptAsync(async () =>
+            esbuild.build({
+                entryPoints: entries,
+                bundle: true,
+                minify: env.MINIFY === 'y',
+                outdir: './dist',
+                mainFields: ['svelte', 'browser', 'module', 'main'],
+                conditions: ['svelte', 'browser'],
+                plugins: [
+                    (sveltePlugin as any)({
+                        preprocess: [typescript()],
+                    }),
+                ],
+                logLevel: 'info',
+                loader: {
+                    '.png': 'dataurl',
+                    '.woff': 'dataurl',
+                    '.woff2': 'dataurl',
+                    '.eot': 'dataurl',
+                    '.ttf': 'dataurl',
+                    '.svg': 'dataurl',
+                },
+            })
+        );
 
     public run = async () => {
         await this.build();
