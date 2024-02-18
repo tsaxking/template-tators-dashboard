@@ -3,6 +3,8 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { MatchScouting as MatchScoutingObj } from '../../../shared/db-types-extended';
 import { ServerRequest } from '../../utilities/requests';
 import { Result, attemptAsync } from '../../../shared/check';
+import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
+import { socket } from '../../utilities/socket';
 
 type MatchScoutingEvents = {
     update: MatchScouting;
@@ -10,6 +12,7 @@ type MatchScoutingEvents = {
 
 type Updates = {
     select: MatchScouting;
+    new: MatchScouting;
 };
 
 export class MatchScouting extends Cache<MatchScoutingEvents> {
@@ -83,7 +86,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
     public readonly scoutId: string | undefined;
     public readonly scoutGroup: number;
     public readonly scoutName: string;
-    public readonly trace: string;
+    public readonly trace: TraceArray;
     public readonly checks: string;
     public readonly preScouting: string | undefined;
     public readonly time: number;
@@ -100,7 +103,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         this.scoutId = data.scoutId;
         this.scoutGroup = data.scoutGroup;
         this.scoutName = data.scoutName;
-        this.trace = data.trace;
+        this.trace = JSON.parse(data.trace);
         this.checks = data.checks;
         this.preScouting = data.preScouting;
         this.time = data.time;
@@ -116,3 +119,9 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         MatchScouting.cache.set(this.id, this);
     }
 }
+
+
+socket.on('match-scouting:new', (data: MatchScoutingObj) => {
+    const m = new MatchScouting(data);
+    MatchScouting.emit('new', m);
+});
