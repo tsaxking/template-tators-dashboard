@@ -28,3 +28,6 @@ router.route('/scouting-questions', scoutingQuestions);
 
 import { router as tba } from './api/tba.ts';
 router.route('/tba', tba);
+
+import { router as matchScouting } from './api/match-scouting.ts';
+router.route('/match-scouting', matchScouting);

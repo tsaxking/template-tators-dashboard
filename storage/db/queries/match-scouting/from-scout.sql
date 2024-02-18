@@ -7,4 +7,5 @@ FROM MatchScouting
 INNER JOIN ON Matches
     WHERE Matches.id = MatchScouting.matchId
     WHERE Matches.eventKey = :eventKey
-    AND MatchScouting.scoutId = :scoutId;
+    AND MatchScouting.scoutId = :scoutId
+    OR MatchScouting.scoutName = :scoutId;
