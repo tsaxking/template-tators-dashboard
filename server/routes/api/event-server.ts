@@ -181,10 +181,13 @@ router.post<{
                     eventKey: req.body.eventKey,
                     event,
                 };
+            } else {
+                throw new Error('Error fetching data from TBA ' + JSON.stringify([teamsRes, matchesRes, eventRes]))
             }
         });
 
         if (result.isOk()) {
+            if (!result.value) return res.sendStatus('unknown:error');
             res.json(result.value);
         } else {
             res.status(500).json({ error: result.error });
