@@ -32,7 +32,10 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         MatchScouting.$emitter.off(event, callback);
     }
 
-    public static emit<K extends keyof Updates>(event: K, data: Updates[K]): void {
+    public static emit<K extends keyof Updates>(
+        event: K,
+        data: Updates[K],
+    ): void {
         MatchScouting.$emitter.emit(event, data);
     }
 
@@ -57,14 +60,17 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         MatchScouting
     >();
 
-    public static async fromTeam(eventKey: string, teamNumber: number): Promise<Result<MatchScouting[]>> {
+    public static async fromTeam(
+        eventKey: string,
+        teamNumber: number,
+    ): Promise<Result<MatchScouting[]>> {
         return attemptAsync(async () => {
             const all = MatchScouting.cache.values();
             const filtered = Array.from(all).filter((m) => {
                 return m.eventKey === eventKey && m.team === teamNumber;
             });
             if (filtered.length) return filtered;
-    
+
             const res = await ServerRequest.post<MatchScoutingObj[]>(
                 '/api/match-scouting/from-team',
                 {
@@ -77,8 +83,6 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
             return res.value.map((d) => new MatchScouting(d));
         });
     }
-
-
 
     public readonly id: string;
     public readonly matchId: string | undefined;
