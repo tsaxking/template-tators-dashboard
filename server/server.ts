@@ -109,6 +109,7 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
+    log(`[${req.method}] ${req.url}`);
 
     log('[POST]', req.url);
     try {
@@ -162,6 +163,10 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
+app.get('/home', (_req, res) => {
+    res.sendTemplate('entries/home');
+});
+
 app.route('/api', api);
 app.route('/account', account);
 app.route('/roles', role);
@@ -197,7 +202,14 @@ app.get('/dashboard/:dashboard', (req, res) => {
     res.sendTemplate('entries/dashboard/' + req.params.dashboard);
 });
 
-app.get('/user/*', Account.isSignedIn, (req, res) => {
+// this is how the user will access the dashboard
+app.get('/dashboard/:year', (req, res) => {
+    const { year } = req.params;
+    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + year);
+});
+
+app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
 });
 
