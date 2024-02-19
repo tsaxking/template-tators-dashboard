@@ -2,7 +2,7 @@
 import { Group } from '../../../models/FIRST/question-scouting/group';
 import { Question } from '../../../models/FIRST/question-scouting/question';
 import Q from './Question.svelte';
-import { alert } from '../../../utilities/notifications';
+import { alert, confirm } from '../../../utilities/notifications';
 
 export let group: Group | undefined = undefined;
 export let index: number;
@@ -48,8 +48,27 @@ const fns = {
         g.on('new-question', update);
         g.on('delete-question', update);
         g.on('update', update);
+    },
+    delete: async () => {
+        if (!group) return;
+
+        const doDelete = await confirm('Are you sure you want to delete this group?');
+        if (doDelete) group.delete();
     }
 };
+
+Question.on('delete', () => {
+    fns.getQuestions(group);
+});
+
+Question.on('new', () => {
+    fns.getQuestions(group);
+});
+
+Question.on('update', () => {
+    fns.getQuestions(group);
+});
+
 
 $: {
     fns.getQuestions(group);
@@ -60,14 +79,22 @@ $: {
     <div class="card p-0">
         <div class="card-header">
             <div class="card-title">
-                <input
-                    type="text"
-                    name="name"
-                    id="{group.id}-name"
-                    class="form-control"
-                    value="{group.name}"
-                    on:change="{e => fns.update(e.currentTarget.value)}"
-                />
+                <div class="d-flex justify-content-between">
+                    <div class="form-floating">
+                        <input
+                            type="text"
+                            name="name"
+                            id="name-{group.id}"
+                            class="form-control"
+                            value="{group.name}"
+                            on:change="{e => fns.update(e.currentTarget.value)}"
+                        />
+                        <label for="name-{group.id}">Group Name</label>
+                    </div>
+                    <button class="btn btn-outline-light" on:click="{fns.delete}">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="card-body">

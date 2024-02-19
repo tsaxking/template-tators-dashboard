@@ -13,12 +13,14 @@ import { FIRSTEvent } from '../event';
 type Updates = {
     new: Section;
     update: Section;
+    delete: string; // id
 };
 
 type SectionUpdates = {
     'new-group': Group;
     'delete-group': string; // id
     update: Section;
+    delete: void;
 };
 
 // pitscouting/prescouting/mechanical/programming/electrical/strategical etc.
@@ -119,7 +121,13 @@ export class Section extends Cache<SectionUpdates> {
             );
 
             if (res.isOk()) {
-                const groups = res.value.map((g) => new Group(g));
+                const groups = res.value.map((g) => {
+                    const group = new Group(g);
+                    group.on('delete', () => {
+                        this.emit('delete-group', g.id);
+                    });
+                    return group;
+                });
                 this.$cache.set('groups', groups);
                 return groups;
             }
@@ -176,19 +184,14 @@ export class Section extends Cache<SectionUpdates> {
 
     delete() {
         return attemptAsync(async () => {
-            throw new Error('Not implemented');
-            // const res = await ServerRequest.post<void>(
-            //     '/api/scouting-questions/delete-section',
-            //     {
-            //         id: this.id,
-            //     },
-            // );
+            const res = await ServerRequest.post<void>(
+                '/api/scouting-questions/delete-section',
+                {
+                    id: this.id,
+                },
+            );
 
-            // if (res.isOk()) {
-            //     Section.$cache.delete(this.id);
-            //     this.destroy();
-            //     return;
-            // } else throw res.error;
+            if (res.isErr()) throw res.error;
         });
     }
 }
@@ -211,13 +214,22 @@ socket.on('scouting-question:update-section', (data: ScoutingSection) => {
 
 socket.on('scouting-question:new-group', (data: ScoutingQuestionGroup) => {
     const g = new Group(data);
-    const s = Section.$cache.get(data.id);
+    const s = Section.$cache.get(data.section);
     if (!s) return;
+    s.emit('new-group', g);
 
     const groups = s.$cache.get('groups') as Group[] | undefined;
     if (!groups) return s.$cache.set('groups', [g]);
 
     groups.push(g);
 
-    s.emit('new-group', g);
+});
+
+socket.on('scouting-question:section-deleted', (id: string) => {
+    const s = Section.$cache.get(id);
+    if (!s) return;
+
+    Section.$cache.delete(id);
+    s.destroy();
+    Section.emit('delete', id);
 });

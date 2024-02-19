@@ -13,6 +13,7 @@ import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
+import { emitter } from './middleware/data-type.ts';
 
 const port = +(env.PORT || 3000);
 
@@ -31,6 +32,8 @@ if (env.ENVIRONMENT === 'dev') {
         console.log('Reloading clients...');
         app.io.emit('reload');
     });
+
+    emitter.on('fail', console.log);
 }
 
 app.post('/env', (req, res) => {

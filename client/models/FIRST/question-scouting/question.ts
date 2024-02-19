@@ -10,13 +10,19 @@ import { ServerRequest } from '../../../utilities/requests';
 import { FIRSTEvent } from '../event';
 import { FIRSTTeam } from '../team';
 import { Answer } from './answer';
+import { socket } from '../../../utilities/socket';
 
 type Updates = {
     new: unknown;
     update: unknown;
+    delete: string;
 };
 
-export class Question extends Cache {
+type QuestionUpdates = {
+    delete: void;
+};
+
+export class Question extends Cache<QuestionUpdates> {
     public static readonly $cache = new Map<string, Question>();
 
     private static readonly $emitter = new EventEmitter<keyof Updates>();
@@ -138,22 +144,17 @@ export class Question extends Cache {
 
     delete() {
         return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
-            // const res = await ServerRequest.post<{
-            //     id: string;
-            // }>('/api/scouting-questions/delete-question', {
-            //     id: this.id,
-            // });
+            const res = await ServerRequest.post<{
+                id: string;
+            }>('/api/scouting-questions/delete-question', {
+                id: this.id,
+            });
 
-            // if (res.isOk()) {
-            //     Question.$cache.delete(this.id);
-            //     this.destroy();
-            //     return;
-            // } else throw res.error;
+            if (res.isErr()) throw res.error;
         });
     }
 
-    // async getAnswers(): Promise<Result<{
+    // async getAnswers(eventKey: string): Promise<Result<{
     //     team: number;
     //     answer: string[];
     // }[]>> {
@@ -192,3 +193,12 @@ export class Question extends Cache {
         });
     }
 }
+
+socket.on('scouting-question:question-deleted', (id: string) => {
+    const q = Question.$cache.get(id);
+    if (!q) return;
+
+    Question.$cache.delete(id);
+    q.emit('delete', undefined);
+    q.destroy();
+});
