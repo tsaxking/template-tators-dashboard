@@ -6,6 +6,7 @@ import TbaSummary from '../components/robot-display/TBASummary.svelte';
 import TeamPictures from '../components/robot-display/TeamPictures.svelte';
 import VelocityHistogram from '../components/robot-display/VelocityHistogram.svelte';
 import { type TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
+import PitScouting from '../components/robot-display/PitScouting.svelte';
 
 let team: FIRSTTeam;
 
@@ -65,6 +66,11 @@ $: fns.getTeam(team);
                 <div class="row mb-3">
                     <div class="col">
                         <TeamPictures {team} upload={true} />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <PitScouting {team} />
                     </div>
                 </div>
             </div>

@@ -71,7 +71,7 @@ router.post<{
 
         if (scouting.isErr()) return res.sendStatus('unknown:error');
 
-        res.stream(scouting.value.map((s) => JSON.stringify(s)));
+        res.json(scouting.value);
     },
 );
 

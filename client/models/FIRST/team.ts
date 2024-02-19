@@ -285,37 +285,28 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @public
      * @returns {RetrieveStreamEventEmitter<RetrievedScoutingAnswer>}
      */
-    public getPitScouting(): RetrieveStreamEventEmitter<
-        RetrievedScoutingAnswer
+    public async getPitScouting(): Promise<
+        RetrievedScoutingAnswer[]
     > {
         if (this.$cache.has('pit-scouting')) {
-            const res = this.$cache.get(
-                'pit-scouting',
-            ) as RetrievedScoutingAnswer[];
-
-            const em = new RetrieveStreamEventEmitter<
-                RetrievedScoutingAnswer
-            >();
-
-            setTimeout(() => res.forEach((ms) => em.emit('chunk', ms)));
-
-            return em;
+            return this.$cache.get('pit-scouting') as RetrievedScoutingAnswer[];
         }
 
-        const em = ServerRequest.retrieveStream<RetrievedScoutingAnswer>(
+        const res = await ServerRequest.post<RetrievedScoutingAnswer[]>(
             '/api/teams/pit-scouting',
             {
-                team: this.tba.team_number,
-                eventKey: this.event.tba.key,
+                team: this.number,
+                eventKey: this.event.key,
             },
-            JSON.parse,
         );
 
-        em.on('complete', (data) => {
-            this.$cache.set('pit-scouting', data);
-        });
+        if (res.isOk()) {
+            this.$cache.set('pit-scouting', res.value);
+            return res.value;
+        } else {
+            return [];
+        }
 
-        return em;
     }
 
     /**
