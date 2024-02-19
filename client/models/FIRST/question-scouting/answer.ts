@@ -62,7 +62,7 @@ export class Answer extends Cache<AnswerEvents> {
                     return a.teamNumber === team && a.eventKey === event.key;
                 });
 
-                return answers;
+                if (answers.length) return answers;
             }
 
             const res = await ServerRequest.post<ScoutingAnswer[]>(

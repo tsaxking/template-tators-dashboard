@@ -8,16 +8,17 @@ import {
     TBAMatch,
     TBATeam,
 } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
+import { Table } from '../../../scripts/build-table.ts'
 
 export const router = new Route();
 
-const auth = App.headerAuth('x-auth-key', env.WEBHOOK_AUTH as string);
+const auth = App.headerAuth('x-auth-key', env.WEBHOOK_KEY as string);
 
 router.post('/test', (req, res) => {
     res.send(JSON.stringify({ success: true }));
 });
 
-router.post('/event/:eventKey/teams/trace', auth, async (req, res) => {
+router.post('/event/:eventKey/teams/traces', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -119,4 +120,27 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
     if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
     res.json(comments.value);
+});
+
+router.post('/event/:eventKey/summary', auth, async (req, res) => {
+    const { eventKey } = req.params;
+    if (!eventKey) return res.sendStatus('webhook:invalid-url');
+
+    const teams = await DB.all('teams/from-event', { eventKey });
+    const matches = await DB.all('matches/from-event', { eventKey });
+
+    if (teams.isErr() || matches.isErr()) {
+        return res.sendStatus('webhook:invalid-url');
+    }
+
+    const data = await Table.build(eventKey);
+    if (data.isErr()) return res.sendStatus('server:unknown-server-error', {
+        error: data.error.message
+    });
+
+    res.json({
+        teams: teams.value,
+        matches: matches.value,
+        summary: data.value
+    });
 });
