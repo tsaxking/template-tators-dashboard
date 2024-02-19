@@ -81,6 +81,25 @@ export class Section extends Cache<SectionUpdates> {
         });
     }
 
+    public static async fromId(id: string): Promise<Result<Section|undefined>> {
+        return attemptAsync(async () => {
+            if (Section.$cache.has(id)) return Section.$cache.get(id) as Section;
+
+            const res = await ServerRequest.post<ScoutingSection|undefined>(
+                '/api/scouting-questions/get-section',
+                {
+                    id,
+                },
+            );
+
+            if (res.isOk()) {
+                if (res.value) return new Section(res.value);
+                else return undefined;
+            }
+            throw res.error;
+        });
+    }
+
     public $name: string;
     public $multiple: boolean;
     public readonly id: string;

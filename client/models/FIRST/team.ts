@@ -20,6 +20,7 @@ import { FIRSTEvent } from './event';
 import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/attempt';
 import { MatchScouting } from './match-scouting';
+import { Answer } from './question-scouting/answer';
 
 export type Updates = {
     create: FIRSTTeam;
@@ -285,37 +286,10 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @public
      * @returns {RetrieveStreamEventEmitter<RetrievedScoutingAnswer>}
      */
-    public getPitScouting(): RetrieveStreamEventEmitter<
-        RetrievedScoutingAnswer
+    public async getPitScouting(): Promise<
+        Result<Answer[]>
     > {
-        if (this.$cache.has('pit-scouting')) {
-            const res = this.$cache.get(
-                'pit-scouting',
-            ) as RetrievedScoutingAnswer[];
-
-            const em = new RetrieveStreamEventEmitter<
-                RetrievedScoutingAnswer
-            >();
-
-            setTimeout(() => res.forEach((ms) => em.emit('chunk', ms)));
-
-            return em;
-        }
-
-        const em = ServerRequest.retrieveStream<RetrievedScoutingAnswer>(
-            '/api/teams/pit-scouting',
-            {
-                team: this.tba.team_number,
-                eventKey: this.event.tba.key,
-            },
-            JSON.parse,
-        );
-
-        em.on('complete', (data) => {
-            this.$cache.set('pit-scouting', data);
-        });
-
-        return em;
+        return Answer.fromTeam(this.number, this.event);
     }
 
     /**

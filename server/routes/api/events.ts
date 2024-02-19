@@ -18,3 +18,13 @@ router.post<{
         res.json(p);
     },
 );
+
+router.post<{
+    eventKey: string;
+}>(
+    '/checklist',
+    validate({
+        eventKey: 'string',
+    }),
+    async (req, res) => {}
+);
