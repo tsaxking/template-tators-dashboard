@@ -723,3 +723,91 @@ router.post<{
         });
     },
 );
+
+router.post<{
+    id: string
+}>(
+    '/get-group',
+    validate({
+        id: 'string'
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+
+        const group = await DB.get('scouting-questions/group-from-id', {
+            id,
+        });
+
+        if (group.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        res.json(group.value);
+    }
+);
+
+router.post<{
+    id: string
+}>(
+    '/get-section',
+    validate({
+        id: 'string'
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+
+        const section = await DB.get('scouting-questions/section-from-id', {
+            id,
+        });
+
+        if (section.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        res.json(section.value);
+    }
+);
+
+router.post<{
+    id: string
+}>(
+    '/get-answer',
+    validate({
+        id: 'string'
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+
+        const answer = await DB.get('scouting-questions/answer-from-id', {
+            id,
+        });
+
+        if (answer.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        res.json(answer.value);
+    }
+);
+
+router.post<{
+    id: string
+}>(
+    '/get-question',
+    validate({
+        id: 'string'
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+
+        const question = await DB.get('scouting-questions/question-from-id', {
+            id,
+        });
+
+        if (question.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        res.json(question.value);
+    }
+);

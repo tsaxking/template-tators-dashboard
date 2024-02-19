@@ -11,6 +11,7 @@ import { FIRSTEvent } from '../event';
 import { FIRSTTeam } from '../team';
 import { Answer } from './answer';
 import { socket } from '../../../utilities/socket';
+import { Group } from './group';
 
 type Updates = {
     new: unknown;
@@ -67,6 +68,22 @@ export class Question extends Cache<QuestionUpdates> {
         });
     }
 
+    public static async fromId(id: string): Promise<Result<Question|undefined>> {
+        return attemptAsync(async () => {
+            if (Question.$cache.has(id)) return Question.$cache.get(id) as Question;
+
+            const res = await ServerRequest.post<ScoutingQuestionObj | undefined>('/api/scouting-questions/get-question', {
+                id,
+            });
+
+            if (res.isOk()) {
+                if (res.value) return new Question(res.value);
+                else return undefined;
+            }
+            throw res.error;
+        });
+    }
+
     public readonly id: string;
     public $question: string;
     public $type: QuestionType;
@@ -78,7 +95,6 @@ export class Question extends Cache<QuestionUpdates> {
 
     constructor(data: ScoutingQuestionObj) {
         super();
-
         this.id = data.id;
         this.$question = data.question;
         this.$type = data.type;
@@ -87,6 +103,12 @@ export class Question extends Cache<QuestionUpdates> {
         this.$description = data.description;
         this.groupId = data.groupId;
         this.options = JSON.parse(data.options) as QuestionOptions;
+
+        if (Question.$cache.has(this.id)) {
+            Question.$cache.delete(this.id);
+        }
+
+        Question.$cache.set(this.id, this);
     }
 
     public get question(): string {
@@ -126,20 +148,17 @@ export class Question extends Cache<QuestionUpdates> {
     }
 
     async update(): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
-            // const res = await ServerRequest.post<ScoutingQuestionObj>(
-            //     '/api/scouting-questions/update-question',
-            //     {
-            //         id: this.id,
-            //         question: this.$question,
-            //         type: this.$type,
-            //         key: this.$key,
-            //         description: this.$description,
-            //         options: this.options,
-            //     },
-            // );
-        });
+        return ServerRequest.post(
+                '/api/scouting-questions/update-question',
+                {
+                    id: this.id,
+                    question: this.$question,
+                    type: this.$type,
+                    key: this.$key,
+                    description: this.$description,
+                    options: this.options,
+                },
+            );
     }
 
     delete() {
@@ -191,6 +210,13 @@ export class Question extends Cache<QuestionUpdates> {
             if (res.isOk()) return;
             throw res.error;
         });
+    }
+
+    async getGroup(): Promise<Group | undefined> {
+        const g = await Group.fromId(this.groupId);
+        if (g.isOk()) return g.value;
+        console.error('Error getting group', g.error);
+        return undefined;
     }
 }
 

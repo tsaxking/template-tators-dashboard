@@ -629,4 +629,20 @@ export type Queries = {
             }
         ], unknown
     ];
+    'scouting-questions/group-from-id': [
+        [
+            {
+                id: string;
+            }
+        ],
+        ScoutingQuestionGroups
+    ];
+    'scouting-questions/section-from-id': [
+        [
+            {
+                id: string;
+            }
+        ],
+        ScoutingQuestionSections
+    ];
 };
