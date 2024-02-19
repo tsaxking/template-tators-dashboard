@@ -19,6 +19,7 @@ import { socket } from '../../utilities/socket';
 import { FIRSTEvent } from './event';
 import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/attempt';
+import { MatchScouting } from './match-scouting';
 
 export type Updates = {
     create: FIRSTTeam;
@@ -219,35 +220,22 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @public
      * @returns {RetrieveStreamEventEmitter<RetrievedMatchScouting>}
      */
-    public getMatchScouting(): RetrieveStreamEventEmitter<
-        RetrievedMatchScouting
-    > {
-        if (this.$cache.has('match-scouting')) {
-            const res = this.$cache.get(
-                'match-scouting',
-            ) as RetrievedMatchScouting[];
+    public async getMatchScouting(): Promise<Result<MatchScouting[]>> {
+        return attemptAsync(async () => {
+            if (this.$cache.has('match-scouting')) {
+                return this.$cache.get('match-scouting') as MatchScouting[];
+            }
 
-            const em = new RetrieveStreamEventEmitter<RetrievedMatchScouting>();
+            const res = await MatchScouting.fromTeam(
+                this.event.key,
+                this.number,
+            );
 
-            setTimeout(() => res.forEach((ms) => em.emit('chunk', ms)));
+            if (res.isErr()) throw res.error;
 
-            return em;
-        }
-
-        const em = ServerRequest.retrieveStream<RetrievedMatchScouting>(
-            '/api/teams/match-scouting',
-            {
-                team: this.tba.team_number,
-                eventKey: this.event.tba.key,
-            },
-            JSON.parse,
-        );
-
-        em.on('complete', (data) => {
-            this.$cache.set('match-scouting', data);
+            this.$cache.set('match-scouting', res.value);
+            return res.value;
         });
-
-        return em;
     }
 
     /**

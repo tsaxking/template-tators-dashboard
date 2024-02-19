@@ -99,6 +99,7 @@ router.post<Match>(
             preScouting: undefined,
             time: date,
             checks: JSON.stringify(checks),
+            scoutName: scout, // in case there is no scout id
         });
 
         for (const [key, value] of Object.entries(comments)) {
@@ -113,10 +114,38 @@ router.post<Match>(
                 team: teamNumber,
                 time: date,
             });
+
+            // socket for each comment
+            // req.io.emit('team-comments:new', {
+            //     id: matchId,
+            //     accountId: scoutId,
+            //     matchScoutingId,
+            //     comment: value,
+            //     type: key,
+            //     eventKey,
+            //     team: teamNumber,
+            //     time: date,
+            // });
         }
 
         res.json({
             success: true,
+        });
+
+        req.io.emit('match-scouting:new', {
+            id: matchScoutingId,
+            matchId: m.id,
+            team: teamNumber,
+            scoutId,
+            scoutGroup: group,
+            trace: traceStr,
+            preScouting: undefined,
+            time: date,
+            checks: JSON.stringify(checks),
+            scoutName: scout,
+            eventKey,
+            matchNumber,
+            compLevel,
         });
     },
 );
@@ -151,10 +180,16 @@ router.post<{
                     eventKey: req.body.eventKey,
                     event,
                 };
+            } else {
+                throw new Error(
+                    'Error fetching data from TBA ' +
+                        JSON.stringify([teamsRes, matchesRes, eventRes]),
+                );
             }
         });
 
         if (result.isOk()) {
+            if (!result.value) return res.sendStatus('unknown:error');
             res.json(result.value);
         } else {
             res.status(500).json({ error: result.error });

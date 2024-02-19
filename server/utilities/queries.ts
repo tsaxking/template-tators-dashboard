@@ -463,7 +463,21 @@ export type Queries = {
     ];
     'scouting-questions/answer-from-team': [
         [{ teamNumber: number; eventKey: string }],
-        ScoutingAnswers,
+        {
+            id: string;
+            teamNumber: number;
+            questionId: string;
+            answer: string; // json
+            date: number;
+            question: string;
+            questionKey: string;
+            questionDescription: string;
+            questionType: string;
+            groupId: string;
+            eventKey: string;
+            section: string;
+            groupName: string;
+        },
     ];
     'events/from-key': [[Select_events_from_key], Events];
     'events/all-alliances': [[Select_events_all_alliances], Alliances];

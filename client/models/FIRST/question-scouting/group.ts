@@ -130,7 +130,7 @@ export class Group extends Cache<GroupUpdates> {
                     const question = new Question(q);
                     question.on('delete', () => {
                         this.emit('delete-question', q.id);
-                    })
+                    });
                     return question;
                 });
             } else throw res.error;
@@ -217,6 +217,7 @@ socket.on('scouting-question:new-question', (data: ScoutingQuestionObj) => {
     if (!g) return;
 
     const q = new Question(data);
+    (g.$cache.get('questions') as Question[]).push(q);
     g.emit('new-question', q);
     Question.emit('new', q);
 });
