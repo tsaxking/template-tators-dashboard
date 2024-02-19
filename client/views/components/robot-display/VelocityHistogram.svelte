@@ -6,22 +6,18 @@ import {
 import { generateTrace } from '../../../../shared/dummy-data';
 import { Bar } from 'svelte-chartjs';
 
-export let traces: TraceArray[] = Array.from({ length: 10 }).map(generateTrace);
-
-let velocityMap: number[] = [];
+export let traces: TraceArray[];
 
 let data: any;
 
 const fns = {
     updateVelocityMap: (traces: TraceArray[]) => {
-        console.log({ traces });
+        if (!traces) return;
         const all = traces
-            .map(Trace.velocity.map)
+            .map((m) => Trace.velocity.map(m))
             .flat()
             .sort((a, b) => a - b);
         const max = all[all.length - 1];
-
-        console.log({ all });
 
         const m: number[] = Array.from({ length: max });
 
@@ -29,13 +25,12 @@ const fns = {
             m[i] = all.filter(v => Math.floor(v) === i).length;
         }
 
-        velocityMap = m;
         data = {
-            labels: Array.from({ length: 20 }).map((_, i) => i.toString()),
+            labels: Array.from({ length: 20 }).map((_, i) => (i + ' fps')),
             datasets: [
                 {
                     label: 'Velocity',
-                    data: velocityMap,
+                    data: m,
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
