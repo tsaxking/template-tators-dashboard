@@ -132,7 +132,6 @@ router.post<Match>(
             success: true,
         });
 
-
         req.io.emit('match-scouting:new', {
             id: matchScoutingId,
             matchId: m.id,
@@ -182,7 +181,10 @@ router.post<{
                     event,
                 };
             } else {
-                throw new Error('Error fetching data from TBA ' + JSON.stringify([teamsRes, matchesRes, eventRes]))
+                throw new Error(
+                    'Error fetching data from TBA ' +
+                        JSON.stringify([teamsRes, matchesRes, eventRes]),
+                );
             }
         });
 

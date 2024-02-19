@@ -32,9 +32,7 @@ $: {
 }
 </script>
 
-<h5>
-    Auto
-</h5>
+<h5>Auto</h5>
 {#each Object.entries(auto) as [action, count]}
     <div class="row">
         <div class="col-12">
@@ -42,10 +40,8 @@ $: {
         </div>
     </div>
 {/each}
-<hr>
-<h5>
-    Teleop
-</h5>
+<hr />
+<h5>Teleop</h5>
 {#each Object.entries(tele) as [action, count]}
     <div class="row">
         <div class="col-12">
