@@ -5,6 +5,7 @@ import { Cache } from '../../cache';
 import { FIRSTEvent } from '../event';
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { socket } from '../../../utilities/socket';
+import { Question } from './question';
 
 type Updates = {
     new: Answer;
@@ -79,6 +80,25 @@ export class Answer extends Cache<AnswerEvents> {
         });
     }
 
+    static async fromId(id: string, eventKey: string): Promise<Result<Answer|undefined>> {
+        return attemptAsync(async () => {
+            if (Answer.$cache.has(id)) return Answer.$cache.get(id) as Answer;
+
+            const res = await ServerRequest.post<ScoutingAnswer|undefined>(
+                '/api/scouting-questions/get-answer',
+                {
+                    id,
+                },
+            );
+
+            if (res.isOk()) {
+                if (res.value) return new Answer(res.value, eventKey);
+                else return undefined;
+            }
+            throw res.error;
+        });
+    }
+
     readonly id: string;
     readonly questionId: string;
     public answer: string[];
@@ -117,6 +137,15 @@ export class Answer extends Cache<AnswerEvents> {
 
             if (res.isErr()) throw res.error;
         });
+    }
+
+    async getQuestion() {
+        const q = await Question.fromId(this.questionId);
+        if (q.isOk()) return q.value;
+        else {
+            console.log('error getting question', q.error);
+            return undefined;
+        }
     }
 }
 
