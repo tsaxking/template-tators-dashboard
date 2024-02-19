@@ -6,7 +6,7 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Modal } from '../../../utilities/modals';
 import MatchViewer from './MatchViewer.svelte';
 
-export let team: FIRSTTeam | undefined = undefined;
+export let team: FIRSTTeam;
 
 let matches: FIRSTMatch[] = [];
 

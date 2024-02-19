@@ -13,7 +13,7 @@
         "test": "deno test --allow-all --no-check ./scripts/test.ts",
         "view-paths": "deno run --allow-all ./scripts/view-paths.ts",
         "tree": "deno run --allow-all ./scripts/dir-tree.ts",
-        "manager": "deno run --allow-all ./scripts/manager.ts",
+        "manager": "deno run --unstable-sloppy-imports --allow-all ./scripts/manager.ts",
         "parse-sql": "deno run --allow-all ./scripts/parse-sql.ts",
         "scout-group": "deno run --allow-all ./scripts/scout-groups.ts",
         "strategy": "deno run --allow-all ./scripts/strategy.ts",

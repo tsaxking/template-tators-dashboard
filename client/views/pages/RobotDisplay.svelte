@@ -15,6 +15,7 @@ let traces: TraceArray[] = [];
 
 const fns = {
     getTeam: async (t: FIRSTTeam) => {
+        if (!t) return;
         const scouting = await t.getMatchScouting();
         if (scouting.isOk()) {
             traces = scouting.value.map(s => s.trace);
@@ -40,17 +41,33 @@ $: fns.getTeam(team);
     </div>
     <hr />
     <div class="row">
-        <div class="col-md-6 col-lg-4">
-            <TeamMatchTable {team} />
+        <div class="col-md-6">
+            <div class="container-fluid">
+                <div class="row mb-3">
+                    <div class="col">
+                        <TeamMatchTable {team} />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <VelocityHistogram {traces} />
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6 col-lg-4">
-            <TbaSummary {team} />
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <TeamPictures {team} upload="{true}" />
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <VelocityHistogram {traces} />
+        <div class="col-md-6 mb-3">
+            <div class="container-fluid">
+                <div class="row mb-3">
+                    <div class="col">
+                        <TbaSummary {team} />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <TeamPictures {team} upload={true} />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

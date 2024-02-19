@@ -32,20 +32,41 @@ $: {
 }
 </script>
 
-<h5>Auto</h5>
-{#each Object.entries(auto) as [action, count]}
-    <div class="row">
-        <div class="col-12">
-            <h5>{action}: {count}</h5>
-        </div>
-    </div>
-{/each}
-<hr />
-<h5>Teleop</h5>
-{#each Object.entries(tele) as [action, count]}
-    <div class="row">
-        <div class="col-12">
-            <h5>{action}: {count}</h5>
-        </div>
-    </div>
-{/each}
+<div class="table-responsive">
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th
+                    colspan="2"
+                    class="text-center"
+                >Auto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {#each Object.entries(auto) as [k, v]}
+                <tr>
+                    <td>{k}</td>
+                    <td>{v}</td>
+                </tr>
+            {/each}
+        </tbody>
+
+        <thead>
+            <tr>
+                <th
+                    colspan="2"
+                    class="text-center"
+                >Tele</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {#each Object.entries(tele) as [k, v]}
+                <tr>
+                    <td>{k}</td>
+                    <td>{v}</td>
+                </tr>
+            {/each}
+        </tbody>
+    </table>
+</div>
