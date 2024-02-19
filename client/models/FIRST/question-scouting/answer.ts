@@ -8,10 +8,12 @@ import { socket } from '../../../utilities/socket';
 
 type Updates = {
     new: Answer;
+    delete: string; // id
 };
 
 type AnswerEvents = {
     update: undefined;
+    delete: void;
 };
 
 export class Answer extends Cache<AnswerEvents> {
@@ -103,6 +105,19 @@ export class Answer extends Cache<AnswerEvents> {
 
         Answer.$cache.set(this.id, this);
     }
+
+    async delete(): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            const res = await ServerRequest.post(
+                '/api/scouting-questions/delete-answer',
+                {
+                    id: this.id,
+                },
+            );
+
+            if (res.isErr()) throw res.error;
+        });
+    }
 }
 
 socket.on(
@@ -129,3 +144,12 @@ socket.on(
         }
     },
 );
+
+socket.on('scouting-question:answer-deleted', (id: string) => {
+    const answer = Answer.$cache.get(id);
+    if (answer) {
+        Answer.$cache.delete(id);
+        answer.emit('delete', undefined);
+        answer.destroy();
+    }
+});

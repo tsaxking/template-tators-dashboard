@@ -20,6 +20,7 @@ type GroupUpdates = {
     update: Group;
     'new-question': Question;
     'delete-question': string; // id
+    delete: void;
 };
 
 // used to organize questions into separate groups
@@ -107,6 +108,16 @@ export class Group extends Cache<GroupUpdates> {
 
     public async getQuestions(): Promise<Result<Question[]>> {
         return attemptAsync(async () => {
+            const cached = Question.$cache.values();
+            const questions = Array.from(cached).filter(
+                (q) => q.groupId === this.id,
+            );
+            if (questions.length) return questions;
+
+            if (!this.id) {
+                console.error(this);
+                throw new Error('Group id not found');
+            }
             const res = await ServerRequest.post<ScoutingQuestionObj[]>(
                 '/api/scouting-questions/get-questions',
                 {
@@ -115,9 +126,13 @@ export class Group extends Cache<GroupUpdates> {
             );
 
             if (res.isOk()) {
-                const questions = res.value.map((q) => new Question(q));
-                this.$cache.set('questions', questions);
-                return questions;
+                return res.value.map((q) => {
+                    const question = new Question(q);
+                    question.on('delete', () => {
+                        this.emit('delete-question', q.id);
+                    });
+                    return question;
+                });
             } else throw res.error;
         });
     }
@@ -184,17 +199,15 @@ export class Group extends Cache<GroupUpdates> {
 
     delete(): Promise<Result<void>> {
         return attemptAsync(async () => {
-            throw new Error('Method not implemented.');
-            // const res = await ServerRequest.post<void>(
-            //     '/api/scouting-questions/delete-group',
-            //     {
-            //         id: this.id,
-            //     },
-            // );
+            // throw new Error('Method not implemented.');
+            const res = await ServerRequest.post<void>(
+                '/api/scouting-questions/delete-group',
+                {
+                    id: this.id,
+                },
+            );
 
-            // if (res.isOk()) {
-            //     Group.$cache.delete(this.id);
-            // } else throw res.error;
+            if (res.isErr()) throw res.error;
         });
     }
 }
@@ -206,4 +219,14 @@ socket.on('scouting-question:new-question', (data: ScoutingQuestionObj) => {
     const q = new Question(data);
     (g.$cache.get('questions') as Question[]).push(q);
     g.emit('new-question', q);
+    Question.emit('new', q);
+});
+
+socket.on('scouting-question:group-deleted', (id: string) => {
+    const g = Group.$cache.get(id);
+    if (!g) return;
+
+    Group.$cache.delete(id);
+    g.emit('delete', undefined);
+    g.destroy();
 });
