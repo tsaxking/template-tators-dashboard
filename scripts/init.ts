@@ -215,13 +215,7 @@ const createEnv = () => {
         undefined,
         true,
     );
-    setKey(
-        'EVENT_API_KEY',
-        'Event API Key: (no default)',
-        '',
-        undefined,
-        true,
-    );
+    setKey('EVENT_API_KEY', 'Event API Key: (no default)', '', undefined, true);
 
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)

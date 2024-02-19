@@ -2,7 +2,7 @@ import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { MatchScouting as MatchScoutingObj } from '../../../shared/db-types-extended';
 import { ServerRequest } from '../../utilities/requests';
-import { Result, attemptAsync } from '../../../shared/check';
+import { attemptAsync, Result } from '../../../shared/check';
 import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import { socket } from '../../utilities/socket';
 
@@ -123,7 +123,6 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         MatchScouting.cache.set(this.id, this);
     }
 }
-
 
 socket.on('match-scouting:new', (data: MatchScoutingObj) => {
     const m = new MatchScouting(data);
