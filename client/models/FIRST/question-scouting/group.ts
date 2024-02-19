@@ -10,6 +10,7 @@ import { Question } from './question';
 import { ServerRequest } from '../../../utilities/requests';
 import { socket } from '../../../utilities/socket';
 import { BootstrapColor } from '../../../submodules/colors/color';
+import { Section } from './section';
 
 type Updates = {
     new: Group;
@@ -79,6 +80,25 @@ export class Group extends Cache<GroupUpdates> {
         });
     }
 
+    public static async fromId(id: string): Promise<Result<Group|undefined>> {
+        return attemptAsync(async () => {
+            if (Group.$cache.has(id)) return Group.$cache.get(id) as Group;
+
+            const res = await ServerRequest.post<ScoutingQuestionGroup|undefined>(
+                '/api/scouting-questions/get-group',
+                {
+                    id,
+                },
+            );
+
+            if (res.isOk()) {
+                if (res.value) return new Group(res.value);
+                else return undefined;
+            }
+            throw res.error;
+        });
+    }
+
     public readonly id: string;
     public readonly eventKey: string;
     public readonly section: string;
@@ -93,9 +113,11 @@ export class Group extends Cache<GroupUpdates> {
         this.$name = data.name;
         this.dateAdded = new Date(data.dateAdded);
 
-        if (!Group.$cache.has(this.id)) {
-            Group.$cache.set(this.id, this);
+        if (Group.$cache.has(this.id)) {
+            Group.$cache.delete(this.id);
         }
+
+        Group.$cache.set(this.id, this);
     }
 
     get name() {
@@ -209,6 +231,13 @@ export class Group extends Cache<GroupUpdates> {
 
             if (res.isErr()) throw res.error;
         });
+    }
+
+    async getSection(): Promise<Section | undefined> {
+        const s = await Section.fromId(this.section);
+        if (s.isOk()) return s.value;
+        console.log('error getting section', s.error);
+        return undefined;
     }
 }
 

@@ -355,7 +355,7 @@ export type RetrievedScoutingAnswer = {
     id: string;
     teamNumber: number;
     questionId: string;
-    answer: string;
+    answer: string; // json array of strings
     question: string;
     questionKey: string;
     questionDescription: string;
