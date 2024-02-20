@@ -2,6 +2,7 @@
 import { ServerRequest } from '../../utilities/requests';
 import Password from './Password.svelte';
 import Recaptcha from './Recaptcha.svelte';
+import { prompt } from '../../utilities/notifications';
 
 export let title: string;
 
@@ -51,6 +52,17 @@ let valid = false;
 
 const onInput = () => {
     valid = isValid(username, password);
+};
+
+const forgotPassword = async () => {
+    const data = await prompt(
+        'Enter your email address or username. If you have an account, we will send you a link to reset your password.'
+    );
+    if (!data) return;
+
+    ServerRequest.post('/account/request-password-reset', {
+        username: data
+    });
 };
 </script>
 
@@ -121,6 +133,15 @@ const onInput = () => {
                         placeholder="Password"
                         label="Password"
                     />
+
+                    <!-- Don't do anything -->
+                    <a
+                        href="javascript:void(0)"
+                        class="link-primary"
+                        on:click="{forgotPassword}">Forgot password?</a
+                    >
+
+                    <hr />
 
                     <input
                         type="submit"
