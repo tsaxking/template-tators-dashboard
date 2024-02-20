@@ -11,4 +11,4 @@ export type Permission =
     | 'editScoutingQuestions'
     | 'settings'
     | 'submitScoutingAnswers';
-export type RoleName = 'admin';
+export type RoleName = 'admin' | 'mentor';

@@ -18,6 +18,14 @@
             linkColor: 'light'
         },
         {
+            link: '/dashboard/mentor',
+            name: 'Mentor',
+            description: 'Tools for mentors to manage the Team Tators Scouting Dashboard.',
+            color: 'success',
+            textColor: 'light',
+            linkColor: 'light'
+        },
+        {
             link: '/dashboard/admin',
             name: 'Admin',
             description: 'Admin dashboard for the Team Tators Scouting Dashboard.',
