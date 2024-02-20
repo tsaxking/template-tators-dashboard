@@ -68,11 +68,17 @@ export class Question extends Cache<QuestionUpdates> {
         });
     }
 
-    public static async fromId(id: string): Promise<Result<Question|undefined>> {
+    public static async fromId(
+        id: string,
+    ): Promise<Result<Question | undefined>> {
         return attemptAsync(async () => {
-            if (Question.$cache.has(id)) return Question.$cache.get(id) as Question;
+            if (Question.$cache.has(id)) {
+                return Question.$cache.get(id) as Question;
+            }
 
-            const res = await ServerRequest.post<ScoutingQuestionObj | undefined>('/api/scouting-questions/get-question', {
+            const res = await ServerRequest.post<
+                ScoutingQuestionObj | undefined
+            >('/api/scouting-questions/get-question', {
                 id,
             });
 
@@ -148,17 +154,14 @@ export class Question extends Cache<QuestionUpdates> {
     }
 
     async update(): Promise<Result<void>> {
-        return ServerRequest.post(
-                '/api/scouting-questions/update-question',
-                {
-                    id: this.id,
-                    question: this.$question,
-                    type: this.$type,
-                    key: this.$key,
-                    description: this.$description,
-                    options: this.options,
-                },
-            );
+        return ServerRequest.post('/api/scouting-questions/update-question', {
+            id: this.id,
+            question: this.$question,
+            type: this.$type,
+            key: this.$key,
+            description: this.$description,
+            options: this.options,
+        });
     }
 
     delete() {

@@ -80,11 +80,14 @@ export class Answer extends Cache<AnswerEvents> {
         });
     }
 
-    static async fromId(id: string, eventKey: string): Promise<Result<Answer|undefined>> {
+    static async fromId(
+        id: string,
+        eventKey: string,
+    ): Promise<Result<Answer | undefined>> {
         return attemptAsync(async () => {
             if (Answer.$cache.has(id)) return Answer.$cache.get(id) as Answer;
 
-            const res = await ServerRequest.post<ScoutingAnswer|undefined>(
+            const res = await ServerRequest.post<ScoutingAnswer | undefined>(
                 '/api/scouting-questions/get-answer',
                 {
                     id,

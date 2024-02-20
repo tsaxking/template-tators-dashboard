@@ -26,5 +26,5 @@ router.post<{
     validate({
         eventKey: 'string',
     }),
-    async (req, res) => {}
+    async (req, res) => {},
 );

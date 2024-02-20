@@ -436,9 +436,11 @@ export type Queries = {
         unknown,
     ];
     'scouting-questions/delete-answer': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'scouting-questions/delete-group': [
@@ -600,49 +602,52 @@ export type Queries = {
         TeamComments,
     ];
 
-
     'scouting-questions/migrate-answer': [
         [
             {
                 id: string;
-            }
-        ], unknown
+            },
+        ],
+        unknown,
     ];
     'scouting-questions/migrate-question': [
         [
             {
                 id: string;
-            }
-        ], unknown
+            },
+        ],
+        unknown,
     ];
     'scouting-questions/migrate-group': [
         [
             {
                 id: string;
-            }
-        ], unknown
+            },
+        ],
+        unknown,
     ];
     'scouting-questions/migrate-section': [
         [
             {
                 id: string;
-            }
-        ], unknown
+            },
+        ],
+        unknown,
     ];
     'scouting-questions/group-from-id': [
         [
             {
                 id: string;
-            }
+            },
         ],
-        ScoutingQuestionGroups
+        ScoutingQuestionGroups,
     ];
     'scouting-questions/section-from-id': [
         [
             {
                 id: string;
-            }
+            },
         ],
-        ScoutingQuestionSections
+        ScoutingQuestionSections,
     ];
 };

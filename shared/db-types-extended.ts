@@ -381,11 +381,12 @@ export type DiscordPair = {
 
 export type TeamComment = {
     id: string;
-    team: string;
+    team: number;
     comment: string;
     type: string;
-    matchScoutingId: string | null;
-    time: string;
+    matchScoutingId: string | undefined;
+    accountId: string | undefined;
+    time: number;
     eventKey: string;
 };
 

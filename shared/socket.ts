@@ -64,6 +64,7 @@ export type SocketEvent =
 	| 'skills:removed'
 	| 'strategy:delete'
 	| 'strategy:new'
+	| 'team-comment:new'
 	| 'teams:pictures-uploaded'
 	| 'test:success'
 	| 'test:test'

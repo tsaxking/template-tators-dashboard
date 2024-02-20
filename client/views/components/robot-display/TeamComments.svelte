@@ -1,11 +1,11 @@
-<script lang='ts'>
-    import { FIRSTTeam } from '../../../models/FIRST/team';
+<script lang="ts">
+import { FIRSTTeam } from '../../../models/FIRST/team';
 
-    const fns = {
-        getComments: async (t: FIRSTTeam) => {
-            if (!t) return;
-        }
+const fns = {
+    getComments: async (t: FIRSTTeam) => {
+        if (!t) return;
     }
+};
 </script>
 
 <div class="card p-0">
@@ -14,4 +14,5 @@
             <h5>Comments</h5>
         </div>
     </div>
-</div>"
+</div>
+"
