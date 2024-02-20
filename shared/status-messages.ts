@@ -760,6 +760,12 @@ export const messages: {
     code: 400,
     instructions: '',
 },
+    'team-comment:new': {
+    message: 'New comment created',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
     'teams:pictures-uploaded': {
     message: 'Team\'s picture was uploaded successfully',
     color: 'success',
@@ -952,6 +958,7 @@ export type StatusId =
 	| 'strategy:delete'
 	| 'strategy:new'
 	| 'tba:invalid-path'
+	| 'team-comment:new'
 	| 'teams:pictures-uploaded'
 	| 'test:fail'
 	| 'test:success'
@@ -1101,10 +1108,10 @@ export type ScoutingQuestionStatusId = 'answer-deleted'
 	| 'question-deleted'
 	| 'question-not-found'
 	| 'question-updated'
+	| 'section-deleted'
 	| 'update-answer'
 	| 'update-section'
-	| 'updated-answer'
-	| 'section-deleted';
+	| 'updated-answer';
 
 
 export type ServerStatusId = 'invalid-data'
@@ -1151,3 +1158,6 @@ export type WhiteboardStatusId = 'created'
 	| 'match-not-found'
 	| 'not-found'
 	| 'update';
+
+
+export type TeamCommentStatusId = 'new';

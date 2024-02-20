@@ -5,20 +5,19 @@ import { validate } from '../../middleware/data-type.ts';
 import { attemptAsync } from '../../../shared/check.ts';
 import { uuid } from '../../utilities/uuid.ts';
 
-
 export const router = new Route();
 
 router.post(Account.isSignedIn);
 
 router.post<{
-    id: string,
-    comment: string,
-    accountId: string | undefined,
-    team: number,
-    type: 'match' | 'dashboard',
-    matchScoutingId: string,
-    eventKey: string,
-    time: number
+    id: string;
+    comment: string;
+    accountId: string | undefined;
+    team: number;
+    type: 'match' | 'dashboard';
+    matchScoutingId: string;
+    eventKey: string;
+    time: number;
 }>(
     '/new-comment',
     validate({
@@ -28,12 +27,12 @@ router.post<{
         team: 'number',
         matchScoutingId: 'string',
         eventKey: 'string',
-        time: 'number'
+        time: 'number',
     }),
     (req, res) => {
         const time = Date.now();
         const id = uuid();
-        const {matchScoutingId, team, comment, eventKey, type} = req.body;
+        const { matchScoutingId, team, comment, eventKey, type } = req.body;
 
         const { accountId } = req.session;
         if (!accountId) return res.sendStatus('account:not-logged-in');
@@ -41,36 +40,36 @@ router.post<{
         const str = JSON.stringify(comment);
 
         DB.run('team-comments/new', {
-            id, 
-            team, 
-            comment: str, 
-            type, 
-            matchScoutingId, 
-            accountId, 
-            time, 
-            eventKey
+            id,
+            team,
+            comment: str,
+            type,
+            matchScoutingId,
+            accountId,
+            time,
+            eventKey,
         });
         res.sendStatus('team-comment:new', {
-            id, 
-            team, 
-            comment: str, 
-            type, 
-            matchScoutingId, 
-            accountId, 
-            time, 
-            eventKey
+            id,
+            team,
+            comment: str,
+            type,
+            matchScoutingId,
+            accountId,
+            time,
+            eventKey,
         });
         req.io.emit('team-comment:new', {
-            id, 
-            team, 
-            comment: str, 
-            type, 
-            matchScoutingId, 
-            accountId, 
-            time, 
-            eventKey
+            id,
+            team,
+            comment: str,
+            type,
+            matchScoutingId,
+            accountId,
+            time,
+            eventKey,
         });
-    }
+    },
 );
 
 router.post<{

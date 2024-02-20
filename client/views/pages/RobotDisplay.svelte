@@ -7,7 +7,7 @@ import TeamPictures from '../components/robot-display/TeamPictures.svelte';
 import VelocityHistogram from '../components/robot-display/VelocityHistogram.svelte';
 import { type TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import PitScouting from '../components/robot-display/PitScouting.svelte';
-import { TeamComment } from '../../models/FIRST/team-comments'
+import { TeamComment } from '../../models/FIRST/team-comments';
 import Modal from '../components/bootstrap/Modal.svelte';
 import { FIRSTEvent } from '../../models/FIRST/event';
 
@@ -26,10 +26,10 @@ const fns = {
             traces = scouting.value.map(s => s.trace);
         }
     },
-    
+
     getComments: async () => {
         const res = await TeamComment.fromTeam(team.number, FIRSTEvent.current);
-        if(res.isOk()){
+        if (res.isOk()) {
             comments = res.value;
         }
     }
@@ -38,8 +38,6 @@ const fns = {
 $: fns.getTeam(team);
 
 FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
-
-
 </script>
 
 <div class="container">
@@ -81,7 +79,7 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
                 </div>
                 <div class="row mb-3">
                     <div class="col">
-                        <TeamPictures {team} upload={true} />
+                        <TeamPictures {team} upload="{true}" />
                     </div>
                 </div>
                 <div class="row mb-3">
@@ -90,9 +88,7 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
                     </div>
                 </div>
                 <div class="card" style="width: 18rem;">
-                    <div class="card-header">
-                        Comments
-                    </div>
+                    <div class="card-header">Comments</div>
                     <div class="card-body">
                         <ul class="list-group list-group-flush">
                             {#each comments as comment}

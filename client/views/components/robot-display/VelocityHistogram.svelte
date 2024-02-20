@@ -14,7 +14,7 @@ const fns = {
     updateVelocityMap: (traces: TraceArray[]) => {
         if (!traces) return;
         const all = traces
-            .map((m) => Trace.velocity.map(m))
+            .map(m => Trace.velocity.map(m))
             .flat()
             .sort((a, b) => a - b);
         const max = all[all.length - 1];
@@ -26,7 +26,7 @@ const fns = {
         }
 
         data = {
-            labels: Array.from({ length: 20 }).map((_, i) => (i + ' fps')),
+            labels: Array.from({ length: 20 }).map((_, i) => i + ' fps'),
             datasets: [
                 {
                     label: 'Velocity',
