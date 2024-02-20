@@ -199,6 +199,10 @@ app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
 });
 
+app.get('/dashboard/mentor', Role.allowRoles('mentor', 'admin'), (_req, res) => {
+    res.sendTemplate('entries/dashboard/mentor');
+});
+
 app.route('/admin', admin);
 
 app.get('/dashboard/:dashboard', (req, res) => {
