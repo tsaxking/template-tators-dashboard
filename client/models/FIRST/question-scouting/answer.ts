@@ -155,7 +155,8 @@ export class Answer extends Cache<AnswerEvents> {
 socket.on(
     'scouting-question:new-answer',
     (data: ScoutingAnswer, eventKey: string) => {
-        new Answer(data, eventKey);
+        const a = new Answer(data, eventKey);
+        Answer.emit('new', a);
     },
 );
 
