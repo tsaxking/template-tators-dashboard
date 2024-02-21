@@ -4,6 +4,7 @@ import { TeamComment as TCObject } from '../../../shared/db-types-extended';
 import { attemptAsync } from '../../../shared/check';
 import { ServerRequest } from '../../utilities/requests';
 import { FIRSTEvent } from './event';
+import { socket } from '../../utilities/socket';
 
 type TeamCommentUpdates = {
     update: string; // comment
@@ -53,13 +54,14 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
         });
     }
 
+
+
     public static fromTeam(
         teamNumber: number,
         //key: string,
         event: FIRSTEvent,
     ) {
         return attemptAsync(async () => {
-            // WAIT FOR LOGIC TO GET FIXED
             const current = this.cache.values();
             const comments = Array.from(current).filter((c) => {
                 return c.team === teamNumber && c.eventKey === event.key;
@@ -79,6 +81,8 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
             return res.value.map((obj) => new TeamComment(obj));
         });
     }
+
+    
 
     public readonly id: string;
     public readonly team: number;
@@ -101,3 +105,10 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
         this.eventKey = obj.eventKey;
     }
 }
+
+socket.on(
+    'team-comment:new',
+    (data: TCObject) => {
+    new TeamComment(data);
+});
+
