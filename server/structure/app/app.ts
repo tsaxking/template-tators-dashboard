@@ -321,6 +321,7 @@ type AppOptions = {
     onConnection?: (socket: any) => void;
     onDisconnect?: () => void;
     ioPort?: number;
+    blockedIps?: string[];
 };
 
 /**
@@ -407,8 +408,12 @@ export class App {
             if (options.onDisconnect) {
                 this.io.on('disconnect', options.onDisconnect);
             }
+
+            if (options.blockedIps) this.blockedIps = options.blockedIps;
         }
     }
+
+    private readonly blockedIps: string[] = [];
 
     /**
      * This is the main handler for all requests
@@ -425,6 +430,10 @@ export class App {
         denoReq: Request,
         info: Deno.ServeHandlerInfo,
     ): Promise<Response> {
+        if (this.blockedIps.includes(info.remoteAddr.hostname)) {
+            return new Response('Blocked', { status: 403 });
+        }
+
         const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
         let s = await Session.get(ssid);
 
