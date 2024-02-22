@@ -78,6 +78,9 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
                         <PitScouting {team} />
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <TeamComments {team}/>
+                </div>
             </div>
         </div>
     </div>
