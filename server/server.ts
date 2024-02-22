@@ -13,6 +13,7 @@ import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
+import { io, Socket } from './structure/socket.ts';
 import { emitter } from './middleware/data-type.ts';
 
 const port = +(env.PORT || 3000);
@@ -36,6 +37,15 @@ if (env.ENVIRONMENT === 'dev') {
     emitter.on('fail', console.log);
 }
 
+app.post('/socket', io.middleware());
+
+io.on('connection', (s: Socket) => {
+    log('New connection:', s.id);
+    s.on('disconnect', () => {
+        log('Disconnected:', s.id);
+    });
+});
+
 app.post('/env', (req, res) => {
     res.json({
         ENVIRONMENT: env.ENVIRONMENT,
@@ -48,7 +58,7 @@ app.post('/socket-init', (req, res) => {
 });
 
 app.get('/*', (req, res, next) => {
-    log(`[${req.method}] ${req.url}`);
+    log(`[${req.method}] ${req.pathname}`);
     next();
 });
 
@@ -114,7 +124,7 @@ app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
     log(`[${req.method}] ${req.url}`);
 
-    log('[POST]', req.url);
+    log('[POST]', req.url.pathname);
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
             $$files?: FileUpload[];
@@ -225,7 +235,7 @@ app.final<{
     password?: string;
     confirmPassword?: string;
 }>((req, res) => {
-    req.session.save();
+    // req.session.save();
 
     serverLog('request', {
         date: Date.now(),
