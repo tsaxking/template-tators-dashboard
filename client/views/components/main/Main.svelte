@@ -25,7 +25,7 @@ if (active) {
 }
 </script>
 
-<main>
+<main class="dashbaord">
     <Navbar {title} {navItems} {accountLinks}>
         <slot name="nav" />
     </Navbar>
