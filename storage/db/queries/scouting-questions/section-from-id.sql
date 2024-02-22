@@ -1,0 +1,1 @@
+SELECT * FROM ScoutingQuestionSections WHERE id = :id;
