@@ -439,14 +439,15 @@ export class App {
             // prevent spam
             if (
                 [
-                    'node-xmlhttprequest',
+                    'node',
                     'axios',
                     'curl',
                     'postman',
                     'insomnia',
                     'httpie',
                     'python-requests',
-                ].includes(userAgent.toLowerCase())
+                    // ''
+                ].find(t => userAgent.toLowerCase().includes(t))
             ) {
                 console.log('Spam');
                 return new Response('Hello there!', { status: 200 });
