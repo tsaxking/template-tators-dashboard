@@ -448,6 +448,7 @@ export class App {
                     'python-requests',
                 ].includes(userAgent.toLowerCase())
             ) {
+                console.log('Spam');
                 return new Response('Hello there!', { status: 200 });
             }
 

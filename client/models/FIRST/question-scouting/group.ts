@@ -80,16 +80,15 @@ export class Group extends Cache<GroupUpdates> {
         });
     }
 
-    public static async fromId(id: string): Promise<Result<Group|undefined>> {
+    public static async fromId(id: string): Promise<Result<Group | undefined>> {
         return attemptAsync(async () => {
             if (Group.$cache.has(id)) return Group.$cache.get(id) as Group;
 
-            const res = await ServerRequest.post<ScoutingQuestionGroup|undefined>(
-                '/api/scouting-questions/get-group',
-                {
-                    id,
-                },
-            );
+            const res = await ServerRequest.post<
+                ScoutingQuestionGroup | undefined
+            >('/api/scouting-questions/get-group', {
+                id,
+            });
 
             if (res.isOk()) {
                 if (res.value) return new Group(res.value);
