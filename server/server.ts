@@ -14,6 +14,7 @@ import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
 import { io, Socket } from './structure/socket.ts';
+import { emitter } from './middleware/data-type.ts';
 
 const port = +(env.PORT || 3000);
 
@@ -32,6 +33,8 @@ if (env.ENVIRONMENT === 'dev') {
         console.log('Reloading clients...');
         app.io.emit('reload');
     });
+
+    emitter.on('fail', console.log);
 }
 
 app.post('/socket', io.middleware());
@@ -71,7 +74,7 @@ app.post('/socket-url', (req, res) => {
 });
 
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(resolve(__root, './public/pictures/logo-square.png'));
+    res.sendFile(resolve(__root, './public/pictures/logo-square.jpg'));
 });
 
 app.get('/robots.txt', (req, res) => {
@@ -119,6 +122,7 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
+    log(`[${req.method}] ${req.url}`);
 
     log('[POST]', req.url.pathname);
     try {
@@ -172,6 +176,10 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
+app.get('/home', (_req, res) => {
+    res.sendTemplate('entries/home');
+});
+
 app.route('/api', api);
 app.route('/account', account);
 app.route('/roles', role);
@@ -201,13 +209,24 @@ app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
 });
 
+app.get('/dashboard/mentor', Role.allowRoles('mentor', 'admin'), (_req, res) => {
+    res.sendTemplate('entries/dashboard/mentor');
+});
+
 app.route('/admin', admin);
 
 app.get('/dashboard/:dashboard', (req, res) => {
     res.sendTemplate('entries/dashboard/' + req.params.dashboard);
 });
 
-app.get('/user/*', Account.isSignedIn, (req, res) => {
+// this is how the user will access the dashboard
+app.get('/dashboard/:year', (req, res) => {
+    const { year } = req.params;
+    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + year);
+});
+
+app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
 });
 
