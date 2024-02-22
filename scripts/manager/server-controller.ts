@@ -1,8 +1,10 @@
 import { TBA } from '../../server/utilities/tba/tba.ts';
 import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba.ts';
-import { backToMain } from '../manager.ts';
+import { backToMain, selectFile } from '../manager.ts';
 import { select } from '../prompt.ts';
 import { pullEvent } from '../../server/utilities/tba/pull-event.ts';
+import { DB } from '../../server/utilities/databases.ts';
+import { run } from '../../server/utilities/run-task.ts';
 
 export const pullEvents = async () => {
     const year = await select(
@@ -42,10 +44,36 @@ export const pullEvents = async () => {
     }
 };
 
+const transferDb = async (...args: string[]) => {
+    const oldDb = await selectFile('..', 'Select old database to transfer', (f) => f.endsWith('.db'));
+    if (oldDb.isErr()) return backToMain('Error selecting old database: ' + oldDb.error);
+
+    await DB.makeBackup();
+
+    const res = await run('run', '--allow-all', '--unstable-ffi', 'scripts/transfer-db.ts', `db=${oldDb.value}`, ...args);
+
+    if (res.isErr()) return backToMain('Error transferring database: ' + res.error);
+    return backToMain('Database transferred successfully');
+};
+
+const transferAccounts = () => {
+    transferDb('accounts');
+}
+
 export const serverController = [
     {
         value: pullEvents,
         icon: '🔄',
         description: 'Pull events from TBA and place into database',
+    },
+    // {
+    //     value: transferDb,
+    //     icon: '🔄',
+    //     description: 'Transfer old database to new database',
+    // },
+    {
+        value: transferAccounts,
+        icon: '🔄',
+        description: 'Transfer old accounts to new database',
     },
 ];
