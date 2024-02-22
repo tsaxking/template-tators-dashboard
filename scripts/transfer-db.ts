@@ -6,7 +6,7 @@ import { __root } from '../server/utilities/env.ts';
 import path from 'node:path';
 import { Match } from '../shared/db-types-extended.ts';
 import { error, log } from '../server/utilities/terminal-logging.ts';
-import { Result, attemptAsync } from '../shared/check.ts';
+import { attemptAsync, Result } from '../shared/check.ts';
 
 const parse = <T>(str: string) => {
     try {
@@ -67,8 +67,12 @@ const transferAccounts = (db: Database) => {
                 verified: 0,
                 verification: '',
                 created: Date.now(),
-                phoneNumber: ''
-            }).then(r => r.isOk() ? console.log(`Account ${a.username} transferred`) : console.log('Error transferring account', r.error));
+                phoneNumber: '',
+            }).then((r) =>
+                r.isOk()
+                    ? console.log(`Account ${a.username} transferred`)
+                    : console.log('Error transferring account', r.error)
+            );
 
             return {
                 roles,
@@ -889,16 +893,16 @@ export const transfer = async (oldDBPath: string): Promise<Result<void>> => {
             );
             return;
         }
-    
+
         if (!fs.existsSync(path.resolve(__root, './scripts/old.db'))) {
             console.log(
                 'No old database found. Please place the old database in ./scripts/old.db',
             );
             Deno.exit(0);
         }
-    
+
         const db = new Database(oldDBPath);
-    
+
         await DB.makeBackup();
         await Promise.all([
             run(db, transferMatchScouting),
@@ -909,21 +913,19 @@ export const transfer = async (oldDBPath: string): Promise<Result<void>> => {
         ]);
 
         await DB.unsafe.run('INSERT INTO dbTransfer (date) VALUES (:date)', {
-            date: Date.now()
+            date: Date.now(),
         });
     });
 };
 
-
 if (import.meta.main) {
-    const arg = Deno.args.find(a => /^db=/.test(a));
+    const arg = Deno.args.find((a) => /^db=/.test(a));
     if (!arg) {
-        console.log('No database path provided')
-        Deno.exit(1)
+        console.log('No database path provided');
+        Deno.exit(1);
     }
 
     const db = arg.split('=')[1];
-
 
     const doAccounts = Deno.args.includes('accounts');
     const doRoles = Deno.args.includes('roles');
@@ -961,6 +963,6 @@ if (import.meta.main) {
     }
 
     await DB.unsafe.run('INSERT INTO dbTransfer (date) VALUES (:date)', {
-        date: Date.now()
+        date: Date.now(),
     });
 }

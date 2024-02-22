@@ -65,7 +65,7 @@ $: fns.getTeam(team);
                 </div>
                 <div class="row mb-3">
                     <div class="col">
-                        <TeamPictures {team} upload={true} />
+                        <TeamPictures {team} upload="{true}" />
                     </div>
                 </div>
                 <div class="row mb-3">

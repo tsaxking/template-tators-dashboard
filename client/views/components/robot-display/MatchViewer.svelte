@@ -23,13 +23,13 @@ let canvasEl: HTMLCanvasElement,
     canvas: Canvas,
     trace: TraceArray = [];
 
-    const icons = {
-        spk: new Icon('speaker'),
-        amp: new Icon('campaign'),
-        src: new Icon('back_hand'),
-        clb: new Icon('dry_cleaning'),
-        trp: new Icon('place_item'),
-    }
+const icons = {
+    spk: new Icon('speaker'),
+    amp: new Icon('campaign'),
+    src: new Icon('back_hand'),
+    clb: new Icon('dry_cleaning'),
+    trp: new Icon('place_item')
+};
 
 onMount(() => {
     const ctx = canvasEl.getContext('2d');
@@ -128,7 +128,11 @@ const fns = {
         const res = await team.getMatchScouting();
         if (res.isOk()) {
             const matches = res.value;
-            const m = matches.find((m) => m.matchNumber === match.number && m.compLevel === match.compLevel);
+            const m = matches.find(
+                m =>
+                    m.matchNumber === match.number &&
+                    m.compLevel === match.compLevel
+            );
             if (m) {
                 trace = m.trace;
                 fns.animate(trace);
@@ -146,5 +150,5 @@ $: {
     <canvas id="canvas" bind:this="{canvasEl}"></canvas>
 </div>
 <div id="slider"></div>
-<hr class="bg-light">
+<hr class="bg-light" />
 <ScoreBreakdown {trace} />
