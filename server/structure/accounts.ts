@@ -980,8 +980,8 @@ export default class Account {
      * @returns {boolean}
      */
     async testPassword(password: string): Promise<boolean | null> {
+        if (this.key === '') return null; // user must make a new password
         const hash = Account.hash(password, this.salt);
-        if (!this.key) return null; // user must make a new password
         if (hash === this.key) return true; // it works in this database
 
         // test in the other database because something is wrong with the new hashing algorithm
