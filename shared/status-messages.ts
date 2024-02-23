@@ -196,6 +196,12 @@ export const messages: {
     code: 200,
     instructions: '',
 },
+    'account:please-change-password': {
+    message: 'Your password is out of date, please change it',
+    color: 'warning',
+    code: 400,
+    instructions: '',
+},
     'account:removed': {
     message: 'Account has been removed.',
     color: 'success',
@@ -858,6 +864,7 @@ export type StatusId =
 	| 'account:password-reset-request'
 	| 'account:password-reset-success'
 	| 'account:picture-updated'
+	| 'account:please-change-password'
 	| 'account:removed'
 	| 'account:role-added'
 	| 'account:role-removed'
@@ -1003,7 +1010,8 @@ export type AccountStatusId = 'already-logged-in'
 	| 'updated'
 	| 'username-changed'
 	| 'username-taken'
-	| 'verified';
+	| 'verified'
+	| 'please-change-password';
 
 
 export type AdminStatusId = 'invalid-key';
@@ -1101,10 +1109,10 @@ export type ScoutingQuestionStatusId = 'answer-deleted'
 	| 'question-deleted'
 	| 'question-not-found'
 	| 'question-updated'
+	| 'section-deleted'
 	| 'update-answer'
 	| 'update-section'
-	| 'updated-answer'
-	| 'section-deleted';
+	| 'updated-answer';
 
 
 export type ServerStatusId = 'invalid-data'

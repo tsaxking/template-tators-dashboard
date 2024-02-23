@@ -88,8 +88,12 @@ router.post<{
         }
         const result = await account.testPassword(password);
 
-        const hash = Account.hash(password, account.salt);
-        if (hash !== account.key) {
+        // const hash = Account.hash(password, account.salt);
+        if (result === null) {
+            return res.sendStatus('account:please-change-password');
+        }
+
+        if (!result) {
             return Status.from('account:incorrect-username-or-password', req, {
                 username: username,
             }).send(res);
