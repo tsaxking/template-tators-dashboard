@@ -86,9 +86,14 @@ router.post<{
         if (!account) {
             return res.sendStatus('account:incorrect-username-or-password');
         }
+        const result = await account.testPassword(password);
 
-        const hash = Account.hash(password, account.salt);
-        if (hash !== account.key) {
+        // const hash = Account.hash(password, account.salt);
+        if (result === null) {
+            return res.sendStatus('account:please-change-password');
+        }
+
+        if (!result) {
             return Status.from('account:incorrect-username-or-password', req, {
                 username: username,
             }).send(res);
@@ -154,7 +159,7 @@ router.post<{
         res.sendStatus(('account:' + status) as StatusId, { username });
 
         if (status === 'created') {
-            req.io.emit('account:created', username);
+            req.io.emit('account:created', Account.fromUsername(username));
         }
     },
 );

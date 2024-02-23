@@ -61,6 +61,10 @@ const set = async () => {
         accounts = res.value;
     }
 
+    document
+        .querySelectorAll('.tooltip.bs-tooltip-auto')
+        .forEach(e => e.remove());
+
     jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
     // jQuery(div).dataTable();
 };
@@ -124,6 +128,7 @@ Account.on('delete', set);
                                 account="{accounts.find(
                                     a => a.id === account.id
                                 )}"
+                                deletable="{true}"
                             />
                         {/each}
                     </td>

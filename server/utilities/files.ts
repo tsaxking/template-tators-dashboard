@@ -12,6 +12,7 @@ import {
 // import fs from 'node:fs';
 import { attempt, attemptAsync, Result } from '../../shared/check.ts';
 import { match, matchInstance } from '../../shared/match.ts';
+import { relative } from 'https://deno.land/std@0.61.0/path/win32.ts';
 
 export type JSONError = 'InvalidJSON' | 'Unknown';
 export type FileError = 'NoFile' | 'FileExists' | 'NoAccess' | 'Unknown';
@@ -351,9 +352,10 @@ export function saveUpload(
 ): Promise<Result<void, FileError>> {
     return attemptAsync(() => {
         createUploadsFolder();
-        const p = filePathBuilder(filename, '', __uploads);
-
-        return Deno.writeFile(p, data);
+        return Deno.writeFile(
+            resolve(relative(__root, __uploads), filename),
+            data,
+        );
     }, matchFileError);
 }
 
