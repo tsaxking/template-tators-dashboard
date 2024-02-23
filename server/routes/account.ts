@@ -14,7 +14,7 @@ const redirect = (req: Req, res: Res, next: Next) => {
     if (!req.session.accountId) return next();
 
     // TODO: use prevurl
-    res.redirect(req.session.prevUrl || '/');
+    res.redirect('/home');
 };
 
 // gets the account from the session
@@ -101,6 +101,7 @@ router.post<{
                 username: username,
             }).send(res);
         }
+        console.log('Account Verification:', account.verified)
         if (!account.verified) {
             return res.sendStatus('account:not-verified', {
                 username,
@@ -113,7 +114,7 @@ router.post<{
         res.sendStatus(
             'account:logged-in',
             { username },
-            req.session.prevUrl || '/home',
+            '/home'
         );
     },
 );
@@ -168,7 +169,7 @@ router.post<{
 );
 
 router.get('/sign-out', async (req, res) => {
-    // console.log('Signing out');
+    console.log('Signing out');
     await req.session.signOut();
     // console.log(req.session);
     res.redirect('/home');
