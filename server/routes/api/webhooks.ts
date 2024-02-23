@@ -8,7 +8,7 @@ import {
     TBAMatch,
     TBATeam,
 } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
-import { Table } from '../../../scripts/build-table.ts'
+import { Table } from '../../../scripts/build-table.ts';
 
 export const router = new Route();
 
@@ -134,13 +134,15 @@ router.post('/event/:eventKey/summary', auth, async (req, res) => {
     }
 
     const data = await Table.build(eventKey);
-    if (data.isErr()) return res.sendStatus('server:unknown-server-error', {
-        error: data.error.message
-    });
+    if (data.isErr()) {
+        return res.sendStatus('server:unknown-server-error', {
+            error: data.error.message,
+        });
+    }
 
     res.json({
         teams: teams.value,
         matches: matches.value,
-        summary: data.value
+        summary: data.value,
     });
 });

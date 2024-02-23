@@ -298,7 +298,7 @@ router.post<{
         });
 
         req.io.emit('scouting-question:section-deleted', id);
-    }
+    },
 );
 
 router.post<{
@@ -311,7 +311,6 @@ router.post<{
     }),
     async (req, res) => {
         const { id } = req.body;
-
 
         DB.run('scouting-questions/migrate-group', { id });
         DB.run('scouting-questions/delete-group', { id });
@@ -363,10 +362,6 @@ router.post<{
         res.sendStatus('scouting-question:answer-deleted', id);
     },
 );
-
-
-
-
 
 router.post<{
     name: string;
@@ -725,11 +720,11 @@ router.post<{
 );
 
 router.post<{
-    id: string
+    id: string;
 }>(
     '/get-group',
     validate({
-        id: 'string'
+        id: 'string',
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -743,15 +738,15 @@ router.post<{
         }
 
         res.json(group.value);
-    }
+    },
 );
 
 router.post<{
-    id: string
+    id: string;
 }>(
     '/get-section',
     validate({
-        id: 'string'
+        id: 'string',
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -765,15 +760,15 @@ router.post<{
         }
 
         res.json(section.value);
-    }
+    },
 );
 
 router.post<{
-    id: string
+    id: string;
 }>(
     '/get-answer',
     validate({
-        id: 'string'
+        id: 'string',
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -787,15 +782,15 @@ router.post<{
         }
 
         res.json(answer.value);
-    }
+    },
 );
 
 router.post<{
-    id: string
+    id: string;
 }>(
     '/get-question',
     validate({
-        id: 'string'
+        id: 'string',
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -809,5 +804,5 @@ router.post<{
         }
 
         res.json(question.value);
-    }
+    },
 );
