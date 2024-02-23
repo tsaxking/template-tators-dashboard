@@ -18,14 +18,14 @@ const groups = [
     {
         name: 'scouting',
         pages: [
-            {
-                name: 'create-scouting-questions',
-                icon: 'fact_check'
-            },
-            {
-                name: 'scouting-checklist',
-                icon: 'checklist'
-            },
+            // {
+            //     name: 'create-scouting-questions',
+            //     icon: 'fact_check'
+            // },
+            // {
+            //     name: 'scouting-checklist',
+            //     icon: 'checklist'
+            // },
             {
                 name: 'answer-scouting-questions',
                 icon: 'question_answer'
