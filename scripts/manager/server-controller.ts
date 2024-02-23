@@ -93,10 +93,12 @@ const removePassword = async () => {
     const c = await confirm('Are you sure you want to remove all passwords?');
     if (c) {
         await DB.unsafe.run(`
-            UPDATE accounts
-            SET key = ''
-            AND salt = ''
-        `);
+            UPDATE Accounts
+                SET key = :key, salt = :salt;
+        `, {
+            key: '',
+            salt: ''
+        });
 
         backToMain('All passwords removed');
     } else {

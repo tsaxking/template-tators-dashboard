@@ -84,9 +84,12 @@ router.post<{
 
         // send the same error for both username and password to prevent username enumeration
         if (!account) {
+            console.log('No account found')
             return res.sendStatus('account:incorrect-username-or-password');
         }
         const result = await account.testPassword(password);
+
+        console.log({ result });
 
         // const hash = Account.hash(password, account.salt);
         if (result === null) {
