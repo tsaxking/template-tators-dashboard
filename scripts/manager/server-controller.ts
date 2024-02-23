@@ -60,6 +60,35 @@ const transferAccounts = () => {
     transferDb('accounts');
 }
 
+const unverifyAllAccounts = async () => {
+    const c = await confirm('Are you sure you want to unverify all accounts?');
+    if (c) {
+        await DB.unsafe.run(`
+            UPDATE accounts
+            SET verified = 0
+        `);
+
+        backToMain('All accounts unverified');
+    } else {
+        backToMain('Accounts not unverified');
+    }
+}
+
+const removePassword = async () => {
+    const c = await confirm('Are you sure you want to remove all passwords?');
+    if (c) {
+        await DB.unsafe.run(`
+            UPDATE accounts
+            SET key = ''
+            AND salt = ''
+        `);
+
+        backToMain('All passwords removed');
+    } else {
+        backToMain('Passwords not removed');
+    }
+};
+
 export const serverController = [
     {
         value: pullEvents,
@@ -75,5 +104,15 @@ export const serverController = [
         value: transferAccounts,
         icon: '🔄',
         description: 'Transfer old accounts to new database',
+    },
+    {
+        value: unverifyAllAccounts,
+        icon: '❌',
+        description: 'Unverify all accounts',
+    },
+    {
+        value: removePassword,
+        icon: '🗑️',
+        description: 'Remove all passwords',
     },
 ];
