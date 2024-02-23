@@ -60,9 +60,6 @@ const accountLinks = [
     <Page {active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
     </Page>
-    <Page {active} {domain} title="create-scouting-questions">
-        <CreateScoutingQuestions />
-    </Page>
     <Page {active} {domain} title="answer-scouting-questions">
         <AnswerPitScouting />
     </Page>
