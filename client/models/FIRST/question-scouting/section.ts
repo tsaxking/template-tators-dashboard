@@ -81,11 +81,15 @@ export class Section extends Cache<SectionUpdates> {
         });
     }
 
-    public static async fromId(id: string): Promise<Result<Section|undefined>> {
+    public static async fromId(
+        id: string,
+    ): Promise<Result<Section | undefined>> {
         return attemptAsync(async () => {
-            if (Section.$cache.has(id)) return Section.$cache.get(id) as Section;
+            if (Section.$cache.has(id)) {
+                return Section.$cache.get(id) as Section;
+            }
 
-            const res = await ServerRequest.post<ScoutingSection|undefined>(
+            const res = await ServerRequest.post<ScoutingSection | undefined>(
                 '/api/scouting-questions/get-section',
                 {
                     id,
@@ -241,7 +245,6 @@ socket.on('scouting-question:new-group', (data: ScoutingQuestionGroup) => {
     if (!groups) return s.$cache.set('groups', [g]);
 
     groups.push(g);
-
 });
 
 socket.on('scouting-question:section-deleted', (id: string) => {

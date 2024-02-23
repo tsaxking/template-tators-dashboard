@@ -2,7 +2,7 @@
 import Password from '../components/Password.svelte';
 import { ServerRequest } from '../../utilities/requests';
 
-export let title: string;
+export let title: string = 'My App';
 
 const submit = () => {
     ServerRequest.post('/account/reset-password', {
@@ -35,7 +35,7 @@ $: valid =
         <div class="col-md-6">
             <div class="row mb-3">
                 <h1>
-                    {title}: Sign up
+                    {title}: Reset Password
                 </h1>
             </div>
 

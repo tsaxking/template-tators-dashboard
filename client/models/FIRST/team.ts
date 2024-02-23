@@ -286,9 +286,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @public
      * @returns {RetrieveStreamEventEmitter<RetrievedScoutingAnswer>}
      */
-    public async getPitScouting(): Promise<
-        Result<Answer[]>
-    > {
+    public async getPitScouting(): Promise<Result<Answer[]>> {
         return Answer.fromTeam(this.number, this.event);
     }
 

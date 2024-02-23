@@ -541,7 +541,8 @@ export default class Account {
             phoneNumber: '',
         });
 
-        a.sendVerification();
+        // We don't want to send verification with these
+        // a.sendVerification();
 
         return 'created';
     }

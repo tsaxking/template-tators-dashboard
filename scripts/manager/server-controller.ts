@@ -45,20 +45,35 @@ export const pullEvents = async () => {
 };
 
 const transferDb = async (...args: string[]) => {
-    const oldDb = await selectFile('..', 'Select old database to transfer', (f) => f.endsWith('.db'));
-    if (oldDb.isErr()) return backToMain('Error selecting old database: ' + oldDb.error);
+    const oldDb = await selectFile(
+        '..',
+        'Select old database to transfer',
+        (f) => f.endsWith('.db'),
+    );
+    if (oldDb.isErr()) {
+        return backToMain('Error selecting old database: ' + oldDb.error);
+    }
 
     await DB.makeBackup();
 
-    const res = await run('run', '--allow-all', '--unstable-ffi', 'scripts/transfer-db.ts', `db=${oldDb.value}`, ...args);
+    const res = await run(
+        'run',
+        '--allow-all',
+        '--unstable-ffi',
+        'scripts/transfer-db.ts',
+        `db=${oldDb.value}`,
+        ...args,
+    );
 
-    if (res.isErr()) return backToMain('Error transferring database: ' + res.error);
+    if (res.isErr()) {
+        return backToMain('Error transferring database: ' + res.error);
+    }
     return backToMain('Database transferred successfully');
 };
 
 const transferAccounts = () => {
     transferDb('accounts');
-}
+};
 
 const unverifyAllAccounts = async () => {
     const c = await confirm('Are you sure you want to unverify all accounts?');

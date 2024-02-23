@@ -52,7 +52,9 @@ const fns = {
     delete: async () => {
         if (!group) return;
 
-        const doDelete = await confirm('Are you sure you want to delete this group?');
+        const doDelete = await confirm(
+            'Are you sure you want to delete this group?'
+        );
         if (doDelete) group.delete();
     }
 };
@@ -68,7 +70,6 @@ Question.on('new', () => {
 Question.on('update', () => {
     fns.getQuestions(group);
 });
-
 
 $: {
     fns.getQuestions(group);
@@ -91,7 +92,10 @@ $: {
                         />
                         <label for="name-{group.id}">Group Name</label>
                     </div>
-                    <button class="btn btn-outline-light" on:click="{fns.delete}">
+                    <button
+                        class="btn btn-outline-light"
+                        on:click="{fns.delete}"
+                    >
                         <i class="material-icons">delete</i>
                     </button>
                 </div>

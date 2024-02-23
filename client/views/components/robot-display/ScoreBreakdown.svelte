@@ -36,10 +36,7 @@ $: {
     <table class="table table-dark table-striped">
         <thead>
             <tr>
-                <th
-                    colspan="2"
-                    class="text-center"
-                >Auto</th>
+                <th colspan="2" class="text-center">Auto</th>
             </tr>
         </thead>
         <tbody>
@@ -53,10 +50,7 @@ $: {
 
         <thead>
             <tr>
-                <th
-                    colspan="2"
-                    class="text-center"
-                >Tele</th>
+                <th colspan="2" class="text-center">Tele</th>
             </tr>
         </thead>
 

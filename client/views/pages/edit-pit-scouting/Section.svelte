@@ -59,7 +59,9 @@ FIRSTEvent.on('select', async event => {
 
 const deleteSection = async () => {
     if (!section) return;
-    const doDelete = await confirm('Are you sure you want to delete this section?');
+    const doDelete = await confirm(
+        'Are you sure you want to delete this section?'
+    );
     if (!doDelete) return;
 
     const res = await section.delete();
@@ -82,7 +84,7 @@ const deleteSection = async () => {
             </button>
         </div>
         <div class="col">
-            <button class="btn btn-danger" on:click={deleteSection}>
+            <button class="btn btn-danger" on:click="{deleteSection}">
                 <i class="material-icons">delete</i> Delete Section
             </button>
         </div>
