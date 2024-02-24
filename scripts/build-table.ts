@@ -53,6 +53,7 @@ export class Table {
         ): Promise<RowSection & { title: string }> => {
             const data = await fn(teamNumber, eventKey);
             if (data.isErr()) {
+                console.log(data.error);
                 return {
                     // this will not populate the table with the error message, but it will log it.
                     title: 'Error',
@@ -62,6 +63,7 @@ export class Table {
             }
 
             if (data.value.data.length !== data.value.headers.length) {
+                console.error('Data and headers do not match');
                 return {
                     title: 'Error',
                     headers: [],
