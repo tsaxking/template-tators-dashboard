@@ -45,7 +45,7 @@ export class Table {
         teamNumber: number,
         eventKey: string,
     ): Promise<RowSection> {
-        const year = /[0-9]{4}/.exec(eventKey)?.[0];
+        const year = parseInt(eventKey.slice(0, 4));
         if (!year) throw new Error('Invalid event key');
 
         const pull = async (
