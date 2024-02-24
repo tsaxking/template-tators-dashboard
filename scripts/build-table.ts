@@ -21,7 +21,7 @@ type RowSection = {
 export class Table {
     public static async build(
         eventKey: string,
-    ): Promise<Result<[string[], ...T[]]>> {
+    ): Promise<Result<[string[], ...T[][]]>> {
         return attemptAsync(async () => {
             const teams = await TBA.get<TBATeam[]>(`/event/${eventKey}/teams`);
 
@@ -34,8 +34,8 @@ export class Table {
                 ),
             );
 
-            const headers = data.map((d) => d.headers).flat();
-            const rows = data.map((d) => d.data).flat();
+            const headers = data[0].headers;
+            const rows = data.map((d) => d.data);
 
             return [headers, ...rows];
         });
@@ -74,6 +74,8 @@ export class Table {
                 ...data.value,
             };
         };
+
+        if (!Table.yearInfo[year]) throw new Error('Year not supported');
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = await Promise.all(
@@ -398,4 +400,13 @@ export class Table {
             },
         } as const;
     }
+}
+
+
+if (import.meta.main) {
+    const eventKey = Deno.args[0];
+    const table = await Table.build(eventKey);
+    if (table.isErr()) throw table.error;
+    console.log(table.value);
+    Deno.exit();
 }
