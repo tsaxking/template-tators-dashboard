@@ -3,10 +3,11 @@ import Account from '../structure/accounts.ts';
 import { Status } from '../utilities/status.ts';
 import Role from '../structure/roles.ts';
 import { messages, StatusId } from '../../shared/status-messages.ts';
-import { validate } from '../middleware/data-type.ts';
+import { trimBody, validate } from '../middleware/data-type.ts';
 import env from '../utilities/env.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
+import { capitalize } from '../../shared/text.ts';
 
 export const router = new Route();
 
@@ -72,6 +73,7 @@ router.post<{
         username: 'string',
         password: 'string',
     }),
+    trimBody,
     async (req, res) => {
         const { username, password } = req.body;
 
@@ -138,6 +140,7 @@ router.post<{
         firstName: 'string',
         lastName: 'string',
     }),
+    trimBody,
     async (req, res) => {
         const {
             username,
@@ -152,7 +155,7 @@ router.post<{
             return Status.from('account:password-mismatch', req).send(res);
         }
 
-        const status = await Account.create(
+        const { status, data } = await Account.create(
             username,
             password,
             email,
@@ -160,7 +163,38 @@ router.post<{
             lastName,
         );
 
-        res.sendStatus(('account:' + status) as StatusId, { username });
+        switch (status) {
+            case 'created':
+                res.sendStatus('account:created', { username });
+                break;
+            case 'username-taken':
+                res.sendStatus('account:username-taken', { username });
+                break;
+            case 'email-taken':
+                res.sendStatus('account:email-taken', { email });
+                break;
+            case 'invalid-username':
+            case 'invalid-password':
+            case 'invalid-email':
+            case 'invalid-first-name':
+            case 'invalid-last-name':
+                res.sendCustomStatus(
+                    new Status(
+                        {
+                            message: 'Input contains invalid characters: ' +
+                                    data?.map((d) => `"${d}"`).join(', ') || '',
+                            color: 'warning',
+                            code: 400,
+                            instructions: 'Please try again.',
+                        },
+                        'Account',
+                        capitalize(status.split('-').join(' ')),
+                        JSON.stringify(req),
+                        req,
+                    ),
+                );
+                break;
+        }
 
         if (status === 'created') {
             req.io.emit('account:created', Account.fromUsername(username));
@@ -452,6 +486,7 @@ router.post<{
         confirmPassword: 'string',
         key: 'string',
     }),
+    trimBody,
     async (req, res) => {
         const { password, confirmPassword, key } = req.body;
 
