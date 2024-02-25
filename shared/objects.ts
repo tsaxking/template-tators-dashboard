@@ -45,16 +45,13 @@ export const bigIntDecode = (obj: unknown) => {
     return obj;
 };
 
-export const toTable = (
-    data: {
-        [key: string]: string | number | boolean | undefined;
-    }[],
-) => {
+
+export const toTable = (data: {
+    [key: string]: (string | number | boolean | undefined)
+}[]) => {
     const headers: string[] = [];
     const rows = data.map((row) => {
-        const moreHeaders = Object.keys(row).filter(
-            (key) => !headers.includes(key),
-        );
+        const moreHeaders = Object.keys(row).filter((key) => !headers.includes(key));
         if (moreHeaders.length > 0) {
             headers.push(...moreHeaders);
         }
@@ -63,4 +60,4 @@ export const toTable = (
 
     rows.unshift(headers);
     return rows;
-};
+}
