@@ -42,8 +42,6 @@ if (env.ENVIRONMENT === 'dev') {
     emitter.on('fail', console.log);
 }
 
-app.post('/socket', io.middleware());
-
 io.on('connection', (s: Socket) => {
     log('New connection:', s.id);
     s.on('disconnect', () => {
