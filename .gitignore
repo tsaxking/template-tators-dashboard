@@ -10,12 +10,11 @@ lerna-debug.log*
 
 */dir-tree.txt
 
-branch-transfer/
-
 deno.lock
 
 credentials.json
 token.json
+*.assignment.json
 
 cached-ids.json
 blocked-ips.json
@@ -34,7 +33,7 @@ uploads/
 static/build/
 */scss/*.css
 ignore-list.txt
-*/logs/*.csv
+*.csv
 *.db
 *.db-journal
 storage/db/backups/*
