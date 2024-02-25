@@ -192,6 +192,7 @@ app.route('/roles', role);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
+    console.log('Testing if user is logged in: ', req.session);
     if (!req.session.accountId) {
         if (
             ![
