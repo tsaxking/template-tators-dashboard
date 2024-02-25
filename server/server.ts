@@ -8,7 +8,6 @@ import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import { router as role } from './routes/roles.ts';
-import Role from './structure/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
@@ -211,13 +210,13 @@ app.get('/*', (req, res, next) => {
     next();
 });
 
-app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
+app.get('/dashboard/admin', Account.allowPermissions('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
 });
 
 app.get(
     '/dashboard/mentor',
-    Role.allowRoles('mentor', 'admin'),
+    Account.allowPermissions('mentor'),
     (_req, res) => {
         res.sendTemplate('entries/dashboard/mentor');
     },

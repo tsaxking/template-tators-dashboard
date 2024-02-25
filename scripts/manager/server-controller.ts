@@ -87,18 +87,21 @@ const unverifyAllAccounts = async () => {
     } else {
         backToMain('Accounts not unverified');
     }
-}
+};
 
 const removePassword = async () => {
     const c = await confirm('Are you sure you want to remove all passwords?');
     if (c) {
-        await DB.unsafe.run(`
+        await DB.unsafe.run(
+            `
             UPDATE Accounts
                 SET key = :key, salt = :salt;
-        `, {
-            key: '',
-            salt: ''
-        });
+        `,
+            {
+                key: '',
+                salt: '',
+            },
+        );
 
         backToMain('All passwords removed');
     } else {

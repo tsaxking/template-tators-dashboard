@@ -404,7 +404,6 @@ export class Table {
     }
 }
 
-
 if (import.meta.main) {
     const eventKey = Deno.args[0];
     const table = await Table.build(eventKey);

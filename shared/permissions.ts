@@ -10,5 +10,6 @@ export type Permission =
     | 'verify'
     | 'editScoutingQuestions'
     | 'settings'
-    | 'submitScoutingAnswers';
-export type RoleName = 'admin' | 'mentor';
+    | 'submitScoutingAnswers'
+    | 'admin'
+    | 'mentor';
