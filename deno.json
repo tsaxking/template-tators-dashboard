@@ -10,13 +10,16 @@
         "socket": "deno run --allow-all ./scripts/add-status.ts socket",
         "type-route": "deno run --allow-all ./scripts/type-route.ts",
         "discord": "deno run --allow-all ./server/utilities/discord/discord.ts",
-        "test": "deno test --allow-all --no-check ./scripts/test.ts",
+        "test": "deno test --allow-all --unstable-sloppy-imports --no-check ./scripts/test.ts",
         "view-paths": "deno run --allow-all ./scripts/view-paths.ts",
         "tree": "deno run --allow-all ./scripts/dir-tree.ts",
-        "manager": "deno run --allow-all ./scripts/manager.ts",
+        "manager": "deno run --unstable-sloppy-imports --allow-all ./scripts/manager.ts",
         "parse-sql": "deno run --allow-all ./scripts/parse-sql.ts",
+        "scout-group": "deno run --allow-all ./scripts/scout-groups.ts",
+        "strategy": "deno run --allow-all ./scripts/strategy.ts",
         "check-db": "deno run --allow-all ./scripts/check-db-connection.ts",
-        "view-table": "deno run --allow-all ./scripts/view-table.ts"
+        "view-table": "deno run --allow-all ./scripts/view-table.ts",
+        "transfer-db": "deno run --allow-all --unstable-ffi ./scripts/transfer-db.ts"
     },
     "compilerOptions": {
         "noImplicitAny": false,
@@ -29,7 +32,8 @@
             "dist/",
             "**/require.js",
             "**/submodules/",
-            "**/declaration-merging/"
+            "**/declaration-merging/",
+            "*.js"
         ],
         "rules": {
             "include": [
