@@ -52,6 +52,15 @@ const links: {
         textColor: 'dark',
         linkColor: 'dark',
         requiredPermission: 'developer'
+    },
+    {
+        link: '/dashboard/2023',
+        name: '2023 Tator Scout Dashboard',
+        description: 'Scout data for the 2023 Tator team. (for developers)',
+        color: 'info',
+        textColor: 'light',
+        linkColor: 'light',
+        requiredPermission: 'developer'
     }
 ];
 
@@ -71,9 +80,9 @@ Account.getAccount().then(async (a) => {
         <div class="row">
             {#each links as link}
                 {#if (link.requiredPermission && permissions.includes(link.requiredPermission)) || !link.requiredPermission}
-                    <div class="col-md-6 col-lg-4">
+                    <div class="col-md-6 col-lg-4 mb-3">
                         <div
-                            class="d-flex position-relative hover hover-fast hover-grow-sm hover-grow shadow rounded p-3 m-2 bg-{link.color} text-{link.textColor}"
+                            class="d-flex position-relative hover hover-fast hover-grow-sm hover-grow shadow rounded p-3 m-2 bg-{link.color} text-{link.textColor} home-card"
                         >
                             {#if link.image}
                                 <img
@@ -99,3 +108,10 @@ Account.getAccount().then(async (a) => {
         </div>
     </div>
 </main>
+
+<style>
+    .home-card {
+        cursor: pointer;
+        height: 100% !important;
+    }
+</style>
