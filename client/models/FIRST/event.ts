@@ -294,7 +294,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
 
 socket.on(
     'event:update-properties',
-    (eventKey: string, properties: EventProperties) => {
+    ({ eventKey, properties }: { eventKey: string; properties: string; }) => {
         const event = FIRSTEvent.cache.get(eventKey);
         if (!event) return;
 
@@ -302,3 +302,15 @@ socket.on(
         event.$emitter.emit('update-properties', properties);
     },
 );
+
+FIRSTEvent.on('select', async (e) => {
+    const query = new URLSearchParams(window.location.search);
+    const t = query.get('team');
+    if (t) {
+        const res = await e.getTeams();
+        if (res.isOk()) {
+            const team = res.value.find((t) => t.tba.team_number === Number(t));
+            if (team) team.select();
+        }
+    }
+});
