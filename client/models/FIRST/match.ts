@@ -13,7 +13,7 @@ import { FIRSTEvent } from './event';
 import { FIRSTTeam } from './team';
 import { Strategy } from './strategy';
 import { Cache } from '../cache';
-import { attemptAsync, Result } from '../../../shared/attempt';
+import { attemptAsync, Result } from '../../../shared/check';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
