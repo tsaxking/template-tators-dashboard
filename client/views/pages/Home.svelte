@@ -55,9 +55,11 @@ const links: {
     }
 ];
 
-Account.on('current', async (a) => {
+Account.getAccount().then(async (a) => {
+    if (!a) return;
     const perms = await a.getPermissions();
-    if (perms.isOk()) permissions = perms.value;
+    console.log(perms);
+    if (perms.isOk()) permissions = perms.value.map(p => p.permission as Permission);
     else console.error(perms.error);
 });
 </script>
