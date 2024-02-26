@@ -1,0 +1,1 @@
+DELETE FROM ScoutingQuestions WHERE id = :id;
