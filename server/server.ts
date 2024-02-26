@@ -11,12 +11,23 @@ import { router as role } from './routes/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
-import { stdin } from './utilities/stdin.ts';
 import { io, Socket } from './structure/socket.ts';
 import { getJSONSync } from './utilities/files.ts';
 import { emitter } from './middleware/data-type.ts';
 
-const port = +(env.PORT || 3000);
+
+const port = await (async () => {
+    return new Promise<number>((res) => {
+        self.onmessage = (e) => {
+            res(e.data);
+        }
+    });
+})();
+
+console.log('Port:', port);
+
+
+// // const port = +(Deno.args.find((arg) => arg.startsWith('--port='))?.split('=')[1] || '8000');
 
 export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
     // onListen: () => {
@@ -34,10 +45,10 @@ export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
 });
 
 if (env.ENVIRONMENT === 'dev') {
-    stdin.on('rb', () => {
-        console.log('Reloading clients...');
-        app.io.emit('reload');
-    });
+    // stdin.on('rb', () => {
+    //     console.log('Reloading clients...');
+    //     app.io.emit('reload');
+    // });
 
     emitter.on('fail', console.log);
 }
