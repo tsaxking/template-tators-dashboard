@@ -18,9 +18,10 @@ import { TBA } from '../../utilities/tba';
 import { socket } from '../../utilities/socket';
 import { FIRSTEvent } from './event';
 import { Cache } from '../cache';
-import { attemptAsync, Result } from '../../../shared/attempt';
+import { attemptAsync, Result } from '../../../shared/check';
 import { MatchScouting } from './match-scouting';
 import { Answer } from './question-scouting/answer';
+import { Trace } from '../../../shared/submodules/tatorscout-calculations/trace';
 
 export type Updates = {
     create: FIRSTTeam;
@@ -344,6 +345,31 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             }
 
             throw res.error;
+        });
+    }
+
+    async getVelocityData(): Promise<
+        Result<{
+            map: number[];
+            histogram: number[];
+            average: number;
+        }>
+    > {
+        return attemptAsync(async () => {
+            const res = await this.getMatchScouting();
+            if (res.isErr()) throw res.error;
+
+            const matches = res.value;
+
+            const map = matches.map((m) => Trace.velocity.map(m.trace)).flat();
+
+            return {
+                map,
+                histogram: Trace.velocity.histogram(
+                    matches.map((m) => m.trace).flat(),
+                ),
+                average: map.reduce((a, b) => a + b, 0) / map.length,
+            };
         });
     }
 }

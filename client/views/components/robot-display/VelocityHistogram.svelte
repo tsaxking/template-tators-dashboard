@@ -43,22 +43,14 @@ const fns = {
 $: fns.updateVelocityMap(traces);
 </script>
 
-<div class="card p-0">
-    <div class="card-header">
-        <h5 class="card-title">Velocity Histogram</h5>
-    </div>
-
-    <div class="card-body">
-        <Bar
-            bind:data
-            options="{{
-                indexAxis: 'x',
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }}"
-        />
-    </div>
-</div>
+<Bar
+    bind:data
+    options="{{
+        indexAxis: 'x',
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }}"
+/>
