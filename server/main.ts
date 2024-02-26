@@ -47,24 +47,54 @@ class Child {
 
     static readonly children = new Map<number, Child>();
 
-    private readonly child: Deno.ChildProcess;
+    // private readonly child: Deno.ChildProcess;
+    private readonly child: Worker;
     private readonly port: number;
     constructor(port: number, i: number) {
-        log('Starting server...');
+        // log('Starting server...');
         Child.children.set(i, this);
         this.port = port + i + 1;
-        console.log('Starting server on port', this.port);
-        this.child = new Deno.Command(Deno.execPath(), {
-            args: ['run', '--allow-all', '--unstable-sloppy-imports', './server/server.ts', '--port=' + this.port],
-            stdout: 'inherit',
-            stderr: 'inherit',
-            stdin: 'inherit',
-        }).spawn();
+        // console.log('Starting server on port', this.port);
+        // this.child = new Deno.Command(Deno.execPath(), {
+        //     args: ['run', '--allow-all', './server/server.ts', '--port=' + this.port],
+        //     stdout: 'inherit',
+        //     stderr: 'inherit',
+        //     stdin: 'inherit',
+        // }).spawn();
+
+        // // ensure the child process is killed when the parent is killed
+        // this.child.ref();
+
+
+        this.child = new Worker(import.meta.resolve('./server.ts'), {
+            type: 'module',
+            deno: {
+                permissions: {
+                    net: true,
+                    read: true,
+                    write: true,
+                    env: true,
+                    run: true,
+                    sys: true
+                }
+            }
+        });
+
+        this.child.postMessage(this.port);
+        this.child.onmessage = console.log;
+        this.child.onerror = (e) => {
+            if (e.cancelable) {
+                e.preventDefault();
+            }
+
+            console.error(e);
+        }
     }
 
     kill() {
         try {
-            this.child.kill();
+            // this.child.kill();
+            this.child.terminate();
         } catch (error) {
             console.error(error);
         }
@@ -80,10 +110,14 @@ class Child {
 }
 
 const main = () => {
+    return Child.start();
+
+
     const { args } = Deno;
     const builder = new Builder();
 
     const build = () => {
+        return;
         builder.build();
         Child.restart();
     };
@@ -146,7 +180,9 @@ const main = () => {
         console.error(e);
     }
 
-    Deno.serve(async (req, info) => {
+    Deno.serve({
+        port: Number(env.PORT) || 3000
+    }, async (req, info) => {
         const { pathname } = new URL(req.url, 'http://localhost');
         const res = await Child.send(pathname, {
             method: req.method,
@@ -154,7 +190,7 @@ const main = () => {
             body: req.body
         });
 
-        console.log(res);
+        // console.log(res);
 
         if (res.isErr()) {
             return new Response(JSON.stringify({
@@ -194,4 +230,5 @@ const main = () => {
         });
     });
 };
+
 if (import.meta.main) main();
