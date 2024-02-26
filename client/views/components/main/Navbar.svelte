@@ -14,8 +14,8 @@ let account: Account = Account.guest;
 
 export let accountLinks: (string | null)[] = [];
 
-Account.on('current', () => {
-    account = Account.current;
+Account.getAccount().then(a => {
+    if (a) account = a;
 });
 
 const fns = {
