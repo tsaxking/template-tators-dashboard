@@ -85,6 +85,19 @@ export class Account extends Cache<AccountEvents> {
      */
     public static current?: Account;
 
+    public static async getAccount(): Promise<Account | undefined> {
+        if (Account.current) return Account.current;
+        const res = await ServerRequest.post<AccountSafe>(
+            '/account/get-account',
+        );
+        if (res.isOk()) {
+            if (!res.value.id) return;
+            Account.current = new Account(res.value);
+            Account.emit('current', Account.current);
+            return Account.current;
+        }
+    }
+
     /**
      * Account emitter
      * @date 2/1/2024 - 12:54:21 AM
@@ -301,7 +314,8 @@ export class Account extends Cache<AccountEvents> {
     public async getRoles(force = false): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has('roles') && !force) {
-                return this.$cache.get('roles') as Role[];
+                const roles = this.$cache.get('roles') as Role[];
+                if (roles.length) return roles;
             }
 
             const res = await ServerRequest.post<
@@ -503,6 +517,7 @@ socket.on('account:removed', (accountId: string) => {
     if (account) {
         console.log('account removed', account);
         Account.emit('delete', account);
+        Account.$cache.delete(accountId);
         account.emit('delete', undefined);
         account.destroy();
     }
@@ -563,10 +578,4 @@ socket.on('account:unverified', (accountId: string) => {
     }
 });
 
-ServerRequest.post<AccountSafe>('/account/get-account').then((res) => {
-    if (res.isOk()) {
-        if (!res.value.id) return console.error('No account id');
-        Account.current = new Account(res.value);
-        Account.emit('current', Account.current);
-    }
-});
+Account.getAccount();
