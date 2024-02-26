@@ -1,6 +1,7 @@
 <script lang="ts">
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import ThemeSwitch from '../ThemeSwitch.svelte';
+import EventSelect from './GlobalEventSelect.svelte';
 export let title: string;
 export let navItems: string[] = [];
 import { Account } from '../../../models/account';
@@ -85,6 +86,9 @@ const fns = {
                 <slot name="form" />
             </div>
         </div>
+    </div>
+    <div class="me-3">
+        <EventSelect></EventSelect>
     </div>
 
     <div class="d-inline-flex p-0">
