@@ -14,8 +14,7 @@ export const router = new Route();
 const redirect = (req: Req, res: Res, next: Next) => {
     if (!req.session.accountId) return next();
 
-    // TODO: use prevurl
-    res.redirect('/home');
+    res.redirect(req.session.prevUrl || '/');
 };
 
 // gets the account from the session
