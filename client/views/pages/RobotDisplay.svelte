@@ -79,7 +79,7 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <TeamComments {team}/>
+                    <TeamComments {team} />
                 </div>
             </div>
         </div>
