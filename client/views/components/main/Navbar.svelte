@@ -66,6 +66,10 @@ const fns = {
             >{title}</a
         >
 
+
+    </div>
+
+    <div class="d-inline-flex p-0">
         <div class="collapse navbar-collapse bg-dark rounded" id="nav-items">
             <ul class="navbar-nav mr-auto">
                 {#each navItems as item}
@@ -81,71 +85,65 @@ const fns = {
                     </li>
                 {/each}
             </ul>
-            <div class="form-inline my-2 my-lg-0">
+            <div class="container-fluid p-1">
                 <ThemeSwitch />
-                <slot name="form" />
             </div>
-        </div>
-    </div>
-    <div class="me-3">
-        <EventSelect></EventSelect>
-    </div>
-
-    <div class="d-inline-flex p-0">
-        <a
-            class="nav-link dropdown-toggle me-3"
-            href="#navbarDropdown"
-            id="navbarDropdown-link"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        >
-            Hello, {account.username}&nbsp;
-            {#if account.picture}
-                <img
-                    src="../uploads/${account.picture}"
-                    class="profile-pic mx-1"
-                    alt=""
-                />
-            {:else}
-                <span class="material-icons">person</span>
-            {/if}
-        </a>
-        <ul
-            class="dropdown-menu dropdown-menu-end p-0"
-            aria-labelledby="navbarDropdown"
-            id="navbarDropdown"
-        >
-            <li>
-                <a
-                    href="javascript:void(0);"
-                    class="dropdown-item"
-                    on:click="{fns.openSettings}"
-                >
-                    <i class="material-icons">settings</i>&nbsp;Settings
-                </a>
-            </li>
-            {#each accountLinks as link}
-                {#if link}
-                    <li>
-                        <a href="{link}" class="dropdown-item"
-                            >{capitalize(fromSnakeCase(link, '-'))}</a
-                        >
-                    </li>
+            <EventSelect></EventSelect>
+            <a
+                class="nav-link dropdown-toggle mx-3 py-1"
+                href="#navbarDropdown"
+                id="navbarDropdown-link"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+                Hello, {account.username}&nbsp;
+                {#if account.picture}
+                    <img
+                        src="../uploads/${account.picture}"
+                        class="profile-pic mx-1"
+                        alt=""
+                    />
                 {:else}
-                    <li><hr class="dropdown-divider" /></li>
+                    <span class="material-icons">person</span>
                 {/if}
-            {/each}
-
-            <!-- <li><a href="/institution/new" class="dropdown-item">Create Institution <span class="material-icons">home</span></a></li> -->
-            <!-- <li><a class="dropdown-item" href="/my-account">My Account</a></li> -->
-            <!-- <li>
-            <hr class="dropdown-divider">
-        </li> -->
-            <li class="p-1">
-                <a class="dropdown-item" href="/account/sign-out">Sign Out</a>
-            </li>
-        </ul>
+            </a>
+            <ul
+                class="dropdown-menu dropdown-menu-end p-0"
+                aria-labelledby="navbarDropdown"
+                id="navbarDropdown"
+            >
+                <li>
+                    <a
+                        href="javascript:void(0);"
+                        class="dropdown-item"
+                        on:click="{fns.openSettings}"
+                    >
+                        <i class="material-icons">settings</i>&nbsp;Settings
+                    </a>
+                </li>
+                {#each accountLinks as link}
+                    {#if link}
+                        <li>
+                            <a href="{link}" class="dropdown-item"
+                                >{capitalize(fromSnakeCase(link, '-'))}</a
+                            >
+                        </li>
+                    {:else}
+                        <li><hr class="dropdown-divider" /></li>
+                    {/if}
+                {/each}
+    
+                <!-- <li><a href="/institution/new" class="dropdown-item">Create Institution <span class="material-icons">home</span></a></li> -->
+                <!-- <li><a class="dropdown-item" href="/my-account">My Account</a></li> -->
+                <!-- <li>
+                <hr class="dropdown-divider">
+            </li> -->
+                <li class="p-1">
+                    <a class="dropdown-item" href="/account/sign-out">Sign Out</a>
+                </li>
+            </ul>
+        </div>
         <button
             class="btn btn-dark navbar-toggler border-0 h-100 text-light"
             type="button"
