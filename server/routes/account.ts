@@ -85,15 +85,24 @@ router.post<{
 
         // send the same error for both username and password to prevent username enumeration
         if (!account) {
+            console.log('No account found');
             return res.sendStatus('account:incorrect-username-or-password');
         }
+        const result = await account.testPassword(password);
 
-        const hash = Account.hash(password, account.salt);
-        if (hash !== account.key) {
+        console.log({ result });
+
+        // const hash = Account.hash(password, account.salt);
+        if (result === null) {
+            return res.sendStatus('account:please-change-password');
+        }
+
+        if (!result) {
             return Status.from('account:incorrect-username-or-password', req, {
                 username: username,
             }).send(res);
         }
+        console.log('Account Verification:', account.verified);
         if (!account.verified) {
             return res.sendStatus('account:not-verified', {
                 username,
@@ -103,11 +112,7 @@ router.post<{
         await req.session.signIn(account);
 
         // if (r.isErr()) return res.sendStatus('unknown:error');
-        res.sendStatus(
-            'account:logged-in',
-            { username },
-            req.session.prevUrl || '/home',
-        );
+        res.sendStatus('account:logged-in', { username }, '/home');
     },
 );
 
@@ -187,13 +192,13 @@ router.post<{
         }
 
         if (status === 'created') {
-            req.io.emit('account:created', username);
+            req.io.emit('account:created', Account.fromUsername(username));
         }
     },
 );
 
 router.get('/sign-out', async (req, res) => {
-    // console.log('Signing out');
+    console.log('Signing out');
     await req.session.signOut();
     // console.log(req.session);
     res.redirect('/home');
