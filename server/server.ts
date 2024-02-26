@@ -8,13 +8,13 @@ import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import { router as role } from './routes/roles.ts';
-import Role from './structure/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
 import { io, Socket } from './structure/socket.ts';
 import { getJSONSync } from './utilities/files.ts';
+import { emitter } from './middleware/data-type.ts';
 
 const port = +(env.PORT || 3000);
 
@@ -38,6 +38,8 @@ if (env.ENVIRONMENT === 'dev') {
         console.log('Reloading clients...');
         app.io.emit('reload');
     });
+
+    emitter.on('fail', console.log);
 }
 
 io.on('connection', (s: Socket) => {
@@ -75,7 +77,7 @@ app.post('/socket-url', (req, res) => {
 });
 
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(resolve(__root, './public/pictures/logo-square.png'));
+    res.sendFile(resolve(__root, './public/pictures/logo-square.jpg'));
 });
 
 app.get('/robots.txt', (req, res) => {
@@ -123,6 +125,7 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
+    log(`[${req.method}] ${req.url}`);
 
     log('[POST]', req.url.pathname);
     try {
@@ -176,6 +179,10 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
+app.get('/home', (_req, res) => {
+    res.sendTemplate('entries/home');
+});
+
 app.route('/api', api);
 app.route('/account', account);
 app.route('/roles', role);
@@ -183,6 +190,7 @@ app.route('/roles', role);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
+    console.log('Testing if user is logged in: ', req.session);
     if (!req.session.accountId) {
         if (
             ![
@@ -205,13 +213,28 @@ app.get('/dashboard/admin', Account.allowPermissions('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
 });
 
+app.get(
+    '/dashboard/mentor',
+    Account.allowPermissions('mentor'),
+    (_req, res) => {
+        res.sendTemplate('entries/dashboard/mentor');
+    },
+);
+
 app.route('/admin', admin);
 
 app.get('/dashboard/:dashboard', (req, res) => {
     res.sendTemplate('entries/dashboard/' + req.params.dashboard);
 });
 
-app.get('/user/*', Account.isSignedIn, (req, res) => {
+// this is how the user will access the dashboard
+app.get('/dashboard/:year', (req, res) => {
+    const { year } = req.params;
+    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + year);
+});
+
+app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
 });
 
