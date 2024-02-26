@@ -4,17 +4,20 @@ import { TeamComment } from '../../../models/FIRST/team-comments';
 import { FIRSTEvent } from '../../../models/FIRST/event';
 import '../../../utilities/text'
 import { fuzzySearch } from '../../../utilities/text';
-import { TeamComment as TCObject } from '../../../../shared/db-types-extended';
+// import { TeamComment as TCObject } from '../../../../shared/db-types-extended';
+import type { TeamComment as TCObject } from '../../../../shared/db-types-extended';
 import { Random } from '../../../../shared/math';
 
-let comments: TeamComment[];
+let comments: TeamComment[] = [];
 const foundIndicies: number[] = fuzzySearch('my search string', comments.map(c => c.comment));
 let foundComments: TeamComment[];
 export let team: FIRSTTeam | undefined = undefined;
 let key: string;
 let commentData: TCObject;
 
-commentData.team = team.number;
+if(team) {
+    commentData.team = team.number;
+};
 commentData.time = Date.now();
 commentData.eventKey = FIRSTEvent.current.key;
 
@@ -34,7 +37,9 @@ const fns = {
 };
 
 fns.getComments(team);
-fns.filterComments(key);
+if (comments.length >0) {
+    fns.filterComments(key);
+}
 </script>
 
 <div class="card p-0">
