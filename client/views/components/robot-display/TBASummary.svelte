@@ -95,7 +95,7 @@ $: {
                         </tr>
                         <tr>
                             <th>Average Velocity</th>
-                            {#if isNaN(velocity)} 
+                            {#if isNaN(velocity)}
                                 <td>Cannot calculate velocity yet</td>
                             {:else}
                                 <td>{velocity.toFixed(2)} ft/s</td>

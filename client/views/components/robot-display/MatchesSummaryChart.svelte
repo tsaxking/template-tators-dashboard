@@ -51,31 +51,52 @@ const fns = {
                     'Average Teleop Trap',
                     'Max Teleop Trap'
                 ],
-                datasets: [{
-                    label: 'Scores',
-                    data: [
-                        // Average Auto Speaker
-                        eventSummary.reduce((acc, val) => acc + val.auto.spk, 0) / eventSummary.length,
-                        // Max Auto Speaker
-                        Math.max(...eventSummary.map(val => val.auto.spk)),
-                        // Average Auto Amp
-                        eventSummary.reduce((acc, val) => acc + val.auto.amp, 0) / eventSummary.length,
-                        // Max Auto Amp
-                        Math.max(...eventSummary.map(val => val.auto.amp)),
-                        // Average Teleop Speaker
-                        eventSummary.reduce((acc, val) => acc + val.teleop.spk, 0) / eventSummary.length,
-                        // Max Teleop Speaker
-                        Math.max(...eventSummary.map(val => val.teleop.spk)),
-                        // Average Teleop Amp
-                        eventSummary.reduce((acc, val) => acc + val.teleop.amp, 0) / eventSummary.length,
-                        // Max Teleop Amp
-                        Math.max(...eventSummary.map(val => val.teleop.amp)),
-                        // Average Teleop Trap
-                        eventSummary.reduce((acc, val) => acc + val.teleop.trp, 0) / eventSummary.length,
-                        // Max Teleop Trap
-                        Math.max(...eventSummary.map(val => val.teleop.trp))
-                    ]
-                }]
+                datasets: [
+                    {
+                        label: 'Scores',
+                        data: [
+                            // Average Auto Speaker
+                            eventSummary.reduce(
+                                (acc, val) => acc + val.auto.spk,
+                                0
+                            ) / eventSummary.length,
+                            // Max Auto Speaker
+                            Math.max(...eventSummary.map(val => val.auto.spk)),
+                            // Average Auto Amp
+                            eventSummary.reduce(
+                                (acc, val) => acc + val.auto.amp,
+                                0
+                            ) / eventSummary.length,
+                            // Max Auto Amp
+                            Math.max(...eventSummary.map(val => val.auto.amp)),
+                            // Average Teleop Speaker
+                            eventSummary.reduce(
+                                (acc, val) => acc + val.teleop.spk,
+                                0
+                            ) / eventSummary.length,
+                            // Max Teleop Speaker
+                            Math.max(
+                                ...eventSummary.map(val => val.teleop.spk)
+                            ),
+                            // Average Teleop Amp
+                            eventSummary.reduce(
+                                (acc, val) => acc + val.teleop.amp,
+                                0
+                            ) / eventSummary.length,
+                            // Max Teleop Amp
+                            Math.max(
+                                ...eventSummary.map(val => val.teleop.amp)
+                            ),
+                            // Average Teleop Trap
+                            eventSummary.reduce(
+                                (acc, val) => acc + val.teleop.trp,
+                                0
+                            ) / eventSummary.length,
+                            // Max Teleop Trap
+                            Math.max(...eventSummary.map(val => val.teleop.trp))
+                        ]
+                    }
+                ]
             };
         }
     }
