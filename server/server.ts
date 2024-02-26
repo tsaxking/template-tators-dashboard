@@ -125,7 +125,7 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
-    log(`[${req.method}] ${req.url}`);
+    // log(`[${req.method}] ${req.url}`);
 
     log('[POST]', req.url.pathname);
     try {
