@@ -45,25 +45,25 @@ $: fns.getTeam(team);
     </div>
     <hr />
     <div class="row">
-        <DashboardCard title="Summary" scroll={true}>
+        <DashboardCard title="Summary" scroll="{true}">
             <TbaSummary {team} />
         </DashboardCard>
-        <DashboardCard title="Event Summary" scroll={true}>
+        <DashboardCard title="Event Summary" scroll="{true}">
             <EventSummaryChart {team} />
         </DashboardCard>
-        <DashboardCard title="Matches Summary" scroll={true}>
+        <DashboardCard title="Matches Summary" scroll="{true}">
             <MatchesSummaryChart {team} />
         </DashboardCard>
-        <DashboardCard title="Matches" scroll={true}>
+        <DashboardCard title="Matches" scroll="{true}">
             <TeamMatchTable {team} />
         </DashboardCard>
         <DashboardCard title="Velocity Histogram">
             <VelocityHistogram {traces} />
         </DashboardCard>
-        <DashboardCard title="Pictures" scroll={true}>
+        <DashboardCard title="Pictures" scroll="{true}">
             <TeamPictures {team} upload="{true}" />
         </DashboardCard>
-        <DashboardCard title="Pit Scouting" scroll={true}>
+        <DashboardCard title="Pit Scouting" scroll="{true}">
             <PitScouting {team} />
         </DashboardCard>
     </div>

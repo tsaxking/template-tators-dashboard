@@ -348,11 +348,13 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         });
     }
 
-    async getVelocityData(): Promise<Result<{
-        map: number[];
-        histogram: number[];
-        average: number;
-    }>> {
+    async getVelocityData(): Promise<
+        Result<{
+            map: number[];
+            histogram: number[];
+            average: number;
+        }>
+    > {
         return attemptAsync(async () => {
             const res = await this.getMatchScouting();
             if (res.isErr()) throw res.error;
@@ -363,9 +365,11 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             return {
                 map,
-                histogram: Trace.velocity.histogram(matches.map((m) => m.trace).flat()),
+                histogram: Trace.velocity.histogram(
+                    matches.map((m) => m.trace).flat(),
+                ),
                 average: map.reduce((a, b) => a + b, 0) / map.length,
-            }
+            };
         });
     }
 }

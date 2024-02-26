@@ -329,7 +329,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
 
 socket.on(
     'event:update-properties',
-    ({ eventKey, properties }: { eventKey: string; properties: string; }) => {
+    ({ eventKey, properties }: { eventKey: string; properties: string }) => {
         const event = FIRSTEvent.cache.get(eventKey);
         if (!event) return;
 

@@ -509,7 +509,7 @@ export class Account extends Cache<AccountEvents> {
 }
 
 Object.assign(window, {
-    Account
+    Account,
 });
 
 socket.on('account:removed', (accountId: string) => {

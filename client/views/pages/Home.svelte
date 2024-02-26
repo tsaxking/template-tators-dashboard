@@ -5,7 +5,6 @@ import { Account } from '../../models/account';
 
 let permissions: Permission[] = [];
 
-
 const links: {
     link: string;
     name: string;
@@ -64,11 +63,12 @@ const links: {
     }
 ];
 
-Account.getAccount().then(async (a) => {
+Account.getAccount().then(async a => {
     if (!a) return;
     const perms = await a.getPermissions();
     console.log(perms);
-    if (perms.isOk()) permissions = perms.value.map(p => p.permission as Permission);
+    if (perms.isOk())
+        permissions = perms.value.map(p => p.permission as Permission);
     else console.error(perms.error);
 });
 </script>
@@ -110,8 +110,8 @@ Account.getAccount().then(async (a) => {
 </main>
 
 <style>
-    .home-card {
-        cursor: pointer;
-        height: 100% !important;
-    }
+.home-card {
+    cursor: pointer;
+    height: 100% !important;
+}
 </style>
