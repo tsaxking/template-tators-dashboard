@@ -1,6 +1,7 @@
 <script lang="ts">
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import ThemeSwitch from '../ThemeSwitch.svelte';
+import EventSelect from './GlobalEventSelect.svelte';
 export let title: string;
 export let navItems: string[] = [];
 import { Account } from '../../../models/account';
@@ -12,6 +13,7 @@ export let active: string = '';
 let account: Account = Account.guest;
 
 export let accountLinks: (string | null)[] = [];
+
 Account.on('current', () => {
     account = Account.current;
 });
@@ -90,6 +92,9 @@ const fns = {
     <div class="me-3">
         <slot />
         <ThemeSwitch />
+    </div>
+    <div class="me-3">
+        <EventSelect></EventSelect>
     </div>
 
     <a

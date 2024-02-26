@@ -509,6 +509,10 @@ export class Account extends Cache<AccountEvents> {
     }
 }
 
+Object.assign(window, {
+    Account
+});
+
 socket.on('account:removed', (accountId: string) => {
     const account = Account.$cache.get(accountId);
     Account.$cache.delete(accountId);
