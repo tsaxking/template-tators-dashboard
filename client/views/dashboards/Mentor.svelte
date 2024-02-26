@@ -59,14 +59,8 @@ const accountLinks = [
     {navItems}
     {accountLinks}
 >
-    <Page {active} {domain} title="robot-display">
-        <RobotDisplay></RobotDisplay>
-    </Page>
     <Page {active} {domain} title="create-scouting-questions">
         <CreateScoutingQuestions />
-    </Page>
-    <Page {active} {domain} title="answer-scouting-questions">
-        <AnswerPitScouting />
     </Page>
     <Page {active} {domain} title="accounts"><Accounts></Accounts></Page>
     <Page {active} {domain} title="roles"><Roles></Roles></Page>
