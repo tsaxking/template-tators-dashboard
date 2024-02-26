@@ -18,7 +18,7 @@ import { TBA } from '../../utilities/tba';
 import { socket } from '../../utilities/socket';
 import { FIRSTEvent } from './event';
 import { Cache } from '../cache';
-import { attemptAsync, Result } from '../../../shared/attempt';
+import { attemptAsync, Result } from '../../../shared/check';
 import { MatchScouting } from './match-scouting';
 import { Answer } from './question-scouting/answer';
 import { Trace } from '../../../shared/submodules/tatorscout-calculations/trace';
