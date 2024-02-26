@@ -81,31 +81,23 @@ const fns = {
 $: fns.pullScouting(team);
 </script>
 
-<div class="card">
-    <div class="card-header">
-        <h5 class="card-title">Scouting Answers</h5>
-    </div>
-    <div class="card-body">
-        {#each scoutingSections as section}
-            <h6>{section.section}</h6>
-            <table class="table table-dark table-striped">
-                {#each section.groups as group}
-                    <thead>
-                        <tr>
-                            <th colspan="2" class="text-center">{group.name}</th
-                            >
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each group.questions as question}
-                            <tr>
-                                <td>{question.question}</td>
-                                <td>{question.answer}</td>
-                            </tr>
-                        {/each}
-                    </tbody>
+{#each scoutingSections as section}
+    <h6>{section.section}</h6>
+    <table class="table table-dark table-striped">
+        {#each section.groups as group}
+            <thead>
+                <tr>
+                    <th colspan="2" class="text-center">{group.name}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each group.questions as question}
+                    <tr>
+                        <td>{question.question}</td>
+                        <td>{question.answer}</td>
+                    </tr>
                 {/each}
-            </table>
+            </tbody>
         {/each}
-    </div>
-</div>
+    </table>
+{/each}
