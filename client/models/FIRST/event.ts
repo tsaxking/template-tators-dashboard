@@ -16,7 +16,10 @@ import { FIRSTTeam } from './team';
 import { socket } from '../../utilities/socket';
 import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { attemptAsync, Result } from '../../../shared/attempt';
+import { attemptAsync, Result, resolveAll } from '../../../shared/check';
+import { Section } from './question-scouting/section';
+import { Group } from './question-scouting/group';
+import { Question } from './question-scouting/question';
 /**
  * All events that are emitted by a {@link FIRSTEvent} object
  * @date 10/9/2023 - 6:36:17 PM
@@ -289,6 +292,38 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     select(): void {
         FIRSTEvent.current = this;
         FIRSTEvent.emit('select', this);
+    }
+
+    async getPitScouting(): Promise<Result<{
+        sections: Section[];
+        groups: Group[];
+        questions: Question[];
+    }>> {
+        return attemptAsync(async () => {
+            const sections = await Section.all();
+            const groups = (await Promise.all(
+                sections.map(async (s) => {
+                    const res = await s.getGroups(this);
+                    if (res.isOk()) return res.value;
+                    throw res.error;
+                })
+            )).flat();
+            const questionRes =
+                resolveAll(
+            await Promise.all(
+                groups.map(g => g.getQuestions())
+                    )
+                );
+
+            if (questionRes.isErr()) throw questionRes.error;
+            const questions = questionRes.value.flat();
+
+            return {
+                sections,
+                groups,
+                questions,
+            };
+        });
     }
 }
 
