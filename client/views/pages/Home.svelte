@@ -1,5 +1,11 @@
 <script lang="ts">
 import { type BootstrapColor } from '../../submodules/colors/color';
+import { type Permission } from '../../../shared/permissions';
+import { Account } from '../../models/account';
+
+let permissions: Permission[] = [];
+
+
 const links: {
     link: string;
     name: string;
@@ -8,6 +14,7 @@ const links: {
     color: BootstrapColor;
     textColor: BootstrapColor;
     linkColor: BootstrapColor;
+    requiredPermission?: Permission;
 }[] = [
     {
         link: '/dashboard/2024',
@@ -24,7 +31,8 @@ const links: {
             'Tools for mentors to manage the Team Tators Scouting Dashboard.',
         color: 'success',
         textColor: 'light',
-        linkColor: 'light'
+        linkColor: 'light',
+        requiredPermission: 'mentor'
     },
     {
         link: '/dashboard/admin',
@@ -32,7 +40,8 @@ const links: {
         description: 'Admin dashboard for the Team Tators Scouting Dashboard.',
         color: 'danger',
         textColor: 'light',
-        linkColor: 'light'
+        linkColor: 'light',
+        requiredPermission: 'admin'
     },
     {
         link: '/dashboard/developer',
@@ -41,9 +50,16 @@ const links: {
             'Tools for developers to manage the Team Tators Scouting Dashboard.',
         color: 'warning',
         textColor: 'dark',
-        linkColor: 'dark'
+        linkColor: 'dark',
+        requiredPermission: 'developer'
     }
 ];
+
+Account.on('current', async (a) => {
+    const perms = await a.getPermissions();
+    if (perms.isOk()) permissions = perms.value;
+    else console.error(perms.error);
+});
 </script>
 
 <main>
@@ -52,29 +68,31 @@ const links: {
     <div class="container">
         <div class="row">
             {#each links as link}
-                <div class="col-md-6 col-lg-4">
-                    <div
-                        class="d-flex position-relative hover hover-fast hover-grow-sm hover-grow shadow rounded p-3 m-2 bg-{link.color} text-{link.textColor}"
-                    >
-                        {#if link.image}
-                            <img
-                                src="{link.image}"
-                                alt="{link.name}"
-                                class="mr-3"
-                                style="width: 100px; height: 100px;"
-                            />
-                        {/if}
-                        <div>
-                            <h5 class="mt-0">{link.name}</h5>
-                            <p>{link.description}</p>
-                            <a
-                                href="{link.link}"
-                                class="stretched-link link-{link.linkColor}"
-                                >Go to {link.name}</a
-                            >
+                {#if (link.requiredPermission && permissions.includes(link.requiredPermission)) || !link.requiredPermission}
+                    <div class="col-md-6 col-lg-4">
+                        <div
+                            class="d-flex position-relative hover hover-fast hover-grow-sm hover-grow shadow rounded p-3 m-2 bg-{link.color} text-{link.textColor}"
+                        >
+                            {#if link.image}
+                                <img
+                                    src="{link.image}"
+                                    alt="{link.name}"
+                                    class="mr-3"
+                                    style="width: 100px; height: 100px;"
+                                />
+                            {/if}
+                            <div>
+                                <h5 class="mt-0">{link.name}</h5>
+                                <p>{link.description}</p>
+                                <a
+                                    href="{link.link}"
+                                    class="stretched-link link-{link.linkColor}"
+                                    >Go to {link.name}</a
+                                >
+                            </div>
                         </div>
                     </div>
-                </div>
+                {/if}
             {/each}
         </div>
     </div>
