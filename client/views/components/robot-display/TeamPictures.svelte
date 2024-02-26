@@ -32,37 +32,24 @@ $: {
 }
 </script>
 
-<div class="card">
-    <div class="card-header">
-        <h5 class="card-title">
-            {#if team}
-                {team.number} | {team.name} Pictures
-            {:else}
-                Pictures (No Team Selected)
-            {/if}
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="container-fluid">
-            {#if pictures.length}
-                <div class="row mb-3">
-                    {#each pictures as pic}
-                        <div class="col">
-                            <img
-                                src="{pic.url}"
-                                alt="{pic.name}"
-                                class="img-thumbnail"
-                            />
-                        </div>
-                    {/each}
-                    <!-- <Carousel bind:items={pictures} /> -->
+<div class="container-fluid">
+    {#if pictures.length}
+        <div class="row mb-3">
+            {#each pictures as pic}
+                <div class="col">
+                    <img
+                        src="{pic.url}"
+                        alt="{pic.name}"
+                        class="img-thumbnail"
+                    />
                 </div>
-            {/if}
-            {#if upload}
-                <div class="row">
-                    <UploadTeamPicture bind:team />
-                </div>
-            {/if}
+            {/each}
+            <!-- <Carousel bind:items={pictures} /> -->
         </div>
-    </div>
+    {/if}
+    {#if upload}
+        <div class="row">
+            <UploadTeamPicture bind:team />
+        </div>
+    {/if}
 </div>
