@@ -2,7 +2,7 @@ import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba
 import { TBA } from '../../utilities/tba';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { Cache } from '../cache';
-import { attemptAsync, Result } from '../../../shared/attempt';
+import { attemptAsync, Result } from '../../../shared/check';
 import { FIRSTEvent } from './event';
 
 /**

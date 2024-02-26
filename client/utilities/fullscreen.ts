@@ -1,4 +1,4 @@
-import { attempt } from '../../shared/attempt';
+import { attempt } from '../../shared/check';
 import { log } from './logging';
 
 /**
