@@ -36,7 +36,7 @@ const groups = [
     }
 ];
 
-let active = 'robot-display';
+let active = 'accounts';
 
 const domain = 'tatorscout.org';
 
