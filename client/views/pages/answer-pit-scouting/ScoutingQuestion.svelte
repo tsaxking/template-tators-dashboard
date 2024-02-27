@@ -241,6 +241,27 @@ FIRSTTeam.on('select', t => {
                             </option>
                         {/each}
                     </select>
+                {:else if question.type === 'boolean'}
+                    <div class="form-check">
+                        <input
+                            type="checkbox"
+                            id="q-{question.id}"
+                            class="form-check-input"
+                            on:change="{event => {
+                                value = [event.currentTarget.checked.toString()];
+                                fns.saveValue();
+                            }}"
+                            {disabled}
+                            on:input="{fns.change}"
+                            checked="{value[0] === 'true'}"
+                        />
+                        <label
+                            for="q-{question.id}"
+                            class="form-check-label"
+                        >
+                            Yes
+                        </label>
+                    </div>
                 {/if}
             </div>
             <div
