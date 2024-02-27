@@ -183,8 +183,8 @@ router.post<{
                     teamNumber: team,
                     accountId,
                     date,
+                    eventKey,
                 },
-                eventKey,
             );
         } else {
             DB.run('scouting-questions/new-answer', {
@@ -214,8 +214,8 @@ router.post<{
                     teamNumber: team,
                     accountId,
                     date,
+                    eventKey,
                 },
-                eventKey,
             );
         }
     },
