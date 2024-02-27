@@ -42,15 +42,18 @@ const fns = {
     },
     addOption: () => {
         if (type === 'select') {
-            options.select = [...options.select, ''];
+            options.select = [...(options.select || []), ''];
+            optionsData = options.select;
         }
 
         if (type === 'checkbox') {
-            options.checkbox = [...options.checkbox, ''];
+            options.checkbox = [...(options.checkbox || []), ''];
+            optionsData = options.checkbox;
         }
 
         if (type === 'radio') {
-            options.radio = [...options.radio, ''];
+            options.radio = [...(options.radio || []), ''];
+            optionsData = options.radio;
         }
 
         // reassign to trigger svelte reactivity
@@ -116,6 +119,7 @@ const fns = {
         }
     }
 };
+
 </script>
 
 <div class="card">
@@ -132,6 +136,7 @@ const fns = {
                     class="form-control"
                     id="{question.id}-text"
                     bind:value="{questionText}"
+                    on:change="{fns.update}"
                 />
             </div>
             <div class="row mb-3">
@@ -149,6 +154,7 @@ const fns = {
                     class="form-control"
                     id="{question.id}-key"
                     bind:value="{key}"
+                    on:change="{fns.update}"
                 />
             </div>
             <div class="row mb-3">
@@ -164,6 +170,7 @@ const fns = {
                     class="form-control"
                     id="{question.id}-description"
                     bind:value="{description}"
+                    on:change={fns.update}
                 ></textarea>
             </div>
             <div class="row mb-3">
@@ -177,6 +184,7 @@ const fns = {
                     class="form-control"
                     id="{question.id}-type"
                     bind:value="{type}"
+                    on:change={fns.update}
                 >
                     <option value="text">Text</option>
                     <option value="number">Number</option>
@@ -190,8 +198,14 @@ const fns = {
                     These are the options that will be displayed to the scout
                     for them to select from.
                 </small>
-                {#each optionsData as o}
-                    <O text="{o}" />
+                {#each optionsData as o, index}
+                    <O text="{o}" on:update={({ detail: { text }}) => {
+                        optionsData = optionsData.map((op, i) => i === index ? text : op);
+                        if (type === 'select') options.select = optionsData;
+                        if (type === 'checkbox') options.checkbox = optionsData;
+                        if (type === 'radio') options.radio = optionsData;
+                        fns.update();
+                    }} />
                 {/each}
                 <div class="row mb-3">
                     <button class="btn btn-primary" on:click="{fns.addOption}">
