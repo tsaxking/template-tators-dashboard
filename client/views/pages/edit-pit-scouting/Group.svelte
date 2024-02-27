@@ -38,6 +38,8 @@ const fns = {
             console.error(res.error);
         }
 
+        console.log(questions);
+
         const update = () => {
             group = g;
             g.off('new-question', update);

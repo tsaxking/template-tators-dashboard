@@ -147,13 +147,17 @@ export class Group extends Cache<GroupUpdates> {
             );
 
             if (res.isOk()) {
-                return res.value.map((q) => {
+                const questions = res.value.map((q) => {
                     const question = new Question(q);
                     question.on('delete', () => {
                         this.emit('delete-question', q.id);
                     });
                     return question;
                 });
+
+                this.$cache.set('questions', questions);
+
+                return questions;
             } else throw res.error;
         });
     }
@@ -241,6 +245,8 @@ export class Group extends Cache<GroupUpdates> {
 }
 
 socket.on('scouting-question:new-question', (data: ScoutingQuestionObj) => {
+    console.log('new question', data);
+
     const g = Group.$cache.get(data.groupId);
     if (!g) return;
 
