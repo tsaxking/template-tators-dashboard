@@ -101,15 +101,15 @@ const fns = {
             questionText = question.question.trim();
 
             if (type === 'select') {
-                optionsData = options.select.map(o => o.trim()) || [];
+                optionsData = options.select?.map(o => o.trim()) || [];
             }
 
             if (type === 'checkbox') {
-                optionsData = options.checkbox.map(o => o.trim()) || [];
+                optionsData = options.checkbox?.map(o => o.trim()) || [];
             }
 
             if (type === 'radio') {
-                optionsData = options.radio.map(o => o.trim()) || [];
+                optionsData = options.radio?.map(o => o.trim()) || [];
             }
 
             // q.on('update', () => {})
