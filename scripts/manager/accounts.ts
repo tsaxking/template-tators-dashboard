@@ -1,5 +1,5 @@
 import { backToMain } from '../manager.ts';
-import { confirm, repeatPrompt, select } from '../prompt.ts';
+import { confirm, repeatPrompt, search } from '../prompt.ts';
 import Account from '../../server/structure/accounts.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { addRoleToAccount, removeRoleFromAccount } from './roles.ts';
@@ -7,60 +7,48 @@ import { DB } from '../../server/utilities/databases.ts';
 
 export const selectAccount = async (
     message = 'select an account',
-): Promise<Result<Account>> => {
+    filter: (a: Account) => boolean = () => true,
+): Promise<Result<Account | undefined>> => {
     return attemptAsync(async () => {
-        const accounts = await Account.getAll();
+        const accounts = (await Account.getAll()).filter(filter);
         if (!accounts.length) {
             throw new Error('no-account');
         }
 
-        return await select<Account>(
+        const res = await search(
             message,
-            accounts.map((account) => ({
-                name: account.username,
-                value: account,
-            })),
+            accounts.map((a) => a.username),
         );
+
+        if (res.isErr()) return;
+
+        return accounts.find((a) => a.username === res.value);
     });
 };
 
 export const verifyAccount = async () => {
-    const accounts = await Account.getUnverifiedAccounts();
-    if (!accounts.length) return backToMain('No accounts to verify');
-
-    const account = await select<Account>(
+    const account = await selectAccount(
         'Select an account to verify',
-        accounts.map((a) => ({
-            name: a.username,
-            value: a,
-        })),
-        {
-            return: true,
-        },
+        (a) => !a.verified,
     );
 
-    if (account) {
-        account.verify();
-        backToMain(`Account ${account.username} verified`);
+    if (account.isErr()) return backToMain('No accounts to verify');
+    if (account.value) {
+        account.value.verify();
+        backToMain(`Account ${account.value.username} verified`);
     } else {
         backToMain('Could not find account :(');
     }
 };
 
 export const unverifyAccount = async () => {
-    const accounts = await Account.getVerifiedAccounts();
-    if (!accounts.length) return backToMain('No accounts to unverify');
-
-    const account = await select<Account>(
+    const res = await selectAccount(
         'Select an account to unverify',
-        accounts.map((a) => ({
-            name: a.username,
-            value: a,
-        })),
-        {
-            return: true,
-        },
+        (a) => !!a.verified,
     );
+
+    if (res.isErr()) return backToMain('No accounts to unverify');
+    const account = res.value;
 
     if (account) {
         account.unverify();
@@ -72,6 +60,7 @@ export const unverifyAccount = async () => {
 export const removeAccount = async () => {
     const account = await selectAccount();
     if (account.isOk()) {
+        if (!account.value) return backToMain('Could not find account :(');
         const isGood = await confirm(
             `Are you sure you want to remove this account? (${account.value.username})`,
         );

@@ -14,8 +14,7 @@ export const router = new Route();
 const redirect = (req: Req, res: Res, next: Next) => {
     if (!req.session.accountId) return next();
 
-    // TODO: use prevurl
-    res.redirect('/home');
+    res.redirect(req.session.prevUrl || '/');
 };
 
 // gets the account from the session
@@ -518,7 +517,7 @@ router.post<{
                 const roles = await (await Account.fromId(id))?.getRoles();
                 if (roles) {
                     return res.json(
-                        Promise.all(
+                        await Promise.all(
                             roles.map(async (r) => ({
                                 ...r,
                                 permissions: await r.getPermissions(),

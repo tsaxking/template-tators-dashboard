@@ -43,8 +43,6 @@ const fns = {
 $: fns.updateVelocityMap(traces);
 </script>
 
-
-
 <Bar
     bind:data
     options="{{

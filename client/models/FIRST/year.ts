@@ -2,7 +2,8 @@ import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba
 import { TBA } from '../../utilities/tba';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { Cache } from '../cache';
-import { attemptAsync, Result } from '../../../shared/attempt';
+import { attemptAsync, Result } from '../../../shared/check';
+import { FIRSTEvent } from './event';
 
 /**
  * Events that are emitted by a {@link FIRSTYear} object
@@ -161,3 +162,12 @@ export class FIRSTYear extends Cache<YearUpdateData> {
         FIRSTYear.emit('select', this);
     }
 }
+
+FIRSTYear.on('select', () => {
+    const query = new URLSearchParams(window.location.search);
+    const evt = query.get('event');
+    if (evt) {
+        const event = FIRSTEvent.cache.get(evt);
+        if (event) event.select();
+    }
+});

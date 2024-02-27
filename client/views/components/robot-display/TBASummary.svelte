@@ -24,7 +24,6 @@ const fns = {
         const teamMatches = matches.value.filter(m => m.teams.includes(t));
         const playedMatches = teamMatches.filter(m => m.played);
 
-        potentialRP = playedMatches.reduce(acc => (acc += 4), 0); // 4 RP per played match
         played = playedMatches.length;
 
         const stats = await TBA.get<TBATeamEventStatus>(
@@ -41,6 +40,7 @@ const fns = {
         ];
         const [avgRP] = stats.value.data.qual.ranking.sort_orders;
         rp = avgRP * played;
+        potentialRP = playedMatches.reduce(acc => (acc += 4), 0) - rp; // 4 RP per played match - earned RP
 
         const dataRes = await t.getVelocityData();
         if (dataRes.isErr()) return console.error(dataRes.error);
@@ -95,7 +95,7 @@ $: {
                         </tr>
                         <tr>
                             <th>Average Velocity</th>
-                            {#if isNaN(velocity)} 
+                            {#if isNaN(velocity)}
                                 <td>Cannot calculate velocity yet</td>
                             {:else}
                                 <td>{velocity.toFixed(2)} ft/s</td>

@@ -1,4 +1,4 @@
-import { attemptAsync, Result } from '../../../../shared/attempt';
+import { attemptAsync, Result } from '../../../../shared/check';
 import {
     QuestionOptions,
     ScoutingQuestion as ScoutingQuestionObj,
