@@ -4,7 +4,7 @@ import { EventEmitter } from '../../shared/event-emitter';
 import { StatusJson } from '../../shared/status';
 import { streamDelimiter } from '../../shared/text';
 import { uuid as _uuid } from '../../server/utilities/uuid';
-import { attemptAsync, Result } from '../../shared/attempt';
+import { attemptAsync, Result } from '../../shared/check';
 import { error, log, warn } from './logging';
 import { bigIntDecode } from '../../shared/objects';
 
@@ -20,7 +20,7 @@ export type RequestOptions = {
         [key: string]: string;
     };
 
-    cached: boolean;
+    cached?: boolean;
 };
 
 /**

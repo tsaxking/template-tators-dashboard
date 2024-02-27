@@ -1,0 +1,1 @@
+UPDATE Accounts SET discordId = :discordId WHERE id = :id;
