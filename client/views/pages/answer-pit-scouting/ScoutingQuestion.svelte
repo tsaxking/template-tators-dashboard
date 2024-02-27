@@ -30,6 +30,7 @@ const fns = {
             if (!res.value) {
                 value = [];
                 answer = undefined;
+                return;
             }
             value = res.value.answer;
             answer = res.value;
