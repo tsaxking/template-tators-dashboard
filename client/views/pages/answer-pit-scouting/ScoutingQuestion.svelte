@@ -168,7 +168,7 @@ FIRSTTeam.on('select', t => {
                         value="{value[0] || ''}"
                     />
                 {:else if question.type === 'checkbox'}
-                    {#each question.options.checkbox as option, i}
+                    {#each question.options.checkbox || [] as option, i}
                         <div class="form-check">
                             <input
                                 type="checkbox"
@@ -196,7 +196,7 @@ FIRSTTeam.on('select', t => {
                         </div>
                     {/each}
                 {:else if question.type === 'radio'}
-                    {#each question.options.radio as option, i}
+                    {#each question.options.radio || [] as option, i}
                         <div
                             class="form-check
                             form-check-inline"
@@ -234,7 +234,7 @@ FIRSTTeam.on('select', t => {
                         on:input="{fns.change}"
                         value="{value[0] || ''}"
                     >
-                        {#each question.options.select as option}
+                        {#each question.options.select || [] as option}
                             <option value="{option}">
                                 {option}
                             </option>
