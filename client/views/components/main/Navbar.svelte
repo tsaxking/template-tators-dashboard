@@ -14,8 +14,8 @@ let account: Account = Account.guest;
 
 export let accountLinks: (string | null)[] = [];
 
-Account.on('current', () => {
-    account = Account.current;
+Account.getAccount().then(a => {
+    if (a) account = a;
 });
 
 const fns = {
@@ -45,111 +45,114 @@ const fns = {
 </script>
 
 <nav
-    class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow text-light d-flex"
+    class="navbar navbar-expand-lg fixed-top shadow text-light bg-dark d-flex justify-content-between"
     id="top-navbar"
 >
-    <button
-        class="btn btn-dark navbar-toggler"
-        type="button"
-        data-bs-toggle="offcanvas"
-        aria-controls="side-bar-nav"
-        data-bs-target="#side-bar-nav"
-    >
-        <i class="material-icons">menu</i>
-    </button>
+    <div class="d-inline-flex p-0">
+        <button
+            class="btn btn-dark navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#sidebar-nav"
+            aria-controls="sidebar-nav"
+            aria-expanded="false"
+            aria-label="Toggle Side Bar"
+        >
+            <i class="bi bi-layout-sidebar"></i>
+        </button>
+        <a
+            href="/home"
+            class="ps-3 pt-2 navbar-brand fw-bold no-select h-100 align-middle text-light"
+            >{title}</a
+        >
 
-    <span class="text-light px-3">
-        <a href="/home" class="navbar-brand fw-bold">{title}</a>&nbsp;
-    </span>
 
-    <a
-        href="#navbar-links"
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbar-links"
-        aria-controls="navbar-links"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-    >
-        <span class="material-icons">menu</span>
-    </a>
-
-    <div class="collapse navbar-collapse" id="navbar-links">
-        <ul class="navbar-nav mb-2 mb-lg-0">
-            {#each navItems as item}
-                <li class="nav-item">
-                    <a
-                        class="{item === active
-                            ? 'nav-link active'
-                            : 'nav-link'}"
-                        href="/{item}">{capitalize(fromSnakeCase(item, '-'))}</a
-                    >
-                </li>
-            {/each}
-        </ul>
-    </div>
-    <div class="me-3">
-        <slot />
-        <ThemeSwitch />
-    </div>
-    <div class="me-3">
-        <EventSelect></EventSelect>
     </div>
 
-    <a
-        class="nav-link dropdown-toggle me-3"
-        href="#navbarDropdown"
-        id="navbarDropdown-link"
-        role="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-    >
-        Hello, {account.username}&nbsp;
-        {#if account.picture}
-            <img
-                src="../uploads/${account.picture}"
-                class="profile-pic mx-1"
-                alt=""
-            />
-        {:else}
-            <span class="material-icons">person</span>
-        {/if}
-    </a>
-
-    <ul
-        class="dropdown-menu dropdown-menu-end p-0"
-        aria-labelledby="navbarDropdown"
-        id="navbarDropdown"
-    >
-        <li>
+    <div class="d-inline-flex p-0">
+        <div class="collapse navbar-collapse bg-dark rounded" id="nav-items">
+            <ul class="navbar-nav mr-auto">
+                {#each navItems as item}
+                    <li class="nav-item">
+                        <a
+                            class="link-light {item === active
+                                ? 'nav-link active'
+                                : 'nav-link'}"
+                            href="/{item}"
+                        >
+                            {capitalize(fromSnakeCase(item, '-'))}
+                        </a>
+                    </li>
+                {/each}
+            </ul>
+            <div class="container-fluid p-1">
+                <ThemeSwitch />
+            </div>
+            <EventSelect></EventSelect>
             <a
-                href="javascript:void(0);"
-                class="dropdown-item"
-                on:click="{fns.openSettings}"
+                class="nav-link dropdown-toggle mx-3 py-1"
+                href="#navbarDropdown"
+                id="navbarDropdown-link"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
             >
-                <i class="material-icons">settings</i>&nbsp;Settings
+                Hello, {account.username}&nbsp;
+                {#if account.picture}
+                    <img
+                        src="../uploads/${account.picture}"
+                        class="profile-pic mx-1"
+                        alt=""
+                    />
+                {:else}
+                    <span class="material-icons">person</span>
+                {/if}
             </a>
-        </li>
-        {#each accountLinks as link}
-            {#if link}
+            <ul
+                class="dropdown-menu dropdown-menu-end p-0"
+                aria-labelledby="navbarDropdown"
+                id="navbarDropdown"
+            >
                 <li>
-                    <a href="{link}" class="dropdown-item"
-                        >{capitalize(fromSnakeCase(link, '-'))}</a
+                    <a
+                        href="javascript:void(0);"
+                        class="dropdown-item"
+                        on:click="{fns.openSettings}"
                     >
+                        <i class="material-icons">settings</i>&nbsp;Settings
+                    </a>
                 </li>
-            {:else}
-                <li><hr class="dropdown-divider" /></li>
-            {/if}
-        {/each}
-
-        <!-- <li><a href="/institution/new" class="dropdown-item">Create Institution <span class="material-icons">home</span></a></li> -->
-        <!-- <li><a class="dropdown-item" href="/my-account">My Account</a></li> -->
-        <!-- <li>
-            <hr class="dropdown-divider">
-        </li> -->
-        <li class="p-1">
-            <a class="dropdown-item" href="/account/sign-out">Sign Out</a>
-        </li>
-    </ul>
+                {#each accountLinks as link}
+                    {#if link}
+                        <li>
+                            <a href="{link}" class="dropdown-item"
+                                >{capitalize(fromSnakeCase(link, '-'))}</a
+                            >
+                        </li>
+                    {:else}
+                        <li><hr class="dropdown-divider" /></li>
+                    {/if}
+                {/each}
+    
+                <!-- <li><a href="/institution/new" class="dropdown-item">Create Institution <span class="material-icons">home</span></a></li> -->
+                <!-- <li><a class="dropdown-item" href="/my-account">My Account</a></li> -->
+                <!-- <li>
+                <hr class="dropdown-divider">
+            </li> -->
+                <li class="p-1">
+                    <a class="dropdown-item" href="/account/sign-out">Sign Out</a>
+                </li>
+            </ul>
+        </div>
+        <button
+            class="btn btn-dark navbar-toggler border-0 h-100 text-light"
+            type="button"
+            data-bs-toggle="collapse"
+            aria-controls="nav-items"
+            data-bs-target="#nav-items"
+            aria-expanded="false"
+        >
+            <i class="bi bi-box-arrow-up-left"></i>
+        </button>
+    </div>
 </nav>

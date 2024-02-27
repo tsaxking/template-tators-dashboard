@@ -5,7 +5,7 @@ import {
     QuestionType,
     ScoutingQuestion as ScoutingQuestionObj,
 } from '../../../../shared/db-types-extended';
-import { attemptAsync, Result } from '../../../../shared/attempt';
+import { attemptAsync, Result } from '../../../../shared/check';
 import { ServerRequest } from '../../../utilities/requests';
 import { FIRSTEvent } from '../event';
 import { FIRSTTeam } from '../team';

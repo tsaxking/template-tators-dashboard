@@ -5,7 +5,6 @@ import { Account } from '../../models/account';
 
 let permissions: Permission[] = [];
 
-
 const links: {
     link: string;
     name: string;
@@ -52,12 +51,24 @@ const links: {
         textColor: 'dark',
         linkColor: 'dark',
         requiredPermission: 'developer'
+    },
+    {
+        link: '/dashboard/2023',
+        name: '2023 Tator Scout Dashboard',
+        description: 'Scout data for the 2023 Tator team. (for developers)',
+        color: 'info',
+        textColor: 'light',
+        linkColor: 'light',
+        requiredPermission: 'developer'
     }
 ];
 
-Account.on('current', async (a) => {
+Account.getAccount().then(async a => {
+    if (!a) return;
     const perms = await a.getPermissions();
-    if (perms.isOk()) permissions = perms.value;
+    console.log(perms);
+    if (perms.isOk())
+        permissions = perms.value.map(p => p.permission as Permission);
     else console.error(perms.error);
 });
 </script>
@@ -69,9 +80,9 @@ Account.on('current', async (a) => {
         <div class="row">
             {#each links as link}
                 {#if (link.requiredPermission && permissions.includes(link.requiredPermission)) || !link.requiredPermission}
-                    <div class="col-md-6 col-lg-4">
+                    <div class="col-md-6 col-lg-4 mb-3">
                         <div
-                            class="d-flex position-relative hover hover-fast hover-grow-sm hover-grow shadow rounded p-3 m-2 bg-{link.color} text-{link.textColor}"
+                            class="d-flex position-relative hover hover-fast hover-grow-sm hover-grow shadow rounded p-3 m-2 bg-{link.color} text-{link.textColor} home-card"
                         >
                             {#if link.image}
                                 <img
@@ -97,3 +108,10 @@ Account.on('current', async (a) => {
         </div>
     </div>
 </main>
+
+<style>
+.home-card {
+    cursor: pointer;
+    height: 100% !important;
+}
+</style>

@@ -31,8 +31,22 @@ const fns = {
             await Promise.all(
                 newAccounts.map(async a => {
                     const [roles, permissions] = await Promise.all([
-                        a.getRoles().then(r => (r.isOk() ? r.value : [])),
-                        a.getPermissions().then(p => (p.isOk() ? p.value : []))
+                        a.getRoles(true).then(r => {
+                            if (r.isOk()) {
+                                return r.value;
+                            } else {
+                                // console.error('Failed to get roles: ', r.error);
+                                return [];
+                            }
+                        }),
+                        a.getPermissions(true).then(p => {
+                            if (p.isOk()) {
+                                return p.value;
+                            } else {
+                                // console.error('Failed to get permissions: ', p.error);
+                                return [];
+                            }
+                        })
                     ]);
 
                     return {
@@ -76,6 +90,7 @@ let div: HTMLDivElement;
 onMount(set);
 
 $: fns.setAccounts(accounts);
+$: console.log(accountObjs);
 
 Account.on('new', set);
 Account.on('update', set);
