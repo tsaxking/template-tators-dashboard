@@ -1,8 +1,7 @@
 import { EventEmitter } from '../../shared/event-emitter';
 import { Cache } from './cache';
 import { AccountSafe, Role as R, RolePermission } from '../../shared/db-types';
-import { Permission as P } from '../../shared/permissions';
-import { attemptAsync, Result } from '../../shared/attempt';
+import { attemptAsync, Result } from '../../shared/check';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
 import { socket } from '../utilities/socket';
@@ -508,6 +507,10 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 }
+
+Object.assign(window, {
+    Account,
+});
 
 socket.on('account:removed', (accountId: string) => {
     const account = Account.$cache.get(accountId);

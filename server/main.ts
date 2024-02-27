@@ -16,6 +16,7 @@ const main = () => {
                 'run',
                 '--allow-all',
                 '--v8-flags=--max-old-space-size=8000',
+                '--unstable-sloppy-imports',
                 './server/server.ts',
             ],
             stdout: 'inherit',

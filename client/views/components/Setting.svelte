@@ -53,7 +53,7 @@ const onChange = (v: any) => {
 };
 </script>
 
-<div class="row m-3">
+<div class="row">
     {#if type === 'range'}
         <div
             class="col-{labelwidth} d-flex justify-content-center align-items-center"
