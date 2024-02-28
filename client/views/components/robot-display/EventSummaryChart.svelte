@@ -48,11 +48,11 @@ const fns = {
 
             data = {
                 labels: [
-                    'Average Auto Score',
+                    'Avg Auto Score',
                     'Max Auto Score',
-                    'Average Teleop Score',
-                    'Max Teleop Score',
-                    'Average Total Score',
+                    'Avg Tele Score',
+                    'Max Tele Score',
+                    'Avg Total Score',
                     'Max Total Score'
                 ],
                 datasets: [
