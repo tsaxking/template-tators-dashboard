@@ -198,18 +198,6 @@ router.post<{
     },
 );
 
-router.post('/get-accounts', auth, async (_req, res) => {
-    const accounts = await Account.getAll();
-    res.json(
-        accounts.map((a) => ({
-            username: a.username,
-            firstName: a.firstName,
-            lastName: a.lastName,
-            email: a.email,
-        })),
-    );
-});
-
 router.post<{
     username: string;
     password: string;
