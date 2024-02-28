@@ -278,6 +278,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     }
 
     async cacheTeamPictures() {
+        console.log('Caching team pictures');
         const res = await ServerRequest.post<TeamPicture[]>(
             '/api/teams/pictures-from-event',
             {
@@ -286,12 +287,11 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         );
 
         if (res.isOk()) {
-            for (const p of res.value) {
-                this.getTeam(p.teamNumber)
-                    .then((t) => {
-                        if (t) t.pictures = [...t.pictures, p];
-                    });
-            }
+            return Promise.all(res.value.map(async (p) => {
+                const t = await this.getTeam(p.teamNumber);
+                if (!t) return; // should never happen
+                t.pictures = [...t.pictures, p];
+            }))
         }
     }
 
