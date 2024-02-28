@@ -46,6 +46,7 @@ $: fns.updateVelocityMap(traces);
 <Bar
     bind:data
     options="{{
+        maintainAspectRatio: false,
         indexAxis: 'x',
         scales: {
             y: {
