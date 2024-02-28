@@ -16,6 +16,18 @@ import { io, Socket } from './structure/socket.ts';
 import { getJSONSync } from './utilities/files.ts';
 import { emitter } from './middleware/data-type.ts';
 
+if (Deno.args.includes('--stats')) {
+    const measure = () => {
+        console.clear();
+        const { rss, heapUsed, heapTotal } = Deno.memoryUsage();
+        console.log('rss:', rss / 1024 / 1024, 'MB');
+        console.log('heap:', heapUsed / 1024 / 1024, 'MB');
+        console.log('total:', heapTotal / 1024 / 1024, 'MB');
+    };
+
+    setInterval(measure, 1000);
+}
+
 const port = +(env.PORT || 3000);
 
 export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
