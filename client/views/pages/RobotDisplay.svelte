@@ -50,20 +50,23 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
     </div>
     <hr />
     <div class="row">
-        <DashboardCard title="Action Heatmap">
-            <ActionHeatmap {team} />
-        </DashboardCard>
         <DashboardCard title="Summary" scroll="{true}">
             <TbaSummary {team} />
         </DashboardCard>
         <DashboardCard title="Event Summary" scroll="{true}">
             <EventSummaryChart {team} />
         </DashboardCard>
+        <DashboardCard title="Comments" scroll="{true}">
+            <CommentViewer {team} />
+        </DashboardCard>
         <DashboardCard title="Matches Summary" scroll="{true}">
             <MatchesSummaryChart {team} />
         </DashboardCard>
         <DashboardCard title="Matches" scroll="{true}">
             <TeamMatchTable {team} />
+        </DashboardCard>
+        <DashboardCard title="Action Heatmap">
+            <ActionHeatmap {team} />
         </DashboardCard>
         <DashboardCard title="Velocity Histogram">
             <VelocityHistogram {traces} />
@@ -73,9 +76,6 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
         </DashboardCard>
         <DashboardCard title="Pit Scouting" scroll="{true}">
             <PitScouting {team} />
-        </DashboardCard>
-        <DashboardCard title="Comments" scroll="{true}">
-            <CommentViewer {team} />
         </DashboardCard>
     </div>
 </div>
