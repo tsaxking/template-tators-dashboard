@@ -53,11 +53,14 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
         <DashboardCard title="Summary" scroll="{true}">
             <TbaSummary {team} />
         </DashboardCard>
-        <DashboardCard title="Event Summary" scroll="{true}">
-            <EventSummaryChart {team} />
-        </DashboardCard>
         <DashboardCard title="Comments" scroll="{true}">
             <CommentViewer {team} />
+        </DashboardCard>
+        <DashboardCard title="Pictures" scroll="{true}">
+            <TeamPictures {team} upload="{true}" />
+        </DashboardCard>
+        <DashboardCard title="Event Summary" scroll="{true}">
+            <EventSummaryChart {team} />
         </DashboardCard>
         <DashboardCard title="Matches Summary" scroll="{true}">
             <MatchesSummaryChart {team} />
@@ -70,9 +73,6 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
         </DashboardCard>
         <DashboardCard title="Velocity Histogram">
             <VelocityHistogram {traces} />
-        </DashboardCard>
-        <DashboardCard title="Pictures" scroll="{true}">
-            <TeamPictures {team} upload="{true}" />
         </DashboardCard>
         <DashboardCard title="Pit Scouting" scroll="{true}">
             <PitScouting {team} />
