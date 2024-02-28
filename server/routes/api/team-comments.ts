@@ -10,64 +10,46 @@ export const router = new Route();
 router.post(Account.isSignedIn);
 
 router.post<{
-    id: string;
-    comment: string;
-    accountId: string | undefined;
-    team: number;
-    type: 'match' | 'dashboard';
-    matchScoutingId: string;
+    teamNumber: number;
     eventKey: string;
-    time: number;
+    comment: string;
+    type: string;
 }>(
-    '/new-comment',
+    '/new',
     validate({
-        id: 'string',
-        comment: 'string',
-        accountId: 'string',
-        team: 'number',
-        matchScoutingId: 'string',
+        teamNumber: 'number',
         eventKey: 'string',
-        time: 'number',
+        comment: 'string',
+        type: 'string',
     }),
     (req, res) => {
         const time = Date.now();
         const id = uuid();
-        const { matchScoutingId, team, comment, eventKey, type } = req.body;
-
         const { accountId } = req.session;
-        if (!accountId) return res.sendStatus('account:not-logged-in');
-
-        const str = JSON.stringify(comment);
+        const { teamNumber, eventKey, comment, type } = req.body;
 
         DB.run('team-comments/new', {
             id,
-            team,
-            comment: str,
-            type,
-            matchScoutingId,
-            accountId,
-            time,
+            team: teamNumber,
             eventKey,
-        });
-        res.sendStatus('team-comment:new', {
-            id,
-            team,
-            comment: str,
+            comment,
             type,
-            matchScoutingId,
-            accountId,
             time,
-            eventKey,
+            accountId,
+            matchScoutingId: '',
         });
+
+        res.sendStatus('team-comment:new');
+
         req.io.emit('team-comment:new', {
             id,
-            team,
-            comment: str,
-            type,
-            matchScoutingId,
-            accountId,
-            time,
+            team: teamNumber,
             eventKey,
+            comment,
+            type,
+            time,
+            accountId,
+            matchScoutingId: '',
         });
     },
 );
@@ -76,7 +58,7 @@ router.post<{
     team: number;
     eventKey: string;
 }>(
-    '/get-team-comments',
+    '/get',
     validate({
         team: 'number',
         eventKey: 'string',

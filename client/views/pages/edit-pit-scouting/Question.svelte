@@ -119,7 +119,6 @@ const fns = {
         }
     }
 };
-
 </script>
 
 <div class="card">
@@ -170,7 +169,7 @@ const fns = {
                     class="form-control"
                     id="{question.id}-description"
                     bind:value="{description}"
-                    on:change={fns.update}
+                    on:change="{fns.update}"
                 ></textarea>
             </div>
             <div class="row mb-3">
@@ -184,7 +183,7 @@ const fns = {
                     class="form-control"
                     id="{question.id}-type"
                     bind:value="{type}"
-                    on:change={fns.update}
+                    on:change="{fns.update}"
                 >
                     <option value="text">Text</option>
                     <option value="number">Number</option>
@@ -199,13 +198,19 @@ const fns = {
                     for them to select from.
                 </small>
                 {#each optionsData as o, index}
-                    <O text="{o}" on:update={({ detail: { text }}) => {
-                        optionsData = optionsData.map((op, i) => i === index ? text : op);
-                        if (type === 'select') options.select = optionsData;
-                        if (type === 'checkbox') options.checkbox = optionsData;
-                        if (type === 'radio') options.radio = optionsData;
-                        fns.update();
-                    }} />
+                    <O
+                        text="{o}"
+                        on:update="{({ detail: { text } }) => {
+                            optionsData = optionsData.map((op, i) =>
+                                i === index ? text : op
+                            );
+                            if (type === 'select') options.select = optionsData;
+                            if (type === 'checkbox')
+                                options.checkbox = optionsData;
+                            if (type === 'radio') options.radio = optionsData;
+                            fns.update();
+                        }}"
+                    />
                 {/each}
                 <div class="row mb-3">
                     <button class="btn btn-primary" on:click="{fns.addOption}">

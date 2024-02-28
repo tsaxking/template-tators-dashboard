@@ -17,6 +17,8 @@ const fns = {
         if (m.isErr()) return console.error(m.error);
 
         matches = m.value.filter(m => m.teams.includes(t));
+
+        t.on('new-comment', () => fns.getMatches(t));
     },
     viewMatch: (m: FIRSTMatch) => {
         const modal = new Modal(Math.random().toString().substring(2));
@@ -44,7 +46,7 @@ $: {
 </script>
 
 <div class="table-responsive w-100">
-    <table class="table table-dark table-hover table-striped w-100">
+    <table class="table table-hover table-striped w-100">
         <caption>
             Click on a match to view the match details
             <br />

@@ -65,8 +65,6 @@ const fns = {
             class="ps-3 pt-2 navbar-brand fw-bold no-select h-100 align-middle text-light"
             >{title}</a
         >
-
-
     </div>
 
     <div class="d-inline-flex p-0">
@@ -133,14 +131,16 @@ const fns = {
                         <li><hr class="dropdown-divider" /></li>
                     {/if}
                 {/each}
-    
+
                 <!-- <li><a href="/institution/new" class="dropdown-item">Create Institution <span class="material-icons">home</span></a></li> -->
                 <!-- <li><a class="dropdown-item" href="/my-account">My Account</a></li> -->
                 <!-- <li>
                 <hr class="dropdown-divider">
             </li> -->
                 <li class="p-1">
-                    <a class="dropdown-item" href="/account/sign-out">Sign Out</a>
+                    <a class="dropdown-item" href="/account/sign-out"
+                        >Sign Out</a
+                    >
                 </li>
             </ul>
         </div>

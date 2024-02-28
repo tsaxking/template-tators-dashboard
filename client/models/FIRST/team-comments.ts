@@ -5,6 +5,7 @@ import { attemptAsync } from '../../../shared/check';
 import { ServerRequest } from '../../utilities/requests';
 import { FIRSTEvent } from './event';
 import { socket } from '../../utilities/socket';
+import { FIRSTTeam } from './team';
 
 type TeamCommentUpdates = {
     update: string; // comment
@@ -43,18 +44,14 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
         return TeamComment.cache.get(id);
     }
 
-    public static new(obj: TCObject) {
-        return attemptAsync(async () => {
-            const res = await ServerRequest.post<{
-                obj: TCObject;
-            }>('/api/scouting-questions/new-question', obj);
-
-            if (res.isOk()) return new TeamComment(res.value.obj);
-            throw res.error;
+    public static new(team: FIRSTTeam, type: string, comment: string) {
+        return ServerRequest.post('/api/team-comments/new', {
+            comment,
+            type,
+            teamNumber: team.number,
+            eventKey: team.event.key,
         });
     }
-
-
 
     public static fromTeam(
         teamNumber: number,
@@ -66,11 +63,11 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
             const comments = Array.from(current).filter((c) => {
                 return c.team === teamNumber && c.eventKey === event.key;
             });
-            
+
             if (comments.length) return comments;
 
             const res = await ServerRequest.post<TCObject[]>(
-                '/api/team-comments',
+                '/api/team-comments/get',
                 {
                     team: teamNumber,
                     eventKey: event.key,
@@ -81,8 +78,6 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
             return res.value.map((obj) => new TeamComment(obj));
         });
     }
-
-    
 
     public readonly id: string;
     public readonly team: number;
@@ -103,12 +98,15 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
         this.accountId = obj.accountId;
         this.time = obj.time;
         this.eventKey = obj.eventKey;
+
+        TeamComment.cache.set(this.id, this);
     }
 }
 
-socket.on(
-    'team-comment:new',
-    (data: TCObject) => {
-    new TeamComment(data);
-});
+socket.on('team-comment:new', (data: TCObject) => {
+    const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
+    if (!team) return;
 
+    const comment = new TeamComment(data);
+    team.emit('new-comment', comment);
+});
