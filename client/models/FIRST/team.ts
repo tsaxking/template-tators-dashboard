@@ -3,7 +3,7 @@ import {
     RetrievedMatchScouting,
     RetrievedScoutingAnswer,
     Team,
-    TeamPictures,
+    TeamPicture,
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
 import {
@@ -22,6 +22,7 @@ import { attemptAsync, Result } from '../../../shared/check';
 import { MatchScouting } from './match-scouting';
 import { Answer } from './question-scouting/answer';
 import { Trace } from '../../../shared/submodules/tatorscout-calculations/trace';
+import { FIRSTMatch } from './match';
 
 export type Updates = {
     create: FIRSTTeam;
@@ -45,6 +46,7 @@ type FIRSTTeamEventData = {
     'match-comments': MatchScoutingComments;
     'pit-scouting': RetrievedScoutingAnswer;
     'update-events': TBAEvent[];
+    'new-picture': TeamPicture;
 };
 
 /**
@@ -95,7 +97,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @static
      * @type {Map<number, FIRSTTeam>}
      */
-    public static readonly $cache = new Map<number, FIRSTTeam>();
+    // <team number>:<event key>
+    public static readonly $cache = new Map<string, FIRSTTeam>();
 
     /**
      * Creates an instance of FIRSTTeam.
@@ -110,10 +113,10 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         public readonly event: FIRSTEvent,
     ) {
         super();
-        if (!FIRSTTeam.$cache.has(tba.team_number)) {
-            FIRSTTeam.$cache.get(tba.team_number)?.destroy();
+        if (!FIRSTTeam.$cache.has(tba.team_number + ':' + event.key)) {
+            FIRSTTeam.$cache.get(tba.team_number + ':' + event.key)?.destroy();
         }
-        FIRSTTeam.$cache.set(tba.team_number, this);
+        FIRSTTeam.$cache.set(tba.team_number + ':' + event.key, this);
     }
 
     get number(): number {
@@ -298,7 +301,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @public
      */
     public destroy() {
-        FIRSTTeam.$cache.delete(this.tba.team_number);
+        FIRSTTeam.$cache.delete(this.tba.team_number + ':' + this.event.key);
         super.destroy();
     }
 
@@ -325,13 +328,13 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         });
     }
 
-    public async getPictures(): Promise<Result<TeamPictures[]>> {
+    public async getPictures(): Promise<Result<TeamPicture[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has('pictures')) {
-                return this.$cache.get('pictures') as TeamPictures[];
+                return this.$cache.get('pictures') as TeamPicture[];
             }
 
-            const res = await ServerRequest.post<TeamPictures[]>(
+            const res = await ServerRequest.post<TeamPicture[]>(
                 '/api/teams/get-pictures',
                 {
                     teamNumber: this.number,
@@ -377,7 +380,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 // update sockets:
 
 socket.on('match-scouting:new', (data: RetrievedMatchScouting) => {
-    const team = FIRSTTeam.$cache.get(data.team);
+    const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
 
     if (!team) return;
 
@@ -410,7 +413,7 @@ socket.on('match-scouting:new', (data: RetrievedMatchScouting) => {
 });
 
 socket.on('match-scouting:delete', (data: RetrievedMatchScouting) => {
-    const team = FIRSTTeam.$cache.get(data.team);
+    const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
 
     if (!team) return;
 
@@ -430,46 +433,46 @@ socket.on('match-scouting:delete', (data: RetrievedMatchScouting) => {
     team.$emitter.emit('match-scouting', data);
 });
 
-socket.on('match-comments:new', (data: MatchScoutingComments) => {
-    const team = FIRSTTeam.$cache.get(data.team);
+// socket.on('match-comments:new', (data: MatchScoutingComments) => {
+//     const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
 
-    if (!team) return;
+//     if (!team) return;
 
-    if (team.$cache.has('match-comments')) {
-        const mc = team.$cache.get('match-comments') as MatchScoutingComments[];
-        const match = mc.find((m) => m.id === data.id);
-        if (match) {
-            mc.splice(mc.indexOf(match), 1, data);
-        } else {
-            mc.push(data);
-        }
+//     if (team.$cache.has('match-comments')) {
+//         const mc = team.$cache.get('match-comments') as MatchScoutingComments[];
+//         const match = mc.find((m) => m.id === data.id);
+//         if (match) {
+//             mc.splice(mc.indexOf(match), 1, data);
+//         } else {
+//             mc.push(data);
+//         }
 
-        team.$cache.set('match-comments', mc);
-    }
+//         team.$cache.set('match-comments', mc);
+//     }
 
-    team.$emitter.emit('match-comments', data);
-});
+//     team.$emitter.emit('match-comments', data);
+// });
 
-socket.on('match-comments:delete', (data: MatchScoutingComments) => {
-    const team = FIRSTTeam.$cache.get(data.team);
+// socket.on('match-comments:delete', (data: MatchScoutingComments) => {
+//     const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
 
-    if (!team) return;
+//     if (!team) return;
 
-    if (team.$cache.has('match-comments')) {
-        const mc = team.$cache.get('match-comments') as MatchScoutingComments[];
-        const match = mc.find((m) => m.id === data.id);
-        if (match) {
-            mc.splice(mc.indexOf(match), 1);
-        }
+//     if (team.$cache.has('match-comments')) {
+//         const mc = team.$cache.get('match-comments') as MatchScoutingComments[];
+//         const match = mc.find((m) => m.id === data.id);
+//         if (match) {
+//             mc.splice(mc.indexOf(match), 1);
+//         }
 
-        team.$cache.set('match-comments', mc);
-    }
+//         team.$cache.set('match-comments', mc);
+//     }
 
-    team.$emitter.emit('match-comments', data);
-});
+//     team.$emitter.emit('match-comments', data);
+// });
 
 socket.on('pit-scouting:new', (data: RetrievedScoutingAnswer) => {
-    const team = FIRSTTeam.$cache.get(data.teamNumber);
+    const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
 
     if (!team) return;
 
@@ -489,7 +492,7 @@ socket.on('pit-scouting:new', (data: RetrievedScoutingAnswer) => {
 });
 
 socket.on('pit-scouting:delete', (data: RetrievedScoutingAnswer) => {
-    const team = FIRSTTeam.$cache.get(data.teamNumber);
+    const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
 
     if (!team) return;
 
@@ -507,6 +510,25 @@ socket.on('pit-scouting:delete', (data: RetrievedScoutingAnswer) => {
 });
 
 // TODO: sockets for watch priority
-// TODO: sockets for picture upload
+
+socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
+    const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
+    if (!team) return;
+
+    const pictures = (team.$cache.get('pictures') || []) as TeamPicture[];
+
+    pictures.push({
+        picture: data.picture,
+        time: data.time,
+        accountId: data.accountId,
+        eventKey: data.eventKey,
+        teamNumber: data.teamNumber,
+    });
+
+    team.$cache.set('pictures', pictures);
+
+    team.emit('new-picture', data);
+});
+
 
 Object.assign(window, { FIRSTTeam });

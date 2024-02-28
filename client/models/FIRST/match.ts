@@ -14,6 +14,7 @@ import { FIRSTTeam } from './team';
 import { Strategy } from './strategy';
 import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/check';
+import { MatchScouting } from './match-scouting';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -80,6 +81,8 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     }
 
     public static current?: FIRSTMatch = undefined;
+
+
 
     /**
      * Map of all FIRSTMatch objects
@@ -209,33 +212,12 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             [teamNumber: number]: RetrievedMatchScouting
         }>}
      */
-    async getMatchScouting(): Promise<{
+    async getMatchScouting(): Promise<Result<{
         [teamNumber: number]: RetrievedMatchScouting;
-    }> {
-        const scouting = await Promise.all(
-            this.teams.map((t) => {
-                return new Promise<RetrievedMatchScouting>((res, rej) => {
-                    t.getMatchScouting().on('complete', (matches) => {
-                        const match = matches.find(
-                            (m) =>
-                                m.compLevel === this.tba.comp_level &&
-                                m.matchNumber === this.tba.match_number,
-                        );
-                        if (match) res(match);
-                        else rej(new Error('Match not found'));
-                    });
-                });
-            }),
-        );
-
-        return scouting.reduce(
-            (acc, cur, i) => {
-                acc[this.teams[i].tba.team_number] = cur;
-
-                return acc;
-            },
-            {} as { [teamNumber: number]: RetrievedMatchScouting },
-        );
+    }>> {
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+        });
     }
 
     async getWhiteboard(): Promise<Result<WhiteboardObj>> {
@@ -271,7 +253,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
 
         const teams = [red1, red2, red3, blue1, blue2, blue3].map((t) =>
-            FIRSTTeam.$cache.get(+t.replace('frc', ''))
+            FIRSTTeam.$cache.get(+t.replace('frc', '') + ':' + this.event.tba.key)
         );
 
         if (teams.some((t) => !t)) {

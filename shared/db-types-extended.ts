@@ -395,10 +395,10 @@ export type QuestionOptions = Partial<{
     radio: string[];
 }>;
 
-export type TeamPictures = {
+export type TeamPicture = {
     teamNumber: number;
     eventKey: string;
     picture: string;
-    time: string;
+    time: number;
     accountId: string;
 };
