@@ -38,22 +38,18 @@ const fns = {
 
             data = {
                 labels: [
-                    'Avg Auto Speaker',
-                    'Max Auto Speaker',
-                    'Avg Auto Amp',
-                    'Max Auto Amp',
-
-                    'Avg Tele Speaker',
-                    'Max Tele Speaker',
-                    'Avg Tele Amp',
-                    'Max Tele Amp',
-                    'Avg Tele Trap',
-                    'Max Tele Trap'
+                    'Avg Spk',
+                    'Max Spk',
+                    'Avg Amp',
+                    'Max Amp',
+                    'Avg Trap',
+                    'Max Trap',
                 ],
                 datasets: [
                     {
-                        label: 'Scores',
+                        label: 'Auto',
                         data: [
+                            
                             // Average Auto Speaker
                             eventSummary.reduce(
                                 (acc, val) => acc + val.auto.spk,
@@ -68,6 +64,11 @@ const fns = {
                             ) / eventSummary.length,
                             // Max Auto Amp
                             Math.max(...eventSummary.map(val => val.auto.amp)),
+                        ]
+                    },
+                    {
+                        label: 'Teleop',
+                        data: [
                             // Average Teleop Speaker
                             eventSummary.reduce(
                                 (acc, val) => acc + val.teleop.spk,
