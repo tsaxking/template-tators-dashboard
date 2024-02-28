@@ -82,8 +82,6 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
     public static current?: FIRSTMatch = undefined;
 
-
-
     /**
      * Map of all FIRSTMatch objects
      * @date 10/9/2023 - 6:39:41 PM
@@ -212,9 +210,11 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             [teamNumber: number]: RetrievedMatchScouting
         }>}
      */
-    async getMatchScouting(): Promise<Result<{
-        [teamNumber: number]: RetrievedMatchScouting;
-    }>> {
+    async getMatchScouting(): Promise<
+        Result<{
+            [teamNumber: number]: RetrievedMatchScouting;
+        }>
+    > {
         return attemptAsync(async () => {
             throw new Error('Not implemented');
         });
@@ -253,7 +253,9 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
 
         const teams = [red1, red2, red3, blue1, blue2, blue3].map((t) =>
-            FIRSTTeam.$cache.get(+t.replace('frc', '') + ':' + this.event.tba.key)
+            FIRSTTeam.$cache.get(
+                +t.replace('frc', '') + ':' + this.event.tba.key,
+            )
         );
 
         if (teams.some((t) => !t)) {

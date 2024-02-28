@@ -7,7 +7,7 @@ import TeamPictures from '../components/robot-display/TeamPictures.svelte';
 import VelocityHistogram from '../components/robot-display/VelocityHistogram.svelte';
 import { type TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import PitScouting from '../components/robot-display/PitScouting.svelte';
-import TeamComments from '../components/robot-display/TeamComments.svelte';
+import CommentViewer from '../components/robot-display/CommentViewer.svelte';
 
 import DashboardCard from '../components/main/DashboardCard.svelte';
 import EventSummaryChart from '../components/robot-display/EventSummaryChart.svelte';
@@ -69,6 +69,9 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
         </DashboardCard>
         <DashboardCard title="Pit Scouting" scroll="{true}">
             <PitScouting {team} />
+        </DashboardCard>
+        <DashboardCard title="Comments" scroll="{true}">
+            <CommentViewer {team} />
         </DashboardCard>
     </div>
 </div>

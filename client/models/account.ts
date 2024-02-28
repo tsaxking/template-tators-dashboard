@@ -97,6 +97,16 @@ export class Account extends Cache<AccountEvents> {
         }
     }
 
+    public static async get(id: string): Promise<Account | undefined> {
+        if (Account.$cache.has(id)) return Account.$cache.get(id);
+        const res = await ServerRequest.post<AccountSafe>('/account/get', {
+            id,
+        });
+        if (res.isOk()) {
+            return new Account(res.value);
+        }
+    }
+
     /**
      * Account emitter
      * @date 2/1/2024 - 12:54:21 AM

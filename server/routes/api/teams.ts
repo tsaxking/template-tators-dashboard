@@ -33,29 +33,6 @@ router.post<{
     team: number;
     eventKey: string;
 }>(
-    '/match-comments',
-    validate({
-        team: 'number',
-        eventKey: 'string',
-    }),
-    async (req, res) => {
-        const { team, eventKey } = req.body;
-
-        const comments = await DB.all('team-comments/from-team', {
-            team,
-            eventKey,
-        });
-
-        if (comments.isErr()) return res.sendStatus('unknown:error');
-
-        res.stream(comments.value);
-    },
-);
-
-router.post<{
-    team: number;
-    eventKey: string;
-}>(
     '/pit-scouting',
     validate({
         team: 'number',
@@ -152,17 +129,14 @@ router.post<{
         const results = await Promise.all(
             files.map(async (f) => {
                 const { id } = f;
-                
-                req.io.emit(
-                    'teams:pictures-uploaded',
-                    {
-                        eventKey,
-                        teamNumber,
-                        picture: id,
-                        accountId,
-                        time,
-                    }
-                );
+
+                req.io.emit('teams:pictures-uploaded', {
+                    eventKey,
+                    teamNumber,
+                    picture: id,
+                    accountId,
+                    time,
+                });
                 return DB.run('teams/new-picture', {
                     eventKey,
                     teamNumber,

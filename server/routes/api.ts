@@ -31,3 +31,6 @@ router.route('/tba', tba);
 
 import { router as matchScouting } from './api/match-scouting.ts';
 router.route('/match-scouting', matchScouting);
+
+import { router as teamComments } from './api/team-comments.ts';
+router.route('/team-comments', teamComments);

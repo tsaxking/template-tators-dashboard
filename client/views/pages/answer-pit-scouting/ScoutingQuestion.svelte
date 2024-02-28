@@ -248,17 +248,16 @@ FIRSTTeam.on('select', t => {
                             id="q-{question.id}"
                             class="form-check-input"
                             on:change="{event => {
-                                value = [event.currentTarget.checked.toString()];
+                                value = [
+                                    event.currentTarget.checked.toString()
+                                ];
                                 fns.saveValue();
                             }}"
                             {disabled}
                             on:input="{fns.change}"
                             checked="{value[0] === 'true'}"
                         />
-                        <label
-                            for="q-{question.id}"
-                            class="form-check-label"
-                        >
+                        <label for="q-{question.id}" class="form-check-label">
                             Yes
                         </label>
                     </div>
