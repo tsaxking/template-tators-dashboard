@@ -39,17 +39,17 @@ const fns = {
 
             data = {
                 labels: [
-                    'Average Auto Speaker',
+                    'Avg Auto Speaker',
                     'Max Auto Speaker',
-                    'Average Auto Amp',
+                    'Avg Auto Amp',
                     'Max Auto Amp',
 
-                    'Average Teleop Speaker',
-                    'Max Teleop Speaker',
-                    'Average Teleop Amp',
-                    'Max Teleop Amp',
-                    'Average Teleop Trap',
-                    'Max Teleop Trap'
+                    'Avg Tele Speaker',
+                    'Max Tele Speaker',
+                    'Avg Tele Amp',
+                    'Max Tele Amp',
+                    'Avg Tele Trap',
+                    'Max Tele Trap'
                 ],
                 datasets: [
                     {
