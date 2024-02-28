@@ -35,7 +35,7 @@ $: fns.getTeam(team);
 FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
 </script>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row mb-3">
         <div class="col-md-6">
             <RobotSelect></RobotSelect>
