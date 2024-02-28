@@ -1,5 +1,6 @@
 <script lang="ts">
 import { FIRSTTeam } from '../../../models/FIRST/team';
+import { Modal } from '../../../utilities/modals';
 import Carousel from '../bootstrap/Carousel.svelte';
 import UploadTeamPicture from './UploadTeamPicture.svelte';
 
@@ -28,6 +29,10 @@ const fns = {
 $: {
     if (team) {
         fns.setPictures(team);
+
+        team.on('new-picture', () => {
+            fns.setPictures(team);
+        });
     }
 }
 </script>
@@ -40,7 +45,21 @@ $: {
                     <img
                         src="{pic.url}"
                         alt="{pic.name}"
-                        class="img-thumbnail"
+                        class="img-thumbnail team-picture cursor-pointer"
+                        on:click={() => {
+                            const img = new Image;
+                            img.src = pic.url;
+                            img.style.width = '100%';
+                            const div = document.createElement('div');
+                            div.appendChild(img);
+                            img.onload = () => {
+                                const m = new Modal();
+                                m.setTitle(String(team.number));
+                                m.setBody(div);
+                                m.size = 'lg';
+                                m.show();
+                            };
+                        }}
                     />
                 </div>
             {/each}
@@ -53,3 +72,13 @@ $: {
         </div>
     {/if}
 </div>
+
+<style>
+    .team-picture {
+        max-width: 100%;
+        max-height: 100%;
+        min-width: 75px;
+
+        margin: 0 auto;
+    }
+</style>

@@ -23,7 +23,6 @@ const fns = {
 
         upload.$on('change', (e: CustomEvent) => {
             fileList = e.detail.fileList;
-            console.log(fileList);
         });
 
         m.show();
