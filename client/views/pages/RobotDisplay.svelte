@@ -12,6 +12,7 @@ import CommentViewer from '../components/robot-display/CommentViewer.svelte';
 import DashboardCard from '../components/main/DashboardCard.svelte';
 import EventSummaryChart from '../components/robot-display/EventSummaryChart.svelte';
 import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart.svelte';
+import ActionHeatmap from '../components/robot-display/ActionHeatmap.svelte';
 
 let team: FIRSTTeam;
 
@@ -55,11 +56,17 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
         <DashboardCard title="Event Summary" scroll="{true}">
             <EventSummaryChart {team} />
         </DashboardCard>
+        <DashboardCard title="Comments" scroll="{true}">
+            <CommentViewer {team} />
+        </DashboardCard>
         <DashboardCard title="Matches Summary" scroll="{true}">
             <MatchesSummaryChart {team} />
         </DashboardCard>
         <DashboardCard title="Matches" scroll="{true}">
             <TeamMatchTable {team} />
+        </DashboardCard>
+        <DashboardCard title="Action Heatmap">
+            <ActionHeatmap {team} />
         </DashboardCard>
         <DashboardCard title="Velocity Histogram">
             <VelocityHistogram {traces} />
@@ -69,9 +76,6 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
         </DashboardCard>
         <DashboardCard title="Pit Scouting" scroll="{true}">
             <PitScouting {team} />
-        </DashboardCard>
-        <DashboardCard title="Comments" scroll="{true}">
-            <CommentViewer {team} />
         </DashboardCard>
     </div>
 </div>
