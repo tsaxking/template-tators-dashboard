@@ -2,7 +2,6 @@
 import { Trace } from '../../../../shared/submodules/tatorscout-calculations/trace';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Bar } from 'svelte-chartjs';
-import { generateTrace } from '../../../../shared/dummy-data';
 
 export let team: FIRSTTeam;
 
