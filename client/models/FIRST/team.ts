@@ -508,3 +508,5 @@ socket.on('pit-scouting:delete', (data: RetrievedScoutingAnswer) => {
 
 // TODO: sockets for watch priority
 // TODO: sockets for picture upload
+
+Object.assign(window, { FIRSTTeam });
