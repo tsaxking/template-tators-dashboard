@@ -62,7 +62,21 @@ const fns = {
     filterComments: (search: string, comments: C[]) => {
         if (search === '') return comments;
         const s = search.toLowerCase();
-        const filtered = fuzzySearch(s, comments.map(c => c.comment + ' ' + c.type + ' ' + c.account?.username + ' ' + c.account.firstName + ' ' + c.account.lastName));
+        const filtered = fuzzySearch(
+            s,
+            comments.map(
+                c =>
+                    c.comment +
+                    ' ' +
+                    c.type +
+                    ' ' +
+                    c.account?.username +
+                    ' ' +
+                    c.account.firstName +
+                    ' ' +
+                    c.account.lastName
+            )
+        );
         return comments.filter((_, i) => filtered.includes(i));
     },
     onSet(comments: C[]) {
@@ -77,7 +91,13 @@ $: filteredComments = fns.filterComments(search, comments);
 $: fns.onSet(filteredComments);
 </script>
 
-<input type="text" bind:value={search} class="form-control" disabled={!team} placeholder="Search...">
+<input
+    type="text"
+    bind:value="{search}"
+    class="form-control"
+    disabled="{!team}"
+    placeholder="Search..."
+/>
 
 <table class="table table-striped table-hover">
     <thead>
@@ -89,19 +109,21 @@ $: fns.onSet(filteredComments);
         </tr>
     </thead>
     <tbody>
-    {#each filteredComments as comment}
-        <tr>
-            <td 
-                data-bs-toggle="tooltip"
-                data-bs-placement="left"
-                title="{comment.account?.firstName || ''} {comment.account?.lastName || ''}"
-                class="cursor-help"
-            >{comment.account?.username || 'Unknown'}</td>
-            <td>{comment.type}</td>
-            <td>{comment.comment}</td>
-            <td>{dateTime(comment.time)}</td>
-        </tr>
-    {/each}
+        {#each filteredComments as comment}
+            <tr>
+                <td
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="left"
+                    title="{comment.account?.firstName || ''} {comment.account
+                        ?.lastName || ''}"
+                    class="cursor-help"
+                    >{comment.account?.username || 'Unknown'}</td
+                >
+                <td>{comment.type}</td>
+                <td>{comment.comment}</td>
+                <td>{dateTime(comment.time)}</td>
+            </tr>
+        {/each}
     </tbody>
 </table>
 <hr />
