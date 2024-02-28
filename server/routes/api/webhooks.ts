@@ -9,17 +9,17 @@ import {
     TBATeam,
 } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
 import { Table } from '../../../scripts/build-table.ts';
-import { toTable } from '../../../shared/objects.ts';
+import Account from '../../structure/accounts.ts';
 
 export const router = new Route();
 
 const auth = App.headerAuth('x-auth-key', env.WEBHOOK_KEY as string);
 
-router.post('/test', (req, res) => {
+router.get('/test', (req, res) => {
     res.send(JSON.stringify({ success: true }));
 });
 
-router.post('/event/:eventKey/teams/traces', auth, async (req, res) => {
+router.get('/event/:eventKey/teams/traces', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -37,10 +37,10 @@ router.post('/event/:eventKey/teams/traces', auth, async (req, res) => {
         };
     });
 
-    res.json(toTable(trace));
+    res.json(trace);
 });
 
-router.post('/event/:eventKey/scout-groups', auth, async (req, res) => {
+router.get('/event/:eventKey/scout-groups', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -61,7 +61,7 @@ router.post('/event/:eventKey/scout-groups', auth, async (req, res) => {
     res.sendStatus('webhook:invalid-url');
 });
 
-router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
+router.get('/event/:eventKey/match-scouting', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -69,10 +69,13 @@ router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
 
     if (matches.isErr()) return res.sendStatus('webhook:invalid-url');
 
-    res.json(matches.value);
+    res.json(matches.value.map((m) => ({
+        ...m,
+        trace: JSON.parse(m.trace),
+    })));
 });
 
-router.post(
+router.get(
     '/event/:eventKey/team/:teamNumber/match-scouting',
     auth,
     async (req, res) => {
@@ -88,11 +91,14 @@ router.post(
 
         if (matches.isErr()) return res.sendStatus('webhook:invalid-url');
 
-        res.json(toTable(matches.value));
+        res.json(matches.value.map((m) => ({
+            ...m,
+            trace: JSON.parse(m.trace),
+        })));
     },
 );
 
-router.post(
+router.get(
     '/event/:eventKey/team/:teamNumber/comments',
     auth,
     async (req, res) => {
@@ -108,11 +114,11 @@ router.post(
 
         if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
-        res.json(toTable(comments.value));
+        res.json(comments.value);
     },
 );
 
-router.post('/event/:eventKey/comments', auth, async (req, res) => {
+router.get('/event/:eventKey/comments', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -120,10 +126,10 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
 
     if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
-    res.json(toTable(comments.value));
+    res.json(comments.value);
 });
 
-router.post('/event/:eventKey/summary', auth, async (req, res) => {
+router.get('/event/:eventKey/summary', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -149,4 +155,10 @@ router.post('/event/:eventKey/summary', auth, async (req, res) => {
         matches: matches.value,
         summary: data.value,
     });
+});
+
+router.get('/accounts/all', auth, async (req, res) => {
+    const accounts = await Account.getAll();
+
+    res.json(await Promise.all(accounts.map((a) => a.safe())));
 });
