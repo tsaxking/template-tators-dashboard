@@ -33,7 +33,7 @@ $: {
 </script>
 
 <div class="table-responsive">
-    <table class="table table-dark table-striped">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th colspan="2" class="text-center">Auto</th>

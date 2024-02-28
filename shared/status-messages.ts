@@ -829,6 +829,12 @@ export const messages: {
         code: 400,
         instructions: '',
     },
+    'team-comment:new': {
+        message: 'Created a new comment',
+        color: 'success',
+        code: 200,
+        instructions: '',
+    },
     'teams:pictures-uploaded': {
         message: "Team's picture was uploaded successfully",
         color: 'success',
@@ -1023,6 +1029,7 @@ export type StatusId =
     | 'strategy:delete'
     | 'strategy:new'
     | 'tba:invalid-path'
+    | 'team-comment:new'
     | 'teams:pictures-uploaded'
     | 'test:fail'
     | 'test:success'
@@ -1065,6 +1072,7 @@ export type AccountStatusId =
     | 'password-reset-request'
     | 'password-reset-success'
     | 'picture-updated'
+    | 'please-change-password'
     | 'removed'
     | 'role-added'
     | 'role-removed'
@@ -1074,8 +1082,7 @@ export type AccountStatusId =
     | 'updated'
     | 'username-changed'
     | 'username-taken'
-    | 'verified'
-    | 'please-change-password';
+    | 'verified';
 
 export type AdminStatusId = 'invalid-key';
 
@@ -1200,3 +1207,5 @@ export type WhiteboardStatusId =
     | 'match-not-found'
     | 'not-found'
     | 'update';
+
+export type TeamCommentStatusId = 'new';
