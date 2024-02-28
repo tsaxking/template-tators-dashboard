@@ -85,7 +85,7 @@ router.post<{
 
         // send the same error for both username and password to prevent username enumeration
         if (!account) {
-            console.log('No account found');
+            console.log('No account found')
             return res.sendStatus('account:incorrect-username-or-password');
         }
         const result = await account.testPassword(password);
