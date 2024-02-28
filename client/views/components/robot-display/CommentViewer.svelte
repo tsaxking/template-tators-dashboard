@@ -64,11 +64,17 @@ const fns = {
         const s = search.toLowerCase();
         const filtered = fuzzySearch(s, comments.map(c => c.comment + ' ' + c.type + ' ' + c.account?.username + ' ' + c.account.firstName + ' ' + c.account.lastName));
         return comments.filter((_, i) => filtered.includes(i));
+    },
+    onSet(comments: C[]) {
+        jQuery(() => {
+            jQuery('[data-bs-toggle="tooltip"]').tooltip();
+        });
     }
 };
 
 $: fns.getComments(team);
 $: filteredComments = fns.filterComments(search, comments);
+$: fns.onSet(filteredComments);
 </script>
 
 <input type="text" bind:value={search} class="form-control" disabled={!team} placeholder="Search...">
@@ -82,14 +88,21 @@ $: filteredComments = fns.filterComments(search, comments);
             <th>Time</th>
         </tr>
     </thead>
+    <tbody>
     {#each filteredComments as comment}
         <tr>
-            <td>{comment.account?.username || 'Unknown'}</td>
+            <td 
+                data-bs-toggle="tooltip"
+                data-bs-placement="left"
+                title="{comment.account?.firstName || ''} {comment.account?.lastName || ''}"
+                class="cursor-help"
+            >{comment.account?.username || 'Unknown'}</td>
             <td>{comment.type}</td>
             <td>{comment.comment}</td>
             <td>{dateTime(comment.time)}</td>
         </tr>
     {/each}
+    </tbody>
 </table>
 <hr />
 <button class="btn btn-primary" on:click="{fns.addComment}">
