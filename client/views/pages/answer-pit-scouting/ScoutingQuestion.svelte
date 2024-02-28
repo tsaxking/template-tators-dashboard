@@ -18,11 +18,11 @@ let changed = false,
 
 $: {
     fns.setDisable(team, disabled);
-    fns.getValue(question);
+    fns.getValue(team, question);
 }
 
 const fns = {
-    getValue: async (q: Question) => {
+    getValue: async (team: FIRSTTeam, q: Question) => {
         if (!team) return console.error('Team not defined');
         fns.set();
         const res = await q.getAnswer(team, FIRSTEvent.current);
@@ -116,7 +116,7 @@ const fns = {
 FIRSTTeam.on('select', t => {
     team = t;
     fns.setDisable(t, disabled);
-    fns.getValue(question);
+    fns.getValue(t, question);
 });
 
 // const dispatch = createEventDispatcher();

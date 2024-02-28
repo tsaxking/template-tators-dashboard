@@ -102,6 +102,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     // <team number>:<event key>
     public static readonly $cache = new Map<string, FIRSTTeam>();
 
+
     /**
      * Creates an instance of FIRSTTeam.
      * @date 10/9/2023 - 6:55:03 PM
@@ -127,6 +128,14 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
     get name(): string {
         return this.tba.nickname;
+    }
+
+    get pictures(): TeamPicture[] {
+        return (this.$cache.get('pictures') || []) as TeamPicture[];
+    }
+
+    set pictures(pictures: TeamPicture[]) {
+        this.$cache.set('pictures', pictures);
     }
 
     /**
@@ -306,29 +315,6 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         });
     }
 
-    public async getPictures(): Promise<Result<TeamPicture[]>> {
-        return attemptAsync(async () => {
-            if (this.$cache.has('pictures')) {
-                return this.$cache.get('pictures') as TeamPicture[];
-            }
-
-            const res = await ServerRequest.post<TeamPicture[]>(
-                '/api/teams/get-pictures',
-                {
-                    teamNumber: this.number,
-                    eventKey: this.event.key,
-                },
-            );
-
-            if (res.isOk()) {
-                this.$cache.set('pictures', res.value);
-                return res.value;
-            }
-
-            throw res.error;
-        });
-    }
-
     async getVelocityData(): Promise<
         Result<{
             map: number[];
@@ -497,7 +483,7 @@ socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
     const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
     if (!team) return;
 
-    const pictures = (team.$cache.get('pictures') || []) as TeamPicture[];
+    const { pictures } = team;
 
     pictures.push({
         picture: data.picture,
@@ -507,7 +493,7 @@ socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
         teamNumber: data.teamNumber,
     });
 
-    team.$cache.set('pictures', pictures);
+    team.pictures = pictures;
 
     team.emit('new-picture', data);
 });

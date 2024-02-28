@@ -16,11 +16,11 @@ export let pictures: P[] = [];
 
 const fns = {
     setPictures: async (team: FIRSTTeam) => {
-        const ps = await team.getPictures();
+        await team.event.cacheTeamPictures();
+        // after the cache is updated, we know the pictures are up to date
+        const ps = team.pictures;
 
-        if (ps.isErr()) return console.error(ps.error);
-
-        pictures = ps.value.map(p => ({
+        pictures = ps.map(p => ({
             url: '/uploads/' + p.picture
         }));
     }

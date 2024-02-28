@@ -12,54 +12,22 @@ let teams: {
 }[] = [];
 
 FIRSTEvent.on('select', async e => {
-    const [teamRes, matchRes, pitQuestions] = await Promise.all([
+    const [statusRes, teamsRes] = await Promise.all([
+        e.getStatus(),
         e.getTeams(),
-        e.getMatches(),
-        e.getPitScouting()
     ]);
-    if (teamRes.isOk() && matchRes.isOk() && pitQuestions.isOk()) {
-        teams = await Promise.all(
-            teamRes.value.map(async t => {
-                const [matches, pit, pictures] = await Promise.all([
-                    t.getMatchScouting(),
-                    t.getPitScouting(),
-                    t.getPictures()
-                ]);
+    if (statusRes.isErr()) return console.error(statusRes.error);
+    if (teamsRes.isErr()) return console.error(teamsRes.error);
 
-                return {
-                    team: t,
-                    matches: matches.isOk()
-                        ? matchRes.value
-                              .filter(m => {
-                                  return teamsFromMatch(m.tba).includes(
-                                      t.number
-                                  );
-                              })
-                              .filter(m => {
-                                  // filter out matches that have been scouted
-                                  return !matches.value.find(
-                                      s =>
-                                          s.matchNumber === m.number &&
-                                          s.compLevel === m.compLevel
-                                  );
-                              })
-                              .map(m => `${m.compLevel} ${m.number}`)
-                        : [],
-                    pit: pit.isOk()
-                        ? pitQuestions.value.questions
-                              .filter(q => {
-                                  // filter out pit questions that have been answered
-                                  return !pit.value.find(
-                                      s => s.questionId === q.id
-                                  );
-                              })
-                              .map(q => q.key)
-                        : [],
-                    pictures: pictures.isOk() ? !!pictures.value.length : false
-                };
-            })
-        );
-    }
+    const { pictures, matches, questions } = statusRes.value;
+    const teamsInfo = teamsRes.value;
+
+    teams = teamsInfo.map(t => ({
+        team: t,
+        matches: matches.filter(m => m.teams.includes(t.number)).map(m => `${m.match} - ${m.compLevel}`),
+        pit: questions.find(q => q.team === t.number)?.questions || [],
+        pictures: pictures.find(p => p === t.number) ? true : false
+    }));
 });
 </script>
 

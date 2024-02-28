@@ -559,6 +559,14 @@ export type Queries = {
         ],
         TeamPictures,
     ];
+    'teams/pictures-from-event': [
+        [
+            {
+                eventKey: string;
+            }
+        ],
+        TeamPictures,
+    ];
     'account/from-discord-id': [[Select_account_from_discord_id], Accounts];
     'account/set-discord-id': [[Update_account_set_discord_id], unknown];
     'matches/from-event': [[Select_matches_from_event], Matches];
@@ -649,5 +657,21 @@ export type Queries = {
             },
         ],
         ScoutingQuestionSections,
+    ];
+    'scouting-questions/answers-from-event': [
+        [
+            {
+                eventKey: string;
+            }
+        ],
+        ScoutingAnswers,
+    ];
+    'scouting-questions/questions-from-event': [
+        [
+            {
+                eventKey: string;
+            }
+        ],
+        ScoutingQuestions,
     ];
 };

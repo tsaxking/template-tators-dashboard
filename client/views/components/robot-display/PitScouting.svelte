@@ -19,8 +19,6 @@ let scoutingSections: {
 const fns = {
     pullScouting: async (t: FIRSTTeam | undefined) => {
         if (!t) return console.log('no team selected');
-        console.log('retrieving pit scouting');
-
         const res = await t.getPitScouting();
 
         if (res.isErr()) return console.error(res.error);
