@@ -128,7 +128,7 @@ export class FIRSTYear extends Cache<YearUpdateData> {
                     const aDelta = Math.abs(today.getTime() - aDate.getTime());
                     const bDelta = Math.abs(today.getTime() - bDate.getTime());
 
-                    return bDelta - aDelta;
+                    return aDelta - bDelta;
                 });
 
                 res.value.onUpdate(
@@ -171,3 +171,5 @@ FIRSTYear.on('select', () => {
         if (event) event.select();
     }
 });
+
+Object.assign(window, { FIRSTYear });

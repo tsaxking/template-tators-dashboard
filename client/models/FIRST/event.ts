@@ -349,3 +349,5 @@ FIRSTEvent.on('select', async (e) => {
         }
     }
 });
+
+Object.assign(window, { FIRSTEvent })

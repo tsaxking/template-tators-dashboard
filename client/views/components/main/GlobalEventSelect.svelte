@@ -18,25 +18,31 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
 
         events.sort((a, b) => {
             const aStartDate = new Date(a.start_date);
+            aStartDate.setHours(0, 0, 0, 0);
+            aStartDate.setDate(aStartDate.getDate() - 3);
             const bStartDate = new Date(b.start_date);
+            bStartDate.setHours(0, 0, 0, 0);
+            bStartDate.setDate(bStartDate.getDate() - 3);
             const aEndDate = new Date(a.end_date);
             const bEndDate = new Date(b.end_date);
 
+            console.log({
+                aStartDate,
+                bStartDate,
+                aEndDate,
+                bEndDate
+            })
+
+            const now = new Date();
+            // event is happening now
+            if (aStartDate <= now && aEndDate >= now) return -1;
+
+            // event is the next event
             if (aStartDate > now && bStartDate > now) {
                 return aStartDate.getTime() - bStartDate.getTime();
-            } else if (aStartDate > now) {
-                return -1;
-            } else if (bStartDate > now) {
-                return 1;
-            } else if (aEndDate > now && bEndDate > now) {
-                return aEndDate.getTime() - bEndDate.getTime();
-            } else if (aEndDate > now) {
-                return -1;
-            } else if (bEndDate > now) {
-                return 1;
-            } else {
-                return aStartDate.getTime() - bStartDate.getTime();
             }
+
+            return aStartDate.getTime() - bStartDate.getTime();
         });
 
         options = events.map(e => abbreviate(e.name, 20));
