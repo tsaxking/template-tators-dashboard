@@ -120,6 +120,10 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         return this.tba.name;
     }
 
+    get year() {
+        return this.tba.year;
+    }
+
     /**
      * Returns an array of FIRSTMatch objects for this event
      * if it is cached, it will return the cached data
@@ -286,17 +290,19 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         const res = await ServerRequest.post<TeamPicture[]>(
             '/api/teams/pictures-from-event',
             {
-                eventKey: this.key
-            }
+                eventKey: this.key,
+            },
         );
 
         if (res.isOk()) {
-            return Promise.all(res.value.map(async (p) => {
-                // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
-                const t = await this.getTeam(p.teamNumber);
-                if (!t) return; // should never happen
-                t.pictures = [...t.pictures, p];
-            }));
+            return Promise.all(
+                res.value.map(async (p) => {
+                    // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
+                    const t = await this.getTeam(p.teamNumber);
+                    if (!t) return; // should never happen
+                    t.pictures = [...t.pictures, p];
+                }),
+            );
         }
     }
 
@@ -353,36 +359,35 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         });
     }
 
-    async getStatus(): Promise<Result<{
-        pictures: number[];
-        matches: {
-            match: number;
-            compLevel: 'qm' | 'qf' | 'sf' | 'f';
-            teams: number[]
-        }[];
-        questions: {
-            team: number;
-            questions: string[]
-        }[];
-    }>> {
+    async getStatus(): Promise<
+        Result<{
+            pictures: number[];
+            matches: {
+                match: number;
+                compLevel: 'qm' | 'qf' | 'sf' | 'f';
+                teams: number[];
+            }[];
+            questions: {
+                team: number;
+                questions: string[];
+            }[];
+        }>
+    > {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<{
                 pictures: number[];
                 matches: {
                     match: number;
                     compLevel: 'qm' | 'qf' | 'sf' | 'f';
-                    teams: number[]
+                    teams: number[];
                 }[];
                 questions: {
                     team: number;
-                    questions: string[]
+                    questions: string[];
                 }[];
-            }>(
-                '/api/events/status',
-                {
-                    eventKey: this.key,
-                },
-            );
+            }>('/api/events/status', {
+                eventKey: this.key,
+            });
 
             if (res.isOk()) return res.value;
             throw res.error;

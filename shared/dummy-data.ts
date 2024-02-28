@@ -171,5 +171,7 @@ export const generateTrace = (num = 1) => {
         }
     }
 
-    return Array.from({ length: num }).map(() =>  new Robot().generate().filter(Trace.filterPipe)).flat();
+    return Array.from({ length: num })
+        .map(() => new Robot().generate().filter(Trace.filterPipe))
+        .flat();
 };

@@ -14,7 +14,7 @@ let teams: {
 FIRSTEvent.on('select', async e => {
     const [statusRes, teamsRes] = await Promise.all([
         e.getStatus(),
-        e.getTeams(),
+        e.getTeams()
     ]);
     if (statusRes.isErr()) return console.error(statusRes.error);
     if (teamsRes.isErr()) return console.error(teamsRes.error);
@@ -24,7 +24,9 @@ FIRSTEvent.on('select', async e => {
 
     teams = teamsInfo.map(t => ({
         team: t,
-        matches: matches.filter(m => m.teams.includes(t.number)).map(m => `${m.match} - ${m.compLevel}`),
+        matches: matches
+            .filter(m => m.teams.includes(t.number))
+            .map(m => `${m.match} - ${m.compLevel}`),
         pit: questions.find(q => q.team === t.number)?.questions || [],
         pictures: pictures.find(p => p === t.number) ? true : false
     }));

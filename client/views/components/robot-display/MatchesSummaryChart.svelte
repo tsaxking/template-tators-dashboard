@@ -43,13 +43,12 @@ const fns = {
                     'Avg Amp',
                     'Max Amp',
                     'Avg Trap',
-                    'Max Trap',
+                    'Max Trap'
                 ],
                 datasets: [
                     {
                         label: 'Auto',
                         data: [
-                            
                             // Average Auto Speaker
                             eventSummary.reduce(
                                 (acc, val) => acc + val.auto.spk,
@@ -63,7 +62,7 @@ const fns = {
                                 0
                             ) / eventSummary.length,
                             // Max Auto Amp
-                            Math.max(...eventSummary.map(val => val.auto.amp)),
+                            Math.max(...eventSummary.map(val => val.auto.amp))
                         ]
                     },
                     {
