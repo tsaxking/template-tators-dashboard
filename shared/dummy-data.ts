@@ -10,7 +10,7 @@ import {
 } from './submodules/tatorscout-calculations/trace.ts';
 
 const chars = 'abcdefghijklmnopqrstuvwxyz';
-const char = (num: number) =>
+const char = (num = 1) =>
     new Array(num)
         .fill('')
         .map((_) => chars[Math.floor(Math.random() * chars.length)])
@@ -84,7 +84,7 @@ const initPoints: Point2D[] = [
 
 const actions: Action[] = ['spk', 'amp', 'src', 'trp', 'clb'];
 
-export const generateTrace = () => {
+export const generateTrace = (num = 1) => {
     class Tick {
         public pos: Point2D | undefined;
         public action: Action | undefined;
@@ -171,5 +171,5 @@ export const generateTrace = () => {
         }
     }
 
-    return new Robot().generate().filter(Trace.filterPipe);
+    return Array.from({ length: num }).map(() =>  new Robot().generate().filter(Trace.filterPipe)).flat();
 };
