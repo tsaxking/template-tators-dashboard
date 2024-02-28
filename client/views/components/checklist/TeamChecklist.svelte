@@ -45,7 +45,7 @@ FIRSTEvent.on('select', async e => {
                 {/if}
                 {#if pit.length}
                     {#each pit as question}
-                        <span class="badge bg-warning rounded-pill mx-2"
+                        <span class="badge bg-success rounded-pill mx-2"
                             >{question}</span
                         >
                     {/each}
