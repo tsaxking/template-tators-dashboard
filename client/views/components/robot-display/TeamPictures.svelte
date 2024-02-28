@@ -46,8 +46,8 @@ $: {
                         src="{pic.url}"
                         alt="{pic.name}"
                         class="img-thumbnail team-picture cursor-pointer"
-                        on:click={() => {
-                            const img = new Image;
+                        on:click="{() => {
+                            const img = new Image();
                             img.src = pic.url;
                             img.style.width = '100%';
                             const div = document.createElement('div');
@@ -59,7 +59,7 @@ $: {
                                 m.size = 'lg';
                                 m.show();
                             };
-                        }}
+                        }}"
                     />
                 </div>
             {/each}
@@ -74,11 +74,11 @@ $: {
 </div>
 
 <style>
-    .team-picture {
-        max-width: 100%;
-        max-height: 100%;
-        min-width: 75px;
+.team-picture {
+    max-width: 100%;
+    max-height: 100%;
+    min-width: 75px;
 
-        margin: 0 auto;
-    }
+    margin: 0 auto;
+}
 </style>

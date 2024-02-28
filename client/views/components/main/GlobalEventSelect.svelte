@@ -31,7 +31,7 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
                 bStartDate,
                 aEndDate,
                 bEndDate
-            })
+            });
 
             const now = new Date();
             // event is happening now

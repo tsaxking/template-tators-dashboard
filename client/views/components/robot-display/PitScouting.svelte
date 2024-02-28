@@ -83,7 +83,7 @@ $: fns.pullScouting(team);
 
 {#each scoutingSections as section}
     <h6>{section.section}</h6>
-    <table class="table table-dark table-striped">
+    <table class="table table-striped">
         {#each section.groups as group}
             <thead>
                 <tr>

@@ -174,18 +174,15 @@ router.post<{
                 date,
             });
 
-            req.io.emit(
-                'scouting-question:update-answer',
-                {
-                    id,
-                    questionId: question,
-                    answer: str,
-                    teamNumber: team,
-                    accountId,
-                    date,
-                    eventKey,
-                },
-            );
+            req.io.emit('scouting-question:update-answer', {
+                id,
+                questionId: question,
+                answer: str,
+                teamNumber: team,
+                accountId,
+                date,
+                eventKey,
+            });
         } else {
             DB.run('scouting-questions/new-answer', {
                 id,
@@ -205,18 +202,15 @@ router.post<{
                 date,
             });
 
-            req.io.emit(
-                'scouting-question:new-answer',
-                {
-                    id,
-                    questionId: question,
-                    answer: str,
-                    teamNumber: team,
-                    accountId,
-                    date,
-                    eventKey,
-                },
-            );
+            req.io.emit('scouting-question:new-answer', {
+                id,
+                questionId: question,
+                answer: str,
+                teamNumber: team,
+                accountId,
+                date,
+                eventKey,
+            });
         }
     },
 );

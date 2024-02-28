@@ -23,6 +23,7 @@ import { MatchScouting } from './match-scouting';
 import { Answer } from './question-scouting/answer';
 import { Trace } from '../../../shared/submodules/tatorscout-calculations/trace';
 import { FIRSTMatch } from './match';
+import { TeamComment } from './team-comments';
 
 export type Updates = {
     create: FIRSTTeam;
@@ -47,6 +48,7 @@ type FIRSTTeamEventData = {
     'pit-scouting': RetrievedScoutingAnswer;
     'update-events': TBAEvent[];
     'new-picture': TeamPicture;
+    'new-comment': TeamComment;
 };
 
 /**
@@ -251,35 +253,11 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @public
      * @returns {RetrieveStreamEventEmitter<MatchScoutingComments>}
      */
-    public getMatchComments(): RetrieveStreamEventEmitter<
-        MatchScoutingComments
-    > {
-        if (this.$cache.has('match-comments')) {
-            const res = this.$cache.get(
-                'match-comments',
-            ) as MatchScoutingComments[];
+    public async getComments(): Promise<TeamComment[]> {
+        const res = await TeamComment.fromTeam(this.number, this.event);
 
-            const em = new RetrieveStreamEventEmitter<MatchScoutingComments>();
-
-            setTimeout(() => res.forEach((ms) => em.emit('chunk', ms)));
-
-            return em;
-        }
-
-        const em = ServerRequest.retrieveStream<MatchScoutingComments>(
-            '/api/teams/match-comments',
-            {
-                team: this.tba.team_number,
-                eventKey: this.event.tba.key,
-            },
-            JSON.parse,
-        );
-
-        em.on('complete', (data) => {
-            this.$cache.set('match-comments', data);
-        });
-
-        return em;
+        if (res.isErr()) return [];
+        return res.value;
     }
 
     /**
@@ -374,6 +352,10 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                 average: map.reduce((a, b) => a + b, 0) / map.length,
             };
         });
+    }
+
+    async addComment(type: string, comment: string) {
+        return TeamComment.new(this, type, comment);
     }
 }
 
@@ -529,6 +511,5 @@ socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
 
     team.emit('new-picture', data);
 });
-
 
 Object.assign(window, { FIRSTTeam });
