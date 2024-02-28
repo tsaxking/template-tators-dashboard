@@ -104,8 +104,8 @@ router.post<{
 router.post<{
     eventKey: string;
 }>(
-'/pictures-from-event',
-validate({
+    '/pictures-from-event',
+    validate({
         eventKey: 'string',
     }),
     async (req, res) => {
@@ -122,8 +122,8 @@ validate({
         const files = uploads.value.map((f) => f.name);
 
         res.json(pictures.value.filter((p) => files.includes(p.picture)));
-    }
-)
+    },
+);
 
 router.post<{
     eventKey: string;

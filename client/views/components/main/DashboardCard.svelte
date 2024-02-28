@@ -1,14 +1,12 @@
 <script lang="ts">
-import { onMount } from "svelte";
-import { Modal } from "../../../utilities/modals";
+import { onMount } from 'svelte';
+import { Modal } from '../../../utilities/modals';
 
 export let title: string;
 export let subtitle: string = '';
 export let scroll: boolean = false;
 
 // let button: HTMLButtonElement;
-
-
 </script>
 
 <div class="col-xl-4 col-md-6 mb-3">

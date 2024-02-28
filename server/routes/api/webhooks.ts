@@ -69,10 +69,12 @@ router.get('/event/:eventKey/match-scouting', auth, async (req, res) => {
 
     if (matches.isErr()) return res.sendStatus('webhook:invalid-url');
 
-    res.json(matches.value.map((m) => ({
-        ...m,
-        trace: JSON.parse(m.trace),
-    })));
+    res.json(
+        matches.value.map((m) => ({
+            ...m,
+            trace: JSON.parse(m.trace),
+        })),
+    );
 });
 
 router.get(
@@ -91,10 +93,12 @@ router.get(
 
         if (matches.isErr()) return res.sendStatus('webhook:invalid-url');
 
-        res.json(matches.value.map((m) => ({
-            ...m,
-            trace: JSON.parse(m.trace),
-        })));
+        res.json(
+            matches.value.map((m) => ({
+                ...m,
+                trace: JSON.parse(m.trace),
+            })),
+        );
     },
 );
 

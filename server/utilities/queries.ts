@@ -563,7 +563,7 @@ export type Queries = {
         [
             {
                 eventKey: string;
-            }
+            },
         ],
         TeamPictures,
     ];
@@ -662,7 +662,7 @@ export type Queries = {
         [
             {
                 eventKey: string;
-            }
+            },
         ],
         ScoutingAnswers,
     ];
@@ -670,7 +670,7 @@ export type Queries = {
         [
             {
                 eventKey: string;
-            }
+            },
         ],
         ScoutingQuestions,
     ];

@@ -102,7 +102,6 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     // <team number>:<event key>
     public static readonly $cache = new Map<string, FIRSTTeam>();
 
-
     /**
      * Creates an instance of FIRSTTeam.
      * @date 10/9/2023 - 6:55:03 PM
