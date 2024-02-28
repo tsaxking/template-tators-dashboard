@@ -12,6 +12,7 @@ let record: [number, number, number] = [0, 0, 0]; // wins, losses, ties
 let played: number;
 let rp: number;
 let potentialRP: number;
+let velocity: number = 0;
 
 const fns = {
     getData: async (t: FIRSTTeam) => {
@@ -23,7 +24,6 @@ const fns = {
         const teamMatches = matches.value.filter(m => m.teams.includes(t));
         const playedMatches = teamMatches.filter(m => m.played);
 
-        potentialRP = playedMatches.reduce(acc => (acc += 4), 0); // 4 RP per played match
         played = playedMatches.length;
 
         const stats = await TBA.get<TBATeamEventStatus>(
@@ -40,6 +40,12 @@ const fns = {
         ];
         const [avgRP] = stats.value.data.qual.ranking.sort_orders;
         rp = avgRP * played;
+        potentialRP = playedMatches.reduce(acc => (acc += 4), 0) - rp; // 4 RP per played match - earned RP
+
+        const dataRes = await t.getVelocityData();
+        if (dataRes.isErr()) return console.error(dataRes.error);
+
+        velocity = dataRes.value.average;
     }
 };
 
@@ -48,59 +54,56 @@ $: {
 }
 </script>
 
-<div class="card p-0">
-    <div class="card-header">
-        <div class="card-title">
-            <h5>Summary</h5>
-        </div>
-    </div>
-    <div class="card-body">
-        {#if team}
-            <div class="container">
-                <div class="row">
-                    <div class="col">
-                        <h5>Rank Points:</h5>
-                        <div>
-                            <Doughnut
-                                data="{{
-                                    labels: ['Earned', 'Potential'],
-                                    datasets: [
-                                        {
-                                            label: 'RP',
-                                            data: [rp, potentialRP - rp],
-                                            backgroundColor: [
-                                                'rgb(255, 99, 132)',
-                                                'rgb(54, 162, 235)'
-                                            ],
-                                            hoverOffset: 4
-                                        }
-                                    ]
-                                }}"
-                                options="{{
-                                    responsive: true,
-                                    maintainAspectRatio: false
-                                }}"
-                            />
-                        </div>
-                    </div>
-                    <div class="col">
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th>Rank</th>
-                                    <td>{rank}</td>
-                                </tr>
-                                <tr>
-                                    <th>Record</th>
-                                    <td
-                                        >{record[0]} - {record[1]} - {record[2]}</td
-                                    >
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+{#if team}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <h5>Rank Points:</h5>
+                <div>
+                    <Doughnut
+                        data="{{
+                            labels: ['Earned', 'Potential'],
+                            datasets: [
+                                {
+                                    label: 'RP',
+                                    data: [rp, potentialRP - rp],
+                                    backgroundColor: [
+                                        'rgb(255, 99, 132)',
+                                        'rgb(54, 162, 235)'
+                                    ],
+                                    hoverOffset: 4
+                                }
+                            ]
+                        }}"
+                        options="{{
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }}"
+                    />
                 </div>
             </div>
-        {/if}
+            <div class="col">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Rank</th>
+                            <td>{rank}</td>
+                        </tr>
+                        <tr>
+                            <th>Record</th>
+                            <td>{record[0]} - {record[1]} - {record[2]}</td>
+                        </tr>
+                        <tr>
+                            <th>Average Velocity</th>
+                            {#if isNaN(velocity)}
+                                <td>Cannot calculate velocity yet</td>
+                            {:else}
+                                <td>{velocity.toFixed(2)} ft/s</td>
+                            {/if}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
+{/if}

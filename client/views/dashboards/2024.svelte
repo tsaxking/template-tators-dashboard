@@ -4,6 +4,7 @@ import Page from '../components/main/Page.svelte';
 import RobotDisplay from '../pages/RobotDisplay.svelte';
 import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
 import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
+import Checklist from '../pages/Checklist.svelte';
 
 const groups = [
     {
@@ -18,10 +19,10 @@ const groups = [
     {
         name: 'scouting',
         pages: [
-            {
-                name: 'create-scouting-questions',
-                icon: 'fact_check'
-            },
+            // {
+            //     name: 'create-scouting-questions',
+            //     icon: 'fact_check'
+            // },
             {
                 name: 'scouting-checklist',
                 icon: 'checklist'
@@ -60,13 +61,10 @@ const accountLinks = [
     <Page {active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
     </Page>
-    <Page {active} {domain} title="create-scouting-questions">
-        <CreateScoutingQuestions />
-    </Page>
     <Page {active} {domain} title="answer-scouting-questions">
         <AnswerPitScouting />
     </Page>
-    <!-- <Page {active} {domain} title="scouting-checklist">
-        <ScoutingChecklist />
-    </Page> -->
+    <Page {active} {domain} title="scouting-checklist">
+        <Checklist />
+    </Page>
 </Main>

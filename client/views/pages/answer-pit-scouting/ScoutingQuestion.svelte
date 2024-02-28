@@ -30,6 +30,7 @@ const fns = {
             if (!res.value) {
                 value = [];
                 answer = undefined;
+                return;
             }
             value = res.value.answer;
             answer = res.value;
@@ -168,7 +169,7 @@ FIRSTTeam.on('select', t => {
                         value="{value[0] || ''}"
                     />
                 {:else if question.type === 'checkbox'}
-                    {#each question.options.checkbox as option, i}
+                    {#each question.options.checkbox || [] as option, i}
                         <div class="form-check">
                             <input
                                 type="checkbox"
@@ -196,7 +197,7 @@ FIRSTTeam.on('select', t => {
                         </div>
                     {/each}
                 {:else if question.type === 'radio'}
-                    {#each question.options.radio as option, i}
+                    {#each question.options.radio || [] as option, i}
                         <div
                             class="form-check
                             form-check-inline"
@@ -234,12 +235,33 @@ FIRSTTeam.on('select', t => {
                         on:input="{fns.change}"
                         value="{value[0] || ''}"
                     >
-                        {#each question.options.select as option}
+                        {#each question.options.select || [] as option}
                             <option value="{option}">
                                 {option}
                             </option>
                         {/each}
                     </select>
+                {:else if question.type === 'boolean'}
+                    <div class="form-check">
+                        <input
+                            type="checkbox"
+                            id="q-{question.id}"
+                            class="form-check-input"
+                            on:change="{event => {
+                                value = [event.currentTarget.checked.toString()];
+                                fns.saveValue();
+                            }}"
+                            {disabled}
+                            on:input="{fns.change}"
+                            checked="{value[0] === 'true'}"
+                        />
+                        <label
+                            for="q-{question.id}"
+                            class="form-check-label"
+                        >
+                            Yes
+                        </label>
+                    </div>
                 {/if}
             </div>
             <div

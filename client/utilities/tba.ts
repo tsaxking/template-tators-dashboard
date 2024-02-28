@@ -1,7 +1,7 @@
 import { ServerRequest } from './requests';
 import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba';
 import { FIRSTEvent } from '../models/FIRST/event';
-import { attemptAsync, Result } from '../../shared/attempt';
+import { attemptAsync, Result } from '../../shared/check';
 
 /**
  * Description placeholder

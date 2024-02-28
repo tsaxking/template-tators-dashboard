@@ -1,6 +1,6 @@
 import { ServerRequest } from '../utilities/requests';
 import { Role as R, RolePermission } from '../../shared/db-types';
-import { attemptAsync, Result } from '../../shared/attempt';
+import { attemptAsync, Result } from '../../shared/check';
 import { Cache } from './cache';
 import { EventEmitter } from '../../shared/event-emitter';
 import { socket } from '../utilities/socket';
@@ -307,8 +307,9 @@ export class Role extends Cache<RoleEvents> {
 
 socket.on(
     'roles:added-permission',
-    (id: string, permissions: RolePermission[]) => {
-        const r = Role.cache.get(id);
+    (data: { roleId: string; permissions: RolePermission[] }) => {
+        const { roleId, permissions } = data;
+        const r = Role.cache.get(roleId);
         if (!r) return console.error('Role not found');
 
         r.permissions = permissions;
@@ -321,8 +322,9 @@ socket.on(
 
 socket.on(
     'roles:removed-permission',
-    (id: string, permissions: RolePermission[]) => {
-        const r = Role.cache.get(id);
+    (data: { roleId: string; permissions: RolePermission[] }) => {
+        const { roleId, permissions } = data;
+        const r = Role.cache.get(roleId);
         if (!r) return console.error('Role not found');
 
         r.permissions = permissions;

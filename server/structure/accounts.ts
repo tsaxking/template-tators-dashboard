@@ -360,7 +360,10 @@ export default class Account {
      * @param {string[]} [chars=[]]
      * @returns {boolean}
      */
-    static isValid(str: string, chars: string[] = []): boolean {
+    static isValid(
+        str: string,
+        chars: string[] = [],
+    ): { valid: boolean; chars: string[] } {
         const allowedCharacters = [
             'a',
             'b',
@@ -462,7 +465,10 @@ export default class Account {
             console.log('Invalid characters/words:', invalidChars);
         }
 
-        return valid;
+        return {
+            valid,
+            chars: invalidChars,
+        };
     }
 
     /**
@@ -484,17 +490,50 @@ export default class Account {
         email: string,
         firstName: string,
         lastName: string,
-    ): Promise<AccountStatusId> {
-        if (await Account.fromUsername(username)) return 'username-taken';
-        if (await Account.fromEmail(email)) return 'email-taken';
+    ): Promise<{
+        status: AccountStatusId;
+        data?: string[];
+    }> {
+        if (await Account.fromUsername(username)) {
+            return {
+                status: 'username-taken',
+            };
+        }
+        if (await Account.fromEmail(email)) {
+            return {
+                status: 'email-taken',
+            };
+        }
 
         const { isValid } = Account;
 
-        if (!isValid(username)) return 'invalid-username';
-        if (!isValid(password)) return 'invalid-password';
-        if (!isValid(email)) return 'invalid-email';
-        if (!isValid(firstName)) return 'invalid-first-name';
-        if (!isValid(lastName)) return 'invalid-last-name';
+        const isValidUsername = isValid(username);
+        const isValidPassword = isValid(password);
+        const isValidEmail = isValid(email);
+        const isValidFirstName = isValid(firstName);
+        const isValidLastName = isValid(lastName);
+
+        if (!isValidUsername.valid) {
+            return {
+                status: 'invalid-username',
+                data: isValidUsername.chars,
+            };
+        }
+        if (!isValidPassword.valid) {
+            return { status: 'invalid-password', data: isValidPassword.chars };
+        }
+        if (!isValidEmail.valid) {
+            return { status: 'invalid-email', data: isValidEmail.chars };
+        }
+        if (!isValidFirstName.valid) {
+            return {
+                status: 'invalid-first-name',
+                data: isValidFirstName.chars,
+            };
+        }
+        if (!isValidLastName.valid) {
+            return { status: 'invalid-last-name', data: isValidLastName.chars };
+        }
 
         // log('Validating', email);
 
@@ -541,9 +580,10 @@ export default class Account {
             phoneNumber: '',
         });
 
-        a.sendVerification();
+        // We don't want to send verification with these
+        // a.sendVerification();
 
-        return 'created';
+        return { status: 'created' };
     }
 
     /**
@@ -786,7 +826,9 @@ export default class Account {
             memberInfo: include?.memberInfo
                 ? await this.getMemberInfo()
                 : undefined,
-            permissions: include?.permissions ? this.getPermissions : [],
+            permissions: include?.permissions
+                ? await this.getPermissions()
+                : [],
             id: include?.id ? this.id : undefined,
             verified: this.verified,
         };
@@ -978,62 +1020,63 @@ export default class Account {
      * @param {string} password
      * @returns {boolean}
      */
-    async testPassword(password: string): Promise<boolean> {
+    async testPassword(password: string): Promise<boolean | null> {
+        if (this.key === '') return null; // user must make a new password
         const hash = Account.hash(password, this.salt);
         if (hash === this.key) return true; // it works in this database
 
         // test in the other database because something is wrong with the new hashing algorithm
-        const result = await attemptAsync<
-            | {
-                success: true;
-                hash: string;
-                salt: string;
-            }
-            | {
-                success: false;
-                error: string;
-            }
-        >(async () => {
-            const { HASH_SERVER_AUTH, HASH_SERVER } = env;
-            if (!HASH_SERVER_AUTH) throw new Error('No hash server auth');
-            if (!HASH_SERVER) throw new Error('No hash server');
-            const data = await fetch(HASH_SERVER + '/api/login', {
-                headers: {
-                    'x-auth-key': HASH_SERVER_AUTH,
-                },
-            });
+        // const result = await attemptAsync<
+        //     | {
+        //         success: true;
+        //         hash: string;
+        //         salt: string;
+        //     }
+        //     | {
+        //         success: false;
+        //         error: string;
+        //     }
+        // >(async () => {
+        //     // const { HASH_SERVER_AUTH, HASH_SERVER } = env;
+        //     // if (!HASH_SERVER_AUTH) throw new Error('No hash server auth');
+        //     // if (!HASH_SERVER) throw new Error('No hash server');
+        //     // const data = await fetch(HASH_SERVER + '/api/login', {
+        //     //     headers: {
+        //     //         'x-auth-key': HASH_SERVER_AUTH,
+        //     //     },
+        //     // });
 
-            const json = (await data.json()) as
-                | {
-                    success: true;
-                    hash: string;
-                    salt: string;
-                }
-                | {
-                    success: false;
-                    error: string;
-                };
+        //     // const json = (await data.json()) as
+        //     //     | {
+        //     //         success: true;
+        //     //         hash: string;
+        //     //         salt: string;
+        //     //     }
+        //     //     | {
+        //     //         success: false;
+        //     //         error: string;
+        //     //     };
 
-            if (json.success) {
-                // update the database with the new account hash
-                DB.unsafe.run(
-                    `
-                    UPDATE Accounts
-                    SET key = ?, salt = ?
-                    WHERE id = ?
-                `,
-                    json.hash,
-                    json.salt,
-                    this.id,
-                );
-            }
+        //     // if (json.success) {
+        //     //     // update the database with the new account hash
+        //     //     DB.unsafe.run(
+        //     //         `
+        //     //         UPDATE Accounts
+        //     //         SET key = ?, salt = ?
+        //     //         WHERE id = ?
+        //     //     `,
+        //     //         json.hash,
+        //     //         json.salt,
+        //     //         this.id,
+        //     //     );
+        //     // }
 
-            return json;
-        });
+        //     // return json;
+        // });
 
-        if (result.isOk()) {
-            return result.value.success;
-        }
+        // if (result.isOk()) {
+        //     return result.value.success;
+        // }
 
         return false;
     }

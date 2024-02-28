@@ -18,12 +18,11 @@ const fns = {
 
         const m = new Modal();
         const upload = new UploadPicture({
-            target: m.el.querySelector('.modal-body') as HTMLElement
+            target: m.target.querySelector('.modal-body') as HTMLElement
         });
 
         upload.$on('change', (e: CustomEvent) => {
             fileList = e.detail.fileList;
-            console.log(fileList);
         });
 
         m.show();

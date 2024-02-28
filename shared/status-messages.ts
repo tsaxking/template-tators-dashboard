@@ -76,7 +76,7 @@ export const messages: {
     instructions: '',
 },
     'account:incorrect-username-or-password': {
-    message: 'Incorrect username or password.',
+    message: 'Your username or password was incorrect, please try again',
     color: 'danger',
     code: 400,
     instructions: 'Please try again.',
@@ -189,11 +189,18 @@ export const messages: {
     color: 'success',
     code: 200,
     instructions: '',
+    redirect: '/account/sign-in'
 },
     'account:picture-updated': {
     message: 'Added a picture to this account',
     color: 'success',
     code: 200,
+    instructions: '',
+},
+    'account:please-change-password': {
+    message: 'Your password is out of date, please change it',
+    color: 'warning',
+    code: 400,
     instructions: '',
 },
     'account:removed': {
@@ -761,7 +768,7 @@ export const messages: {
     instructions: '',
 },
     'team-comment:new': {
-    message: 'New comment created',
+    message: 'Created a new comment',
     color: 'success',
     code: 200,
     instructions: '',
@@ -864,6 +871,7 @@ export type StatusId =
 	| 'account:password-reset-request'
 	| 'account:password-reset-success'
 	| 'account:picture-updated'
+	| 'account:please-change-password'
 	| 'account:removed'
 	| 'account:role-added'
 	| 'account:role-removed'
@@ -1001,6 +1009,7 @@ export type AccountStatusId = 'already-logged-in'
 	| 'password-reset-request'
 	| 'password-reset-success'
 	| 'picture-updated'
+	| 'please-change-password'
 	| 'removed'
 	| 'role-added'
 	| 'role-removed'
