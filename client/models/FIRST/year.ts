@@ -128,7 +128,7 @@ export class FIRSTYear extends Cache<YearUpdateData> {
                     const aDelta = Math.abs(today.getTime() - aDate.getTime());
                     const bDelta = Math.abs(today.getTime() - bDate.getTime());
 
-                    return aDelta - bDelta;
+                    return bDelta - aDelta;
                 });
 
                 res.value.onUpdate(
