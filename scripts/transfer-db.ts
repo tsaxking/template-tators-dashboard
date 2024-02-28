@@ -6,6 +6,7 @@ import { __root } from '../server/utilities/env.ts';
 import path from 'node:path';
 import { Match } from '../shared/db-types-extended.ts';
 import { error, log } from '../server/utilities/terminal-logging.ts';
+import { attemptAsync, Result } from '../shared/check.ts';
 
 const parse = <T>(str: string) => {
     try {
@@ -16,7 +17,7 @@ const parse = <T>(str: string) => {
 };
 
 const test = async (): Promise<boolean> => {
-    const q = await DB.unsafe.get('SELECT * FROM ScoutingQuestions LIMIT 1');
+    const q = await DB.unsafe.get('SELECT * FROM dbTransfer');
     if (q.isOk()) {
         console.log(q.value);
         return !!q.value;
@@ -27,9 +28,7 @@ const test = async (): Promise<boolean> => {
     }
 };
 
-let db: Database;
-
-const transferAccounts = () => {
+const transferAccounts = (db: Database) => {
     type A = {
         username: string;
         key: string;
@@ -57,33 +56,22 @@ const transferAccounts = () => {
             if (!a.email) return;
             if (!a.username) return;
 
-            DB.unsafe.run(
-                `
-            INSERT INTO Accounts (
+            DB.run('account/new', {
                 id,
-                username,
-                key,
-                salt,
-                firstName,
-                lastName,
-                email,
-                verified,
-                created
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?
-            )
-        `,
-                ...[
-                    uuid(),
-                    a.username,
-                    a.key,
-                    a.salt,
-                    a.name.split(' ')[0] ?? '',
-                    a.name.split(' ')[1] ?? '',
-                    a.email,
-                    !!a.verified,
-                    Date.now(),
-                ],
+                username: a.username,
+                key: a.key,
+                salt: a.salt,
+                firstName: a.name,
+                lastName: '',
+                email: a.email,
+                verified: 0,
+                verification: '',
+                created: Date.now(),
+                phoneNumber: '',
+            }).then((r) =>
+                r.isOk()
+                    ? console.log(`Account ${a.username} transferred`)
+                    : console.log('Error transferring account', r.error)
             );
 
             return {
@@ -471,7 +459,7 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
     );
 };
 
-const transferMatchScouting = () => {
+const transferMatchScouting = (db: Database) => {
     const q = db.prepare('SELECT * FROM MatchScouting');
     const matches = q.all() as (Match2022 | Match2023)[];
 
@@ -483,7 +471,7 @@ const transferMatchScouting = () => {
     );
 };
 
-const createScoutingQuestionGroups = () => {
+const createScoutingQuestionGroups = (db: Database) => {
     const sections = [
         {
             name: 'pit',
@@ -523,7 +511,7 @@ const createScoutingQuestionGroups = () => {
     }
 };
 
-const populateQuestions = () => {
+const populateQuestions = (db: Database) => {
     type Event = {
         eventKey: string;
         picklist?: string;
@@ -679,7 +667,7 @@ const populateQuestions = () => {
     }
 };
 
-const transferTeams = async () => {
+const transferTeams = async (db: Database) => {
     const q = db.prepare('SELECT * FROM Teams');
 
     const teams = q.all() as {
@@ -789,7 +777,7 @@ const transferTeams = async () => {
     );
 };
 
-const transferAccountsAndRoles = () => {
+const transferAccountsAndRoles = (db: Database) => {
     type Info = Partial<{
         viewData: boolean;
         editDatabase: boolean;
@@ -850,7 +838,7 @@ const transferAccountsAndRoles = () => {
         };
     });
 
-    const accounts = transferAccounts();
+    const accounts = transferAccounts(db);
 
     for (const a of accounts) {
         const accountRoles = a.roles
@@ -882,11 +870,11 @@ const transferAccountsAndRoles = () => {
     }
 };
 
-const run = async (fn: () => unknown) => {
+const run = async (db: Database, fn: (db: Database) => unknown) => {
     console.log(`Running ${fn.name}`);
     const start = Date.now();
     try {
-        await fn();
+        await fn(db);
     } catch (e) {
         log('Error running database transfer, restoring backup');
         error(e);
@@ -897,47 +885,84 @@ const run = async (fn: () => unknown) => {
     console.log(`${fn.name} | ${end - start}ms`);
 };
 
-export const transfer = async () => {
-    const v = await DB.getVersion();
-    console.log(v);
-    if (v.join('.') !== '1.0.1') {
-        throw new Error(
-            'The database transfer script is only compatible with version 1.0.1',
-        );
-    }
+export const transfer = async (oldDBPath: string): Promise<Result<void>> => {
+    return attemptAsync(async () => {
+        if (await test()) {
+            log(
+                'The database has already been transferred! Nothing has changed :)',
+            );
+            return;
+        }
 
-    if (await test()) {
-        log(
-            'The database has already been transferred! Nothing has changed :)',
-        );
-        return;
-    }
+        if (!fs.existsSync(path.resolve(__root, './scripts/old.db'))) {
+            console.log(
+                'No old database found. Please place the old database in ./scripts/old.db',
+            );
+            Deno.exit(0);
+        }
 
-    if (!fs.existsSync(path.resolve(__root, './scripts/old.db'))) {
-        console.log(
-            'No old database found. Please place the old database in ./scripts/old.db',
-        );
-        Deno.exit(0);
-    }
+        const db = new Database(oldDBPath);
 
-    db = new Database('./scripts/old.db');
+        await DB.makeBackup();
+        await Promise.all([
+            run(db, transferMatchScouting),
+            run(db, createScoutingQuestionGroups),
+            run(db, populateQuestions),
+            run(db, transferAccountsAndRoles),
+            run(db, transferTeams),
+        ]);
 
-    await DB.makeBackup();
-    await Promise.all([
-        run(transferMatchScouting),
-        run(createScoutingQuestionGroups),
-        run(populateQuestions),
-        run(transferAccountsAndRoles),
-        run(transferTeams),
-    ]);
+        await DB.unsafe.run('INSERT INTO dbTransfer (date) VALUES (:date)', {
+            date: Date.now(),
+        });
+    });
 };
 
-const res = prompt(
-    'This version is the latest that will work with the current database transfer script. Would you like to transfer the database? (y/n)',
-);
-if (res === 'y') {
-    prompt(
-        'Alright, please place the old database file in /scripts/old.db and press enter.',
-    );
-    transfer();
+if (import.meta.main) {
+    const arg = Deno.args.find((a) => /^db=/.test(a));
+    if (!arg) {
+        console.log('No database path provided');
+        Deno.exit(1);
+    }
+
+    const db = arg.split('=')[1];
+
+    const doAccounts = Deno.args.includes('accounts');
+    const doRoles = Deno.args.includes('roles');
+    const doTeams = Deno.args.includes('teams');
+    const doQuestions = Deno.args.includes('questions');
+    const doMatchScouting = Deno.args.includes('match-scouting');
+    const doScoutingGroups = Deno.args.includes('scouting-groups');
+    const doAll = Deno.args.includes('all');
+
+    const oldDB = new Database(db);
+
+    if (doAll || doAccounts) {
+        run(oldDB, transferAccounts);
+    }
+
+    if (doAll || doRoles) {
+        run(oldDB, transferAccountsAndRoles);
+    }
+
+    if (doAll || doTeams) {
+        run(oldDB, transferTeams);
+    }
+
+    if (doAll || doQuestions) {
+        run(oldDB, createScoutingQuestionGroups);
+        run(oldDB, populateQuestions);
+    }
+
+    if (doAll || doMatchScouting) {
+        run(oldDB, transferMatchScouting);
+    }
+
+    if (doAll || doScoutingGroups) {
+        run(oldDB, createScoutingQuestionGroups);
+    }
+
+    await DB.unsafe.run('INSERT INTO dbTransfer (date) VALUES (:date)', {
+        date: Date.now(),
+    });
 }

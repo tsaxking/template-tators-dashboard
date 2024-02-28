@@ -29,6 +29,7 @@ const {
     DATABASE_HOST,
     DATABASE_PORT,
 } = env;
+
 {
     const cannotConnect =
         'FATAL: Cannot connect to the database, please check your .env file |';
@@ -49,6 +50,18 @@ const {
         throw new Error(`${cannotConnect} DATABASE_PORT is not defined`);
     }
 }
+
+// if (DATABASE_NAME.includes('prod')) {
+//     const confirmed = await confirm(
+//         Colors.FgRed +
+//             'It looks like you are about to connect to a production database, are you sure you want to continue? (yes/no)' +
+//             Colors.Reset,
+//     );
+//     if (!confirmed) {
+//         console.log('Exiting...');
+//         Deno.exit(0);
+//     }
+// }
 
 /**
  * Acceptable types for a parameter
@@ -104,7 +117,6 @@ export class DB {
 
     static async connect() {
         return attemptAsync(async () => {
-            if (DB.connected) await DB.disconnect();
             return new Promise((res, rej) => {
                 setTimeout(() => {
                     rej('Database connection timed out');
@@ -739,6 +751,7 @@ export class DB {
         query: string,
         args: Parameter[],
     ): Promise<Result<QueryResult<unknown>>> {
+        await DB.connect();
         const run = () =>
             attemptAsync(async () => {
                 const q = DB.parseQuery(query, args);

@@ -9,6 +9,9 @@ import { type TraceArray } from '../../../shared/submodules/tatorscout-calculati
 import PitScouting from '../components/robot-display/PitScouting.svelte';
 import TeamComments from '../components/robot-display/TeamComments.svelte';
 
+import DashboardCard from '../components/main/DashboardCard.svelte';
+import EventSummaryChart from '../components/robot-display/EventSummaryChart.svelte';
+import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart.svelte';
 
 let team: FIRSTTeam;
 
@@ -46,42 +49,26 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
     </div>
     <hr />
     <div class="row">
-        <div class="col-md-6">
-            <div class="container-fluid">
-                <div class="row mb-3">
-                    <div class="col">
-                        <TeamMatchTable {team} />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        <VelocityHistogram {traces} />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <div class="container-fluid">
-                <div class="row mb-3">
-                    <div class="col">
-                        <TbaSummary {team} />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        <TeamPictures {team} upload="{true}" />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        <PitScouting {team} />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <TeamComments {team} />
-                </div>
-            </div>
-        </div>
+        <DashboardCard title="Summary" scroll="{true}">
+            <TbaSummary {team} />
+        </DashboardCard>
+        <DashboardCard title="Event Summary" scroll="{true}">
+            <EventSummaryChart {team} />
+        </DashboardCard>
+        <DashboardCard title="Matches Summary" scroll="{true}">
+            <MatchesSummaryChart {team} />
+        </DashboardCard>
+        <DashboardCard title="Matches" scroll="{true}">
+            <TeamMatchTable {team} />
+        </DashboardCard>
+        <DashboardCard title="Velocity Histogram">
+            <VelocityHistogram {traces} />
+        </DashboardCard>
+        <DashboardCard title="Pictures" scroll="{true}">
+            <TeamPictures {team} upload="{true}" />
+        </DashboardCard>
+        <DashboardCard title="Pit Scouting" scroll="{true}">
+            <PitScouting {team} />
+        </DashboardCard>
     </div>
 </div>

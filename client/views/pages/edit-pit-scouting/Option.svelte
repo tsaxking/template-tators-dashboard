@@ -1,4 +1,7 @@
 <script lang="ts">
+import { createEventDispatcher } from "svelte";
+
+const d = createEventDispatcher();
 export let text: string = '';
 </script>
 
@@ -17,6 +20,7 @@ export let text: string = '';
                     class="form-control"
                     id="text"
                     bind:value="{text}"
+                    on:change="{() => d('update', { text })}"
                 />
             </div>
         </div>

@@ -14,9 +14,11 @@ const main = () => {
         const child = new Deno.Command(Deno.execPath(), {
             args: [
                 'run',
-                '--unstable-sloppy-imports',
                 '--allow-all',
+                '--v8-flags=--max-old-space-size=8000',
+                '--unstable-sloppy-imports',
                 './server/server.ts',
+                ...args,
             ],
             stdout: 'inherit',
             stderr: 'inherit',

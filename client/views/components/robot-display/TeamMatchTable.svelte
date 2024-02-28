@@ -23,7 +23,7 @@ const fns = {
         modal.setTitle(`Match ${m.tba.match_number} Details`);
 
         const viewer = new MatchViewer({
-            target: modal.el.querySelector('.modal-body'),
+            target: modal.target.querySelector('.modal-body'),
             props: {
                 team: team,
                 match: m
@@ -43,64 +43,44 @@ $: {
 }
 </script>
 
-<div class="card p-0">
-    <div class="card-header">
-        <h5 class="card-title">Matches</h5>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive w-100">
-            <table class="table table-dark table-hover table-striped w-100">
-                <caption>
-                    Click on a match to view the match details
-                    <br />
-                    <i>Italicized</i> = Not yet played
-                    <br />
-                    <b>Bold</b> = Team won this match
-                </caption>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Level</th>
-                        <th>Time</th>
-                        <!-- <th>Result</th> -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each matches as match}
-                        <tr
-                            class="cursor-pointer {match.tba
-                                .winning_alliance === 'blue'
-                                ? 'fw-bold'
-                                : ''} {match.played ? '' : 'fst-italics'}"
-                            on:click="{() => fns.viewMatch(match)}"
-                        >
-                            {#if match.tba.alliances.red.team_keys.includes(team.tba.key)}
-                                <td class="text-danger"
-                                    >{match.tba.match_number}</td
-                                >
-                                <td class="text-danger"
-                                    >{match.tba.comp_level}</td
-                                >
-                                <td class="text-danger"
-                                    >{dateTime(match.time)}</td
-                                >
-                                <!-- <td>{match.tba.winning_alliance ? match.tba.winning_alliance : ''}</td> -->
-                            {:else}
-                                <td class="text-primary"
-                                    >{match.tba.match_number}</td
-                                >
-                                <td class="text-primary"
-                                    >{match.tba.comp_level}</td
-                                >
-                                <td class="text-primary"
-                                    >{dateTime(match.time)}</td
-                                >
-                                <!-- <td>{match.tba.winning_alliance ? match.tba.winning_alliance : ''}</td> -->
-                            {/if}
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="table-responsive w-100">
+    <table class="table table-dark table-hover table-striped w-100">
+        <caption>
+            Click on a match to view the match details
+            <br />
+            <i>Italicized</i> = Not yet played
+            <br />
+            <b>Bold</b> = Team won this match
+        </caption>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Level</th>
+                <th>Time</th>
+                <!-- <th>Result</th> -->
+            </tr>
+        </thead>
+        <tbody>
+            {#each matches as match}
+                <tr
+                    class="cursor-pointer {match.tba.winning_alliance === 'blue'
+                        ? 'fw-bold'
+                        : ''} {match.played ? '' : 'fst-italics'}"
+                    on:click="{() => fns.viewMatch(match)}"
+                >
+                    {#if match.tba.alliances.red.team_keys.includes(team.tba.key)}
+                        <td class="text-danger">{match.tba.match_number}</td>
+                        <td class="text-danger">{match.tba.comp_level}</td>
+                        <td class="text-danger">{dateTime(match.time)}</td>
+                        <!-- <td>{match.tba.winning_alliance ? match.tba.winning_alliance : ''}</td> -->
+                    {:else}
+                        <td class="text-primary">{match.tba.match_number}</td>
+                        <td class="text-primary">{match.tba.comp_level}</td>
+                        <td class="text-primary">{dateTime(match.time)}</td>
+                        <!-- <td>{match.tba.winning_alliance ? match.tba.winning_alliance : ''}</td> -->
+                    {/if}
+                </tr>
+            {/each}
+        </tbody>
+    </table>
 </div>

@@ -8,12 +8,25 @@ import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import { router as role } from './routes/roles.ts';
-import Role from './structure/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
+import { io, Socket } from './structure/socket.ts';
+import { getJSONSync } from './utilities/files.ts';
 import { emitter } from './middleware/data-type.ts';
+
+if (Deno.args.includes('--stats')) {
+    const measure = () => {
+        console.clear();
+        const { rss, heapUsed, heapTotal } = Deno.memoryUsage();
+        console.log('rss:', rss / 1024 / 1024, 'MB');
+        console.log('heap:', heapUsed / 1024 / 1024, 'MB');
+        console.log('total:', heapTotal / 1024 / 1024, 'MB');
+    };
+
+    setInterval(measure, 1000);
+}
 
 const port = +(env.PORT || 3000);
 
@@ -24,6 +37,11 @@ export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
     // onConnection: (socket) => {
     // log('New connection:', socket.id);
     // },
+    blockedIps: (() => {
+        const blocked = getJSONSync<string[]>('blocked-ips');
+        if (blocked.isOk()) return blocked.value;
+        return [];
+    })(),
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
@@ -35,6 +53,13 @@ if (env.ENVIRONMENT === 'dev') {
 
     emitter.on('fail', console.log);
 }
+
+io.on('connection', (s: Socket) => {
+    log('New connection:', s.id);
+    s.on('disconnect', () => {
+        log('Disconnected:', s.id);
+    });
+});
 
 app.post('/env', (req, res) => {
     res.json({
@@ -48,7 +73,7 @@ app.post('/socket-init', (req, res) => {
 });
 
 app.get('/*', (req, res, next) => {
-    log(`[${req.method}] ${req.url}`);
+    log(`[${req.method}] ${req.pathname}`);
     next();
 });
 
@@ -112,9 +137,9 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
-    log(`[${req.method}] ${req.url}`);
+    // log(`[${req.method}] ${req.url}`);
 
-    log('[POST]', req.url);
+    log('[POST]', req.url.pathname);
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
             $$files?: FileUpload[];
@@ -177,6 +202,7 @@ app.route('/roles', role);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
+    console.log('Testing if user is logged in: ', req.session);
     if (!req.session.accountId) {
         if (
             ![
@@ -195,13 +221,17 @@ app.get('/*', (req, res, next) => {
     next();
 });
 
-app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
+app.get('/dashboard/admin', Account.allowPermissions('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
 });
 
-app.get('/dashboard/mentor', Role.allowRoles('mentor', 'admin'), (_req, res) => {
-    res.sendTemplate('entries/dashboard/mentor');
-});
+app.get(
+    '/dashboard/mentor',
+    Account.allowPermissions('mentor'),
+    (_req, res) => {
+        res.sendTemplate('entries/dashboard/mentor');
+    },
+);
 
 app.route('/admin', admin);
 
@@ -225,7 +255,7 @@ app.final<{
     password?: string;
     confirmPassword?: string;
 }>((req, res) => {
-    req.session.save();
+    // req.session.save();
 
     serverLog('request', {
         date: Date.now(),

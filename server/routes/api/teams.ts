@@ -152,6 +152,17 @@ router.post<{
         const results = await Promise.all(
             files.map(async (f) => {
                 const { id } = f;
+                
+                req.io.emit(
+                    'teams:pictures-uploaded',
+                    {
+                        eventKey,
+                        teamNumber,
+                        picture: id,
+                        accountId,
+                        time,
+                    }
+                );
                 return DB.run('teams/new-picture', {
                     eventKey,
                     teamNumber,
@@ -166,17 +177,7 @@ router.post<{
             return res.sendStatus('unknown:error');
         }
 
-        res.sendStatus('teams:pictures-uploaded');
-
-        req.io.emit(
-            'teams:pictures-uploaded',
-            files.map((f) => ({
-                eventKey,
-                teamNumber,
-                picture: f.id,
-                accountId,
-                time,
-            })),
-        );
+        const r = res.sendStatus('teams:pictures-uploaded');
+        console.log(r);
     },
 );

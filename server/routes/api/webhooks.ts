@@ -9,6 +9,7 @@ import {
     TBATeam,
 } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
 import { Table } from '../../../scripts/build-table.ts';
+import { toTable } from '../../../shared/objects.ts';
 
 export const router = new Route();
 
@@ -36,7 +37,7 @@ router.post('/event/:eventKey/teams/traces', auth, async (req, res) => {
         };
     });
 
-    res.json(trace);
+    res.json(toTable(trace));
 });
 
 router.post('/event/:eventKey/scout-groups', auth, async (req, res) => {
@@ -87,7 +88,7 @@ router.post(
 
         if (matches.isErr()) return res.sendStatus('webhook:invalid-url');
 
-        res.json(matches.value);
+        res.json(toTable(matches.value));
     },
 );
 
@@ -107,7 +108,7 @@ router.post(
 
         if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
-        res.json(comments.value);
+        res.json(toTable(comments.value));
     },
 );
 
@@ -119,7 +120,7 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
 
     if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
-    res.json(comments.value);
+    res.json(toTable(comments.value));
 });
 
 router.post('/event/:eventKey/summary', auth, async (req, res) => {
@@ -135,10 +136,13 @@ router.post('/event/:eventKey/summary', auth, async (req, res) => {
 
     const data = await Table.build(eventKey);
     if (data.isErr()) {
+        console.error(data.error);
         return res.sendStatus('server:unknown-server-error', {
             error: data.error.message,
         });
     }
+
+    console.log(data.value);
 
     res.json({
         teams: teams.value,

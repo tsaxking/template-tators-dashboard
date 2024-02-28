@@ -21,7 +21,7 @@ type RowSection = {
 export class Table {
     public static async build(
         eventKey: string,
-    ): Promise<Result<[string[], ...T[]]>> {
+    ): Promise<Result<[string[], ...T[][]]>> {
         return attemptAsync(async () => {
             const teams = await TBA.get<TBATeam[]>(`/event/${eventKey}/teams`);
 
@@ -34,8 +34,8 @@ export class Table {
                 ),
             );
 
-            const headers = data.map((d) => d.headers).flat();
-            const rows = data.map((d) => d.data).flat();
+            const headers = data[0].headers;
+            const rows = data.map((d) => d.data);
 
             return [headers, ...rows];
         });
@@ -45,7 +45,7 @@ export class Table {
         teamNumber: number,
         eventKey: string,
     ): Promise<RowSection> {
-        const year = /[0-9]{4}/.exec(eventKey)?.[0];
+        const year = parseInt(eventKey.slice(0, 4));
         if (!year) throw new Error('Invalid event key');
 
         const pull = async (
@@ -53,6 +53,7 @@ export class Table {
         ): Promise<RowSection & { title: string }> => {
             const data = await fn(teamNumber, eventKey);
             if (data.isErr()) {
+                console.log(data.error);
                 return {
                     // this will not populate the table with the error message, but it will log it.
                     title: 'Error',
@@ -62,6 +63,7 @@ export class Table {
             }
 
             if (data.value.data.length !== data.value.headers.length) {
+                console.error('Data and headers do not match');
                 return {
                     title: 'Error',
                     headers: [],
@@ -74,6 +76,8 @@ export class Table {
                 ...data.value,
             };
         };
+
+        if (!Table.yearInfo[year]) throw new Error('Year not supported');
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = await Promise.all(
@@ -125,8 +129,8 @@ export class Table {
                             data: [
                                 teamNumber,
                                 team.value?.nickname || '',
-                                event.value?.qual.ranking.rank || 0,
-                                event.value?.qual.ranking.sort_orders[0] || 0,
+                                event.value?.qual?.ranking?.rank || 0,
+                                event.value?.qual?.ranking?.sort_orders[0] || 0,
                             ],
                         };
                     });
@@ -398,4 +402,12 @@ export class Table {
             },
         } as const;
     }
+}
+
+if (import.meta.main) {
+    const eventKey = Deno.args[0];
+    const table = await Table.build(eventKey);
+    if (table.isErr()) throw table.error;
+    console.log(table.value);
+    Deno.exit();
 }
