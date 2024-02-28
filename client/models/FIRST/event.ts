@@ -2,6 +2,7 @@ import {
     Event as EventProperties,
     Match,
     Team,
+    TeamPicture,
 } from '../../../shared/db-types-extended';
 import {
     matchSort,
@@ -236,6 +237,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     });
                 });
 
+                this.$cache.set('teams', teams);
+
                 return teams;
             }
 
@@ -272,6 +275,24 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
 
             throw res.error;
         });
+    }
+
+    async cacheTeamPictures() {
+        const res = await ServerRequest.post<TeamPicture[]>(
+            '/api/teams/pictures-from-event',
+            {
+                eventKey: this.key
+            }
+        );
+
+        if (res.isOk()) {
+            for (const p of res.value) {
+                this.getTeam(p.teamNumber)
+                    .then((t) => {
+                        if (t) t.pictures = [...t.pictures, p];
+                    });
+            }
+        }
     }
 
     async getTeam(teamNumber: number): Promise<FIRSTTeam | undefined> {
@@ -324,6 +345,42 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                 groups,
                 questions,
             };
+        });
+    }
+
+    async getStatus(): Promise<Result<{
+        pictures: number[];
+        matches: {
+            match: number;
+            compLevel: 'qm' | 'qf' | 'sf' | 'f';
+            teams: number[]
+        }[];
+        questions: {
+            team: number;
+            questions: string[]
+        }[];
+    }>> {
+        return attemptAsync(async () => {
+            const res = await ServerRequest.post<{
+                pictures: number[];
+                matches: {
+                    match: number;
+                    compLevel: 'qm' | 'qf' | 'sf' | 'f';
+                    teams: number[]
+                }[];
+                questions: {
+                    team: number;
+                    questions: string[]
+                }[];
+            }>(
+                '/api/events/status',
+                {
+                    eventKey: this.key,
+                },
+            );
+
+            if (res.isOk()) return res.value;
+            throw res.error;
         });
     }
 }

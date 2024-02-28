@@ -103,6 +103,30 @@ router.post<{
 
 router.post<{
     eventKey: string;
+}>(
+'/pictures-from-event',
+validate({
+        eventKey: 'string',
+    }),
+    async (req, res) => {
+        const { eventKey } = req.body;
+
+        const pictures = await DB.all('teams/pictures-from-event', {
+            eventKey,
+        });
+        if (pictures.isErr()) return res.sendStatus('unknown:error');
+
+        // ensure file exists
+        const uploads = await readDir('storage/uploads');
+        if (uploads.isErr()) return res.sendStatus('unknown:error');
+        const files = uploads.value.map((f) => f.name);
+
+        res.json(pictures.value.filter((p) => files.includes(p.picture)));
+    }
+)
+
+router.post<{
+    eventKey: string;
     teamNumber: number;
 }>(
     '/upload-pictures',
