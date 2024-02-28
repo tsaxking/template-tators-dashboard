@@ -4,24 +4,23 @@ import { TeamComment } from '../../../models/FIRST/team-comments';
 import { FIRSTEvent } from '../../../models/FIRST/event';
 import '../../../utilities/text';
 import { fuzzySearch } from '../../../utilities/text';
-// import { TeamComment as TCObject } from '../../../../shared/db-types-extended';
-import type {
-    TeamComment as TCObject,
-    Team
-} from '../../../../shared/db-types-extended';
-import { Random } from '../../../../shared/math';
 import { alert, prompt, select } from '../../../utilities/notifications';
 import { dateTime } from '../../../../shared/clock';
 import { Account } from '../../../models/account';
 
 export let team: FIRSTTeam | undefined = undefined;
 
-let comments: {
+type C = {
     account: Account | undefined;
     comment: string;
     type: string;
     time: Date;
-}[] = [];
+};
+
+let comments: C[] = [];
+let filteredComments: C[] = [];
+
+let search = '';
 
 const fns = {
     getComments: async (t: FIRSTTeam) => {
@@ -59,11 +58,20 @@ const fns = {
         if (comment === null) return;
 
         team.addComment(types[type], comment);
+    },
+    filterComments: (search: string, comments: C[]) => {
+        if (search === '') return comments;
+        const s = search.toLowerCase();
+        const filtered = fuzzySearch(s, comments.map(c => c.comment + ' ' + c.type + ' ' + c.account?.username + ' ' + c.account.firstName + ' ' + c.account.lastName));
+        return comments.filter((_, i) => filtered.includes(i));
     }
 };
 
 $: fns.getComments(team);
+$: filteredComments = fns.filterComments(search, comments);
 </script>
+
+<input type="text" bind:value={search} class="form-control" disabled={!team} placeholder="Search...">
 
 <table class="table table-striped table-hover">
     <thead>
@@ -74,7 +82,7 @@ $: fns.getComments(team);
             <th>Time</th>
         </tr>
     </thead>
-    {#each comments as comment}
+    {#each filteredComments as comment}
         <tr>
             <td>{comment.account?.username || 'Unknown'}</td>
             <td>{comment.type}</td>
