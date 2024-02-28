@@ -2,7 +2,6 @@ import Account from '../../structure/accounts.ts';
 import { Route } from '../../structure/app/app.ts';
 import { DB } from '../../utilities/databases.ts';
 import { validate } from '../../middleware/data-type.ts';
-import { attemptAsync } from '../../../shared/check.ts';
 import { uuid } from '../../utilities/uuid.ts';
 
 export const router = new Route();
@@ -16,6 +15,7 @@ router.post<{
     type: string;
 }>(
     '/new',
+    Account.allowPermissions('comment'),
     validate({
         teamNumber: 'number',
         eventKey: 'string',
