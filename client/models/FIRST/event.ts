@@ -278,7 +278,11 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     }
 
     async cacheTeamPictures() {
-        console.log('Caching team pictures');
+        const teams = await this.getTeams();
+        if (teams.isErr()) return [];
+
+        if (teams.value.some((t) => t.pictures.length > 0)) return [];
+
         const res = await ServerRequest.post<TeamPicture[]>(
             '/api/teams/pictures-from-event',
             {
@@ -288,10 +292,11 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
 
         if (res.isOk()) {
             return Promise.all(res.value.map(async (p) => {
+                // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
                 const t = await this.getTeam(p.teamNumber);
                 if (!t) return; // should never happen
                 t.pictures = [...t.pictures, p];
-            }))
+            }));
         }
     }
 
