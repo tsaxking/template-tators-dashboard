@@ -15,6 +15,7 @@ import ActionHeatmap from '../components/robot-display/ActionHeatmap.svelte';
 import TeamCommentSummary from '../components/robot-display/TeamCommentSummary.svelte';
 import { MatchScouting } from '../../models/FIRST/match-scouting';
 import ChecksSummary from '../components/robot-display/ChecksSummary.svelte';
+import PracticeMatches from '../components/robot-display/PracticeMatches.svelte';
 
 let team: FIRSTTeam;
 
@@ -36,7 +37,7 @@ $: fns.getTeam(team);
 
 FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
 
-MatchScouting.on('new', (m) => {
+MatchScouting.on('new', m => {
     if (m.team === team.number) {
         fns.getTeam(team);
     }
@@ -87,6 +88,9 @@ MatchScouting.on('new', (m) => {
         </DashboardCard>
         <DashboardCard title="Checks Summary" scroll="{true}">
             <ChecksSummary {team} />
+        </DashboardCard>
+        <DashboardCard title="Practice Matches" scroll="{true}">
+            <PracticeMatches {team} />
         </DashboardCard>
     </div>
 </div>

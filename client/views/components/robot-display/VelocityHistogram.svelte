@@ -14,9 +14,9 @@ const fns = {
         if (!traces) return;
         const all = traces
             // .map(Trace.expand)
-            .map((t) => {
+            .map(t => {
                 return t.filter((p, i, a) => {
-                    const last = a.findLastIndex((v) => !!v[3]);
+                    const last = a.findLastIndex(v => !!v[3]);
                     return i < last;
                 });
             })

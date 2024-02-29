@@ -8,6 +8,7 @@ import { Modal } from '../../../utilities/modals';
 import MatchViewer from './MatchViewer.svelte';
 import { checkRanks } from '../../../models/FIRST/match-scouting';
 import { capitalize } from '../../../../shared/text';
+import { alert } from '../../../utilities/notifications';
 
 export let team: FIRSTTeam;
 
@@ -19,14 +20,24 @@ let matches: {
 const fns = {
     getMatches: async (t: FIRSTTeam) => {
         if (!t) return;
-        const [matchesRes, matchScoutingRes] = await Promise.all([FIRSTEvent.current.getMatches(), MatchScouting.fromTeam(t.event.key, t.number)]);
+        const [matchesRes, matchScoutingRes] = await Promise.all([
+            FIRSTEvent.current.getMatches(),
+            MatchScouting.fromTeam(t.event.key, t.number)
+        ]);
         if (matchesRes.isErr()) return console.error(matchesRes.error);
-        if (matchScoutingRes.isErr()) return console.error(matchScoutingRes.error);
+        if (matchScoutingRes.isErr())
+            return console.error(matchScoutingRes.error);
 
-        matches = matchesRes.value.filter(m => m.teams.includes(t)).map(m => ({
-            match: m,
-            scouting: matchScoutingRes.value.find(s => s.matchNumber === m.number && s.compLevel === m.compLevel)
-        }));
+        matches = matchesRes.value
+            .filter(m => m.teams.includes(t))
+            .map(m => ({
+                match: m,
+                scouting: matchScoutingRes.value.find(
+                    s =>
+                        s.matchNumber === m.number &&
+                        s.compLevel === m.compLevel
+                )
+            }));
 
         t.on('new-comment', () => fns.getMatches(t));
 
@@ -34,16 +45,23 @@ const fns = {
             jQuery('[data-bs-toggle="tooltip"]').tooltip();
         }, 20);
     },
-    viewMatch: (m: FIRSTMatch) => {
+    viewMatch: async (m: FIRSTMatch) => {
         const modal = new Modal(Math.random().toString().substring(2));
         modal.setTitle(`Match ${m.tba.match_number} Details`);
         modal.size = 'lg';
+
+        const res = await team.getMatchScouting();
+        if (res.isErr()) return console.error(res.error);
+
+        const match = res.value.find(s => s.matchNumber === m.number && s.compLevel === m.compLevel);
+
+        if (!match) return alert('No match scouting found :(');
 
         const viewer = new MatchViewer({
             target: modal.target.querySelector('.modal-body'),
             props: {
                 team: team,
-                match: m
+                match: match
             }
         });
         modal.show();
@@ -80,7 +98,8 @@ $: {
         <tbody>
             {#each matches as m}
                 <tr
-                    class="cursor-pointer {m.match.tba.winning_alliance === 'blue'
+                    class="cursor-pointer {m.match.tba.winning_alliance ===
+                    'blue'
                         ? 'fw-bold'
                         : ''} {m.match.played ? '' : 'fst-italics'}"
                     on:click="{() => fns.viewMatch(m.match)}"
@@ -96,13 +115,19 @@ $: {
                         <td class="text-primary">{dateTime(m.match.time)}</td>
                         <!-- <td>{match.tba.winning_alliance ? match.tba.winning_alliance : ''}</td> -->
                     {/if}
-                    
+
                     {#if m.scouting}
-                        <td 
-                        data-bs-toggle="tooltip"
-                        title="{capitalize(m.scouting.flag.flag)}"
-                        data-bs-placement="top">
-                            <i class="material-icons" style="color: {rankColor[m.scouting.flag.rank]?.toString('rgb')} !important;">
+                        <td
+                            data-bs-toggle="tooltip"
+                            title="{capitalize(m.scouting.flag.flag)}"
+                            data-bs-placement="top"
+                        >
+                            <i
+                                class="material-icons"
+                                style="color: {rankColor[
+                                    m.scouting.flag.rank
+                                ]?.toString('rgb')} !important;"
+                            >
                                 flag
                             </i>
                         </td>

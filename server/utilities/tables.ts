@@ -669,6 +669,8 @@ export type Insert_custom_matches_new = {
     eventKey: string;
     matchNumber: number;
     compLevel: string;
+    created: number;
+    name: string;
     red1: number;
     red2: number;
     red3: number;
