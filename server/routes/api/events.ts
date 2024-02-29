@@ -61,7 +61,7 @@ router.post<{
         if (!matchesData) return res.sendStatus('tba:invalid-path');
 
         const picturesLeft = teamsData.filter((t) => {
-            return !picturesData.find((p) => p.teamNumber === t.team_number);
+            return picturesData.find((p) => p.teamNumber === t.team_number);
         });
 
         const matchesLeft = matchesData.map((m) => {
