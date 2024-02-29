@@ -92,7 +92,6 @@ router.post<Match>(
             }
         }
 
-
         let scoutId = '';
         const s = await Account.fromUsername(scout);
         if (s) scoutId = s.id;
@@ -116,7 +115,6 @@ router.post<Match>(
             const filter = new Filter();
 
             const filtered = filter.clean(value);
-
 
             DB.run('team-comments/new', {
                 id: commentId,

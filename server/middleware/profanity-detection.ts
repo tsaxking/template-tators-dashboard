@@ -1,7 +1,6 @@
 import Filter from 'npm:bad-words';
 import { ServerFunction } from '../structure/app/app.ts';
 
-
 /**
  * Returns a middleware function that checks if the body keys contain profanity
  * @date 1/9/2024 - 1:19:08 PM

@@ -265,7 +265,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         const res = await TeamComment.fromTeam(this.number, this.event);
 
         if (res.isErr()) return [];
-        return res.value.filter(c => !!c.comment);
+        return res.value.filter((c) => !!c.comment);
     }
 
     /**
@@ -341,6 +341,15 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
     async addComment(type: string, comment: string) {
         return TeamComment.new(this, type, comment);
+    }
+
+    async getPracticeMatches() {
+        return attemptAsync(async () => {
+            const res = await MatchScouting.practiceFromTeam(this.number, this.event.key);
+
+            if (res.isErr()) throw res.error;
+            return res.value;
+        });
     }
 }
 
