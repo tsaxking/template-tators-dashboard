@@ -3,7 +3,11 @@
 import { onMount } from 'svelte';
 import { Canvas } from '../../../models/canvas/canvas';
 import ScoreBreakdown from './ScoreBreakdown.svelte';
-import { type TraceArray, Trace, actions } from '../../../../shared/submodules/tatorscout-calculations/trace';
+import {
+    type TraceArray,
+    Trace,
+    actions
+} from '../../../../shared/submodules/tatorscout-calculations/trace';
 import { Container } from '../../../models/canvas/container';
 import { Circle } from '../../../models/canvas/circle';
 import { Path } from '../../../models/canvas/path';
@@ -18,9 +22,10 @@ import { TeamComment } from '../../../models/FIRST/team-comments';
 import CommentViewer from './CommentViewer.svelte';
 import { fromCamelCase, capitalize } from '../../../../shared/text';
 import type { BootstrapColor } from '../../../submodules/colors/color';
+import { MatchScouting } from '../../../models/FIRST/match-scouting';
 
 export let team: FIRSTTeam;
-export let match: FIRSTMatch;
+export let match: MatchScouting;
 
 let canvasEl: HTMLCanvasElement,
     alliance: 'blue' | 'red' = 'blue',
@@ -40,7 +45,7 @@ const icons = {
     amp: new Img('/public/pictures/icons/amp.png'),
     src: new Img('/public/pictures/icons/src.png'),
     clb: new Img('/public/pictures/icons/clb.png'),
-    trp: new Img('/public/pictures/icons/trp.png'),
+    trp: new Img('/public/pictures/icons/trp.png')
 };
 
 const actionColors = {
@@ -55,7 +60,7 @@ const actionColors = {
     cbe: Color.fromBootstrap('success'),
     cne: Color.fromBootstrap('primary'),
     bal: Color.fromBootstrap('warning'),
-    pck: Color.fromBootstrap('danger'),
+    pck: Color.fromBootstrap('danger')
 };
 
 const sectionColors: {
@@ -124,7 +129,11 @@ const fns = {
                     keys.push({
                         action,
                         color: color.clone(),
-                        textColor: color.detectContrast(Color.fromBootstrap('dark')) > color.detectContrast(Color.fromBootstrap('light')) ? Color.fromBootstrap('dark') : Color.fromBootstrap('light')
+                        textColor:
+                            color.detectContrast(Color.fromBootstrap('dark')) >
+                            color.detectContrast(Color.fromBootstrap('light'))
+                                ? Color.fromBootstrap('dark')
+                                : Color.fromBootstrap('light')
                     });
                     keys = keys;
                 }
@@ -136,7 +145,7 @@ const fns = {
                 };
                 cir.properties.line = {
                     color: 'transparent'
-                }
+                };
                 const a = icons[action]?.clone();
                 if (a instanceof SVG) {
                     a.center = [x, y];
@@ -169,7 +178,7 @@ const fns = {
                 ]);
                 path.properties.line = {
                     color: color.toString('rgba'),
-                    width: .5
+                    width: 0.5
                 };
                 return path;
             } else {
@@ -210,7 +219,7 @@ const fns = {
             const matches = res.value;
             const m = matches.find(
                 m =>
-                    m.matchNumber === match.number &&
+                    m.matchNumber === match.matchNumber &&
                     m.compLevel === match.compLevel
             );
             if (m) {
@@ -236,12 +245,15 @@ $: {
         </h5>
     </div>
     <div class="row mb-3">
-        <h5 class="text-center">
-            Trace
-        </h5>
+        <h5 class="text-center">Trace</h5>
         <p>
             {#each keys as key}
-                <span class="badge m-1" style="background-color: {key.color.toString('rgb')}; color: {key.textColor.toString('rgb')}">
+                <span
+                    class="badge m-1"
+                    style="background-color: {key.color.toString(
+                        'rgb'
+                    )}; color: {key.textColor.toString('rgb')}"
+                >
                     {capitalize(actions[key.action])}
                 </span>
             {/each}
@@ -253,25 +265,21 @@ $: {
         <hr class="m-2" />
     </div>
     <div class="row mb-3">
-        <h5 class="text-center">
-            Score Breakdown
-        </h5>
+        <h5 class="text-center">Score Breakdown</h5>
         <ScoreBreakdown {trace} />
         <hr class="m-2" />
     </div>
     <div class="row mb-3">
-        <h5 class="text-center">
-            Comments
-        </h5>
-        <CommentViewer {comments} {team} canAdd={false} />
+        <h5 class="text-center">Comments</h5>
+        <CommentViewer {comments} {team} canAdd="{false}" />
     </div>
     <div class="row mb-3">
-        <h5 class="text-center">
-            Checks
-        </h5>
+        <h5 class="text-center">Checks</h5>
         <ul class="list-group">
             {#each checks as check}
-                <li class="list-group-item text-{checkColors[check]}">{capitalize(fromCamelCase(check))}</li>
+                <li class="list-group-item text-{checkColors[check]}">
+                    {capitalize(fromCamelCase(check))}
+                </li>
             {/each}
         </ul>
     </div>

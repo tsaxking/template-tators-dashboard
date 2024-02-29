@@ -36,7 +36,7 @@ $: fns.getTeam(team);
 
 FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
 
-MatchScouting.on('new', (m) => {
+MatchScouting.on('new', m => {
     if (m.team === team.number) {
         fns.getTeam(team);
     }

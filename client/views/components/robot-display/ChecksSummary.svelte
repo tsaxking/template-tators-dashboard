@@ -1,47 +1,49 @@
 <script lang="ts">
-import { checkRanks, rankColor } from "../../../models/FIRST/match-scouting";
-import { FIRSTTeam } from "../../../models/FIRST/team";
+import { checkRanks, rankColor } from '../../../models/FIRST/match-scouting';
+import { FIRSTTeam } from '../../../models/FIRST/team';
 
-    export let team: FIRSTTeam;
-    let checks: { 
-        [key: string]: {
-            color: string;
-            number: number;
-        }
-    } = {};
+export let team: FIRSTTeam;
+let checks: {
+    [key: string]: {
+        color: string;
+        number: number;
+    };
+} = {};
 
-    const fns = {
-        get: async (team: FIRSTTeam) => {
-            if (!team) return;
-            const scouting = await team.getMatchScouting();
-            if (scouting.isOk()) {
-                const allChecks = scouting.value.map(s => s.checks);
+const fns = {
+    get: async (team: FIRSTTeam) => {
+        if (!team) return;
+        const scouting = await team.getMatchScouting();
+        if (scouting.isOk()) {
+            const allChecks = scouting.value.map(s => s.checks);
 
-                console.log({ allChecks });
+            console.log({ allChecks });
 
-                for (const check of allChecks) {
-                    for (const str of check) {
-                        if (checks[str]) {
-                            checks[str].number++;
-                        } else {
-                            checks[str] = {
-                                color: rankColor[checkRanks[str]].toString('rgb'),
-                                number: 1
-                            };
-                        }
+            for (const check of allChecks) {
+                for (const str of check) {
+                    if (checks[str]) {
+                        checks[str].number++;
+                    } else {
+                        checks[str] = {
+                            color: rankColor[checkRanks[str]].toString('rgb'),
+                            number: 1
+                        };
                     }
                 }
             }
         }
-    };
+    }
+};
 
-    $: fns.get(team);
+$: fns.get(team);
 </script>
 
 <ul class="list-group">
     {#each Object.keys(checks) as key}
         {#if checks[key].number > 0}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
+            <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+            >
                 <span
                     style="
                         color: {checks[key].color}
@@ -49,11 +51,12 @@ import { FIRSTTeam } from "../../../models/FIRST/team";
                 >
                     {key}
                 </span>
-                <span class=""
+                <span
+                    class=""
                     style="
                         color: {checks[key].color};
-                    "
-                >{checks[key].number}</span>
+                    ">{checks[key].number}</span
+                >
             </li>
         {/if}
     {/each}
