@@ -9,9 +9,11 @@ import CommentViewer from "./CommentViewer.svelte";
 
     const fns = {
         get: async (team: FIRSTTeam) => {
-            const comments = await team.getComments();
+            comments = await team.getComments();
         }
     }
+
+    $: fns.get(team);
 </script>
 
 <CommentViewer {team} {comments} />
