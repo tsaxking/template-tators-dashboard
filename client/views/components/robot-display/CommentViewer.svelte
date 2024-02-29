@@ -26,14 +26,16 @@ let search = '';
 
 const fns = {
     parse: async (c: TeamComment[]) => {
-        parsed = await Promise.all(c.map(async c => {
-            return {
-                comment: c.comment,
-                type: c.type,
-                time: c.time,
-                account: await Account.get(c.accountId)
-            };
-        }));
+        parsed = await Promise.all(
+            c.map(async c => {
+                return {
+                    comment: c.comment,
+                    type: c.type,
+                    time: c.time,
+                    account: await Account.get(c.accountId)
+                };
+            })
+        );
     },
     addComment: async () => {
         if (!team) alert('No team selected');

@@ -523,6 +523,15 @@ export type Queries = {
         ],
         unknown,
     ];
+    'match-scouting/team-custom-match': [
+        [
+            {
+                team: number;
+                eventKey: string;
+            }
+        ],
+        RetrievedMatchScouting
+    ];
     'tba/from-url': [[Select_tba_from_url], TBARequests];
     'tba/new': [[Insert_tba_new], unknown];
     'discord/insert': [[Insert_discord_insert], unknown];

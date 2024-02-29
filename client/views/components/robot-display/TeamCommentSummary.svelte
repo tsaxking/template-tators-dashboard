@@ -1,19 +1,23 @@
 <script lang="ts">
-import { FIRSTTeam } from "../../../models/FIRST/team";
-import { TeamComment } from "../../../models/FIRST/team-comments";
-import CommentViewer from "./CommentViewer.svelte";
+import { onMount } from 'svelte';
+import { FIRSTTeam } from '../../../models/FIRST/team';
+import { TeamComment } from '../../../models/FIRST/team-comments';
+import CommentViewer from './CommentViewer.svelte';
 
-    export let team: FIRSTTeam;
+export let team: FIRSTTeam;
 
-    let comments: TeamComment[] = [];
+let comments: TeamComment[] = [];
 
-    const fns = {
-        get: async (team: FIRSTTeam) => {
-            comments = await team.getComments();
-        }
+const fns = {
+    get: async (team: FIRSTTeam) => {
+        if (!team) return;
+        comments = await team.getComments();
     }
+};
 
-    $: fns.get(team);
+$: fns.get(team);
+
+onMount(() => fns.get(team));
 </script>
 
 <CommentViewer {team} {comments} />
