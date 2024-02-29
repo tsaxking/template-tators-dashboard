@@ -37,10 +37,14 @@ const fns = {
             section: s.name,
             groups: groups
                 .filter(g => g.section === s.id)
+                // filter duplicates
+                .filter((g, i, a) => a.indexOf(g) === i)
                 .map(g => ({
                     name: g.name,
                     questions: questions
                         .filter(q => q.groupId === g.id)
+                        // filter duplicates
+                        .filter((q, i, a) => a.indexOf(q) === i)
                         .map(q => ({
                             question: q.key,
                             answer: (() => {
