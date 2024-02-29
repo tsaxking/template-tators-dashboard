@@ -99,7 +99,7 @@ export class Account extends Cache<AccountEvents> {
 
     public static async get(id: string): Promise<Account | undefined> {
         if (Account.$cache.has(id)) return Account.$cache.get(id);
-        const res = await ServerRequest.post<AccountSafe>('/account/get', {
+        const res = await ServerRequest.post<AccountSafe>('/account/account-info', {
             id,
         });
         if (res.isOk()) {
