@@ -164,7 +164,7 @@ $: fns.filter(traceArray);
             {/each}
         </div>
     </div>
-    <div class="row" style="height: 300px;">
+    <div class="row" style="min-height: 300px; max-height: 800px; height: 30vh">
         <canvas bind:this="{canvas}"></canvas>
     </div>
 </div>
