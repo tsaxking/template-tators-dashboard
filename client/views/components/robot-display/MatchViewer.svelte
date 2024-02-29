@@ -97,7 +97,7 @@ onMount(() => {
     canvas.ratio = 2;
     canvas.adaptable = true;
 
-    fns.getTrace(team);
+    fns.getTrace(match);
 });
 
 let stop = () => {};
@@ -212,29 +212,18 @@ const fns = {
             });
         }, 200);
     },
-    getTrace: async (team: FIRSTTeam) => {
-        if (!team) return;
-        const res = await team.getMatchScouting();
-        if (res.isOk()) {
-            const matches = res.value;
-            const m = matches.find(
-                m =>
-                    m.matchNumber === match.matchNumber &&
-                    m.compLevel === match.compLevel
-            );
-            if (m) {
-                trace = m.trace;
-                fns.animate(trace);
-                checks = m.checks;
-                scout = m.scoutName;
-                comments = m.comments;
-            }
-        }
+    getTrace: async (m: MatchScouting) => {
+        if (!m) return;
+        trace = m.trace;
+        fns.animate(trace);
+        checks = m.checks;
+        scout = m.scoutName;
+        comments = m.comments;
     }
 };
 
 $: {
-    fns.getTrace(team);
+    fns.getTrace(match);
 }
 </script>
 
