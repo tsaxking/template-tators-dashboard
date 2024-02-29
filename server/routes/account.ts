@@ -8,6 +8,7 @@ import env from '../utilities/env.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
 import { capitalize } from '../../shared/text.ts';
+import { detect } from '../middleware/profanity-detection.ts';
 
 export const router = new Route();
 
@@ -135,6 +136,7 @@ router.post<{
         firstName: 'string',
         lastName: 'string',
     }),
+    detect('username', 'password', 'email', 'firstName', 'lastName'),
     trimBody,
     async (req, res) => {
         const {

@@ -49,14 +49,15 @@ const fns = {
         if (!team) return;
             
 
-        checks = Object.keys(actions[team.event.year]).map((k, i) => ({
+        checks = Object
+        .keys(actions[team.event.year])
+        // .keys(actions[2024]) // for development
+        .map((k, i) => ({
             key: k,
             action: actions[team.event.year][k],
             enabled: true,
             color: colors[i % colors.length] // loop through the colors
         }));
-
-        console.log({checks})
 
 
         const ctx = canvas.getContext('2d');

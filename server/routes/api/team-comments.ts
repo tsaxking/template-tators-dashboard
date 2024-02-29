@@ -3,6 +3,7 @@ import { Route } from '../../structure/app/app.ts';
 import { DB } from '../../utilities/databases.ts';
 import { validate } from '../../middleware/data-type.ts';
 import { uuid } from '../../utilities/uuid.ts';
+import Filter from 'npm:bad-words';
 
 export const router = new Route();
 
@@ -27,6 +28,11 @@ router.post<{
         const id = uuid();
         const { accountId } = req.session;
         const { teamNumber, eventKey, comment, type } = req.body;
+
+        const filter = new Filter();
+        if (filter.isProfane(comment)) {
+            return res.sendStatus('profanity:detected');
+        }
 
         DB.run('team-comments/new', {
             id,
