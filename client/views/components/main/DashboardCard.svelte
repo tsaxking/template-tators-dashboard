@@ -22,7 +22,7 @@ export let scroll: boolean = false;
                 </button> -->
             </div>
         </div>
-        <div class="card-body {scroll ? 'scroll-y' : ''}">
+        <div class="card-body {scroll ? 'scroll-y' : ''} no-scroll-x">
             <slot />
         </div>
     </div>
