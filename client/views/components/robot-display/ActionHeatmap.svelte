@@ -49,12 +49,12 @@ const fns = {
         if (!team) return;
             
 
-        checks = Object
-        .keys(actions[team.event.year])
+        const allChecks = Object
+        .keys(actions)
         // .keys(actions[2024]) // for development
         .map((k, i) => ({
             key: k,
-            action: actions[team.event.year][k],
+            action: actions[k],
             enabled: true,
             color: colors[i % colors.length] // loop through the colors
         }));
@@ -107,9 +107,8 @@ const fns = {
             container.children = traceArray.map(t => {
                     const c = new Circle([t[1], t[2]], 0.02);
                     const action = t[3] as Action;
-                    console.log({action});
-                    const found = checks.find(c => c.key === action);
-                    console.log({found});
+                    const found = allChecks.find(c => c.key === action);
+                    checks = [...checks, found].filter((c, i, a) => a.indexOf(c) === i);
                     c.properties.fill.color = Color.fromBootstrap(found?.color || 'dark').toString('rgb');
                     c.properties.line.color = 'transparent';
                     return c;
