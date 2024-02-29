@@ -11,7 +11,7 @@ body {
     position: fixed;
     top: var(--topNavbarHeight);
     width: var(--offCanvas-width) !important;
-    z-index: 101;
+    z-index: 1500;
 }
 
 #top-navbar {
@@ -25,10 +25,6 @@ body {
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     border-radius: 5px;
 } */
-
-#loading-page {
-    z-index: 100;
-}
 
 #navbarSupportedContent {
     padding-top: 1em;
