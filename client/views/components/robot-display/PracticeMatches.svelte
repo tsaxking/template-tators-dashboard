@@ -49,6 +49,10 @@ import MatchViewer from "./MatchViewer.svelte";
 </script>
 
 <div class="table-responsive">
+    <caption>
+        Click on a match to view details
+    </caption>
+
     <table class="table table-striped table-hover">
         <thead>
             <tr>
