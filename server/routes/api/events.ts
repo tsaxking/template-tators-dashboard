@@ -109,7 +109,7 @@ router.post<{
         });
 
         res.json({
-            pictures: picturesLeft,
+            pictures: picturesLeft.map(t => t.team_number),
             matches: matchesLeft,
             questions: questionsLeft,
         });
