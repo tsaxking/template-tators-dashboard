@@ -68,6 +68,7 @@ router.post<Match>(
 
         let matchId = '';
         if (m) {
+            // this is a real match
             matchId = m.id;
             // check if duplicate
             const existingRes = await DB.get('match-scouting/from-match', {
@@ -90,6 +91,23 @@ router.post<Match>(
                     error: 'Match already scouted',
                 });
             }
+        } else {
+            // this is a practice match
+            matchId = uuid();
+            DB.run('custom-matches/new', {
+                id: matchId,
+                eventKey,
+                matchNumber,
+                compLevel,
+                created: Date.now(),
+                name: `Practice match ${eventKey} ${matchNumber} for ${teamNumber}`,
+                red1: teamNumber,
+                red2: 0,
+                red3: 0,
+                blue1: 0,
+                blue2: 0,
+                blue3: 0
+            });
         }
 
         let scoutId = '';

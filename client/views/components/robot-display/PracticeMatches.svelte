@@ -13,8 +13,9 @@ import MatchViewer from "./MatchViewer.svelte";
     const fns = {
         set: async (team: FIRSTTeam) => {
             if (!team) return;
-
             const res = await team.getPracticeMatches();
+
+            console.log(res);
 
             if (res.isErr()) return console.error(res.error);
             
