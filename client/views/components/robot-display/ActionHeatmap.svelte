@@ -6,7 +6,7 @@ import { Circle } from '../../../models/canvas/circle';
 import { Container } from '../../../models/canvas/container';
 import { generateTrace } from '../../../../shared/dummy-data';
 import { Img } from '../../../models/canvas/image';
-import { Action, TraceArray, actions } from '../../../../shared/submodules/tatorscout-calculations/trace';
+import { type Action, type TraceArray, actions } from '../../../../shared/submodules/tatorscout-calculations/trace';
 import { BootstrapColor, Color } from '../../../submodules/colors/color';
 import { capitalize } from '../../../../shared/text';
 
