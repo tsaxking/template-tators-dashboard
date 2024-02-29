@@ -265,7 +265,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         const res = await TeamComment.fromTeam(this.number, this.event);
 
         if (res.isErr()) return [];
-        return res.value;
+        return res.value.filter(c => !!c.comment);
     }
 
     /**
