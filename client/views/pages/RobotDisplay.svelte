@@ -13,6 +13,7 @@ import EventSummaryChart from '../components/robot-display/EventSummaryChart.sve
 import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart.svelte';
 import ActionHeatmap from '../components/robot-display/ActionHeatmap.svelte';
 import TeamCommentSummary from '../components/robot-display/TeamCommentSummary.svelte';
+import { MatchScouting } from '../../models/FIRST/match-scouting';
 
 let team: FIRSTTeam;
 
@@ -33,6 +34,12 @@ const fns = {
 $: fns.getTeam(team);
 
 FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
+
+MatchScouting.on('new', (m) => {
+    if (m.team === team.number) {
+        fns.getTeam(team);
+    }
+});
 </script>
 
 <div class="container-fluid">

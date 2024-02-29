@@ -6,6 +6,7 @@ import { attemptAsync, Result } from '../../../shared/check';
 import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import { socket } from '../../utilities/socket';
 import { TeamComment } from './team-comments';
+import { Color } from '../../submodules/colors/color';
 
 type MatchScoutingEvents = {
     update: MatchScouting;
@@ -14,6 +15,25 @@ type MatchScoutingEvents = {
 type Updates = {
     select: MatchScouting;
     new: MatchScouting;
+};
+
+export const checkRanks: {
+    [key: string]: number;
+} = {
+    autoMobility: 0,
+    parked: 0,
+    playedDefense: 0,
+    tippy: 1,
+    easilyDefended: 1,
+    robotDied: 2,
+    problemsDriving: 2,
+    groundPicks: 0
+};
+
+export const rankColor = {
+    0: Color.fromBootstrap('success'),
+    1: Color.fromBootstrap('warning'),
+    2: Color.fromBootstrap('danger')
 };
 
 export class MatchScouting extends Cache<MatchScoutingEvents> {
@@ -124,6 +144,28 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         }
 
         MatchScouting.cache.set(this.id, this);
+    }
+
+    get flag(): {
+        flag: string;
+        rank: number;
+    } {
+        let flag: string = '';
+        let rank = 0;
+
+        for (const check of this.checks) {
+            if (check in checkRanks) {
+                if (checkRanks[check] > rank) {
+                    rank = Math.max(rank, checkRanks[check]);
+                    flag = check;
+                }
+            }
+        }
+
+        return {
+            flag: flag || 'none',
+            rank
+        };
     }
 }
 

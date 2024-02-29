@@ -3,7 +3,7 @@
 import { onMount } from 'svelte';
 import { Canvas } from '../../../models/canvas/canvas';
 import ScoreBreakdown from './ScoreBreakdown.svelte';
-import type { TraceArray } from '../../../../shared/submodules/tatorscout-calculations/trace';
+import { type TraceArray, Trace, actions } from '../../../../shared/submodules/tatorscout-calculations/trace';
 import { Container } from '../../../models/canvas/container';
 import { Circle } from '../../../models/canvas/circle';
 import { Path } from '../../../models/canvas/path';
@@ -43,7 +43,36 @@ const icons = {
     trp: new Img('/public/pictures/icons/trp.png'),
 };
 
-const colors: {
+const actionColors = {
+    // 2024
+    spk: Color.fromBootstrap('success'),
+    amp: Color.fromBootstrap('primary'),
+    src: Color.fromBootstrap('warning'),
+    clb: Color.fromBootstrap('danger'),
+    trp: Color.fromBootstrap('info'),
+
+    // 2023
+    cbe: Color.fromBootstrap('success'),
+    cne: Color.fromBootstrap('primary'),
+    bal: Color.fromBootstrap('warning'),
+    pck: Color.fromBootstrap('danger'),
+};
+
+const sectionColors: {
+    [key: string]: Color;
+} = {
+    auto: Color.fromName('blue'),
+    teleop: Color.fromName('grey'),
+    endgame: Color.fromName('red')
+};
+
+let keys: {
+    action: string;
+    color: Color;
+    textColor: Color;
+}[] = [];
+
+const checkColors: {
     [key: string]: BootstrapColor;
 } = {
     autoMobility: 'success',
@@ -53,7 +82,7 @@ const colors: {
     easilyDefended: 'warning',
     robotDied: 'danger',
     problemsDriving: 'danger',
-    groundPicks: 'info'
+    groundPicks: 'primary'
 };
 
 onMount(() => {
@@ -87,21 +116,34 @@ const fns = {
         container.children = trace.map((p, i, a) => {
             const [_i, x, y, action] = p;
 
-            const color = Color.fromName(alliance).toString('rgba');
-
             if (action) {
-                const size = 0.03;
+                const color = actionColors[action];
+
+                const foundKey = keys.find(k => k.action === action);
+                if (!foundKey) {
+                    keys.push({
+                        action,
+                        color: color.clone(),
+                        textColor: color.detectContrast(Color.fromBootstrap('dark')) > color.detectContrast(Color.fromBootstrap('light')) ? Color.fromBootstrap('dark') : Color.fromBootstrap('light')
+                    });
+                    keys = keys;
+                }
+
+                const size = 0.05;
                 const cir = new Circle([x, y], size);
-                cir.$properties.fill = {
-                    color: color
+                cir.properties.fill = {
+                    color: color.toString('rgba')
                 };
+                cir.properties.line = {
+                    color: 'transparent'
+                }
                 const a = icons[action]?.clone();
                 if (a instanceof SVG) {
                     a.center = [x, y];
-                    if (!a.$properties.text) a.$properties.text = {};
-                    a.$properties.text!.height = size;
-                    a.$properties.text!.width = size;
-                    a.$properties.text!.color =
+                    if (!a.properties.text) a.properties.text = {};
+                    a.properties.text!.height = size;
+                    a.properties.text!.width = size;
+                    a.properties.text!.color =
                         Color.fromBootstrap('light').toString('rgba');
                 }
                 if (a instanceof Icon) {
@@ -110,19 +152,26 @@ const fns = {
                     a.size = size;
                     a.color = Color.fromBootstrap('light').toString('rgba');
                 }
+                if (a instanceof Img) {
+                    a.options.x = x - size / 2;
+                    a.options.y = y - size;
+                    a.options.width = size;
+                    a.options.height = size * 2;
+                }
                 const cont = new Container(cir, a || null);
                 return cont;
             }
             if (a[i - 1]) {
-                const p = new Path([
+                const color = sectionColors[Trace.getSection(p)];
+                const path = new Path([
                     [a[i - 1][1], a[i - 1][2]],
                     [x, y]
                 ]);
-                p.$properties.line = {
-                    color: color,
-                    width: 1
+                path.properties.line = {
+                    color: color.toString('rgba'),
+                    width: .5
                 };
-                return p;
+                return path;
             } else {
                 return null;
             }
@@ -182,9 +231,21 @@ $: {
 
 <div class="container-fluid">
     <div class="row mb-3">
+        <h5>
+            Scouted by: {scout}
+        </h5>
+    </div>
+    <div class="row mb-3">
         <h5 class="text-center">
             Trace
         </h5>
+        <p>
+            {#each keys as key}
+                <span class="badge m-1" style="background-color: {key.color.toString('rgb')}; color: {key.textColor.toString('rgb')}">
+                    {capitalize(actions[key.action])}
+                </span>
+            {/each}
+        </p>
         <div class="w-100 aspect-ratio-2x1 mb-2">
             <canvas id="canvas" bind:this="{canvasEl}"></canvas>
         </div>
@@ -210,7 +271,7 @@ $: {
         </h5>
         <ul class="list-group">
             {#each checks as check}
-                <li class="list-group-item text-{colors[check]}">{capitalize(fromCamelCase(check))}</li>
+                <li class="list-group-item text-{checkColors[check]}">{capitalize(fromCamelCase(check))}</li>
             {/each}
         </ul>
     </div>
