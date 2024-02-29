@@ -48,25 +48,31 @@ import MatchViewer from "./MatchViewer.svelte";
     onMount(() => fns.set(team));
 </script>
 
-<div class="table-responsive">
-    <caption>
-        Click on a match to view details
-    </caption>
+<div class="container-fluid">
+    <div class="row mb-3">
+        <p>
+            Click on a match to view details
+        </p>
+    </div>
+    <div class="row">
+        <div class="table-responsive">
 
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Time</th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each matches as match}
-                <tr class="cursor-pointer" on:click={() => fns.viewMatch(match)}>
-                    <td>{match.matchNumber}</td>
-                    <td>{dateTime(match.date)}</td>
-                </tr>
-            {/each}
-        </tbody>
-    </table>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each matches as match}
+                        <tr class="cursor-pointer" on:click={() => fns.viewMatch(match)}>
+                            <td>{match.matchNumber}</td>
+                            <td>{dateTime(match.date)}</td>
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
