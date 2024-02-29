@@ -5,6 +5,7 @@ import { ServerRequest } from '../../utilities/requests';
 import { attemptAsync, Result } from '../../../shared/check';
 import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import { socket } from '../../utilities/socket';
+import { TeamComment } from './team-comments';
 
 type MatchScoutingEvents = {
     update: MatchScouting;
@@ -91,13 +92,14 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
     public readonly scoutGroup: number;
     public readonly scoutName: string;
     public readonly trace: TraceArray;
-    public readonly checks: string;
+    public readonly checks: string[];
     public readonly preScouting: string | undefined;
     public readonly time: number;
     public readonly prescouting: string | undefined;
     public readonly eventKey: string;
     public readonly matchNumber: number;
     public readonly compLevel: string;
+    public readonly comments: TeamComment[] = [];
 
     constructor(data: MatchScoutingObj) {
         super();
@@ -108,13 +110,14 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         this.scoutGroup = data.scoutGroup;
         this.scoutName = data.scoutName;
         this.trace = JSON.parse(data.trace);
-        this.checks = data.checks;
+        this.checks = JSON.parse(data.checks);
         this.preScouting = data.preScouting;
         this.time = data.time;
         this.prescouting = data.prescouting;
         this.eventKey = data.eventKey;
         this.matchNumber = data.matchNumber;
         this.compLevel = data.compLevel;
+        this.comments = data.comments.map(c => new TeamComment(c));
 
         if (MatchScouting.cache.has(this.id)) {
             MatchScouting.cache.delete(this.id);

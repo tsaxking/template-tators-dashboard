@@ -117,11 +117,13 @@ export type QuestionHistory = {
  */
 export type MatchScoutingComments = {
     id: string;
-    matchId: string;
-    accountId: string;
     team: number;
     comment: string;
-    time: string;
+    type: string;
+    matchScoutingId: string | undefined;
+    accountId: string | undefined;
+    time: number;
+    eventKey: string;
 };
 
 /**
@@ -311,6 +313,7 @@ export type MatchScouting = {
     eventKey: string;
     matchNumber: number;
     compLevel: string;
+    comments: MatchScoutingComments[];
 };
 
 /**
@@ -333,6 +336,7 @@ export type RetrievedMatchScouting = {
     matchNumber: number;
     compLevel: string;
     checks: string; // json array
+    comments: MatchScoutingComments[];
 };
 
 export type QuestionType =

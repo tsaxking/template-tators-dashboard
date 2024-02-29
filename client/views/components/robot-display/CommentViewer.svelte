@@ -8,36 +8,32 @@ import { alert, prompt, select } from '../../../utilities/notifications';
 import { dateTime } from '../../../../shared/clock';
 import { Account } from '../../../models/account';
 
-export let team: FIRSTTeam | undefined = undefined;
-
 type C = {
-    account: Account | undefined;
     comment: string;
     type: string;
-    time: Date;
+    time: number;
+    account: Account;
 };
 
-let comments: C[] = [];
+export let team: FIRSTTeam;
+export let comments: TeamComment[] = [];
+let parsed: C[] = [];
 let filteredComments: C[] = [];
+
+export let canAdd: boolean = true;
 
 let search = '';
 
 const fns = {
-    getComments: async (t: FIRSTTeam) => {
-        if (!t) return;
-        const res = await TeamComment.fromTeam(t.number, FIRSTEvent.current);
-        if (res.isOk()) {
-            comments = await Promise.all(
-                res.value.map(async c => ({
-                    account: await Account.get(c.accountId),
-                    comment: c.comment,
-                    type: c.type,
-                    time: new Date(c.time)
-                }))
-            );
-        }
-
-        t.on('new-comment', () => fns.getComments(t));
+    parse: async (c: TeamComment[]) => {
+        parsed = await Promise.all(c.map(async c => {
+            return {
+                comment: c.comment,
+                type: c.type,
+                time: c.time,
+                account: await Account.get(c.accountId)
+            };
+        }));
     },
     addComment: async () => {
         if (!team) alert('No team selected');
@@ -86,9 +82,9 @@ const fns = {
     }
 };
 
-$: fns.getComments(team);
-$: filteredComments = fns.filterComments(search, comments);
+$: filteredComments = fns.filterComments(search, parsed);
 $: fns.onSet(filteredComments);
+$: fns.parse(comments);
 </script>
 
 <input
@@ -126,8 +122,10 @@ $: fns.onSet(filteredComments);
         {/each}
     </tbody>
 </table>
-<hr />
-<button class="btn btn-primary" on:click="{fns.addComment}">
-    <i class="material-icons">add</i>
-    Add Comment
-</button>
+{#if canAdd}
+    <hr />
+    <button class="btn btn-primary" on:click="{fns.addComment}">
+        <i class="material-icons">add</i>
+        Add Comment
+    </button>
+{/if}

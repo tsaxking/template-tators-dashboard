@@ -23,6 +23,7 @@ const fns = {
     viewMatch: (m: FIRSTMatch) => {
         const modal = new Modal(Math.random().toString().substring(2));
         modal.setTitle(`Match ${m.tba.match_number} Details`);
+        modal.size = 'lg';
 
         const viewer = new MatchViewer({
             target: modal.target.querySelector('.modal-body'),

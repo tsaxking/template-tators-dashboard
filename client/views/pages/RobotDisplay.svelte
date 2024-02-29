@@ -7,12 +7,12 @@ import TeamPictures from '../components/robot-display/TeamPictures.svelte';
 import VelocityHistogram from '../components/robot-display/VelocityHistogram.svelte';
 import { type TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import PitScouting from '../components/robot-display/PitScouting.svelte';
-import CommentViewer from '../components/robot-display/CommentViewer.svelte';
 
 import DashboardCard from '../components/main/DashboardCard.svelte';
 import EventSummaryChart from '../components/robot-display/EventSummaryChart.svelte';
 import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart.svelte';
 import ActionHeatmap from '../components/robot-display/ActionHeatmap.svelte';
+import TeamCommentSummary from '../components/robot-display/TeamCommentSummary.svelte';
 
 let team: FIRSTTeam;
 
@@ -54,7 +54,7 @@ FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
             <TbaSummary {team} />
         </DashboardCard>
         <DashboardCard title="Comments" scroll="{true}">
-            <CommentViewer {team} />
+            <TeamCommentSummary {team} />
         </DashboardCard>
         <DashboardCard title="Pictures" scroll="{true}">
             <TeamPictures {team} upload="{true}" />
