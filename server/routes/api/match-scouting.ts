@@ -16,15 +16,33 @@ router.post<{
     async (req, res) => {
         const { eventKey, teamNumber } = req.body;
 
-        const result = await DB.all('match-scouting/from-team', {
+        const matchScoutingResult = await DB.all('match-scouting/from-team', {
             eventKey,
             team: teamNumber,
         });
 
-        if (result.isErr()) {
+        
+
+        if (matchScoutingResult.isErr()) {
             return res.sendStatus('server:unknown-server-error');
         }
 
-        return res.json(result.value);
+        return res.json(await Promise.all(matchScoutingResult.value.map(async (m) => {
+            const comments = await DB.all('team-comments/from-match-scouting', {
+                matchScoutingId: m.id
+            });
+
+            if (comments.isErr()) {
+                return {
+                    ...m,
+                    comments: []
+                }
+            } else {
+                return {
+                    ...m,
+                    comments: comments.value
+                }
+            }
+        })));
     },
 );
