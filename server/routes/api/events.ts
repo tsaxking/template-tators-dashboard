@@ -28,16 +28,6 @@ router.post<{
 router.post<{
     eventKey: string;
 }>(
-    '/checklist',
-    validate({
-        eventKey: 'string',
-    }),
-    async (req, res) => {},
-);
-
-router.post<{
-    eventKey: string;
-}>(
     '/status',
     validate({
         eventKey: 'string',
@@ -108,17 +98,12 @@ router.post<{
         }[];
 
         const questionsLeft = teamsData.map((t) => {
+            const answers = answersData.filter(a => a.teamNumber === t.team_number);
+            const questions = questionsData.filter(q => !answers.find(a => a.questionId === q.id));
+
             return {
                 team: t.team_number,
-                questions: questionsData
-                    .filter(
-                        (q) =>
-                            !answersData.find(
-                                (a) =>
-                                    a.teamNumber === t.team_number &&
-                                    a.questionId === q.id,
-                            ),
-                    )
+                questions: questions
                     .map((q) => q.key),
             };
         });
