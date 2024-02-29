@@ -110,7 +110,7 @@ const fns = {
                     console.log({action});
                     const found = checks.find(c => c.key === action);
                     console.log({found});
-                    c.properties.fill.color = Color.fromBootstrap(found.color || 'dark').toString('rgb');
+                    c.properties.fill.color = Color.fromBootstrap(found?.color || 'dark').toString('rgb');
                     c.properties.line.color = 'transparent';
                     return c;
                 });
