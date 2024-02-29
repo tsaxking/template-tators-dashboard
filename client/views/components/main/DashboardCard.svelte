@@ -43,7 +43,7 @@ let expanded = false;
 
 .dashboard-card.expanded {
     position: fixed;
-    z-index: 1000;
+    z-index: 2000;
     top: 50%;
     left: 50%;
     width: 80vw !important;
