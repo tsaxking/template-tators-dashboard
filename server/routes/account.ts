@@ -606,6 +606,6 @@ router.post<{
         const a = await Account.fromId(id);
 
         if (a) res.json(await a.safe());
-        else res.sendStatus('account:not-found');
+        else res.status(404).json({ error: 'Account not found' });
     },
 );
