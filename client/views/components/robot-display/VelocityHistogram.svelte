@@ -3,7 +3,6 @@ import {
     Trace,
     type TraceArray
 } from '../../../../shared/submodules/tatorscout-calculations/trace';
-import { generateTrace } from '../../../../shared/dummy-data';
 import { Bar } from 'svelte-chartjs';
 
 export let traces: TraceArray[];
@@ -24,7 +23,7 @@ const fns = {
             .map(m => Trace.velocity.map(m))
             .flat()
             .sort((a, b) => a - b);
-        const max = all[all.length - 1];
+        const max = 20;
 
         const m: number[] = Array.from({ length: max });
 
@@ -32,8 +31,10 @@ const fns = {
             m[i] = all.filter(v => Math.floor(v) === i).length;
         }
 
+        m.shift(); // delete 0
+
         data = {
-            labels: Array.from({ length: 20 }).map((_, i) => i + ' fps'),
+            labels: Array.from({ length: max }).map((_, i) => i + 1 + ' fps'),
             datasets: [
                 {
                     label: 'Velocity',
