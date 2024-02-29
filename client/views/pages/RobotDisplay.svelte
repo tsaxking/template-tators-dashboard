@@ -14,6 +14,7 @@ import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart
 import ActionHeatmap from '../components/robot-display/ActionHeatmap.svelte';
 import TeamCommentSummary from '../components/robot-display/TeamCommentSummary.svelte';
 import { MatchScouting } from '../../models/FIRST/match-scouting';
+import ChecksSummary from '../components/robot-display/ChecksSummary.svelte';
 
 let team: FIRSTTeam;
 
@@ -83,6 +84,9 @@ MatchScouting.on('new', (m) => {
         </DashboardCard>
         <DashboardCard title="Pit Scouting" scroll="{true}">
             <PitScouting {team} />
+        </DashboardCard>
+        <DashboardCard title="Checks Summary" scroll="{true}">
+            <ChecksSummary {team} />
         </DashboardCard>
     </div>
 </div>
