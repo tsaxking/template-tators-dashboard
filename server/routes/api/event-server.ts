@@ -17,6 +17,7 @@ import {
 import { uuid } from '../../utilities/uuid.ts';
 import { DB } from '../../utilities/databases.ts';
 import { bigIntEncode } from '../../../shared/objects.ts';
+import Filter from 'npm:bad-words';
 
 export const router = new Route();
 
@@ -56,34 +57,41 @@ router.post<Match>(
         const m = matches.find(
             (m) => m.matchNumber === matchNumber && m.compLevel === compLevel,
         );
-        if (!m) {
+
+        // if official match and match is not found in the tba database
+        if (!m && compLevel !== 'pr') {
             return res.json({
                 success: false,
                 error: 'Match not found',
             });
         }
 
-        // check if duplicate
-        const existingRes = await DB.get('match-scouting/from-match', {
-            matchId: m.id,
-        });
-
-        if (existingRes.isErr()) return res.sendStatus('unknown:error');
-
-        if (existingRes.value) {
-            DB.run('match-scouting/archive', {
-                content: JSON.parse(bigIntEncode(req.body)),
-                created: Date.now(),
-                compLevel,
-                eventKey,
-                matchNumber,
-                teamNumber,
+        let matchId = '';
+        if (m) {
+            matchId = m.id;
+            // check if duplicate
+            const existingRes = await DB.get('match-scouting/from-match', {
+                matchId: m.id,
             });
-            return res.json({
-                success: false,
-                error: 'Match already scouted',
-            });
+
+            if (existingRes.isErr()) return res.sendStatus('unknown:error');
+
+            if (existingRes.value) {
+                DB.run('match-scouting/archive', {
+                    content: JSON.parse(bigIntEncode(req.body)),
+                    created: Date.now(),
+                    compLevel,
+                    eventKey,
+                    matchNumber,
+                    teamNumber,
+                });
+                return res.json({
+                    success: false,
+                    error: 'Match already scouted',
+                });
+            }
         }
+
 
         let scoutId = '';
         const s = await Account.fromUsername(scout);
@@ -91,7 +99,7 @@ router.post<Match>(
 
         DB.run('match-scouting/new', {
             id: matchScoutingId,
-            matchId: m.id,
+            matchId,
             team: teamNumber,
             scoutId,
             scoutGroup: group,
@@ -103,12 +111,18 @@ router.post<Match>(
         });
 
         for (const [key, value] of Object.entries(comments)) {
-            const matchId = uuid();
+            if (value === '') continue; // ignore empty comments
+            const commentId = uuid();
+            const filter = new Filter();
+
+            const filtered = filter.clean(value);
+
+
             DB.run('team-comments/new', {
-                id: matchId,
+                id: commentId,
                 accountId: scoutId,
                 matchScoutingId,
-                comment: value,
+                comment: filtered,
                 type: key,
                 eventKey,
                 team: teamNumber,
@@ -134,7 +148,7 @@ router.post<Match>(
 
         req.io.emit('match-scouting:new', {
             id: matchScoutingId,
-            matchId: m.id,
+            matchId: matchId,
             team: teamNumber,
             scoutId,
             scoutGroup: group,
