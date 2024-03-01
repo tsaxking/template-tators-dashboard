@@ -6,6 +6,7 @@ import { TBA } from '../../utilities/tba/tba.ts';
 import {
     TBAMatch,
     TBATeam,
+    matchSort,
 } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
 
 export const router = new Route();
@@ -64,7 +65,9 @@ router.post<{
             return picturesData.find((p) => p.teamNumber === t.team_number);
         });
 
-        const matchesLeft = matchesData.map((m) => {
+        const matchesLeft = matchesData
+        .sort(matchSort)
+        .map((m) => {
             const find = (t: number): number | null => {
                 // return team if not found in matchScoutingData
                 return matchScoutingData.find(
