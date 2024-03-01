@@ -29,7 +29,9 @@ export class Table {
             if (!teams.value) throw new Error('No teams found');
 
             const data = await Promise.all(
-                teams.value.map((t) =>
+                teams.value
+                .sort((a, b) => a.team_number - b.team_number)
+                .map((t) =>
                     Table.buildTeamByYear(t.team_number, eventKey)
                 ),
             );

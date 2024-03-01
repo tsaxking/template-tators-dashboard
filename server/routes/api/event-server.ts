@@ -111,7 +111,7 @@ router.post<Match>(
             });
         }
 
-        let scoutId = '';
+        let scoutId = scout;
         const s = await Account.fromUsername(scout);
         if (s) scoutId = s.id;
 
