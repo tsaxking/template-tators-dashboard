@@ -53,9 +53,12 @@ export class Socket {
     setTimeout() {
         if (this.timeout) clearTimeout(this.timeout);
         // force disconnect after 5 minutes of inactivity
-        this.timeout = setTimeout(() => {
-            this.disconnect();
-        }, 1000 * 60 * 5);
+        this.timeout = setTimeout(
+            () => {
+                this.disconnect();
+            },
+            1000 * 60 * 5,
+        );
         this.connected = true;
     }
 

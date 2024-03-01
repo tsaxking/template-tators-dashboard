@@ -100,13 +100,14 @@ router.post<Match>(
                 matchNumber,
                 compLevel,
                 created: Date.now(),
-                name: `Practice match ${eventKey} ${matchNumber} for ${teamNumber}`,
+                name:
+                    `Practice match ${eventKey} ${matchNumber} for ${teamNumber}`,
                 red1: teamNumber,
                 red2: 0,
                 red3: 0,
                 blue1: 0,
                 blue2: 0,
-                blue3: 0
+                blue3: 0,
             });
         }
 

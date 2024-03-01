@@ -61,17 +61,19 @@ router.post<{
     '/practice-matches-from-team',
     validate({
         eventKey: 'string',
-        teamNumber: 'number'
+        teamNumber: 'number',
     }),
     async (req, res) => {
         const { eventKey, teamNumber } = req.body;
 
         const result = await DB.all('match-scouting/team-custom-match', {
             team: teamNumber,
-            eventKey
+            eventKey,
         });
 
-        if (result.isErr()) return res.sendStatus('server:unknown-server-error');
+        if (result.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
 
         return res.json(
             await Promise.all(
@@ -97,5 +99,5 @@ router.post<{
                 }),
             ),
         );
-    }
+    },
 );

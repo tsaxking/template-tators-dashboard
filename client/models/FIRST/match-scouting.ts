@@ -88,7 +88,11 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         return attemptAsync(async () => {
             const all = MatchScouting.cache.values();
             const filtered = Array.from(all).filter((m) => {
-                return m.eventKey === eventKey && m.team === teamNumber && m.compLevel !== 'pr';
+                return (
+                    m.eventKey === eventKey &&
+                    m.team === teamNumber &&
+                    m.compLevel !== 'pr'
+                );
             });
             if (filtered.length) return filtered;
 
@@ -105,14 +109,15 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         });
     }
 
-    public static async practiceFromTeam(
-        teamNumber: number,
-        eventKey: string
-    ) {
+    public static async practiceFromTeam(teamNumber: number, eventKey: string) {
         return attemptAsync(async () => {
             const all = MatchScouting.cache.values();
             const filtered = Array.from(all).filter((m) => {
-                return m.eventKey === eventKey && m.team === teamNumber && m.compLevel === 'pr';
+                return (
+                    m.eventKey === eventKey &&
+                    m.team === teamNumber &&
+                    m.compLevel === 'pr'
+                );
             });
 
             if (filtered.length) return filtered;
@@ -121,8 +126,8 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
                 '/api/match-scouting/practice-matches-from-team',
                 {
                     eventKey,
-                    teamNumber
-                }
+                    teamNumber,
+                },
             );
 
             if (res.isErr()) throw res.error;

@@ -122,7 +122,6 @@ export class DB {
                 return DB.db
                     .connect()
                     .then(() => {
-
                         // close the connection every 10 minutes to prevent memory leaks
                         // setTimeout(() => {
 

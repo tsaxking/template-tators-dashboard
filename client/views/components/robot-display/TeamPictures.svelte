@@ -39,9 +39,9 @@ $: {
 
 <div class="container-fluid">
     {#if pictures.length}
-    <div class="row">
-        <p class="text-muted">Click on a picture to enlarge</p>
-    </div>
+        <div class="row">
+            <p class="text-muted">Click on a picture to enlarge</p>
+        </div>
         <div class="row mb-3">
             {#each pictures as pic}
                 <div class="col">

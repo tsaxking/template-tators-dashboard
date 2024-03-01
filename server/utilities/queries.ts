@@ -528,9 +528,9 @@ export type Queries = {
             {
                 team: number;
                 eventKey: string;
-            }
+            },
         ],
-        RetrievedMatchScouting
+        RetrievedMatchScouting,
     ];
     'tba/from-url': [[Select_tba_from_url], TBARequests];
     'tba/new': [[Insert_tba_new], unknown];

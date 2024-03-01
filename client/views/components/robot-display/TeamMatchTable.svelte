@@ -53,7 +53,9 @@ const fns = {
         const res = await team.getMatchScouting();
         if (res.isErr()) return console.error(res.error);
 
-        const match = res.value.find(s => s.matchNumber === m.number && s.compLevel === m.compLevel);
+        const match = res.value.find(
+            s => s.matchNumber === m.number && s.compLevel === m.compLevel
+        );
 
         if (!match) return alert('No match scouting found :(');
 

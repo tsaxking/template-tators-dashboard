@@ -130,7 +130,8 @@ export class Table {
                                 teamNumber,
                                 team.value?.nickname || '',
                                 event.value?.qual?.ranking?.rank || 0,
-                                event.value?.qual?.ranking?.sort_orders?.[0] || 0,
+                                event.value?.qual?.ranking?.sort_orders?.[0] ||
+                                0,
                             ],
                         };
                     });
@@ -197,12 +198,12 @@ export class Table {
                         return {
                             headers,
                             data: [
-                                avg, 
-                                max, 
-                                JSON.parse(weight).join(','), 
-                                JSON.parse(height).join(','), 
-                                JSON.parse(width).join(','), 
-                                JSON.parse(length).join(',')
+                                avg,
+                                max,
+                                JSON.parse(weight).join(','),
+                                JSON.parse(height).join(','),
+                                JSON.parse(width).join(','),
+                                JSON.parse(length).join(','),
                             ],
                         };
                     });

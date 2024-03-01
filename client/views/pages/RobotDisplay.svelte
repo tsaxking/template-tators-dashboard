@@ -59,37 +59,53 @@ MatchScouting.on('new', m => {
     </div>
     <hr />
     <div class="row">
-        <DashboardCard title="Summary" scroll="{true}" expandable={true}>
+        <DashboardCard title="Summary" scroll="{true}" expandable="{true}">
             <TbaSummary {team} />
         </DashboardCard>
-        <DashboardCard title="Comments" scroll="{true}" expandable={true}>
+        <DashboardCard title="Comments" scroll="{true}" expandable="{true}">
             <TeamCommentSummary {team} />
         </DashboardCard>
         <DashboardCard title="Pictures" scroll="{true}">
             <TeamPictures {team} upload="{true}" />
         </DashboardCard>
-        <DashboardCard title="Event Summary" scroll="{true}" expandable={true}>
+        <DashboardCard
+            title="Event Summary"
+            scroll="{true}"
+            expandable="{true}"
+        >
             <EventSummaryChart {team} />
         </DashboardCard>
-        <DashboardCard title="Matches Summary" scroll="{true}" expandable={true}>
+        <DashboardCard
+            title="Matches Summary"
+            scroll="{true}"
+            expandable="{true}"
+        >
             <MatchesSummaryChart {team} />
         </DashboardCard>
-        <DashboardCard title="Matches" scroll="{true}" expandable={true}>
+        <DashboardCard title="Matches" scroll="{true}" expandable="{true}">
             <TeamMatchTable {team} />
         </DashboardCard>
-        <DashboardCard title="Action Heatmap" expandable={true}>
+        <DashboardCard title="Action Heatmap" expandable="{true}">
             <ActionHeatmap {team} />
         </DashboardCard>
-        <DashboardCard title="Velocity Histogram" expandable={true}>
+        <DashboardCard title="Velocity Histogram" expandable="{true}">
             <VelocityHistogram {traces} />
         </DashboardCard>
-        <DashboardCard title="Pit Scouting" scroll="{true}" expandable={true}>
+        <DashboardCard title="Pit Scouting" scroll="{true}" expandable="{true}">
             <PitScouting {team} />
         </DashboardCard>
-        <DashboardCard title="Checks Summary" scroll="{true}" expandable={true}>
+        <DashboardCard
+            title="Checks Summary"
+            scroll="{true}"
+            expandable="{true}"
+        >
             <ChecksSummary {team} />
         </DashboardCard>
-        <DashboardCard title="Practice Matches" scroll="{true}" expandable={true}>
+        <DashboardCard
+            title="Practice Matches"
+            scroll="{true}"
+            expandable="{true}"
+        >
             <PracticeMatches {team} />
         </DashboardCard>
     </div>

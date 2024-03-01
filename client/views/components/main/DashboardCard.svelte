@@ -1,8 +1,8 @@
 <script lang="ts">
-    export let title: string;
-    export let subtitle: string = '';
-    export let scroll: boolean = false;
-    export let expandable: boolean = false;
+export let title: string;
+export let subtitle: string = '';
+export let scroll: boolean = false;
+export let expandable: boolean = false;
 
 let expanded = false;
 </script>
@@ -16,7 +16,10 @@ let expanded = false;
                     <h6 class="card-subtitle mb-2 text-muted">{subtitle}</h6>
                 </div>
                 {#if expandable}
-                    <button class="btn m-0 p-0" on:click={() => expanded = !expanded}>
+                    <button
+                        class="btn m-0 p-0"
+                        on:click="{() => (expanded = !expanded)}"
+                    >
                         <i class="material-icons">
                             {expanded ? 'fullscreen_exit' : 'fullscreen'}
                         </i>
@@ -34,7 +37,7 @@ let expanded = false;
 .dashboard-card {
     /* Force all cards to be the same height */
     height: 425px !important;
-    transition: 
+    transition:
         top 0.3s ease,
         left 0.3s ease,
         width 0.3s ease,
