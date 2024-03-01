@@ -143,7 +143,7 @@ export class Table {
                     return attemptAsync(async () => {
                         const headers: string[] = [
                             'Average Velocity',
-                            'Max Velocity',
+                            // 'Max Velocity',
                             'Weight',
                             'Height',
                             'Width',
@@ -167,7 +167,7 @@ export class Table {
                         const velocities = matches
                             .map((m) => Trace.velocity.map(m.trace))
                             .flat();
-                        const max = Math.max(...velocities);
+                        // const max = Math.max(...velocities);
                         const avg = velocities.reduce((a, b) => a + b, 0) /
                             velocities.length;
                         // const hist = matches.map(m => Trace.velocity.histogram(m.trace));
@@ -199,7 +199,7 @@ export class Table {
                             headers,
                             data: [
                                 avg,
-                                max,
+                                // max,
                                 JSON.parse(weight).join(','),
                                 JSON.parse(height).join(','),
                                 JSON.parse(width).join(','),
