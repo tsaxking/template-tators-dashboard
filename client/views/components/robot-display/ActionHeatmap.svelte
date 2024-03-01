@@ -61,7 +61,11 @@ const fns = {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         const scouting = await team.getMatchScouting();
-        if (!c) c = new Canvas(ctx);
+        if (!c) {
+            c = new Canvas(ctx);
+            c.adaptable = true;
+            c.ratio = 2;
+        }
         c.clearDrawables();
 
         if (scouting.isOk()) {
@@ -97,9 +101,6 @@ const fns = {
                 .map(m => m.trace)
                 .flat()
                 .filter(p => !!p[3]);
-
-            c.ratio = 2;
-            c.adaptable = true;
 
             container.children = traceArray.map(t => {
                 const c = new Circle([t[1], t[2]], 0.02);
@@ -164,7 +165,7 @@ $: fns.filter(traceArray);
             {/each}
         </div>
     </div>
-    <div class="row" style="min-height: 300px; max-height: 800px; height: 30vh">
+    <div class="row canvas-container" style="height: 300px;">
         <canvas bind:this="{canvas}"></canvas>
     </div>
 </div>
