@@ -1,5 +1,5 @@
 import env, { __root } from './env.ts';
-import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
+import { Client } from 'https://deno.land/x/postgres@v0.19.2/mod.ts';
 import { error, log } from './terminal-logging.ts';
 import { Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync, saveFile } from './files.ts';
@@ -113,18 +113,21 @@ export class DB {
         port: Number(DATABASE_PORT),
     });
 
-    private static connected = false;
-
     static async connect() {
         return attemptAsync(async () => {
             return new Promise((res, rej) => {
                 setTimeout(() => {
                     rej('Database connection timed out');
                 }, 20 * 1000);
-                DB.db
+                return DB.db
                     .connect()
                     .then(() => {
-                        DB.connected = true;
+
+                        // close the connection every 10 minutes to prevent memory leaks
+                        // setTimeout(() => {
+
+                        // }, 1000 * 60 * 10);
+
                         res('Connected to the database');
                     })
                     .catch(() => {
@@ -791,6 +794,8 @@ export class DB {
         if (res.isErr()) {
             error('Error running query:', res.error);
         }
+
+        // await DB.disconnect();
 
         return res;
     }
