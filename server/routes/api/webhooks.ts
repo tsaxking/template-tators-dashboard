@@ -16,16 +16,20 @@ import { dateTime } from '../../../shared/clock.ts';
 
 export const router = new Route();
 
-let lastRequest = 0;
+const lastRequests: {
+    [url: string]: number;
+} = {};
 
 const auth: ServerFunction = async (req, res, next) => {
     const now = Date.now();
 
-    if (now - lastRequest < 1000 * 60) {
+    if (!lastRequests[req.pathname]) lastRequests[req.pathname] = 0;
+
+    if (now - lastRequests[req.pathname] < 1000 * 60) {
         return res.sendStatus('webhook:rate-limit');
     }
 
-    lastRequest = now;
+    lastRequests[req.pathname] = now;
 
     return App.headerAuth('x-auth-key', env.WEBHOOK_KEY as string)(req, res, next);
 };
