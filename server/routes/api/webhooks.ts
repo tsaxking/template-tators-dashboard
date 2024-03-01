@@ -22,8 +22,7 @@ const auth: ServerFunction = async (req, res, next) => {
     const now = Date.now();
 
     if (now - lastRequest < 1000 * 60) {
-        res.sendStatus('webhook:rate-limit');
-        return lastRequest = now;
+        return res.sendStatus('webhook:rate-limit');
     }
 
     lastRequest = now;
