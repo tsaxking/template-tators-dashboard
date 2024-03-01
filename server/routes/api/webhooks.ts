@@ -133,12 +133,45 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
     res.json(comments.value);
 });
 
+router.post('/event/:eventKey/pit-scouting', auth, async (req, res) => {
+    const { eventKey } = req.params;
+    if (!eventKey) return res.sendStatus('webhook:invalid-url');
+
+    const [teams, questions, answers] = await Promise.all([
+        TBA.get<TBATeam[]>(`/event/${eventKey}/teams`),
+        DB.all('scouting-questions/questions-from-event', { eventKey }),
+        DB.all('scouting-questions/answers-from-event', { eventKey }),
+    ]);
+
+    if (teams.isErr()) return res.sendStatus('webhook:invalid-url');
+    if (questions.isErr()) return res.sendStatus('webhook:invalid-url');
+    if (answers.isErr()) return res.sendStatus('webhook:invalid-url');
+    if (!teams.value) return res.sendStatus('webhook:invalid-url');
+
+    res.json(teams.value.map((t) => {
+        const answersForTeam = answers.value.filter(a => a.teamNumber === t.team_number);
+        const questionsForAnswers = questions.value.filter(q => answersForTeam.some(a => a.questionId === q.id));
+        const data = questionsForAnswers.reduce((acc, q) => {
+            if (!acc[q.key]) acc[q.key] = JSON.parse(answersForTeam.find(a => a.questionId === q.id)?.answer || '[]'); // this should never be undefined
+            return acc;
+        }, {} as { [key: string]: any });
+
+        return {
+            team: t.team_number,
+            name: t.nickname,
+            ...data
+        }
+    }));
+});
+
 router.post('/event/:eventKey/summary', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
-    const teams = await DB.all('teams/from-event', { eventKey });
-    const matches = await DB.all('matches/from-event', { eventKey });
+    const [teams, matches] = await Promise.all([
+        DB.all('teams/from-event', { eventKey }),
+        DB.all('matches/from-event', { eventKey }),
+    ]);
 
     if (teams.isErr() || matches.isErr()) {
         return res.sendStatus('webhook:invalid-url');

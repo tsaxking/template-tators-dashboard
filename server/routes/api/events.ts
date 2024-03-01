@@ -98,18 +98,21 @@ router.post<{
         }[];
 
         const questionsLeft = teamsData.map((t) => {
-            const answers = answersData.filter(a => a.teamNumber === t.team_number);
-            const questions = questionsData.filter(q => !answers.find(a => a.questionId === q.id));
+            const answers = answersData.filter(
+                (a) => a.teamNumber === t.team_number,
+            );
+            const questions = questionsData.filter(
+                (q) => !answers.find((a) => a.questionId === q.id),
+            );
 
             return {
                 team: t.team_number,
-                questions: questions
-                    .map((q) => q.key),
+                questions: questions.map((q) => q.key),
             };
         });
 
         res.json({
-            pictures: picturesLeft.map(t => t.team_number),
+            pictures: picturesLeft.map((t) => t.team_number),
             matches: matchesLeft,
             questions: questionsLeft,
         });

@@ -345,7 +345,10 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
     async getPracticeMatches() {
         return attemptAsync(async () => {
-            const res = await MatchScouting.practiceFromTeam(this.number, this.event.key);
+            const res = await MatchScouting.practiceFromTeam(
+                this.number,
+                this.event.key,
+            );
 
             if (res.isErr()) throw res.error;
             return res.value;
