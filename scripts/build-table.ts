@@ -135,6 +135,78 @@ export class Table {
                         };
                     });
                 },
+                robotGeneral: async (
+                    teamNumber: number,
+                    eventKey: string,
+                ): Promise<Result<RowSection>> => {
+                    return attemptAsync(async () => {
+                        const headers: string[] = [
+                            'Average Velocity',
+                            'Max Velocity',
+                            'Weight',
+                            'Height',
+                            'Width',
+                            'Length',
+                        ];
+
+                        const res = await DB.all('match-scouting/from-team', {
+                            eventKey,
+                            team: teamNumber,
+                        });
+
+                        if (res.isErr()) throw res.error;
+
+                        const matches = res.value.map((m) => {
+                            return {
+                                ...m,
+                                trace: JSON.parse(m.trace) as TraceArray,
+                            };
+                        });
+
+                        const velocities = matches
+                            .map((m) => Trace.velocity.map(m.trace))
+                            .flat();
+                        const max = Math.max(...velocities);
+                        const avg = velocities.reduce((a, b) => a + b, 0) /
+                            velocities.length;
+                        // const hist = matches.map(m => Trace.velocity.histogram(m.trace));
+
+                        const pitScouting = await DB.all(
+                            'scouting-questions/answer-from-team',
+                            {
+                                teamNumber,
+                                eventKey,
+                            },
+                        );
+
+                        if (pitScouting.isErr()) throw pitScouting.error;
+
+                        const weight = pitScouting.value.find((p) =>
+                            /weight/i.test(p.question)
+                        )?.answer || '[]';
+                        const height = pitScouting.value.find((p) =>
+                            /height/i.test(p.question)
+                        )?.answer || '[]';
+                        const width = pitScouting.value.find((p) =>
+                            /width/i.test(p.question)
+                        )?.answer || '[]';
+                        const length = pitScouting.value.find((p) =>
+                            /length/i.test(p.question)
+                        )?.answer || '[]';
+
+                        return {
+                            headers,
+                            data: [
+                                avg, 
+                                max, 
+                                JSON.parse(weight).join(','), 
+                                JSON.parse(height).join(','), 
+                                JSON.parse(width).join(','), 
+                                JSON.parse(length).join(',')
+                            ],
+                        };
+                    });
+                },
                 matchGeneral: async (
                     teamNumber: number,
                     eventKey: string,
@@ -187,71 +259,6 @@ export class Table {
                                 ) / scores.length,
                                 Math.max(...scores.map((s) => s.endgame.total)),
                             ],
-                        };
-                    });
-                },
-                robotGeneral: async (
-                    teamNumber: number,
-                    eventKey: string,
-                ): Promise<Result<RowSection>> => {
-                    return attemptAsync(async () => {
-                        const headers: string[] = [
-                            'Average Velocity',
-                            'Max Velocity',
-                            'Weight',
-                            'Height',
-                            'Width',
-                            'Length',
-                        ];
-
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber,
-                        });
-
-                        if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map((m) => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray,
-                            };
-                        });
-
-                        const velocities = matches
-                            .map((m) => Trace.velocity.map(m.trace))
-                            .flat();
-                        const max = Math.max(...velocities);
-                        const avg = velocities.reduce((a, b) => a + b, 0) /
-                            velocities.length;
-                        // const hist = matches.map(m => Trace.velocity.histogram(m.trace));
-
-                        const pitScouting = await DB.all(
-                            'scouting-questions/answer-from-team',
-                            {
-                                teamNumber,
-                                eventKey,
-                            },
-                        );
-
-                        if (pitScouting.isErr()) throw pitScouting.error;
-
-                        const weight = pitScouting.value.find((p) =>
-                            /weight/i.test(p.question)
-                        )?.answer;
-                        const height = pitScouting.value.find((p) =>
-                            /height/i.test(p.question)
-                        )?.answer;
-                        const width = pitScouting.value.find((p) =>
-                            /width/i.test(p.question)
-                        )?.answer;
-                        const length = pitScouting.value.find((p) =>
-                            /length/i.test(p.question)
-                        )?.answer;
-
-                        return {
-                            headers,
-                            data: [avg, max, weight, height, width, length],
                         };
                     });
                 },
