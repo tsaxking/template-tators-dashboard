@@ -147,6 +147,8 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
         delete data.matchScoutingId;
         delete data.eventKey;
         delete data.accountId;
+
+        return data;
     }));
 });
 
