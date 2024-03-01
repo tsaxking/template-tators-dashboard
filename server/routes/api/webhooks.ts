@@ -10,6 +10,8 @@ import {
 } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
 import { Table } from '../../../scripts/build-table.ts';
 import Account from '../../structure/accounts.ts';
+import { TeamComments } from '../../utilities/tables.ts';
+import { RetrievedMatchScouting } from '../../utilities/query-history/tables-0.ts';
 
 export const router = new Route();
 
@@ -70,10 +72,18 @@ router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
     if (matches.isErr()) return res.sendStatus('webhook:invalid-url');
 
     res.json(
-        matches.value.map((m) => ({
-            ...m,
-            trace: JSON.parse(m.trace),
-        })),
+        matches.value.map((m) => {
+            const data: Partial<RetrievedMatchScouting & { trace: unknown}> = {
+                ...m,
+                trace: JSON.parse(m.trace),
+            };
+
+            delete data.id;
+            delete data.matchId;
+            delete data.scoutId;
+
+            return data;
+        }),
     );
 });
 
@@ -130,7 +140,14 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
 
     if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
-    res.json(comments.value);
+    res.json(comments.value.map(c => {
+        const data: Partial<TeamComments> = {};
+        Object.assign(data, c);
+        delete data.id;
+        delete data.matchScoutingId;
+        delete data.eventKey;
+        delete data.accountId;
+    }));
 });
 
 router.post('/event/:eventKey/pit-scouting', auth, async (req, res) => {
@@ -183,8 +200,6 @@ router.post('/event/:eventKey/summary', auth, async (req, res) => {
             error: data.error.message,
         });
     }
-
-    console.log(data.value);
 
     res.json({
         teams: teams.value,
