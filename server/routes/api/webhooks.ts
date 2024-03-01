@@ -151,6 +151,7 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
         delete data.accountId;
 
         data.date = dateTime(new Date(data.time || Date.now()));
+        delete data.time;
 
         return data;
     }));
