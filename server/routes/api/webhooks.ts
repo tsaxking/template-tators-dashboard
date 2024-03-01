@@ -139,15 +139,17 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
     const comments = await DB.all('team-comments/from-event', { eventKey });
+    const accounts = await Account.getAll();
 
     if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
     res.json(comments.value.map(c => {
-        const data: Partial<TeamComments & { date: string; }> = {};
+        const data: Partial<TeamComments & { date: string; account?: string; }> = {};
         Object.assign(data, c);
         delete data.id;
         delete data.matchScoutingId;
         delete data.eventKey;
+        data.account = accounts.find(a => a.id === c.accountId)?.username || 'Unknown';
         delete data.accountId;
 
         data.date = dateTime(new Date(data.time || Date.now()));
