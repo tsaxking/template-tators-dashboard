@@ -1,5 +1,5 @@
 import { Route } from '../../structure/app/app.ts';
-import { App } from '../../structure/app/app.ts';
+import { App, ServerFunction } from '../../structure/app/app.ts';
 import { DB } from '../../utilities/databases.ts';
 import env from '../../utilities/env.ts';
 import { generateScoutGroups } from '../../../shared/submodules/tatorscout-calculations/scout-groups.ts';
@@ -16,7 +16,18 @@ import { dateTime } from '../../../shared/clock.ts';
 
 export const router = new Route();
 
-const auth = App.headerAuth('x-auth-key', env.WEBHOOK_KEY as string);
+let lastRequest = 0;
+
+const auth: ServerFunction = async (req, res, next) => {
+    const now = Date.now();
+
+    if (now - lastRequest < 1000 * 60) {
+        lastRequest = now;
+        return res.sendStatus('webhook:rate-limit');
+    }
+
+    return App.headerAuth('x-auth-key', env.WEBHOOK_KEY as string)(req, res, next);
+};
 
 router.post('/test', (req, res) => {
     res.send(JSON.stringify({ success: true }));
