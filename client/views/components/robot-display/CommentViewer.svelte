@@ -75,7 +75,11 @@ const fns = {
                     c.account.lastName
             )
         );
-        return comments.filter((_, i) => filtered.includes(i)).reverse();
+        return comments.filter((_, i) => filtered.includes(i)).sort((a, b) => {
+            // sort by time
+            // most recent comments first
+            return b.time - a.time;
+        });
     },
     onSet(comments: C[]) {
         jQuery(() => {
