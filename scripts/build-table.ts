@@ -130,7 +130,7 @@ export class Table {
                                 teamNumber,
                                 team.value?.nickname || '',
                                 event.value?.qual?.ranking?.rank || 0,
-                                event.value?.qual?.ranking?.sort_orders[0] || 0,
+                                event.value?.qual?.ranking?.sort_orders?.[0] || 0,
                             ],
                         };
                     });
