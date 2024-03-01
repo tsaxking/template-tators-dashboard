@@ -152,7 +152,7 @@ router.post('/event/:eventKey/pit-scouting', auth, async (req, res) => {
         const answersForTeam = answers.value.filter(a => a.teamNumber === t.team_number);
         const questionsForAnswers = questions.value.filter(q => answersForTeam.some(a => a.questionId === q.id));
         const data = questionsForAnswers.reduce((acc, q) => {
-            if (!acc[q.key]) acc[q.key] = JSON.parse(answersForTeam.find(a => a.questionId === q.id)?.answer || '[]'); // this should never be undefined
+            acc[q.key] = JSON.parse(answersForTeam.find(a => a.questionId === q.id)?.answer || '[]'); // this should never be undefined
             return acc;
         }, {} as { [key: string]: any });
 
