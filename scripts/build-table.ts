@@ -380,7 +380,7 @@ export class Table {
                         const matches = res.value.map((m) => {
                             return {
                                 ...m,
-                                trace: JSON.parse(m.trace) as TraceArray,
+                                trace: m.trace ? JSON.parse(m.trace) as TraceArray : [],
                             };
                         });
 
