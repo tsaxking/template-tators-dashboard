@@ -113,8 +113,13 @@ export class DB {
         port: Number(DATABASE_PORT),
     });
 
+    static get connected() {
+        return DB.db.connected;
+    }
+
     static async connect() {
         return attemptAsync(async () => {
+            if (DB.connected) return;
             return new Promise((res, rej) => {
                 setTimeout(() => {
                     rej('Database connection timed out');
@@ -122,12 +127,6 @@ export class DB {
                 return DB.db
                     .connect()
                     .then(() => {
-
-                        // close the connection every 10 minutes to prevent memory leaks
-                        // setTimeout(() => {
-
-                        // }, 1000 * 60 * 10);
-
                         res('Connected to the database');
                     })
                     .catch(() => {
@@ -750,6 +749,9 @@ export class DB {
         });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private static readonly stack: Promise<any>[] = [];
+
     private static async runQuery(
         query: string,
         args: Parameter[],
@@ -772,30 +774,34 @@ export class DB {
                 };
             });
 
-        let res = await run();
-        let maxRetries = 5;
-        const disconnectedErrors = [
-            'Connection terminated',
-            'Connection lost',
-            'Broken pipe',
-            'Connection closed',
-        ];
+        const promise = run();
+        DB.stack.push(promise);
+        const res = await promise;
+        DB.stack.splice(DB.stack.indexOf(promise), 1);
+        // let maxRetries = 5;
+        // const disconnectedErrors = [
+        //     'Connection terminated',
+        //     'Connection lost',
+        //     'Broken pipe',
+        //     'Connection closed',
+        // ];
 
-        while (res.isErr() && maxRetries > 0) {
-            const { error } = res;
-            if (disconnectedErrors.some((e) => error.message.includes(e))) {
-                log('Database disconnected, reconnecting...');
-                await DB.connect();
-            }
-            res = await run();
-            maxRetries--;
-        }
+        // while (res.isErr() && maxRetries > 0) {
+        //     const { error } = res;
+        //     if (disconnectedErrors.some((e) => error.message.includes(e))) {
+        //         log('Database disconnected, reconnecting...');
+        //         await DB.connect();
+        //     }
+        //     res = await run();
+        //     maxRetries--;
+        // }
 
-        if (res.isErr()) {
-            error('Error running query:', res.error);
-        }
+        // if (res.isErr()) {
+        //     error('Error running query:', res.error);
+        // }
 
-        // await DB.disconnect();
+        await DB.disconnect();
+
 
         return res;
     }
@@ -852,6 +858,8 @@ export class DB {
     }
 
     public static async disconnect() {
+        console.log('Waiting for queries to finish... ' + DB.stack.length);
+        await Promise.all(DB.stack); // wait for all current queries to finish
         log('Closing database...');
         return DB.db.end();
     }
