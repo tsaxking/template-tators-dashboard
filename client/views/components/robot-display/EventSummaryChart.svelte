@@ -104,7 +104,7 @@ $: {
         scales: {
             y: {
                 beginAtZero: true,
-                max: 150
+                max: 60
             }
         }
     }}"
