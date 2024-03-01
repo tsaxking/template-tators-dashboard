@@ -22,9 +22,11 @@ const auth: ServerFunction = async (req, res, next) => {
     const now = Date.now();
 
     if (now - lastRequest < 1000 * 60) {
-        lastRequest = now;
-        return res.sendStatus('webhook:rate-limit');
+        res.sendStatus('webhook:rate-limit');
+        return lastRequest = now;
     }
+
+    lastRequest = now;
 
     return App.headerAuth('x-auth-key', env.WEBHOOK_KEY as string)(req, res, next);
 };
