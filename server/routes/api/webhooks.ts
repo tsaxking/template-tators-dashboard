@@ -12,6 +12,7 @@ import { Table } from '../../../scripts/build-table.ts';
 import Account from '../../structure/accounts.ts';
 import { TeamComments } from '../../utilities/tables.ts';
 import { RetrievedMatchScouting } from '../../utilities/query-history/tables-0.ts';
+import { dateTime } from '../../../shared/clock.ts';
 
 export const router = new Route();
 
@@ -107,6 +108,7 @@ router.post(
             matches.value.map((m) => ({
                 ...m,
                 trace: JSON.parse(m.trace),
+                date: dateTime(new Date(m.time || Date.now())),
             })),
         );
     },
@@ -141,12 +143,14 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
     if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
     res.json(comments.value.map(c => {
-        const data: Partial<TeamComments> = {};
+        const data: Partial<TeamComments & { date: string; }> = {};
         Object.assign(data, c);
         delete data.id;
         delete data.matchScoutingId;
         delete data.eventKey;
         delete data.accountId;
+
+        data.date = dateTime(new Date(data.time || Date.now()));
 
         return data;
     }));
