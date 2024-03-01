@@ -241,25 +241,20 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      * @readonly
      * @type {FIRSTTeam[]}
      */
-    get teams(): [
-        FIRSTTeam,
-        FIRSTTeam,
-        FIRSTTeam,
-        FIRSTTeam,
-        FIRSTTeam,
-        FIRSTTeam,
-    ] {
+    get teams(): FIRSTTeam[] {
         const [red1, red2, red3] = this.tba.alliances.red.team_keys;
         const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
 
-        const teams = [red1, red2, red3, blue1, blue2, blue3].map((t) =>
+        let teams = [red1, red2, red3, blue1, blue2, blue3].map((t) =>
             FIRSTTeam.$cache.get(
                 +t.replace('frc', '') + ':' + this.event.tba.key,
             )
         );
 
         if (teams.some((t) => !t)) {
-            throw new Error('Some teams are undefined');
+            console.error('Teams not found', teams);
+
+            teams = teams.filter((t) => t);
         }
 
         return teams as [
