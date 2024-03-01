@@ -12,7 +12,7 @@ type C = {
     comment: string;
     type: string;
     time: number;
-    account: Account;
+    account: string;
 };
 
 export let team: FIRSTTeam;
@@ -32,7 +32,7 @@ const fns = {
                     comment: c.comment,
                     type: c.type,
                     time: c.time,
-                    account: await Account.get(c.accountId)
+                    account: (await Account.get(c.accountId))?.username || c.accountId,
                 };
             })
         );
@@ -68,17 +68,13 @@ const fns = {
                     ' ' +
                     c.type +
                     ' ' +
-                    c.account?.username +
-                    ' ' +
-                    c.account.firstName +
-                    ' ' +
-                    c.account.lastName
+                    c.account
             )
         );
         return comments.filter((_, i) => filtered.includes(i)).sort((a, b) => {
             // sort by time
             // most recent comments first
-            return b.time - a.time;
+            return a.time - b.time;
         });
     },
     onSet(comments: C[]) {
@@ -114,12 +110,8 @@ $: fns.parse(comments);
         {#each filteredComments as comment}
             <tr>
                 <td
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="left"
-                    title="{comment.account?.firstName || ''} {comment.account
-                        ?.lastName || ''}"
                     class="cursor-help"
-                    >{comment.account?.username || 'Unknown'}</td
+                    >{comment.account || 'Unknown'}</td
                 >
                 <td>{comment.type}</td>
                 <td>{comment.comment}</td>
