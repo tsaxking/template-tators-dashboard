@@ -29,6 +29,40 @@
                     <td>{match.number}</td>
                     <td>{match.compLevel}</td>
                     {#each match.teams as team, i}
+                            <td>
+                                <span class="badge bg-{team.scouted ? 'success' : 'danger'}">
+                                    {team.team}
+                                </span>
+                            </td>
+                    {/each}
+                </tr>
+            {/each}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Other table version -->
+<!-- <div class="table-responsive">
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>Match</th>
+                <th>Comp Level</th>
+                <th>Red 1</th>
+                <th>Red 2</th>
+                <th>Red 3</th>
+                <th>Blue 1</th>
+                <th>Blue 2</th>
+                <th>Blue 3</th>
+            </tr>
+        </thead>
+        <tbody>
+            {#each matchScouting as match}
+                <tr>
+                    <td>{match.number}</td>
+                    <td>{match.compLevel}</td>
+                    {#each match.teams as team, i}
                         <td>
                             {#if i > 2}
                                 <span
@@ -55,4 +89,4 @@
             {/each}
         </tbody>
     </table>
-</div>
+</div> -->
