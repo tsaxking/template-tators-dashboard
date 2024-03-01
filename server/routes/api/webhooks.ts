@@ -90,14 +90,19 @@ router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
 
     res.json(
         matches.value.map((m) => {
-            const data: Partial<RetrievedMatchScouting & { trace: unknown}> = {
+            const data: Partial<RetrievedMatchScouting & { trace: unknown, date: string; }> = {
                 ...m,
                 trace: JSON.parse(m.trace),
+                date: dateTime(new Date(m.time || Date.now())),
+                checks: JSON.parse(m.checks).join(', '),
             };
 
             delete data.id;
             delete data.matchId;
             delete data.scoutId;
+            delete data.time;
+            delete data.preScouting;
+            data.scoutGroup = Number(data.scoutGroup) + 1;
 
             return data;
         }),

@@ -75,7 +75,7 @@ const fns = {
                     c.account.lastName
             )
         );
-        return comments.filter((_, i) => filtered.includes(i));
+        return comments.filter((_, i) => filtered.includes(i)).reverse();
     },
     onSet(comments: C[]) {
         jQuery(() => {
