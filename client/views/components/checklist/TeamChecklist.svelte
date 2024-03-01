@@ -1,12 +1,9 @@
 <script lang="ts">
-import { teamsFromMatch } from '../../../../shared/submodules/tatorscout-calculations/tba';
 import { FIRSTEvent } from '../../../models/FIRST/event';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 
-let teams: {
+export let teams: {
     team: FIRSTTeam;
-    // incomplete
-    matches: string[];
     pit: string[];
     pictures: boolean;
 }[] = [];
@@ -24,9 +21,6 @@ FIRSTEvent.on('select', async e => {
 
     teams = teamsInfo.map(t => ({
         team: t,
-        matches: matches
-            .filter(m => m.teams.includes(t.number))
-            .map(m => `${m.match} - ${m.compLevel}`),
         pit: questions.find(q => q.team === t.number)?.questions || [],
         pictures: pictures.find(p => p === t.number) ? true : false
     }));
@@ -34,17 +28,10 @@ FIRSTEvent.on('select', async e => {
 </script>
 
 <ul class="list-group">
-    {#each teams as { team, matches, pit, pictures }, i}
+    {#each teams as { team, pit, pictures }, i}
         <li class="list-group-item">
             <p>
                 {team.number} - {team.name}
-                {#if matches.length}
-                    {#each matches as match}
-                        <span class="badge bg-danger rounded-pill mx-2"
-                            >{match}</span
-                        >
-                    {/each}
-                {/if}
                 {#if pit.length}
                     {#each pit as question}
                         <span class="badge bg-success rounded-pill mx-2"
