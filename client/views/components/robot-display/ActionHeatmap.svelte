@@ -49,6 +49,8 @@ const fns = {
     generate: async (team: FIRSTTeam) => {
         if (!team) return;
 
+        checks = [];
+
         const allChecks = Object.keys(actions)
             // .keys(actions[2024]) // for development
             .map((k, i) => ({
