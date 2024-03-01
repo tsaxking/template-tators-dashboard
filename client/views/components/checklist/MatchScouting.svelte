@@ -29,11 +29,19 @@
                     <td>{match.number}</td>
                     <td>{match.compLevel}</td>
                     {#each match.teams as team, i}
-                            <td>
+                        {#if i > 2}
+                            <td class="table-primary">
                                 <span class="badge bg-{team.scouted ? 'success' : 'danger'}">
                                     {team.team}
                                 </span>
                             </td>
+                        {:else}
+                            <td class="table-danger">
+                                <span class="badge bg-{team.scouted ? 'success' : 'danger'}">
+                                    {team.team}
+                                </span>
+                            </td>
+                        {/if}
                     {/each}
                 </tr>
             {/each}
