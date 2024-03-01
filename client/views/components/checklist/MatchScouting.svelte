@@ -28,11 +28,27 @@
                 <tr>
                     <td>{match.number}</td>
                     <td>{match.compLevel}</td>
-                    {#each match.teams as team}
+                    {#each match.teams as team, i}
                         <td>
-                            <span class="badge bg-{team.scouted ? 'success' : 'danger'}">
-                                {team.team}
-                            </span>
+                            {#if i > 2}
+                                <span
+                                    class="text-primary"
+                                >
+                                    {team.team}
+                                </span>
+                            {:else}
+                                <span
+                                    class="text-danger"
+                                >
+                                    {team.team}
+                                </span>
+                            {/if}
+                            <i class="text-white p-1">|</i>
+                            {#if team.scouted}
+                                <i class="material-icons text-success">check</i>
+                            {:else}
+                                <i class="material-icons text-danger">close</i>
+                            {/if}
                         </td>
                     {/each}
                 </tr>
