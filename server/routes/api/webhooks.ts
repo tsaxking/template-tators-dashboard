@@ -15,11 +15,11 @@ export const router = new Route();
 
 const auth = App.headerAuth('x-auth-key', env.WEBHOOK_KEY as string);
 
-router.get('/test', (req, res) => {
+router.post('/test', (req, res) => {
     res.send(JSON.stringify({ success: true }));
 });
 
-router.get('/event/:eventKey/teams/traces', auth, async (req, res) => {
+router.post('/event/:eventKey/teams/traces', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -40,7 +40,7 @@ router.get('/event/:eventKey/teams/traces', auth, async (req, res) => {
     res.json(trace);
 });
 
-router.get('/event/:eventKey/scout-groups', auth, async (req, res) => {
+router.post('/event/:eventKey/scout-groups', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -61,7 +61,7 @@ router.get('/event/:eventKey/scout-groups', auth, async (req, res) => {
     res.sendStatus('webhook:invalid-url');
 });
 
-router.get('/event/:eventKey/match-scouting', auth, async (req, res) => {
+router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -77,7 +77,7 @@ router.get('/event/:eventKey/match-scouting', auth, async (req, res) => {
     );
 });
 
-router.get(
+router.post(
     '/event/:eventKey/team/:teamNumber/match-scouting',
     auth,
     async (req, res) => {
@@ -102,7 +102,7 @@ router.get(
     },
 );
 
-router.get(
+router.post(
     '/event/:eventKey/team/:teamNumber/comments',
     auth,
     async (req, res) => {
@@ -122,7 +122,7 @@ router.get(
     },
 );
 
-router.get('/event/:eventKey/comments', auth, async (req, res) => {
+router.post('/event/:eventKey/comments', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -133,7 +133,7 @@ router.get('/event/:eventKey/comments', auth, async (req, res) => {
     res.json(comments.value);
 });
 
-router.get('/event/:eventKey/summary', auth, async (req, res) => {
+router.post('/event/:eventKey/summary', auth, async (req, res) => {
     const { eventKey } = req.params;
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
@@ -161,7 +161,7 @@ router.get('/event/:eventKey/summary', auth, async (req, res) => {
     });
 });
 
-router.get('/accounts/all', auth, async (req, res) => {
+router.post('/accounts/all', auth, async (req, res) => {
     const accounts = await Account.getAll();
 
     res.json(await Promise.all(accounts.map((a) => a.safe())));
