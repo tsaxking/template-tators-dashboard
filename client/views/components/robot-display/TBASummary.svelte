@@ -13,6 +13,7 @@ let played: number;
 let rp: number;
 let potentialRP: number;
 let velocity: number = 0;
+let secondsNotMoving: number = 0;
 
 const fns = {
     getData: async (t: FIRSTTeam) => {
@@ -46,6 +47,8 @@ const fns = {
         if (dataRes.isErr()) return console.error(dataRes.error);
 
         velocity = dataRes.value.average;
+
+        secondsNotMoving = dataRes.value.averageSecondsNotMoving;
     }
 };
 
@@ -99,6 +102,14 @@ $: {
                                 <td>Cannot calculate velocity yet</td>
                             {:else}
                                 <td>{velocity.toFixed(2)} ft/s</td>
+                            {/if}
+                        </tr>
+                        <tr>
+                            <th>Average seconds not moving</th>
+                            {#if isNaN(secondsNotMoving)}
+                                <td>Cannot calculate seconds not moving yet</td>
+                            {:else}
+                                <td>{secondsNotMoving.toFixed(2)} s</td>
                             {/if}
                         </tr>
                     </tbody>

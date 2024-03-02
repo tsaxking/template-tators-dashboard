@@ -319,6 +319,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             map: number[];
             histogram: number[];
             average: number;
+            averageSecondsNotMoving: number;
         }>
     > {
         return attemptAsync(async () => {
@@ -335,6 +336,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                     matches.map((m) => m.trace).flat(),
                 ),
                 average: map.reduce((a, b) => a + b, 0) / map.length,
+                // 4 ticks per second, so divide by 4, then divide by the number of matches for the average
+                averageSecondsNotMoving: (map.filter((v) => v === 0).length / 4) / matches.length,
             };
         });
     }
