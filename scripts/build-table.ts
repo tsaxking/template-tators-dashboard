@@ -146,6 +146,7 @@ export class Table {
                         const headers: string[] = [
                             'Average Velocity',
                             // 'Max Velocity',
+                            // 'Average Seconds Not Moving',
                             'Weight',
                             'Height',
                             'Width',
@@ -202,6 +203,7 @@ export class Table {
                             data: [
                                 avg,
                                 // max,
+                                // velocities.filter((v) => v === 0).length / velocities.length,
                                 JSON.parse(weight).join(','),
                                 JSON.parse(height).join(','),
                                 JSON.parse(width).join(','),
