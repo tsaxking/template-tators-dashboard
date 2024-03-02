@@ -113,7 +113,7 @@ $: {
         scales: {
             y: {
                 beginAtZero: true,
-                max: 20
+                max: 25
             }
         }
     }}"
