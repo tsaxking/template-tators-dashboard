@@ -202,7 +202,7 @@ app.route('/roles', role);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
-    return next(); // TODO: THIS IS TEMPORARY FOR 3-1-2024
+    // return next(); // TODO: THIS IS TEMPORARY FOR 3-1-2024
     console.log('Testing if user is logged in: ', req.session);
     if (!req.session.accountId) {
         if (
