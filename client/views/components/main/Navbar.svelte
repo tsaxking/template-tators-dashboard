@@ -7,6 +7,7 @@ export let navItems: string[] = [];
 import { Account } from '../../../models/account';
 import { Modal } from '../../../utilities/modals';
 import Settings from '../../pages/Settings.svelte';
+import { onMount } from 'svelte';
 
 export let active: string = '';
 
@@ -42,6 +43,11 @@ const fns = {
         m.show();
     }
 };
+
+onMount(() => {
+    jQuery('#report-issue').tooltip()
+});
+
 </script>
 
 <nav
@@ -87,6 +93,18 @@ const fns = {
                 <ThemeSwitch />
             </div>
             <EventSelect></EventSelect>
+            <!-- Report an issue with github -->
+            <a
+                href="https://github.com/tsaxking/template-tators-dashboard/issues"
+                target="_blank"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="Report an issue"
+                id="report-issue"
+                class="nav-link ms-3"
+            >
+                <i class="fa-brands fa-github fa-xl"></i>
+            </a>
             <a
                 class="nav-link dropdown-toggle mx-3 py-1"
                 href="#navbarDropdown"
