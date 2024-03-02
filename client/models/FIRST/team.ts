@@ -337,7 +337,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                 ),
                 average: map.reduce((a, b) => a + b, 0) / map.length,
                 // 4 ticks per second, so divide by 4, then divide by the number of matches for the average
-                averageSecondsNotMoving: (map.filter((v) => v === 0).length / 4) / matches.length,
+                averageSecondsNotMoving: (map.filter((v) => v === 0).length / 4),
             };
         });
     }
