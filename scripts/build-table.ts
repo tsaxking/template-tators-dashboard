@@ -167,12 +167,8 @@ export class Table {
                             };
                         });
 
-                        const velocities = matches
-                            .map((m) => Trace.velocity.map(m.trace))
-                            .flat();
                         // const max = Math.max(...velocities);
-                        const avg = velocities.reduce((a, b) => a + b, 0) /
-                            velocities.length;
+                        const avg = Trace.velocity.average(matches.map(m => m.trace).flat());
                         // const hist = matches.map(m => Trace.velocity.histogram(m.trace));
 
                         const pitScouting = await DB.all(
