@@ -12,6 +12,7 @@ let checks: {
 
 const fns = {
     get: async (team: FIRSTTeam) => {
+        checks = {};
         if (!team) return;
         const scouting = await team.getMatchScouting();
         if (scouting.isOk()) {
