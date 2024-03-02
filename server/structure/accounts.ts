@@ -274,7 +274,7 @@ export default class Account {
      * @returns {*}
      */
     static async isSignedIn(req: Req<unknown>, res: Res, next: Next) {
-        return next(); // TODO: TEMPORARY FOR 3-1-2024
+        // return next(); // TODO: TEMPORARY FOR 3-1-2024
         const account = await req.session.getAccount();
 
         if (!account) {
