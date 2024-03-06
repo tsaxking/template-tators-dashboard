@@ -1103,13 +1103,11 @@ export type AdminStatusId = 'invalid-key';
 export type FilesStatusId =
     | 'invalid'
     | 'invalid-extension'
-    | 'missing'
     | 'no-files'
     | 'too-large'
     | 'too-many-files'
     | 'unknown-error'
-    | 'uploaded'
-    | 'too-many';
+    | 'uploaded';
 
 export type DiscordStatusId =
     | 'account-linked'
