@@ -13,6 +13,7 @@ import Account from '../../structure/accounts';
 import { TeamComments } from '../../utilities/tables';
 import { RetrievedMatchScouting } from '../../utilities/tables';
 import { dateTime } from '../../../shared/clock';
+import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 
 export const router = new Route();
 
@@ -95,10 +96,25 @@ router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
     res.json(
         matches.value.map(m => {
             const data: Partial<
-                RetrievedMatchScouting & { trace: unknown; date: string }
+                {
+                    id: string;
+                    matchId: string | undefined;
+                    team: number;
+                    scoutId: string | undefined;
+                    scoutGroup: number;
+                    checks: string;
+                    preScouting: string | undefined;
+                    time: number;
+                    prescouting: string | undefined;
+                    eventKey: string;
+                    matchNumber: number;
+                    compLevel: string;
+                    trace: TraceArray; 
+                    date: string;
+                 }
             > = {
                 ...m,
-                trace: JSON.parse(m.trace),
+                trace: JSON.parse(m.trace) as TraceArray,
                 date: dateTime(new Date(m.time || Date.now())),
                 checks: (JSON.parse(m.checks) as string[]).join(', ')
             };
