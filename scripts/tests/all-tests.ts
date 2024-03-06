@@ -6,6 +6,9 @@ import { Req } from '../../server/structure/app/req';
 import { Res } from '../../server/structure/app/res';
 import test from 'test';
 import assert from 'assert';
+import { getJSONSync } from '../../server/utilities/files';
+import { TBAMatch, TBATeam } from '../../shared/submodules/tatorscout-calculations/tba';
+import { generateScoutGroups, testAssignments } from '../../shared/submodules/tatorscout-calculations/scout-groups';
 
 const assertEquals = (a: unknown, b: unknown) => {
     assert.deepEqual(a, b);
@@ -136,6 +139,27 @@ export const runTests = async () => {
             } as unknown as Res,
             fail
         );
+    });
+
+    test('Scout groups', async () => {
+        const eventKey = '2023cabl';
+        const regex = /^([0-9]{4}[a-z]{3,4})$/i;
+        if (!regex.test(eventKey)) throw new Error('Invalid event key');
+
+        const data = await getJSONSync<{
+            matches: TBAMatch[];
+            teams: TBATeam[];
+        }>('scout-group-test');
+
+        if (data.isOk()) {
+            const { matches, teams } = data.value;
+            const assignments = generateScoutGroups(teams, matches);
+            const result = testAssignments(assignments);
+
+            assertEquals(result.status, 'ok');
+        } else {
+            throw data.error;
+        }
     });
 };
 

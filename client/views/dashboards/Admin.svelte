@@ -33,7 +33,7 @@ const openPage = ({ detail }) => {
     active = detail;
 };
 
-const navItems = ['dashboard', 'accounts', 'roles'];
+const navItems = [];
 
 const accountLinks = [
     // 'account',
