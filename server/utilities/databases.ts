@@ -133,17 +133,17 @@ export class DB {
         return attemptAsync(async () => {
             // a little optimization
             return new Promise((res, rej) => {
-                log('Connecting to the database...');
+                // log('Connecting to the database...');
                 return DB.db
                     .connect()
                     .then(() => {
                         DB.setTimeout();
                         // close the connection every 10 minutes to prevent memory leaks
-                        log('Connected to the database');
+                        // log('Connected to the database');
                         res('Connected to the database');
                     })
                     .catch(e => {
-                        error('Database connection error', e);
+                        // error('Database connection error', e);
                         rej('Error connecting to the database');
                     });
             });
@@ -762,7 +762,7 @@ export class DB {
         query: string,
         args: Parameter[]
     ): Promise<Result<QueryResult<unknown>>> {
-        // await DB.connect();
+        await DB.connect();
         const run = () =>
             attemptAsync(async () => {
                 const q = DB.parseQuery(query, args);

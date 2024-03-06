@@ -26,7 +26,7 @@ router.post<{
 
         if (result.isErr()) return res.sendStatus('unknown:error');
 
-        res.stream(result.value.map(s => JSON.stringify(s)));
+        res.json(result.value);
     }
 );
 
@@ -46,7 +46,7 @@ router.post<{
 
         if (matchesRes.isErr()) return res.sendStatus('unknown:error');
 
-        res.stream(matchesRes.value.map(m => JSON.stringify(m)));
+        res.json(matchesRes.value);
     }
 );
 
