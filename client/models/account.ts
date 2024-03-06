@@ -1,7 +1,6 @@
 import { EventEmitter } from '../../shared/event-emitter';
 import { Cache } from './cache';
 import { AccountSafe, Role as R, RolePermission } from '../../shared/db-types';
-import { Permission as P } from '../../shared/permissions';
 import { attemptAsync, Result } from '../../shared/check';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
@@ -95,6 +94,19 @@ export class Account extends Cache<AccountEvents> {
             Account.current = new Account(res.value);
             Account.emit('current', Account.current);
             return Account.current;
+        }
+    }
+
+    public static async get(id: string): Promise<Account | undefined> {
+        if (Account.$cache.has(id)) return Account.$cache.get(id);
+        const res = await ServerRequest.post<AccountSafe>(
+            '/account/account-info',
+            {
+                id,
+            },
+        );
+        if (res.isOk()) {
+            return new Account(res.value);
         }
     }
 
@@ -508,6 +520,10 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 }
+
+Object.assign(window, {
+    Account,
+});
 
 socket.on('account:removed', (accountId: string) => {
     const account = Account.$cache.get(accountId);

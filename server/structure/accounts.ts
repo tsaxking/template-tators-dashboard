@@ -271,6 +271,7 @@ export default class Account {
      * @returns {*}
      */
     static async isSignedIn(req: Req<unknown>, res: Res, next: Next) {
+        // return next(); // TODO: TEMPORARY FOR 3-1-2024
         const account = await req.session.getAccount();
 
         if (!account) {
@@ -577,7 +578,8 @@ export default class Account {
             phoneNumber: ''
         });
 
-        a.sendVerification();
+        // We don't want to send verification with these
+        // a.sendVerification();
 
         return { status: 'created' };
     }
@@ -1016,62 +1018,63 @@ export default class Account {
      * @param {string} password
      * @returns {boolean}
      */
-    async testPassword(password: string): Promise<boolean> {
+    async testPassword(password: string): Promise<boolean | null> {
+        if (this.key === '') return null; // user must make a new password
         const hash = Account.hash(password, this.salt);
         if (hash === this.key) return true; // it works in this database
 
         // test in the other database because something is wrong with the new hashing algorithm
-        const result = await attemptAsync<
-            | {
-                  success: true;
-                  hash: string;
-                  salt: string;
-              }
-            | {
-                  success: false;
-                  error: string;
-              }
-        >(async () => {
-            const { HASH_SERVER_AUTH, HASH_SERVER } = env;
-            if (!HASH_SERVER_AUTH) throw new Error('No hash server auth');
-            if (!HASH_SERVER) throw new Error('No hash server');
-            const data = await fetch(HASH_SERVER + '/api/login', {
-                headers: {
-                    'x-auth-key': HASH_SERVER_AUTH
-                }
-            });
+        // const result = await attemptAsync<
+        //     | {
+        //         success: true;
+        //         hash: string;
+        //         salt: string;
+        //     }
+        //     | {
+        //         success: false;
+        //         error: string;
+        //     }
+        // >(async () => {
+        //     // const { HASH_SERVER_AUTH, HASH_SERVER } = env;
+        //     // if (!HASH_SERVER_AUTH) throw new Error('No hash server auth');
+        //     // if (!HASH_SERVER) throw new Error('No hash server');
+        //     // const data = await fetch(HASH_SERVER + '/api/login', {
+        //     //     headers: {
+        //     //         'x-auth-key': HASH_SERVER_AUTH,
+        //     //     },
+        //     // });
 
-            const json = (await data.json()) as
-                | {
-                      success: true;
-                      hash: string;
-                      salt: string;
-                  }
-                | {
-                      success: false;
-                      error: string;
-                  };
+        //     // const json = (await data.json()) as
+        //     //     | {
+        //     //         success: true;
+        //     //         hash: string;
+        //     //         salt: string;
+        //     //     }
+        //     //     | {
+        //     //         success: false;
+        //     //         error: string;
+        //     //     };
 
-            if (json.success) {
-                // update the database with the new account hash
-                DB.unsafe.run(
-                    `
-                    UPDATE Accounts
-                    SET key = ?, salt = ?
-                    WHERE id = ?
-                `,
-                    json.hash,
-                    json.salt,
-                    this.id
-                );
-            }
+        //     // if (json.success) {
+        //     //     // update the database with the new account hash
+        //     //     DB.unsafe.run(
+        //     //         `
+        //     //         UPDATE Accounts
+        //     //         SET key = ?, salt = ?
+        //     //         WHERE id = ?
+        //     //     `,
+        //     //         json.hash,
+        //     //         json.salt,
+        //     //         this.id,
+        //     //     );
+        //     // }
 
-            return json;
-        });
+        //     // return json;
+        // });
 
-        if (result.isOk()) {
-            return result.value.success;
-        }
+        // if (result.isOk()) {
+        //     return result.value.success;
+        // }
 
         return false;
     }
