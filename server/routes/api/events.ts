@@ -1,13 +1,12 @@
-import { Route } from '../../structure/app/app.ts';
-import { DB } from '../../utilities/databases.ts';
-import { validate } from '../../middleware/data-type.ts';
-import { string } from 'https://esm.sh/v132/postcss-selector-parser@6.0.13/denonext/postcss-selector-parser.mjs';
-import { TBA } from '../../utilities/tba/tba.ts';
+import { Route } from '../../structure/app/app';
+import { DB } from '../../utilities/databases';
+import { validate } from '../../middleware/data-type';
+import { TBA } from '../../utilities/tba/tba';
 import {
     TBAMatch,
     TBATeam,
-    matchSort,
-} from '../../../shared/submodules/tatorscout-calculations/tba.ts';
+    matchSort
+} from '../../../shared/submodules/tatorscout-calculations/tba';
 
 export const router = new Route();
 
@@ -16,14 +15,14 @@ router.post<{
 }>(
     '/properties',
     validate({
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     (req, res) => {
         const p = DB.get('events/from-key', {
-            eventKey: req.body.eventKey,
+            eventKey: req.body.eventKey
         });
         res.json(p);
-    },
+    }
 );
 
 router.post<{
@@ -31,7 +30,7 @@ router.post<{
 }>(
     '/status',
     validate({
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const [matchScouting, answers, questions, pictures, teams, matches] =
@@ -41,7 +40,7 @@ router.post<{
                 DB.all('scouting-questions/questions-from-event', req.body),
                 DB.all('teams/pictures-from-event', req.body),
                 TBA.get<TBATeam[]>('/event/' + req.body.eventKey + '/teams'),
-                TBA.get<TBAMatch[]>('/event/' + req.body.eventKey + '/matches'),
+                TBA.get<TBAMatch[]>('/event/' + req.body.eventKey + '/matches')
             ]);
 
         if (matchScouting.isErr()) return res.sendStatus('unknown:error');
@@ -61,21 +60,19 @@ router.post<{
         if (!teamsData) return res.sendStatus('tba:invalid-path');
         if (!matchesData) return res.sendStatus('tba:invalid-path');
 
-        const picturesLeft = teamsData.filter((t) => {
-            return picturesData.find((p) => p.teamNumber === t.team_number);
+        const picturesLeft = teamsData.filter(t => {
+            return picturesData.find(p => p.teamNumber === t.team_number);
         });
 
-        const matchesLeft = matchesData
-        .sort(matchSort)
-        .map((m) => {
+        const matchesLeft = matchesData.sort(matchSort).map(m => {
             const find = (t: number): number | null => {
                 // return team if not found in matchScoutingData
                 return matchScoutingData.find(
-                        (s) =>
-                            s.team === t &&
-                            s.matchNumber === m.match_number &&
-                            s.compLevel === m.comp_level,
-                    )
+                    s =>
+                        s.team === t &&
+                        s.matchNumber === m.match_number &&
+                        s.compLevel === m.comp_level
+                )
                     ? null
                     : t;
             };
@@ -85,14 +82,14 @@ router.post<{
                 compLevel: m.comp_level,
                 teams: [
                     ...m.alliances.blue.team_keys
-                        .map((t) => parseInt(t.substring(3)))
+                        .map(t => parseInt(t.substring(3)))
                         .map(find)
                         .filter(Boolean),
                     ...m.alliances.red.team_keys
-                        .map((t) => parseInt(t.substring(3)))
+                        .map(t => parseInt(t.substring(3)))
                         .map(find)
-                        .filter(Boolean),
-                ],
+                        .filter(Boolean)
+                ]
             };
         }) as {
             match: number;
@@ -100,24 +97,24 @@ router.post<{
             teams: number[];
         }[];
 
-        const questionsLeft = teamsData.map((t) => {
+        const questionsLeft = teamsData.map(t => {
             const answers = answersData.filter(
-                (a) => a.teamNumber === t.team_number,
+                a => a.teamNumber === t.team_number
             );
             const questions = questionsData.filter(
-                (q) => !answers.find((a) => a.questionId === q.id),
+                q => !answers.find(a => a.questionId === q.id)
             );
 
             return {
                 team: t.team_number,
-                questions: questions.map((q) => q.key),
+                questions: questions.map(q => q.key)
             };
         });
 
         res.json({
-            pictures: picturesLeft.map((t) => t.team_number),
+            pictures: picturesLeft.map(t => t.team_number),
             matches: matchesLeft,
-            questions: questionsLeft,
+            questions: questionsLeft
         });
-    },
+    }
 );

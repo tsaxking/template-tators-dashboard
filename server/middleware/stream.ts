@@ -51,11 +51,11 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
     return async (req, res, next) => {
         const { files } = req;
         if (!files) {
-            return res.sendStatus('files:missing');
+            return res.sendStatus('files:no-files');
         }
 
         if (files.length > (opts?.maxFiles ?? 1)) {
-            return res.sendStatus('files:too-many');
+            return res.sendStatus('files:too-many-files');
         }
 
         if (opts?.extensions) {

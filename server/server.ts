@@ -211,7 +211,7 @@ app.get(
     Account.allowPermissions('mentor'),
     (_req, res) => {
         res.sendTemplate('entries/dashboard/mentor');
-    },
+    }
 );
 
 app.route('/admin', admin);

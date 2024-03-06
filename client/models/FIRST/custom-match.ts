@@ -18,14 +18,14 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: any) => void
     ): void {
         CustomMatch.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: any) => void,
+        callback?: (data: any) => void
     ): void {
         CustomMatch.$emitter.off(event, callback);
     }
@@ -36,7 +36,7 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
 
     public static once<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: any) => void
     ): void {
         CustomMatch.$emitter.once(event, callback);
     }
@@ -76,10 +76,10 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
                 FIRSTEvent.current.getTeam(this.data.red3),
                 FIRSTEvent.current.getTeam(this.data.blue1),
                 FIRSTEvent.current.getTeam(this.data.blue2),
-                FIRSTEvent.current.getTeam(this.data.blue3),
+                FIRSTEvent.current.getTeam(this.data.blue3)
             ])
-                .then((teams) => {
-                    if (teams.some((t) => !t)) return rej('Invalid team');
+                .then(teams => {
+                    if (teams.some(t => !t)) return rej('Invalid team');
                     res(
                         teams as [
                             FIRSTTeam,
@@ -87,8 +87,8 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
                             FIRSTTeam,
                             FIRSTTeam,
                             FIRSTTeam,
-                            FIRSTTeam,
-                        ],
+                            FIRSTTeam
+                        ]
                     );
                 })
                 .catch(rej);

@@ -45,9 +45,8 @@ const fns = {
 };
 
 onMount(() => {
-    jQuery('#report-issue').tooltip()
+    jQuery('#report-issue').tooltip();
 });
-
 </script>
 
 <nav

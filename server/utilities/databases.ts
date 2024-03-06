@@ -62,7 +62,7 @@ const {
 //     );
 //     if (!confirmed) {
 //         console.log('Exiting...');
-//         Deno.exit(0);
+//         process.exit(0);
 //     }
 // }
 
@@ -120,10 +120,13 @@ export class DB {
 
     private static async setTimeout() {
         if (DB.timeout) clearTimeout(DB.timeout);
-        DB.timeout = setTimeout(() => {
-            console.log('Database connection timed out');
-            DB.db.end();
-        }, 1000 * 60 * 1);
+        DB.timeout = setTimeout(
+            () => {
+                console.log('Database connection timed out');
+                DB.db.end();
+            },
+            1000 * 60 * 1
+        );
     }
 
     static async connect() {
@@ -139,7 +142,7 @@ export class DB {
                         log('Connected to the database');
                         res('Connected to the database');
                     })
-                    .catch((e) => {
+                    .catch(e => {
                         error('Database connection error', e);
                         rej('Error connecting to the database');
                     });

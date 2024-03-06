@@ -1,9 +1,9 @@
-import { validate } from '../../middleware/data-type.ts';
-import { Route } from '../../structure/app/app.ts';
-import { DB } from '../../utilities/databases.ts';
-import { fileStream } from '../../middleware/stream.ts';
-import Account from '../../structure/accounts.ts';
-import { readDir } from '../../utilities/files.ts';
+import { validate } from '../../middleware/data-type';
+import { Route } from '../../structure/app/app';
+import { DB } from '../../utilities/databases';
+import { fileStream } from '../../middleware/stream';
+import Account from '../../structure/accounts';
+import { readDir } from '../../utilities/files';
 export const router = new Route();
 
 router.post<{
@@ -13,20 +13,20 @@ router.post<{
     '/match-scouting',
     validate({
         team: 'number',
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { team, eventKey } = req.body;
 
         const scouting = await DB.all('match-scouting/from-team', {
             team,
-            eventKey,
+            eventKey
         });
 
         if (scouting.isErr()) return res.sendStatus('unknown:error');
 
-        res.stream(scouting.value.map((s) => JSON.stringify(s)));
-    },
+        res.stream(scouting.value.map(s => JSON.stringify(s)));
+    }
 );
 
 router.post<{
@@ -36,20 +36,20 @@ router.post<{
     '/pit-scouting',
     validate({
         team: 'number',
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { team, eventKey } = req.body;
 
         const scouting = await DB.all('scouting-questions/answer-from-team', {
             eventKey,
-            teamNumber: team,
+            teamNumber: team
         });
 
         if (scouting.isErr()) return res.sendStatus('unknown:error');
 
         res.json(scouting.value);
-    },
+    }
 );
 
 router.post<{
@@ -57,19 +57,19 @@ router.post<{
 }>(
     '/all-from-event',
     validate({
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { eventKey } = req.body;
 
         const teams = await DB.all('teams/from-event', {
-            eventKey,
+            eventKey
         });
 
         if (teams.isErr()) return res.sendStatus('unknown:error');
 
-        res.stream(teams.value.map((t) => JSON.stringify(t)));
-    },
+        res.stream(teams.value.map(t => JSON.stringify(t)));
+    }
 );
 
 router.post<{
@@ -79,14 +79,14 @@ router.post<{
     '/get-pictures',
     validate({
         teamNumber: 'number',
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { teamNumber, eventKey } = req.body;
 
         const pictures = await DB.all('teams/get-pictures', {
             eventKey,
-            teamNumber,
+            teamNumber
         });
 
         if (pictures.isErr()) return res.sendStatus('unknown:error');
@@ -95,10 +95,10 @@ router.post<{
 
         if (uploads.isErr()) return res.sendStatus('unknown:error');
 
-        const files = uploads.value.map((f) => f.name);
+        const files = uploads.value;
 
-        res.json(pictures.value.filter((p) => files.includes(p.picture)));
-    },
+        res.json(pictures.value.filter(p => files.includes(p.picture)));
+    }
 );
 
 router.post<{
@@ -106,23 +106,23 @@ router.post<{
 }>(
     '/pictures-from-event',
     validate({
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { eventKey } = req.body;
 
         const pictures = await DB.all('teams/pictures-from-event', {
-            eventKey,
+            eventKey
         });
         if (pictures.isErr()) return res.sendStatus('unknown:error');
 
         // ensure file exists
         const uploads = await readDir('storage/uploads');
         if (uploads.isErr()) return res.sendStatus('unknown:error');
-        const files = uploads.value.map((f) => f.name);
+        const files = uploads.value;
 
-        res.json(pictures.value.filter((p) => files.includes(p.picture)));
-    },
+        res.json(pictures.value.filter(p => files.includes(p.picture)));
+    }
 );
 
 router.post<{
@@ -132,13 +132,13 @@ router.post<{
     '/upload-pictures',
     validate({
         eventKey: 'string',
-        teamNumber: 'number',
+        teamNumber: 'number'
     }),
     Account.isSignedIn,
     Account.allowPermissions('submitScoutingAnswers'),
     fileStream({
         maxFiles: 10,
-        maxFileSize: 5 * 1024 * 1024, // 5MB
+        maxFileSize: 5 * 1024 * 1024 // 5MB
     }),
     async (req, res) => {
         const { files } = req;
@@ -151,31 +151,31 @@ router.post<{
         const time = Date.now();
 
         const results = await Promise.all(
-            files.map(async (f) => {
-                const { id } = f;
+            files.map(async f => {
+                const { filename } = f;
 
                 req.io.emit('teams:pictures-uploaded', {
                     eventKey,
                     teamNumber,
-                    picture: id,
+                    picture: filename,
                     accountId,
-                    time,
+                    time
                 });
                 return DB.run('teams/new-picture', {
                     eventKey,
                     teamNumber,
-                    picture: id,
+                    picture: filename,
                     accountId,
-                    time,
+                    time
                 });
-            }),
+            })
         );
 
-        if (results.some((r) => r.isErr())) {
+        if (results.some(r => r.isErr())) {
             return res.sendStatus('unknown:error');
         }
 
         const r = res.sendStatus('teams:pictures-uploaded');
         console.log(r);
-    },
+    }
 );

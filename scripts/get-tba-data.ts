@@ -1,18 +1,20 @@
-import { TBA } from '../server/utilities/tba/tba.ts';
-import { TBAMatch } from '../shared/submodules/tatorscout-calculations/tba.ts';
+import { TBA } from '../server/utilities/tba/tba';
+import { TBAMatch } from '../shared/submodules/tatorscout-calculations/tba';
 
-const matches = await TBA.get<TBAMatch[]>('/event/2018utwv/matches');
+(async () => {
+    const matches = await TBA.get<TBAMatch[]>('/event/2018utwv/matches');
 
-if (matches.isErr() || !matches.value) {
-    console.log('No matches found');
-    Deno.exit(0);
-}
+    if (matches.isErr() || !matches.value) {
+        console.log('No matches found');
+        process.exit(0);
+    }
 
-console.log(matches);
+    console.log(matches);
 
-const [m] = matches.value;
+    const [m] = matches.value;
 
-console.log(m);
+    console.log(m);
+})();
 
 // const getType = (data: any): any => {
 //     let tsStr = '';

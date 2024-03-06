@@ -1,23 +1,23 @@
-import { App, Route } from '../../structure/app/app.ts';
-import env from '../../utilities/env.ts';
-import { validate } from '../../middleware/data-type.ts';
-import { TBA } from '../../utilities/tba/tba.ts';
+import { App, Route } from '../../structure/app/app';
+import env from '../../utilities/env';
+import { validate } from '../../middleware/data-type';
+import { TBA } from '../../utilities/tba/tba';
 import {
     TBAMatch,
-    TBATeam,
-} from '../../../shared/submodules/tatorscout-calculations/tba.ts';
-import { generateScoutGroups } from '../../../shared/submodules/tatorscout-calculations/scout-groups.ts';
-import { attemptAsync } from '../../../shared/check.ts';
-import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
-import Account from '../../structure/accounts.ts';
+    TBATeam
+} from '../../../shared/submodules/tatorscout-calculations/tba';
+import { generateScoutGroups } from '../../../shared/submodules/tatorscout-calculations/scout-groups';
+import { attemptAsync } from '../../../shared/check';
+import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba';
+import Account from '../../structure/accounts';
 import {
     Match,
-    validateObj,
-} from '../../../shared/submodules/tatorscout-calculations/trace.ts';
-import { uuid } from '../../utilities/uuid.ts';
-import { DB } from '../../utilities/databases.ts';
-import { bigIntEncode } from '../../../shared/objects.ts';
-import Filter from 'npm:bad-words';
+    validateObj
+} from '../../../shared/submodules/tatorscout-calculations/trace';
+import { uuid } from '../../utilities/uuid';
+import { DB } from '../../utilities/databases';
+import { bigIntEncode } from '../../../shared/objects';
+import Filter from 'bad-words';
 
 export const router = new Route();
 
@@ -41,28 +41,28 @@ router.post<Match>(
             group,
             scout,
             date,
-            trace,
+            trace
         } = req.body;
 
         const matchScoutingId = uuid();
         const traceStr = JSON.stringify(trace);
 
         const matchesRes = await DB.all('matches/from-event', {
-            eventKey,
+            eventKey
         });
 
         if (matchesRes.isErr()) return res.sendStatus('unknown:error');
         const matches = matchesRes.value;
 
         const m = matches.find(
-            (m) => m.matchNumber === matchNumber && m.compLevel === compLevel,
+            m => m.matchNumber === matchNumber && m.compLevel === compLevel
         );
 
         // if official match and match is not found in the tba database
         if (!m && compLevel !== 'pr') {
             return res.json({
                 success: false,
-                error: 'Match not found',
+                error: 'Match not found'
             });
         }
 
@@ -72,7 +72,7 @@ router.post<Match>(
             matchId = m.id;
             // check if duplicate
             const existingRes = await DB.get('match-scouting/from-match', {
-                matchId: m.id,
+                matchId: m.id
             });
 
             if (existingRes.isErr()) return res.sendStatus('unknown:error');
@@ -84,11 +84,11 @@ router.post<Match>(
                     compLevel,
                     eventKey,
                     matchNumber,
-                    teamNumber,
+                    teamNumber
                 });
                 return res.json({
                     success: false,
-                    error: 'Match already scouted',
+                    error: 'Match already scouted'
                 });
             }
         } else {
@@ -100,14 +100,13 @@ router.post<Match>(
                 matchNumber,
                 compLevel,
                 created: Date.now(),
-                name:
-                    `Practice match ${eventKey} ${matchNumber} for ${teamNumber}`,
+                name: `Practice match ${eventKey} ${matchNumber} for ${teamNumber}`,
                 red1: teamNumber,
                 red2: 0,
                 red3: 0,
                 blue1: 0,
                 blue2: 0,
-                blue3: 0,
+                blue3: 0
             });
         }
 
@@ -125,7 +124,7 @@ router.post<Match>(
             preScouting: undefined,
             time: date,
             checks: JSON.stringify(checks),
-            scoutName: scout, // in case there is no scout id
+            scoutName: scout // in case there is no scout id
         });
 
         for (const [key, value] of Object.entries(comments)) {
@@ -143,7 +142,7 @@ router.post<Match>(
                 type: key,
                 eventKey,
                 team: teamNumber,
-                time: date,
+                time: date
             });
 
             // socket for each comment
@@ -160,7 +159,7 @@ router.post<Match>(
         }
 
         res.json({
-            success: true,
+            success: true
         });
 
         req.io.emit('match-scouting:new', {
@@ -176,9 +175,9 @@ router.post<Match>(
             scoutName: scout,
             eventKey,
             matchNumber,
-            compLevel,
+            compLevel
         });
-    },
+    }
 );
 
 router.post<{
@@ -187,14 +186,14 @@ router.post<{
     '/scout-groups',
     auth,
     validate({
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const result = await attemptAsync(async () => {
             const [teamsRes, matchesRes, eventRes] = await Promise.all([
                 TBA.get<TBATeam[]>('/event/' + req.body.eventKey + '/teams'),
                 TBA.get<TBAMatch[]>('/event/' + req.body.eventKey + '/matches'),
-                TBA.get<TBAEvent>('/event/' + req.body.eventKey),
+                TBA.get<TBAEvent>('/event/' + req.body.eventKey)
             ]);
 
             if (teamsRes.isOk() && matchesRes.isOk() && eventRes.isOk()) {
@@ -209,12 +208,12 @@ router.post<{
                     teams,
                     matches,
                     eventKey: req.body.eventKey,
-                    event,
+                    event
                 };
             } else {
                 throw new Error(
                     'Error fetching data from TBA ' +
-                        JSON.stringify([teamsRes, matchesRes, eventRes]),
+                        JSON.stringify([teamsRes, matchesRes, eventRes])
                 );
             }
         });
@@ -226,7 +225,7 @@ router.post<{
             res.status(500).json({ error: result.error });
             throw result.error;
         }
-    },
+    }
 );
 
 router.post<{
@@ -237,7 +236,7 @@ router.post<{
     auth,
     validate({
         username: 'string',
-        password: 'string',
+        password: 'string'
     }),
     async (req, res) => {
         const { username, password } = req.body;
@@ -248,7 +247,7 @@ router.post<{
         if (!a) return res.json(false);
 
         res.json(a.testPassword(password));
-    },
+    }
 );
 
 router.post('/ping', auth, (_req, res) => {

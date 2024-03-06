@@ -7,8 +7,14 @@ import { Res } from '../../server/structure/app/res';
 import test from 'test';
 import assert from 'assert';
 import { getJSONSync } from '../../server/utilities/files';
-import { TBAMatch, TBATeam } from '../../shared/submodules/tatorscout-calculations/tba';
-import { generateScoutGroups, testAssignments } from '../../shared/submodules/tatorscout-calculations/scout-groups';
+import {
+    TBAMatch,
+    TBATeam
+} from '../../shared/submodules/tatorscout-calculations/tba';
+import {
+    generateScoutGroups,
+    testAssignments
+} from '../../shared/submodules/tatorscout-calculations/scout-groups';
 
 const assertEquals = (a: unknown, b: unknown) => {
     assert.deepEqual(a, b);

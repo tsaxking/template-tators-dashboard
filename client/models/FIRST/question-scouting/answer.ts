@@ -24,28 +24,28 @@ export class Answer extends Cache<AnswerEvents> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         Answer.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: Updates[K]) => void,
+        callback?: (data: Updates[K]) => void
     ): void {
         Answer.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
-        data: Updates[K],
+        data: Updates[K]
     ): void {
         Answer.$emitter.emit(event, data);
     }
 
     public static once<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         Answer.$emitter.once(event, callback);
     }
@@ -53,13 +53,13 @@ export class Answer extends Cache<AnswerEvents> {
     static async fromTeam(
         team: number,
         event: FIRSTEvent,
-        force = false,
+        force = false
     ): Promise<Result<Answer[]>> {
         return attemptAsync(async () => {
             if (!force && Answer.$cache.size) {
                 const current = this.$cache.values();
 
-                const answers = Array.from(current).filter((a) => {
+                const answers = Array.from(current).filter(a => {
                     return a.teamNumber === team && a.eventKey === event.key;
                 });
 
@@ -70,19 +70,19 @@ export class Answer extends Cache<AnswerEvents> {
                 '/api/scouting-questions/get-team-answers',
                 {
                     teamNumber: team,
-                    eventKey: event.key,
-                },
+                    eventKey: event.key
+                }
             );
 
             if (res.isErr()) throw res.error;
 
-            return res.value.map((a) => new Answer(a, event.key));
+            return res.value.map(a => new Answer(a, event.key));
         });
     }
 
     static async fromId(
         id: string,
-        eventKey: string,
+        eventKey: string
     ): Promise<Result<Answer | undefined>> {
         return attemptAsync(async () => {
             if (Answer.$cache.has(id)) return Answer.$cache.get(id) as Answer;
@@ -90,8 +90,8 @@ export class Answer extends Cache<AnswerEvents> {
             const res = await ServerRequest.post<ScoutingAnswer | undefined>(
                 '/api/scouting-questions/get-answer',
                 {
-                    id,
-                },
+                    id
+                }
             );
 
             if (res.isOk()) {
@@ -111,13 +111,13 @@ export class Answer extends Cache<AnswerEvents> {
 
     constructor(
         data: ScoutingAnswer,
-        public readonly eventKey: string,
+        public readonly eventKey: string
     ) {
         super();
 
         this.id = data.id;
         this.questionId = data.questionId;
-        this.answer = JSON.parse(data.answer); // string[]
+        this.answer = JSON.parse(data.answer) as string[];
         this.teamNumber = data.teamNumber;
         this.date = data.date;
         this.accountId = data.accountId;
@@ -134,8 +134,8 @@ export class Answer extends Cache<AnswerEvents> {
             const res = await ServerRequest.post(
                 '/api/scouting-questions/delete-answer',
                 {
-                    id: this.id,
-                },
+                    id: this.id
+                }
             );
 
             if (res.isErr()) throw res.error;
@@ -154,19 +154,19 @@ export class Answer extends Cache<AnswerEvents> {
 
 socket.on(
     'scouting-question:new-answer',
-    (data: ScoutingAnswer, eventKey: string) => {
+    ({ data, eventKey }: { data: ScoutingAnswer; eventKey: string }) => {
         const a = new Answer(data, eventKey);
         Answer.emit('new', a);
-    },
+    }
 );
 
 socket.on(
     'scouting-question:update-answer',
-    (data: ScoutingAnswer, eventKey: string) => {
+    ({ data, eventKey }: { data: ScoutingAnswer; eventKey: string }) => {
         const answer = Answer.$cache.get(data.id);
 
         if (answer) {
-            answer.answer = JSON.parse(data.answer);
+            answer.answer = JSON.parse(data.answer) as string[];
             answer.date = data.date;
             answer.accountId = data.accountId;
             console.log('update answer', answer);
@@ -175,7 +175,7 @@ socket.on(
         } else {
             new Answer(data, eventKey);
         }
-    },
+    }
 );
 
 socket.on('scouting-question:answer-deleted', (id: string) => {

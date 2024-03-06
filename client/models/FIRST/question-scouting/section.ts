@@ -1,7 +1,7 @@
 import { attemptAsync, Result } from '../../../../shared/check';
 import {
     ScoutingQuestionGroup,
-    ScoutingSection,
+    ScoutingSection
 } from '../../../../shared/db-types-extended';
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { ServerRequest } from '../../../utilities/requests';
@@ -29,21 +29,21 @@ export class Section extends Cache<SectionUpdates> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         Section.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: Updates[K]) => void,
+        callback?: (data: Updates[K]) => void
     ): void {
         Section.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
-        data: Updates[K],
+        data: Updates[K]
     ): void {
         Section.$emitter.emit(event, data);
     }
@@ -53,11 +53,11 @@ export class Section extends Cache<SectionUpdates> {
         if (cache.length) return cache;
 
         const res = await ServerRequest.post<ScoutingSection[]>(
-            '/api/scouting-questions/get-sections',
+            '/api/scouting-questions/get-sections'
         );
 
         if (res.isOk()) {
-            return res.value.map((s) => new Section(s));
+            return res.value.map(s => new Section(s));
         }
 
         return [];
@@ -73,8 +73,8 @@ export class Section extends Cache<SectionUpdates> {
             const res = await ServerRequest.post<ScoutingSection>(
                 '/api/scouting-questions/new-section',
                 {
-                    ...data,
-                },
+                    ...data
+                }
             );
 
             if (res.isErr()) throw res.error;
@@ -82,7 +82,7 @@ export class Section extends Cache<SectionUpdates> {
     }
 
     public static async fromId(
-        id: string,
+        id: string
     ): Promise<Result<Section | undefined>> {
         return attemptAsync(async () => {
             if (Section.$cache.has(id)) {
@@ -92,8 +92,8 @@ export class Section extends Cache<SectionUpdates> {
             const res = await ServerRequest.post<ScoutingSection | undefined>(
                 '/api/scouting-questions/get-section',
                 {
-                    id,
-                },
+                    id
+                }
             );
 
             if (res.isOk()) {
@@ -130,7 +130,7 @@ export class Section extends Cache<SectionUpdates> {
         return attemptAsync(async () => {
             if (this.$cache.has(`${event.tba.key}-groups`)) {
                 const groups = this.$cache.get(
-                    `${event.tba.key}-groups`,
+                    `${event.tba.key}-groups`
                 ) as Group[];
                 if (groups.length) return groups;
             }
@@ -139,12 +139,12 @@ export class Section extends Cache<SectionUpdates> {
                 '/api/scouting-questions/get-groups',
                 {
                     section: this.id,
-                    eventKey: event.tba.key,
-                },
+                    eventKey: event.tba.key
+                }
             );
 
             if (res.isOk()) {
-                const groups = res.value.map((g) => {
+                const groups = res.value.map(g => {
                     const group = new Group(g);
                     group.on('delete', () => {
                         this.emit('delete-group', g.id);
@@ -188,7 +188,7 @@ export class Section extends Cache<SectionUpdates> {
         return Group.new({
             name: group.name,
             eventKey: group.eventKey,
-            section: this.id,
+            section: this.id
         });
     }
 
@@ -210,8 +210,8 @@ export class Section extends Cache<SectionUpdates> {
             const res = await ServerRequest.post<void>(
                 '/api/scouting-questions/delete-section',
                 {
-                    id: this.id,
-                },
+                    id: this.id
+                }
             );
 
             if (res.isErr()) throw res.error;

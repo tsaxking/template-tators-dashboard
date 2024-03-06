@@ -1,9 +1,9 @@
 <script lang="ts">
-    export let matchScouting: {
+export let matchScouting: {
     teams: {
-    team: number;
-    scouted: boolean;
-}[];
+        team: number;
+        scouted: boolean;
+    }[];
     number: number;
     compLevel: string;
 }[] = [];
@@ -31,13 +31,21 @@
                     {#each match.teams as team, i}
                         {#if i > 2}
                             <td class="table-primary">
-                                <span class="badge bg-{team.scouted ? 'success' : 'danger'}">
+                                <span
+                                    class="badge bg-{team.scouted
+                                        ? 'success'
+                                        : 'danger'}"
+                                >
                                     {team.team}
                                 </span>
                             </td>
                         {:else}
                             <td class="table-danger">
-                                <span class="badge bg-{team.scouted ? 'success' : 'danger'}">
+                                <span
+                                    class="badge bg-{team.scouted
+                                        ? 'success'
+                                        : 'danger'}"
+                                >
                                     {team.team}
                                 </span>
                             </td>
@@ -48,7 +56,6 @@
         </tbody>
     </table>
 </div>
-
 
 <!-- Other table version -->
 <!-- <div class="table-responsive">

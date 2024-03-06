@@ -255,7 +255,7 @@ export const main = async () => {
     title('Welcome to the Task Manager!');
     const exit = () => {
         console.log('Goodbye!');
-        // Deno.exit(0);
+        // process.exit(0);
         process.exit(0);
     };
 

@@ -618,5 +618,5 @@ router.post<{
 
         if (a) res.json(await a.safe());
         else res.status(404).json({ error: 'Account not found' });
-    },
+    }
 );
