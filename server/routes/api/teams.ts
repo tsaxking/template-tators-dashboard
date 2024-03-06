@@ -68,7 +68,7 @@ router.post<{
 
         if (teams.isErr()) return res.sendStatus('unknown:error');
 
-        res.stream(teams.value.map(t => JSON.stringify(t)));
+        res.json(teams.value);
     }
 );
 
