@@ -152,19 +152,19 @@ router.post<{
 
         const results = await Promise.all(
             files.map(async f => {
-                const { filename } = f;
+                const { id } = f;
 
                 req.io.emit('teams:pictures-uploaded', {
                     eventKey,
                     teamNumber,
-                    picture: filename,
+                    picture: id,
                     accountId,
                     time
                 });
                 return DB.run('teams/new-picture', {
                     eventKey,
                     teamNumber,
-                    picture: filename,
+                    picture: id,
                     accountId,
                     time
                 });

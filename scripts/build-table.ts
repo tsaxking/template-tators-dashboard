@@ -204,10 +204,10 @@ export class Table {
                                 avg,
                                 // max,
                                 // velocities.filter((v) => v === 0).length / velocities.length,
-                                JSON.parse<string[]>(weight).join(','),
-                                JSON.parse<string[]>(height).join(','),
-                                JSON.parse<string[]>(width).join(','),
-                                JSON.parse<string[]>(length).join(',')
+                                (JSON.parse(weight) as string[]).join(','),
+                                (JSON.parse(height) as string[]).join(','),
+                                (JSON.parse(width) as string[]).join(','),
+                                (JSON.parse(length) as string[]).join(',')
                             ]
                         };
                     });

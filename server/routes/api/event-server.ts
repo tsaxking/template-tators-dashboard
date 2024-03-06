@@ -79,7 +79,7 @@ router.post<Match>(
 
             if (existingRes.value) {
                 DB.run('match-scouting/archive', {
-                    content: JSON.parse(bigIntEncode(req.body)),
+                    content: JSON.stringify(bigIntEncode(req.body)),
                     created: Date.now(),
                     compLevel,
                     eventKey,
