@@ -24,14 +24,14 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
 
     public static on<T extends keyof Updates>(
         event: T,
-        listener: (data: Updates[T]) => void,
+        listener: (data: Updates[T]) => void
     ) {
         TeamComment.emitter.on(event, listener);
     }
 
     public static off<T extends keyof Updates>(
         event: T,
-        listener: (data: Updates[T]) => void,
+        listener: (data: Updates[T]) => void
     ) {
         TeamComment.emitter.off(event, listener);
     }
@@ -49,18 +49,18 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
             comment,
             type,
             teamNumber: team.number,
-            eventKey: team.event.key,
+            eventKey: team.event.key
         });
     }
 
     public static fromTeam(
         teamNumber: number,
         //key: string,
-        event: FIRSTEvent,
+        event: FIRSTEvent
     ) {
         return attemptAsync(async () => {
             const current = this.cache.values();
-            const comments = Array.from(current).filter((c) => {
+            const comments = Array.from(current).filter(c => {
                 return c.team === teamNumber && c.eventKey === event.key;
             });
 
@@ -70,12 +70,12 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
                 '/api/team-comments/get',
                 {
                     team: teamNumber,
-                    eventKey: event.key,
-                },
+                    eventKey: event.key
+                }
             );
             if (res.isErr()) throw res.error;
 
-            return res.value.map((obj) => new TeamComment(obj));
+            return res.value.map(obj => new TeamComment(obj));
         });
     }
 

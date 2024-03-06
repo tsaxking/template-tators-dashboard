@@ -1,6 +1,6 @@
 import { Color } from '../../submodules/colors/color';
 import { StateStack } from '../../../shared/statestack';
-import { Point2D } from '../../submodules/calculations/src/linear-algebra/point';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { Whiteboard, WhiteboardState } from './whiteboard';
 
 const robotSize = 0.1; // % of canvas height
@@ -10,7 +10,7 @@ const colors: [Color, Color, Color, Color, Color, Color] = [
     new Color(245, 20, 20),
     new Color(0, 0, 255),
     new Color(10, 10, 250),
-    new Color(20, 20, 245),
+    new Color(20, 20, 245)
 ];
 
 class FieldBoardState extends WhiteboardState {
@@ -36,7 +36,7 @@ class FieldBoardState extends WhiteboardState {
         Point2D | null,
         Point2D | null,
         Point2D | null,
-        Point2D | null,
+        Point2D | null
     ] = [null, null, null, null, null, null];
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -55,7 +55,7 @@ class FieldBoardState extends WhiteboardState {
                 x - (robotSize * ctx.canvas.height) / 2,
                 y - (robotSize * ctx.canvas.height) / 2,
                 robotSize * ctx.canvas.height,
-                robotSize * ctx.canvas.height,
+                robotSize * ctx.canvas.height
             );
             ctx.fill();
         }
@@ -64,7 +64,7 @@ class FieldBoardState extends WhiteboardState {
     toJSON() {
         return JSON.stringify({
             initPositions: this.initPositions,
-            paths: this.paths,
+            paths: this.paths
         });
     }
 }
@@ -72,7 +72,7 @@ class FieldBoardState extends WhiteboardState {
 export class FieldBoard extends Whiteboard {
     public readonly stack: StateStack<FieldBoardState | WhiteboardState> =
         new StateStack<FieldBoardState | WhiteboardState>(
-            new FieldBoardState(),
+            new FieldBoardState()
         );
     public readonly btnGroup: HTMLDivElement;
     public currentRobot: 0 | 1 | 2 | 3 | 4 | 5 = 0; // index of robot in initPositions
@@ -95,7 +95,7 @@ export class FieldBoard extends Whiteboard {
                 this.btnGroup.appendChild(b);
 
                 this.currentRobot = i as 0 | 1 | 2 | 3 | 4 | 5;
-            },
+            }
         );
 
         const black = document.createElement('button');
@@ -129,6 +129,6 @@ export class FieldBoard extends Whiteboard {
             }
         };
 
-        this.canvas.ctx.canvas.addEventListener('click', click);
+        this.canvas.$ctx.canvas.addEventListener('click', click);
     }
 }

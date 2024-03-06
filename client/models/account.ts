@@ -102,8 +102,8 @@ export class Account extends Cache<AccountEvents> {
         const res = await ServerRequest.post<AccountSafe>(
             '/account/account-info',
             {
-                id,
-            },
+                id
+            }
         );
         if (res.isOk()) {
             return new Account(res.value);
@@ -522,7 +522,7 @@ export class Account extends Cache<AccountEvents> {
 }
 
 Object.assign(window, {
-    Account,
+    Account
 });
 
 socket.on('account:removed', (accountId: string) => {

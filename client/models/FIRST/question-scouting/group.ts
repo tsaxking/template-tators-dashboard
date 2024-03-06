@@ -2,7 +2,7 @@ import { attemptAsync, Result } from '../../../../shared/check';
 import {
     QuestionOptions,
     ScoutingQuestion as ScoutingQuestionObj,
-    ScoutingQuestionGroup,
+    ScoutingQuestionGroup
 } from '../../../../shared/db-types-extended';
 import { EventEmitter } from '../../../../shared/event-emitter';
 import { Cache } from '../../cache';
@@ -35,26 +35,26 @@ export class Group extends Cache<GroupUpdates> {
         'steel',
         'warning',
         'grape',
-        'cyan',
+        'cyan'
     ];
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         Group.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: Updates[K]) => void,
+        callback?: (data: Updates[K]) => void
     ): void {
         Group.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
-        data: Updates[K],
+        data: Updates[K]
     ): void {
         Group.$emitter.emit(event, data);
     }
@@ -72,7 +72,7 @@ export class Group extends Cache<GroupUpdates> {
             }>('/api/scouting-questions/new-group', {
                 name: data.name,
                 eventKey: data.eventKey,
-                section: data.section,
+                section: data.section
             });
 
             if (res.isOk()) return new Group(res.value.data);
@@ -87,7 +87,7 @@ export class Group extends Cache<GroupUpdates> {
             const res = await ServerRequest.post<
                 ScoutingQuestionGroup | undefined
             >('/api/scouting-questions/get-group', {
-                id,
+                id
             });
 
             if (res.isOk()) {
@@ -131,7 +131,7 @@ export class Group extends Cache<GroupUpdates> {
         return attemptAsync(async () => {
             const cached = Question.$cache.values();
             const questions = Array.from(cached).filter(
-                (q) => q.groupId === this.id,
+                q => q.groupId === this.id
             );
             if (questions.length) return questions;
 
@@ -142,12 +142,12 @@ export class Group extends Cache<GroupUpdates> {
             const res = await ServerRequest.post<ScoutingQuestionObj[]>(
                 '/api/scouting-questions/get-questions',
                 {
-                    group: this.id,
-                },
+                    group: this.id
+                }
             );
 
             if (res.isOk()) {
-                const questions = res.value.map((q) => {
+                const questions = res.value.map(q => {
                     const question = new Question(q);
                     question.on('delete', () => {
                         this.emit('delete-question', q.id);
@@ -169,8 +169,8 @@ export class Group extends Cache<GroupUpdates> {
                 {
                     id: this.id,
                     name: this.name,
-                    eventKey: this.eventKey,
-                },
+                    eventKey: this.eventKey
+                }
             );
 
             if (res.isOk()) {
@@ -202,7 +202,7 @@ export class Group extends Cache<GroupUpdates> {
             }>('/api/scouting-questions/new-question', {
                 ...data,
                 group: this.id,
-                section: this.section,
+                section: this.section
             });
 
             if (res.isOk()) return new Question(res.value.data);
@@ -228,8 +228,8 @@ export class Group extends Cache<GroupUpdates> {
             const res = await ServerRequest.post<void>(
                 '/api/scouting-questions/delete-group',
                 {
-                    id: this.id,
-                },
+                    id: this.id
+                }
             );
 
             if (res.isErr()) throw res.error;

@@ -1,10 +1,10 @@
-import { TBA } from '../../server/utilities/tba/tba.ts';
-import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba.ts';
-import { backToMain, selectFile } from '../manager.ts';
-import { select } from '../prompt.ts';
-import { pullEvent } from '../../server/utilities/tba/pull-event.ts';
-import { DB } from '../../server/utilities/databases.ts';
-import { run } from '../../server/utilities/run-task.ts';
+import { TBA } from '../../server/utilities/tba/tba';
+import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba';
+import { backToMain, selectFile } from '../manager';
+import { select } from '../prompt';
+import { pullEvent } from '../../server/utilities/tba/pull-event';
+import { DB } from '../../server/utilities/databases';
+import { runFile } from '../../server/utilities/run-task';
 
 export const pullEvents = async () => {
     const year = await select(
@@ -12,9 +12,9 @@ export const pullEvents = async () => {
         new Array(new Date().getFullYear() - 2006).fill(0).map((_, i) => {
             return {
                 name: (new Date().getFullYear() - i).toString(),
-                value: new Date().getFullYear() - i,
+                value: new Date().getFullYear() - i
             };
-        }),
+        })
     );
 
     if (!year) return backToMain('No year selected');
@@ -28,10 +28,10 @@ export const pullEvents = async () => {
 
         const event = await select(
             'Select an event to pull',
-            events.value.map((e) => ({
+            events.value.map(e => ({
                 name: e.name,
-                value: e,
-            })),
+                value: e
+            }))
         );
 
         if (!event) return backToMain('No event selected');
@@ -45,10 +45,8 @@ export const pullEvents = async () => {
 };
 
 const transferDb = async (...args: string[]) => {
-    const oldDb = await selectFile(
-        '..',
-        'Select old database to transfer',
-        (f) => f.endsWith('.db'),
+    const oldDb = await selectFile('..', 'Select old database to transfer', f =>
+        f.endsWith('.db')
     );
     if (oldDb.isErr()) {
         return backToMain('Error selecting old database: ' + oldDb.error);
@@ -56,13 +54,11 @@ const transferDb = async (...args: string[]) => {
 
     await DB.makeBackup();
 
-    const res = await run(
-        'run',
-        '--allow-all',
-        '--unstable-ffi',
+    const res = await runFile(
         'scripts/transfer-db.ts',
+        'runTransfer',
         `db=${oldDb.value}`,
-        ...args,
+        ...args
     );
 
     if (res.isErr()) {
@@ -99,8 +95,8 @@ const removePassword = async () => {
         `,
             {
                 key: '',
-                salt: '',
-            },
+                salt: ''
+            }
         );
 
         backToMain('All passwords removed');
@@ -113,7 +109,7 @@ export const serverController = [
     {
         value: pullEvents,
         icon: '🔄',
-        description: 'Pull events from TBA and place into database',
+        description: 'Pull events from TBA and place into database'
     },
     // {
     //     value: transferDb,
@@ -123,16 +119,16 @@ export const serverController = [
     {
         value: transferAccounts,
         icon: '🔄',
-        description: 'Transfer old accounts to new database',
+        description: 'Transfer old accounts to new database'
     },
     {
         value: unverifyAllAccounts,
         icon: '❌',
-        description: 'Unverify all accounts',
+        description: 'Unverify all accounts'
     },
     {
         value: removePassword,
         icon: '🗑️',
-        description: 'Remove all passwords',
-    },
+        description: 'Remove all passwords'
+    }
 ];

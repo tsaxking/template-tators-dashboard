@@ -1,15 +1,15 @@
-import { TBA } from '../server/utilities/tba/tba.ts';
+import { TBA } from '../server/utilities/tba/tba';
 import {
     TBATeam,
-    TBATeamEventStatus,
-} from '../shared/submodules/tatorscout-calculations/tba.ts';
-import { attemptAsync, Result } from '../shared/check.ts';
-import { DB } from '../server/utilities/databases.ts';
+    TBATeamEventStatus
+} from '../shared/submodules/tatorscout-calculations/tba';
+import { attemptAsync, Result } from '../shared/check';
+import { DB } from '../server/utilities/databases';
 import {
     Trace,
-    TraceArray,
-} from '../shared/submodules/tatorscout-calculations/trace.ts';
-import { capitalize, fromCamelCase } from '../shared/text.ts';
+    TraceArray
+} from '../shared/submodules/tatorscout-calculations/trace';
+import { capitalize, fromCamelCase } from '../shared/text';
 
 type T = string | number | boolean | undefined;
 
@@ -20,7 +20,7 @@ type RowSection = {
 
 export class Table {
     public static async build(
-        eventKey: string,
+        eventKey: string
     ): Promise<Result<[string[], ...T[][]]>> {
         return attemptAsync(async () => {
             const teams = await TBA.get<TBATeam[]>(`/event/${eventKey}/teams`);
@@ -30,14 +30,12 @@ export class Table {
 
             const data = await Promise.all(
                 teams.value
-                .sort((a, b) => a.team_number - b.team_number)
-                .map((t) =>
-                    Table.buildTeamByYear(t.team_number, eventKey)
-                ),
+                    .sort((a, b) => a.team_number - b.team_number)
+                    .map(t => Table.buildTeamByYear(t.team_number, eventKey))
             );
 
             const headers = data[0].headers;
-            const rows = data.map((d) => d.data);
+            const rows = data.map(d => d.data);
 
             return [headers, ...rows];
         });
@@ -45,13 +43,13 @@ export class Table {
 
     public static async buildTeamByYear(
         teamNumber: number,
-        eventKey: string,
+        eventKey: string
     ): Promise<RowSection> {
         const year = parseInt(eventKey.slice(0, 4));
         if (!year) throw new Error('Invalid event key');
 
         const pull = async (
-            fn: (t: number, k: string) => Promise<Result<RowSection>>,
+            fn: (t: number, k: string) => Promise<Result<RowSection>>
         ): Promise<RowSection & { title: string }> => {
             const data = await fn(teamNumber, eventKey);
             if (data.isErr()) {
@@ -60,7 +58,7 @@ export class Table {
                     // this will not populate the table with the error message, but it will log it.
                     title: 'Error',
                     headers: [],
-                    data: [],
+                    data: []
                 };
             }
 
@@ -69,31 +67,31 @@ export class Table {
                 return {
                     title: 'Error',
                     headers: [],
-                    data: [],
+                    data: []
                 };
             }
 
             return {
                 title: capitalize(fromCamelCase(fn.name)),
-                ...data.value,
+                ...data.value
             };
         };
 
-        if (!Table.yearInfo[year]) throw new Error('Year not supported');
+        if (!Table.yearInfo[year as keyof typeof Table.yearInfo])
+            throw new Error('Year not supported');
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = await Promise.all(
             (
-                Object.values(Table.yearInfo[year]) as ((
-                    t: number,
-                    k: string,
-                ) => Promise<Result<RowSection>>)[]
-            ).map(pull),
+                Object.values(
+                    Table.yearInfo[year as keyof typeof Table.yearInfo]
+                ) as ((t: number, k: string) => Promise<Result<RowSection>>)[]
+            ).map(pull)
         );
 
         return {
-            headers: data.map((d) => d.headers).flat(),
-            data: data.map((d) => d.data).flat(),
+            headers: data.map(d => d.headers).flat(),
+            data: data.map(d => d.data).flat()
         };
     }
 
@@ -102,14 +100,14 @@ export class Table {
             2024: {
                 teamGeneral: async (
                     teamNumber: number,
-                    eventKey: string,
+                    eventKey: string
                 ): Promise<Result<RowSection>> => {
                     return attemptAsync(async () => {
                         const headers: string[] = [
                             'Team Number',
                             'Team Name',
                             'Rank',
-                            'Rank Points',
+                            'Rank Points'
                         ];
 
                         const [team, event] = await Promise.all([
@@ -119,8 +117,8 @@ export class Table {
                                     teamNumber +
                                     '/event/' +
                                     eventKey +
-                                    '/status',
-                            ),
+                                    '/status'
+                            )
                         ]);
 
                         if (team.isErr()) throw team.error;
@@ -133,14 +131,14 @@ export class Table {
                                 team.value?.nickname || '',
                                 event.value?.qual?.ranking?.rank || 0,
                                 event.value?.qual?.ranking?.sort_orders?.[0] ||
-                                0,
-                            ],
+                                    0
+                            ]
                         };
                     });
                 },
                 robotGeneral: async (
                     teamNumber: number,
-                    eventKey: string,
+                    eventKey: string
                 ): Promise<Result<RowSection>> => {
                     return attemptAsync(async () => {
                         const headers: string[] = [
@@ -150,49 +148,55 @@ export class Table {
                             'Weight',
                             'Height',
                             'Width',
-                            'Length',
+                            'Length'
                         ];
 
                         const res = await DB.all('match-scouting/from-team', {
                             eventKey,
-                            team: teamNumber,
+                            team: teamNumber
                         });
 
                         if (res.isErr()) throw res.error;
 
-                        const matches = res.value.map((m) => {
+                        const matches = res.value.map(m => {
                             return {
                                 ...m,
-                                trace: JSON.parse(m.trace) as TraceArray,
+                                trace: JSON.parse(m.trace) as TraceArray
                             };
                         });
 
                         // const max = Math.max(...velocities);
-                        const avg = Trace.velocity.average(matches.map(m => m.trace).flat());
+                        const avg = Trace.velocity.average(
+                            matches.map(m => m.trace).flat()
+                        );
                         // const hist = matches.map(m => Trace.velocity.histogram(m.trace));
 
                         const pitScouting = await DB.all(
                             'scouting-questions/answer-from-team',
                             {
                                 teamNumber,
-                                eventKey,
-                            },
+                                eventKey
+                            }
                         );
 
                         if (pitScouting.isErr()) throw pitScouting.error;
 
-                        const weight = pitScouting.value.find((p) =>
-                            /weight/i.test(p.question)
-                        )?.answer || '[]';
-                        const height = pitScouting.value.find((p) =>
-                            /height/i.test(p.question)
-                        )?.answer || '[]';
-                        const width = pitScouting.value.find((p) =>
-                            /width/i.test(p.question)
-                        )?.answer || '[]';
-                        const length = pitScouting.value.find((p) =>
-                            /length/i.test(p.question)
-                        )?.answer || '[]';
+                        const weight =
+                            pitScouting.value.find(p =>
+                                /weight/i.test(p.question)
+                            )?.answer || '[]';
+                        const height =
+                            pitScouting.value.find(p =>
+                                /height/i.test(p.question)
+                            )?.answer || '[]';
+                        const width =
+                            pitScouting.value.find(p =>
+                                /width/i.test(p.question)
+                            )?.answer || '[]';
+                        const length =
+                            pitScouting.value.find(p =>
+                                /length/i.test(p.question)
+                            )?.answer || '[]';
 
                         return {
                             headers,
@@ -200,17 +204,17 @@ export class Table {
                                 avg,
                                 // max,
                                 // velocities.filter((v) => v === 0).length / velocities.length,
-                                JSON.parse(weight).join(','),
-                                JSON.parse(height).join(','),
-                                JSON.parse(width).join(','),
-                                JSON.parse(length).join(','),
-                            ],
+                                JSON.parse<string[]>(weight).join(','),
+                                JSON.parse<string[]>(height).join(','),
+                                JSON.parse<string[]>(width).join(','),
+                                JSON.parse<string[]>(length).join(',')
+                            ]
                         };
                     });
                 },
                 matchGeneral: async (
                     teamNumber: number,
-                    eventKey: string,
+                    eventKey: string
                 ): Promise<Result<RowSection>> => {
                     return attemptAsync(async () => {
                         const headers: string[] = [
@@ -221,24 +225,24 @@ export class Table {
                             'Average Teleop Score',
                             'Max Teleop Score',
                             'Average Endgame Score',
-                            'Max Endgame Score',
+                            'Max Endgame Score'
                         ];
 
                         const res = await DB.all('match-scouting/from-team', {
                             eventKey,
-                            team: teamNumber,
+                            team: teamNumber
                         });
 
                         if (res.isErr()) throw res.error;
 
-                        const matches = res.value.map((m) => {
+                        const matches = res.value.map(m => {
                             return {
                                 ...m,
-                                trace: JSON.parse(m.trace) as TraceArray,
+                                trace: JSON.parse(m.trace) as TraceArray
                             };
                         });
 
-                        const scores = matches.map((m) =>
+                        const scores = matches.map(m =>
                             Trace.score.parse2024(m.trace)
                         );
 
@@ -246,26 +250,26 @@ export class Table {
                             headers,
                             data: [
                                 scores.reduce((a, b) => a + b.total, 0) /
-                                scores.length,
-                                Math.max(...scores.map((s) => s.total)),
+                                    scores.length,
+                                Math.max(...scores.map(s => s.total)),
                                 scores.reduce((a, b) => a + b.auto.total, 0) /
-                                scores.length,
-                                Math.max(...scores.map((s) => s.auto.total)),
+                                    scores.length,
+                                Math.max(...scores.map(s => s.auto.total)),
                                 scores.reduce((a, b) => a + b.teleop.total, 0) /
-                                scores.length,
-                                Math.max(...scores.map((s) => s.teleop.total)),
+                                    scores.length,
+                                Math.max(...scores.map(s => s.teleop.total)),
                                 scores.reduce(
                                     (a, b) => a + b.endgame.total,
-                                    0,
+                                    0
                                 ) / scores.length,
-                                Math.max(...scores.map((s) => s.endgame.total)),
-                            ],
+                                Math.max(...scores.map(s => s.endgame.total))
+                            ]
                         };
                     });
                 },
                 autoBreakdown: async (
                     teamNumber: number,
-                    eventKey: string,
+                    eventKey: string
                 ): Promise<Result<RowSection>> => {
                     return attemptAsync(async () => {
                         const headers: string[] = [
@@ -273,45 +277,45 @@ export class Table {
                             'Max Speaker',
                             'Average Amp',
                             'Max Amp',
-                            'Average Mobility',
+                            'Average Mobility'
                         ];
 
                         const res = await DB.all('match-scouting/from-team', {
                             eventKey,
-                            team: teamNumber,
+                            team: teamNumber
                         });
 
                         if (res.isErr()) throw res.error;
 
-                        const matches = res.value.map((m) => {
+                        const matches = res.value.map(m => {
                             return {
                                 ...m,
-                                trace: JSON.parse(m.trace) as TraceArray,
+                                trace: JSON.parse(m.trace) as TraceArray
                             };
                         });
 
                         const scores = matches.map(
-                            (m) => Trace.score.parse2024(m.trace).auto,
+                            m => Trace.score.parse2024(m.trace).auto
                         );
 
                         return {
                             headers,
                             data: [
                                 scores.reduce((a, b) => a + b.spk, 0) /
-                                scores.length,
-                                Math.max(...scores.map((s) => s.spk)),
+                                    scores.length,
+                                Math.max(...scores.map(s => s.spk)),
                                 scores.reduce((a, b) => a + b.amp, 0) /
-                                scores.length,
-                                Math.max(...scores.map((s) => s.amp)),
+                                    scores.length,
+                                Math.max(...scores.map(s => s.amp)),
                                 scores.reduce((a, b) => a + b.mobility, 0) /
-                                scores.length,
-                            ],
+                                    scores.length
+                            ]
                         };
                     });
                 },
                 teleBreakdown: async (
                     teamNumber: number,
-                    eventKey: string,
+                    eventKey: string
                 ): Promise<Result<RowSection>> => {
                     return attemptAsync(async () => {
                         const headers: string[] = [
@@ -319,45 +323,45 @@ export class Table {
                             'Max Speaker',
                             'Average Amp',
                             'Max Amp',
-                            'Average Trap',
+                            'Average Trap'
                         ];
 
                         const res = await DB.all('match-scouting/from-team', {
                             eventKey,
-                            team: teamNumber,
+                            team: teamNumber
                         });
 
                         if (res.isErr()) throw res.error;
 
-                        const matches = res.value.map((m) => {
+                        const matches = res.value.map(m => {
                             return {
                                 ...m,
-                                trace: JSON.parse(m.trace) as TraceArray,
+                                trace: JSON.parse(m.trace) as TraceArray
                             };
                         });
 
                         const scores = matches.map(
-                            (m) => Trace.score.parse2024(m.trace).teleop,
+                            m => Trace.score.parse2024(m.trace).teleop
                         );
 
                         return {
                             headers,
                             data: [
                                 scores.reduce((a, b) => a + b.spk, 0) /
-                                scores.length,
-                                Math.max(...scores.map((s) => s.spk)),
+                                    scores.length,
+                                Math.max(...scores.map(s => s.spk)),
                                 scores.reduce((a, b) => a + b.amp, 0) /
-                                scores.length,
-                                Math.max(...scores.map((s) => s.amp)),
+                                    scores.length,
+                                Math.max(...scores.map(s => s.amp)),
                                 scores.reduce((a, b) => a + b.trp, 0) /
-                                scores.length,
-                            ],
+                                    scores.length
+                            ]
                         };
                     });
                 },
                 endgameBreakdown: async (
                     teamNumber: number,
-                    eventKey: string,
+                    eventKey: string
                 ): Promise<Result<RowSection>> => {
                     return attemptAsync(async () => {
                         const headers: string[] = [
@@ -365,57 +369,59 @@ export class Table {
                             'Max Climb',
                             'Parked',
                             'Average Climb Time',
-                            'Max Climb Time',
+                            'Max Climb Time'
                         ];
 
                         const res = await DB.all('match-scouting/from-team', {
                             eventKey,
-                            team: teamNumber,
+                            team: teamNumber
                         });
 
                         if (res.isErr()) throw res.error;
 
-                        const matches = res.value.map((m) => {
+                        const matches = res.value.map(m => {
                             return {
                                 ...m,
-                                trace: m.trace ? JSON.parse(m.trace) as TraceArray : [],
+                                trace: m.trace
+                                    ? (JSON.parse(m.trace) as TraceArray)
+                                    : []
                             };
                         });
 
                         const scores = matches.map(
-                            (m) => Trace.score.parse2024(m.trace).endgame,
+                            m => Trace.score.parse2024(m.trace).endgame
                         );
 
                         const climbTimes = matches
-                            .map((m) =>
-                                Trace.yearInfo[2024].climbTimes(m.trace)
-                            )
+                            .map(m => Trace.yearInfo[2024].climbTimes(m.trace))
                             .flat();
 
                         return {
                             headers,
                             data: [
                                 scores.reduce((a, b) => a + b.clb, 0) /
-                                scores.length,
-                                Math.max(...scores.map((s) => s.clb)),
+                                    scores.length,
+                                Math.max(...scores.map(s => s.clb)),
                                 scores.reduce((a, b) => a + b.park, 0) /
-                                scores.length,
+                                    scores.length,
                                 climbTimes.reduce((a, b) => a + b, 0) /
-                                climbTimes.length,
-                                Math.max(...climbTimes),
-                            ],
+                                    climbTimes.length,
+                                Math.max(...climbTimes)
+                            ]
                         };
                     });
-                },
-            },
+                }
+            }
         } as const;
     }
 }
 
-if (import.meta.main) {
-    const eventKey = Deno.args[0];
-    const table = await Table.build(eventKey);
-    if (table.isErr()) throw table.error;
-    console.log(table.value);
-    Deno.exit();
+if (require.main === module) {
+    (async () => {
+        const eventKey = process.argv[0];
+        const table = await Table.build(eventKey);
+        if (table.isErr()) throw table.error;
+        console.log(table.value);
+        process.exit(0);
+    })();
 }

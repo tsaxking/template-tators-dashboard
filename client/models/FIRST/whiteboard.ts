@@ -33,14 +33,14 @@ export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: any) => void
     ): void {
         WhiteboardCache.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: any) => void,
+        callback?: (data: any) => void
     ): void {
         WhiteboardCache.$emitter.off(event, callback);
     }
@@ -76,7 +76,7 @@ export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
      */
     constructor(
         public readonly data: WhiteboardObj,
-        ctx: CanvasRenderingContext2D,
+        ctx: CanvasRenderingContext2D
     ) {
         super();
         if (!WhiteboardCache.cache.has(data.id)) {

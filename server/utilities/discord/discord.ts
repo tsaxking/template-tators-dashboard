@@ -1,7 +1,7 @@
-import { Client, GatewayIntentBits, SlashCommandBuilder } from 'npm:discord.js';
-import env from '../env.ts';
-import Ping from './commands/ping.ts';
-import Connect from './commands/account-connect.ts';
+import { Client, GatewayIntentBits, SlashCommandBuilder } from 'discord.js';
+import env from '../env';
+import Ping from './commands/ping';
+import Connect from './commands/account-connect';
 
 export type Command = {
     name: string;
@@ -14,7 +14,7 @@ export type Command = {
 const commands: Command[] = [Ping];
 
 export const client = new Client({
-    intents: [GatewayIntentBits.Guilds],
+    intents: [GatewayIntentBits.Guilds]
 });
 
 client.on('ready', () => {
@@ -24,13 +24,13 @@ client.on('ready', () => {
 
     // loop through guilds
     for (const guild of client.guilds.cache.values()) {
-        guild.commands.set(commands.map((c) => (c.data ? c.data.toJSON() : c)));
+        guild.commands.set(commands.map(c => (c.data ? c.data.toJSON() : c)));
     }
 });
 
-client.on('interactionCreate', async (interaction) => {
+client.on('interactionCreate', async interaction => {
     if (interaction.isCommand()) {
-        const cmd = commands.find((c) => c.name === interaction.commandName);
+        const cmd = commands.find(c => c.name === interaction.commandName);
         if (cmd) cmd.execute(interaction);
     }
 });
