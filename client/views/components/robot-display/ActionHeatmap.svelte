@@ -11,7 +11,7 @@ import {
     type TraceArray,
     actions
 } from '../../../../shared/submodules/tatorscout-calculations/trace';
-import { BootstrapColor, Color } from '../../../submodules/colors/color';
+import { type BootstrapColor, Color } from '../../../submodules/colors/color';
 import { capitalize } from '../../../../shared/text';
 
 const colors: BootstrapColor[] = [
