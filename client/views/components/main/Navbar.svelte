@@ -42,7 +42,7 @@ onMount(() => {
 </script>
 
 <nav
-    class="navbar fixed-top shadow text-light bg-dark d-flex justify-content-between"
+    class="navbar navbar-expand-lg fixed-top shadow text-light bg-dark d-flex justify-content-between"
     id="top-navbar"
 >
     <div class="d-inline-flex p-0" style="height: 42px;">

@@ -3,8 +3,6 @@ import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import { PageGroup } from '../../../utilities/general-types';
 
-export let isOpen = false;
-
 export let groups: PageGroup[] = [];
 
 const dispatch = createEventDispatcher();
@@ -12,7 +10,10 @@ const dispatch = createEventDispatcher();
 export let active: string;
 </script>
 
-<div class="offcanvas offcanvas-start" id="sidebar-nav">
+<div
+    class="offcanvas offcanvas-start"
+    id="sidebar-nav"
+>
     <div class="offcanvas-body p-0">
         <nav class="navbar-dark">
             <ul class="navbar-nav">
