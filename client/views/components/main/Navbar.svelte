@@ -26,15 +26,7 @@ const fns = {
         new Settings({
             target: body,
             props: {
-                settings: [
-                    {
-                        name: 'Theme',
-                        type: 'select',
-                        options: ['Light', 'Dark'],
-                        bindTo: 'theme',
-                        value: 'Dark'
-                    }
-                ]
+                settings: []
             }
         });
 
@@ -88,8 +80,8 @@ onMount(() => {
                     </li>
                 {/each}
             </ul>
-            <div class="container-fluid p-1">
-                <ThemeSwitch />
+            <div class="form-inline my-2 my-lg-0">
+                <slot name="form" />
             </div>
             <EventSelect></EventSelect>
             <!-- Report an issue with github -->
