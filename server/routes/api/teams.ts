@@ -176,6 +176,6 @@ router.post<{
         }
 
         const r = res.sendStatus('teams:pictures-uploaded');
-        console.log(r);
+        // console.log(r);
     }
 );

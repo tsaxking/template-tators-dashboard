@@ -113,7 +113,8 @@ export class DB {
         database: DATABASE_NAME,
         host: DATABASE_HOST,
         password: DATABASE_PASSWORD,
-        port: Number(DATABASE_PORT)
+        port: Number(DATABASE_PORT),
+        keepAlive: true
     });
 
     private static timeout: NodeJS.Timeout;
@@ -122,8 +123,8 @@ export class DB {
         if (DB.timeout) clearTimeout(DB.timeout);
         DB.timeout = setTimeout(
             () => {
-                console.log('Database connection timed out');
-                DB.db.end();
+                // console.log('Database connection timed out');
+                // DB.db.end();
             },
             1000 * 60 * 1
         );
@@ -132,21 +133,21 @@ export class DB {
     static async connect() {
         return attemptAsync(async () => {
             // a little optimization
-            return new Promise((res, rej) => {
+            // return new Promise((res, rej) => {
                 // log('Connecting to the database...');
                 return DB.db
                     .connect()
-                    .then(() => {
-                        DB.setTimeout();
-                        // close the connection every 10 minutes to prevent memory leaks
-                        // log('Connected to the database');
-                        res('Connected to the database');
-                    })
-                    .catch(e => {
-                        // error('Database connection error', e);
-                        rej('Error connecting to the database');
-                    });
-            });
+                    // .then(() => {
+                    //     // DB.setTimeout();
+                    //     // close the connection every 10 minutes to prevent memory leaks
+                    //     // log('Connected to the database');
+                    //     res('Connected to the database');
+                    // })
+                    // .catch(e => {
+                    //     // error('Database connection error', e);
+                    //     rej('Error connecting to the database');
+                    // });
+            // });
         });
     }
 
@@ -769,6 +770,7 @@ export class DB {
                 const [sql, newArgs] = q;
 
                 const result = await DB.db.query(sql, newArgs);
+
 
                 return {
                     rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
