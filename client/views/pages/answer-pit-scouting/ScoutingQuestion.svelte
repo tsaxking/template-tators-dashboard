@@ -12,7 +12,7 @@ export let value: string[] = [];
 export let team: FIRSTTeam | undefined = undefined;
 let answer: Answer | undefined = undefined;
 
-let changed = false,
+let changed = true,
     disabled = false,
     me: HTMLDivElement;
 
@@ -94,7 +94,7 @@ const fns = {
         }
     },
     change: () => {
-        changed = true;
+        changed = !value.length;
         fns.set();
     },
     set: async () => {
@@ -119,8 +119,6 @@ FIRSTTeam.on('select', t => {
     fns.setDisable(t, disabled);
     fns.getValue(t, question);
 });
-
-$: changed = !value.length;
 
 // const dispatch = createEventDispatcher();
 </script>
