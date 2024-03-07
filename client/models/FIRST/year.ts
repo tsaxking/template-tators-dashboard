@@ -163,13 +163,4 @@ export class FIRSTYear extends Cache<YearUpdateData> {
     }
 }
 
-FIRSTYear.on('select', () => {
-    const query = new URLSearchParams(window.location.search);
-    const evt = query.get('event');
-    if (evt) {
-        const event = FIRSTEvent.cache.get(evt);
-        if (event) event.select();
-    }
-});
-
 Object.assign(window, { FIRSTYear });
