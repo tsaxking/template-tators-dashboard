@@ -120,6 +120,8 @@ FIRSTTeam.on('select', t => {
     fns.getValue(t, question);
 });
 
+$: changed = !value.length;
+
 // const dispatch = createEventDispatcher();
 </script>
 
@@ -293,7 +295,7 @@ FIRSTTeam.on('select', t => {
             >
                 {#if disabled}
                     <i
-                        class="material-icons text-warning"
+                        class="material-icons text-warning no-select"
                         data-bs-title="No team selected"
                         data-toggle="tooltip"
                     >
@@ -301,7 +303,7 @@ FIRSTTeam.on('select', t => {
                     </i>
                 {:else if changed}
                     <i
-                        class="material-icons text-danger"
+                        class="material-icons text-danger no-select"
                         data-bs-title="Unsaved changes!"
                         data-toggle="tooltip"
                     >
@@ -317,7 +319,7 @@ FIRSTTeam.on('select', t => {
                     </button>
                 {:else}
                     <i
-                        class="material-icons text-success"
+                        class="material-icons text-success no-select"
                         data-bs-title="No unsaved changes"
                         data-toggle="tooltip"
                     >
