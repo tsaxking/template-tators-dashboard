@@ -1,25 +1,28 @@
 <script lang="ts">
 import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
-import type { PageGroup, PageObj } from '../../../utilities/general-types';
+
 export let isOpen = false;
+
+type PageGroup = {
+    name: string;
+    pages: PageObj[];
+};
+
+type PageObj = {
+    name: string;
+    icon: string;
+};
 
 export let groups: PageGroup[] = [];
 
 const dispatch = createEventDispatcher();
 
 export let active: string;
-
-const openPage = (page: string) => {
-    jQuery('#sidebar-nav').offcanvas('hide');
-
-    dispatch('openPage', page);
-};
 </script>
 
 <div
-    class="{(isOpen ? 'show ' : '') +
-        'offcanvas offcanvas-start bg-dark text-white sidebar-nav shadow'}"
+    class="{isOpen ? 'show' : ''} offcanvas offcanvas-start"
     id="sidebar-nav"
 >
     <div class="offcanvas-body p-0">
@@ -41,15 +44,9 @@ const openPage = (page: string) => {
                                     : '') + ' nav-link ms-5'}"
                                 href="/{page.name}"
                                 on:click|preventDefault="{() =>
-                                    openPage(page.name)}"
+                                    dispatch('openPage', page.name)}"
                             >
-                                {#if page.iconType === 'material'}
-                                    <i class="material-icons">{page.icon}</i>
-                                {:else if page.iconType === 'fontawesome'}
-                                    <i class="fa fa-{page.icon}"></i>
-                                {:else if page.iconType === 'bootstrap'}
-                                    <i class="bi bi-{page.icon}"></i>
-                                {/if}
+                                <i class="material-icons">{page.icon}</i>
                                 <span class="ms-2"
                                     >{capitalize(
                                         fromSnakeCase(page.name, '-')
