@@ -111,10 +111,20 @@ const fns = {
     setDisable: (t: FIRSTTeam | undefined, _d: boolean) => {
         disabled = !t;
         fns.set();
+    },
+    setAnswer: (a: Answer | undefined) => {
+        if (!a) return;
+        answer = a;
+        a.on('update', () => {
+            value = a.answer;
+            fns.set();
+            fns.setValue(question, value);
+            fns.change();
+        });
+        fns.setValue(question, value);
+        fns.change();
     }
 };
-
-$: console.log({ answer })
 
 FIRSTTeam.on('select', t => {
     team = t;
@@ -337,7 +347,7 @@ FIRSTTeam.on('select', t => {
     {/if}
     {#if answer}
         <small>
-            Previously answered on {dateTime(new Date(answer.date))}
+            Previously answered on {dateTime(answer.date)}
         </small>
     {/if}
 </div>
