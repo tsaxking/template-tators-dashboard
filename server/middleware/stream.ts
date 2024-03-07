@@ -79,15 +79,15 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
                     });
                 }
 
+                if (files.findIndex(f => f.id === savedName) >= 0) return;
                 files.push({
-                    id,
-                    name: savedName,
+                    id: savedName,
+                    name: filename,
                     ext,
                     size: data?.length || 0
                 });
-            });
 
-            file.on('end', () => {});
+            });
 
             if (
                 ext &&
@@ -106,7 +106,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
             file.pipe(ws);
         });
 
-        bb.on('close', () => {
+        bb.on('finish', () => {
             // sendStatus('files:uploaded', {});
             req.files = files;
             req.body = JSON.parse(req.headers.get('x-body') || '{}');

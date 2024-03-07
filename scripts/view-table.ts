@@ -7,12 +7,12 @@ import { fromCamelCase, toSnakeCase } from '../shared/text';
 
 // console.log(tables.value);
 
-// if (!tables.value.includes(Deno.args[0].toLowerCase())) {
+// if (!tables.value.includes(process.argv[0].toLowerCase())) {
 //     throw new Error('Table not found. Please check the name and try again.');
 // }
 
 // const res = await DB.unsafe.all(`
-//     SELECT * FROM ${Deno.args[0]}
+//     SELECT * FROM ${process.argv[0]}
 // `);
 
 // if (res.isOk()) console.log(res.value);

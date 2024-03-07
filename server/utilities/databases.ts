@@ -92,6 +92,8 @@ type QueryResult<T> = {
 
 export type Version = [number, number, number];
 
+
+
 /**
  * Database class
  * @date 10/12/2023 - 3:24:19 PM
@@ -804,6 +806,7 @@ export class DB {
                 const [sql, newArgs] = q;
 
                 const result = await DB.db.query(sql, newArgs);
+
 
                 return {
                     rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
