@@ -114,6 +114,8 @@ const fns = {
     }
 };
 
+$: console.log({ answer })
+
 FIRSTTeam.on('select', t => {
     team = t;
     fns.setDisable(t, disabled);
