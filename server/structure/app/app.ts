@@ -199,14 +199,15 @@ export class App {
     public readonly io: SocketWrapper;
     public readonly server: express.Application;
     public readonly finalFunctions: FinalFunction<unknown>[] = [];
+    public readonly httpServer: http.Server;
 
     constructor(
         public readonly port: number,
         public readonly domain: string
     ) {
         this.server = express();
-        const s = http.createServer(this.server);
-        this.io = new SocketWrapper(this, new Server(s));
+        this.httpServer = http.createServer(this.server);
+        this.io = new SocketWrapper(this, new Server(this.httpServer));
 
         // s.listen(port, () => {
         //     log(`Server is listening on port ${port}`);
@@ -299,7 +300,7 @@ export class App {
     }
 
     public listen() {
-        this.server.listen(this.port, () => {
+        this.httpServer.listen(this.port, () => {
             log(`Server is listening on port ${this.port}`);
         });
     }
