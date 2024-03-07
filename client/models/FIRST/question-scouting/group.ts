@@ -70,7 +70,7 @@ export class Group extends Cache<GroupUpdates> {
             const res = await ServerRequest.post<{
                 data: ScoutingQuestionGroup;
             }>('/api/scouting-questions/new-group', {
-                name: data.name,
+                name: data.name.trim(),
                 eventKey: data.eventKey,
                 section: data.section,
             });

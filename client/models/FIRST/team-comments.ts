@@ -46,8 +46,8 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
 
     public static new(team: FIRSTTeam, type: string, comment: string) {
         return ServerRequest.post('/api/team-comments/new', {
-            comment,
-            type,
+            comment: comment.trim(),
+            type: type.trim(),
             teamNumber: team.number,
             eventKey: team.event.key,
         });

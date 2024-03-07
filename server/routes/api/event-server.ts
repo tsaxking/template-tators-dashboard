@@ -139,7 +139,7 @@ router.post<Match>(
                 id: commentId,
                 accountId: scoutId,
                 matchScoutingId,
-                comment: filtered,
+                comment: filtered.trim(),
                 type: key,
                 eventKey,
                 team: teamNumber,
