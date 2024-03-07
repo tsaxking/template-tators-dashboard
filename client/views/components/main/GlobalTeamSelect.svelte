@@ -5,10 +5,10 @@ import Select from '../bootstrap/Select.svelte';
 
 let options: string[] = [];
 let value: string | undefined = FIRSTTeam.current?.number.toString();
-let event: FIRSTEvent | undefined = FIRSTEvent.current;
+let event: FIRSTEvent | null = FIRSTEvent.current;
 
 const fns = {
-    setOptions: async (event: FIRSTEvent) => {
+    setOptions: async (event: FIRSTEvent | null) => {
         if (!event) return (options = []);
         const res = await event.getTeams();
         if (res.isOk()) {
@@ -20,7 +20,8 @@ const fns = {
     },
     handleChange: async (e: any) => {
         const { detail: teamNumber } = e;
-        const res = await FIRSTEvent.current.getTeams();
+        const res = await FIRSTEvent.current?.getTeams();
+        if (!res) return;
         if (res.isErr()) return;
         const teams = res.value;
         const team = teams.find(t => t.tba.team_number === +teamNumber);
@@ -40,7 +41,6 @@ $: {
 
 FIRSTEvent.on('select', e => {
     event = e;
-    value = undefined;
 });
 </script>
 

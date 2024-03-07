@@ -412,6 +412,10 @@ FIRSTEvent.on('select', async e => {
         if (res.isOk()) {
             const team = res.value.find(t => t.tba.team_number === Number(t));
             if (team) team.select();
+            else {
+                const team = res.value.find(t => t.number === 2122);
+                if (team) team.select();
+            }
         }
     }
 });
