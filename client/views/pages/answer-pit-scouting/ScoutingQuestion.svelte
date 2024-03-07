@@ -22,9 +22,10 @@ $: {
 }
 
 const fns = {
-    getValue: async (team: FIRSTTeam, q: Question) => {
+    getValue: async (team: FIRSTTeam | undefined, q: Question) => {
         if (!team) return console.error('Team not defined');
         fns.set();
+        if (!FIRSTEvent.current) return console.error('Event not defined');
         const res = await q.getAnswer(team, FIRSTEvent.current);
         if (res.isOk()) {
             if (!res.value) {
@@ -36,7 +37,7 @@ const fns = {
             answer = res.value;
 
             answer.on('update', () => {
-                value = answer.answer || [];
+                value = answer?.answer || [];
                 fns.set();
                 fns.setValue(q, value);
             });
@@ -107,7 +108,7 @@ const fns = {
             // console.warn('Question not mounted')
         }
     },
-    setDisable: (t: FIRSTTeam, _d: boolean) => {
+    setDisable: (t: FIRSTTeam | undefined, _d: boolean) => {
         disabled = !t;
         fns.set();
     }
@@ -242,23 +243,47 @@ FIRSTTeam.on('select', t => {
                         {/each}
                     </select>
                 {:else if question.type === 'boolean'}
+                    <!-- Radio buttons -->
                     <div class="form-check">
                         <input
-                            type="checkbox"
-                            id="q-{question.id}"
+                            type="radio"
+                            id="q-{question.id}-true"
                             class="form-check-input"
+                            value="true"
                             on:change="{event => {
-                                value = [
-                                    event.currentTarget.checked.toString()
-                                ];
+                                value = ['true'];
                                 fns.saveValue();
                             }}"
                             {disabled}
                             on:input="{fns.change}"
                             checked="{value[0] === 'true'}"
                         />
-                        <label for="q-{question.id}" class="form-check-label">
+                        <label
+                            for="q-{question.id}-true"
+                            class="form-check-label"
+                        >
                             Yes
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input
+                            type="radio"
+                            id="q-{question.id}-false"
+                            class="form-check-input"
+                            value="false"
+                            on:change="{event => {
+                                value = ['false'];
+                                fns.saveValue();
+                            }}"
+                            {disabled}
+                            on:input="{fns.change}"
+                            checked="{value[0] === 'false'}"
+                        />
+                        <label
+                            for="q-{question.id}-false"
+                            class="form-check-label"
+                        >
+                            No
                         </label>
                     </div>
                 {/if}
