@@ -18,6 +18,7 @@ import { runTask } from './run-task';
 import { removeFile } from './files';
 import fs from 'fs';
 import path from 'path';
+import { EventEmitter } from '../../shared/event-emitter';
 
 /**
  * The name of the main database
@@ -91,6 +92,8 @@ type QueryResult<T> = {
 
 export type Version = [number, number, number];
 
+
+
 /**
  * Database class
  * @date 10/12/2023 - 3:24:19 PM
@@ -116,6 +119,8 @@ export class DB {
         port: Number(DATABASE_PORT),
         keepAlive: true
     });
+
+    static readonly em = new EventEmitter<'connect' | 'disconnect'>();
 
     private static timeout: NodeJS.Timeout;
 
@@ -779,11 +784,7 @@ export class DB {
                 };
             });
 
-        const promise = run();
-        DB.stack.push(promise);
         const res = await run();
-        // TODO: figure out this optimization
-        // DB.stack.splice(DB.stack.indexOf(promise), 1);
 
         if (res.isErr()) {
             error('Error running query:', res.error);
@@ -983,9 +984,10 @@ export const run = () => {
 };
 
 DB.connect()
-    .then(() => {
+    .then(async () => {
         console.log('Connected to the database');
-        run();
+        await run();
+        DB.em.emit('connect');
     })
     .catch(e => {
         console.error('Error connecting to the database', e);

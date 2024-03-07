@@ -208,9 +208,9 @@ export class App {
         const s = http.createServer(this.server);
         this.io = new SocketWrapper(this, new Server(s));
 
-        s.listen(port, () => {
-            log(`Server is listening on port ${port}`);
-        });
+        // s.listen(port, () => {
+        //     log(`Server is listening on port ${port}`);
+        // });
 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: true }));
@@ -296,5 +296,11 @@ export class App {
 
     public final<T>(fn: FinalFunction<T>) {
         this.finalFunctions.push(fn as FinalFunction<unknown>);
+    }
+
+    public listen() {
+        this.server.listen(this.port, () => {
+            log(`Server is listening on port ${this.port}`);
+        });
     }
 }
