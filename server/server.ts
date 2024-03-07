@@ -13,8 +13,8 @@ import { ReqBody } from './structure/app/req';
 import { parseCookie } from '../shared/cookie';
 import { stdin } from './utilities/stdin';
 import { getJSONSync } from './utilities/files';
-import path from 'path';
 import { emitter } from './middleware/data-type';
+import path from 'path';
 import { DB } from './utilities/databases';
 
 if (process.argv.includes('--stats')) {
@@ -278,4 +278,4 @@ app.final<{
     }
 });
 
-DB.em.on('connect', () => app.listen());
+DB.em.on('connect', () => app.start());

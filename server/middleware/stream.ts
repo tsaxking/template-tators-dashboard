@@ -63,7 +63,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
             return uuid() + '-' + Date.now();
         };
 
-        let files: FileUpload[] = [];
+        const files: FileUpload[] = [];
 
         bb.on('file', (name, file, info) => {
             const { filename } = info;

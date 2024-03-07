@@ -13,7 +13,7 @@ import {
     toSnakeCase
 } from '../../shared/text';
 import { bigIntDecode, bigIntEncode } from '../../shared/objects';
-import { daysTimeout } from '../../shared/sleep';
+import { daysTimeout, sleepUntil } from '../../shared/sleep';
 import { runTask } from './run-task';
 import { removeFile } from './files';
 import fs from 'fs';
@@ -139,19 +139,18 @@ export class DB {
         return attemptAsync(async () => {
             // a little optimization
             // return new Promise((res, rej) => {
-                // log('Connecting to the database...');
-                return DB.db
-                    .connect()
-                    // .then(() => {
-                    //     // DB.setTimeout();
-                    //     // close the connection every 10 minutes to prevent memory leaks
-                    //     // log('Connected to the database');
-                    //     res('Connected to the database');
-                    // })
-                    // .catch(e => {
-                    //     // error('Database connection error', e);
-                    //     rej('Error connecting to the database');
-                    // });
+            // log('Connecting to the database...');
+            return DB.db.connect();
+            // .then(() => {
+            //     // DB.setTimeout();
+            //     // close the connection every 10 minutes to prevent memory leaks
+            //     // log('Connected to the database');
+            //     res('Connected to the database');
+            // })
+            // .catch(e => {
+            //     // error('Database connection error', e);
+            //     rej('Error connecting to the database');
+            // });
             // });
         });
     }
@@ -689,6 +688,38 @@ export class DB {
         } else {
             console.log('Error getting updates', versions.error);
         }
+    }
+
+    static async setClearBackups() {
+        return attemptAsync(async () => {
+            if (!env.BACKUP_DAYS) {
+                console.log('No backup days set, skipping backup clearing');
+                return;
+            }
+            const backups = await DB.getBackups();
+            if (backups.isErr()) throw backups.error;
+
+            for (const b of backups.value) {
+                let [, time] = b.split('_');
+                [time] = time.split('.');
+
+                const date = new Date(Number(time));
+                const deleteDate = date.setDate(
+                    date.getDate() + Number(env.BACKUP_DAYS)
+                );
+
+                if (deleteDate < Date.now()) {
+                    console.log('Deleting backup:', b);
+                    await removeFile(`storage/db/backups/${b}`);
+                }
+
+                // delete after 30 days
+                sleepUntil(() => {
+                    console.log('Deleting backup:', b);
+                    removeFile(`storage/db/backups/${b}`);
+                }, new Date(deleteDate));
+            }
+        });
     }
 
     static async getTables(): Promise<Result<string[]>> {
