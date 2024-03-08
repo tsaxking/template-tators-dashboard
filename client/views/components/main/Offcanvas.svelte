@@ -13,13 +13,9 @@ const openPage = (page: string) => {
     jQuery('#sidebar-nav').offcanvas('hide');
     dispatch('openPage', page);
 };
-
 </script>
 
-<div
-    class="offcanvas offcanvas-start"
-    id="sidebar-nav"
->
+<div class="offcanvas offcanvas-start" id="sidebar-nav">
     <div class="offcanvas-body p-0">
         <nav class="navbar-dark">
             <ul class="navbar-nav">
@@ -38,7 +34,8 @@ const openPage = (page: string) => {
                                     ? ' active'
                                     : '') + ' nav-link ms-5'}"
                                 href="/{page.name}"
-                                on:click|preventDefault="{() => openPage(page.name)}"
+                                on:click|preventDefault="{() =>
+                                    openPage(page.name)}"
                             >
                                 <i class="material-icons">{page.icon}</i>
                                 <span class="ms-2"
