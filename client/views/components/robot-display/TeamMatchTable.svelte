@@ -10,7 +10,7 @@ import { checkRanks } from '../../../models/FIRST/match-scouting';
 import { capitalize } from '../../../../shared/text';
 import { alert } from '../../../utilities/notifications';
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 
 let matches: {
     match: FIRSTMatch;
@@ -18,10 +18,10 @@ let matches: {
 }[] = [];
 
 const fns = {
-    getMatches: async (t: FIRSTTeam) => {
+    getMatches: async (t?: FIRSTTeam) => {
         if (!t) return;
         const [matchesRes, matchScoutingRes] = await Promise.all([
-            FIRSTEvent.current.getMatches(),
+            t.event.getMatches(),
             MatchScouting.fromTeam(t.event.key, t.number)
         ]);
         if (matchesRes.isErr()) return console.error(matchesRes.error);
@@ -46,6 +46,7 @@ const fns = {
         }, 20);
     },
     viewMatch: async (m: FIRSTMatch) => {
+        if (!team) return alert('No team selected');
         const modal = new Modal(Math.random().toString().substring(2));
         modal.setTitle(`Match ${m.tba.match_number} Details`);
         modal.size = 'lg';
@@ -60,7 +61,7 @@ const fns = {
         if (!match) return alert('No match scouting found :(');
 
         const viewer = new MatchViewer({
-            target: modal.target.querySelector('.modal-body'),
+            target: modal.target.querySelector('.modal-body') as HTMLElement,
             props: {
                 team: team,
                 match: match
@@ -106,7 +107,7 @@ $: {
                         : ''} {m.match.played ? '' : 'fst-italics'}"
                     on:click="{() => fns.viewMatch(m.match)}"
                 >
-                    {#if m.match.tba.alliances.red.team_keys.includes(team.tba.key)}
+                    {#if m.match.tba.alliances.red.team_keys.includes(team?.tba.key || '')}
                         <td class="text-danger">{m.match.tba.match_number}</td>
                         <td class="text-danger">{m.match.tba.comp_level}</td>
                         <td class="text-danger">{dateTime(m.match.time)}</td>
@@ -127,7 +128,7 @@ $: {
                             <i
                                 class="material-icons"
                                 style="color: {rankColor[
-                                    m.scouting.flag.rank
+                                    m.scouting.flag.rank 
                                 ]?.toString('rgb')} !important;"
                             >
                                 flag

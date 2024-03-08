@@ -10,12 +10,13 @@ type P = {
     url: string;
 };
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 export let upload = false;
 export let pictures: P[] = [];
 
 const fns = {
-    setPictures: async (team: FIRSTTeam) => {
+    setPictures: async (team?: FIRSTTeam) => {
+        if (!team) return pictures = [];
         await team.event.cacheTeamPictures();
         // after the cache is updated, we know the pictures are up to date
         const ps = team.pictures;
@@ -57,7 +58,7 @@ $: {
                             div.appendChild(img);
                             img.onload = () => {
                                 const m = new Modal();
-                                m.setTitle(String(team.number));
+                                m.setTitle(String(team?.number));
                                 m.setBody(div);
                                 m.size = 'lg';
                                 m.show();

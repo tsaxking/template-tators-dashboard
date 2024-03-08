@@ -6,12 +6,12 @@ import { dateTime } from '../../../../shared/clock';
 import { Modal } from '../../../utilities/modals';
 import MatchViewer from './MatchViewer.svelte';
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 
 let matches: MatchScouting[] = [];
 
 const fns = {
-    set: async (team: FIRSTTeam) => {
+    set: async (team?: FIRSTTeam) => {
         if (!team) return;
         const res = await team.getPracticeMatches();
 
@@ -22,12 +22,13 @@ const fns = {
         matches = res.value;
     },
     viewMatch: async (match: MatchScouting) => {
+        if (!team) return alert('No team selected');
         const modal = new Modal();
         modal.setTitle(`Practice Match ${match.matchNumber} Details`);
         modal.size = 'lg';
 
         const viewer = new MatchViewer({
-            target: modal.target.querySelector('.modal-body'),
+            target: modal.target.querySelector('.modal-body') as HTMLElement,
             props: {
                 team,
                 match
