@@ -1,12 +1,116 @@
-import { Database } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
-import { DB } from '../server/utilities/databases.ts';
-import { uuid } from '../server/utilities/uuid.ts';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import { DB } from '../server/utilities/databases';
+import { uuid } from '../server/utilities/uuid';
 import fs from 'node:fs';
-import { __root } from '../server/utilities/env.ts';
+import { __root } from '../server/utilities/env';
 import path from 'node:path';
-import { Match } from '../shared/db-types-extended.ts';
-import { error, log } from '../server/utilities/terminal-logging.ts';
-import { attemptAsync, Result } from '../shared/check.ts';
+import { Match } from '../shared/db-types-extended';
+import { error, log } from '../server/utilities/terminal-logging';
+import { attemptAsync, Result } from '../shared/check';
+
+type Q = {
+    query: string;
+    params?: {
+        [key: string]: string | number | null;
+    };
+    type: 'get' | 'run' | 'all';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolve: (value: any) => void;
+    reject: (error: Error) => void;
+};
+
+class D {
+    public readonly path: string;
+    public readonly queue: Q[] = [];
+    public queueRunning = false;
+    public sqlite?: sqlite3.Database;
+
+    constructor(filepath: string) {
+        this.path = filepath;
+    }
+
+    async init() {
+        this.sqlite = (await open({
+            filename: this.path,
+            driver: sqlite3.Database
+        }).catch(e => console.error(e))) as unknown as sqlite3.Database;
+    }
+
+    private async runQueue(q: Q) {
+        this.queue.push(q);
+        if (this.queueRunning) return;
+        this.queueRunning = true;
+
+        while (this.queue.length > 0) {
+            const query = this.queue.shift();
+            if (!query) break; // should never happen
+
+            await new Promise<void>((res, rej) => {
+                if (!this.sqlite)
+                    return rej(new Error('Database not initialized'));
+
+                this.sqlite[query.type](
+                    query.query,
+                    query.params,
+                    (err: Error, rows: unknown) => {
+                        if (err) {
+                            query.reject(err);
+                        } else {
+                            query.resolve(rows);
+                        }
+                        res();
+                    }
+                );
+            });
+        }
+    }
+
+    async get(
+        query: string,
+        params?: { [key: string]: string | number | null }
+    ) {
+        return new Promise((resolve, reject) => {
+            this.runQueue({
+                query,
+                params,
+                type: 'get',
+                resolve,
+                reject
+            });
+        });
+    }
+
+    async run(
+        query: string,
+        params?: { [key: string]: string | number | null }
+    ) {
+        return new Promise((resolve, reject) => {
+            this.runQueue({
+                query,
+                params,
+                type: 'run',
+                resolve,
+                reject
+            });
+        });
+    }
+
+    async all(
+        query: string,
+        params?: { [key: string]: string | number | null }
+    ) {
+        return new Promise((resolve, reject) => {
+            this.runQueue({
+                query,
+                params,
+                type: 'all',
+                resolve,
+                reject
+            });
+        });
+    }
+}
 
 const parse = <T>(str: string) => {
     try {
@@ -23,12 +127,12 @@ const test = async (): Promise<boolean> => {
         return !!q.value;
     } else {
         throw new Error(
-            "The database hasn't been updated to include the new tables!",
+            "The database hasn't been updated to include the new tables!"
         );
     }
 };
 
-const transferAccounts = (db: Database) => {
+const transferAccounts = async (db: D) => {
     type A = {
         username: string;
         key: string;
@@ -42,14 +146,14 @@ const transferAccounts = (db: Database) => {
         discord: string;
     };
 
-    const q = db.prepare('SELECT * FROM Accounts');
-    const accounts = q.all() as A[];
-    q.finalize();
+    const q = (await db.all('SELECT * FROM Accounts')) as A[];
+    // const accounts = q.all() as A[];
+    // q.finalize();
 
     // username, key, salt, name, info {}, roles [string, string], email, verified, tatorBucks, discord,
 
-    return accounts
-        .map((a) => {
+    return q
+        .map(a => {
             const roles = JSON.parse(a.roles) as string[];
             const id = uuid();
 
@@ -67,8 +171,8 @@ const transferAccounts = (db: Database) => {
                 verified: 0,
                 verification: '',
                 created: Date.now(),
-                phoneNumber: '',
-            }).then((r) =>
+                phoneNumber: ''
+            }).then(r =>
                 r.isOk()
                     ? console.log(`Account ${a.username} transferred`)
                     : console.log('Error transferring account', r.error)
@@ -76,14 +180,15 @@ const transferAccounts = (db: Database) => {
 
             return {
                 roles,
-                id,
+                id
             };
         })
         .filter(Boolean) as {
-            roles: string[];
-            id: string;
-        }[];
+        roles: string[];
+        id: string;
+    }[];
 };
+
 type Match2022 = {
     eventKey: string;
     matchNumber: number;
@@ -138,7 +243,7 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
     }>;
 
     return Promise.all(
-        matches.map(async (match) => {
+        matches.map(async match => {
             const foundMatch = await DB.unsafe.get<Match>(
                 `
             SELECT * FROM Matches 
@@ -147,8 +252,8 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
                 {
                     eventKey: match.eventKey,
                     matchNumber: match.matchNumber,
-                    compLevel: match.compLevel,
-                },
+                    compLevel: match.compLevel
+                }
             );
 
             if (foundMatch.isErr() || !foundMatch.value) return;
@@ -178,15 +283,15 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
                     match.group,
                     (match.time ?? 0).toString(),
                     match.preScoutingKey,
-                    match.trace,
-                ],
+                    match.trace
+                ]
             );
 
             const sections = {
                 auto: parse<Section>(match.auto),
                 tele: parse<Section>(match.teleop),
                 endgame: parse<Section>(match.endgame),
-                overall: parse<Section>(match.overall),
+                overall: parse<Section>(match.overall)
             };
 
             for (const [section, data] of Object.entries(sections)) {
@@ -268,8 +373,8 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
                         data.easilyDefended ?? 0,
                         data.foulsPinningOrHerdingCargo ?? 0,
                         data.shootsCargoOverHub ?? 0,
-                        data.pushesBots ?? 0,
-                    ],
+                        data.pushesBots ?? 0
+                    ]
                 );
 
                 const { comments } = data;
@@ -297,13 +402,14 @@ const transferMatch2022Scouting = async (matches: Match2022[]) => {
                         match.teamNumber,
                         comments ?? '',
                         (match.time ?? 0).toString(),
-                        'match',
-                    ],
+                        'match'
+                    ]
                 );
             }
-        }),
+        })
     );
 };
+
 type Match2023 = {
     eventKey: string;
     matchNumber: number;
@@ -339,12 +445,12 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
     }>;
 
     return Promise.all(
-        matches.map(async (match) => {
+        matches.map(async match => {
             const foundMatch = await DB.unsafe.get<Match>(
                 `
             SELECT * FROM Matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?
         `,
-                ...[match.eventKey, match.matchNumber, match.compLevel],
+                ...[match.eventKey, match.matchNumber, match.compLevel]
             );
 
             if (foundMatch.isErr() || !foundMatch.value) return;
@@ -374,15 +480,15 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
                     match.group,
                     (match.time ?? 0).toString(),
                     match.preScoutingKey,
-                    match.trace,
-                ],
+                    match.trace
+                ]
             );
 
             const sections = {
                 auto: parse<Section>(match.auto),
                 tele: parse<Section>(match.teleop),
                 endgame: parse<Section>(match.endgame),
-                overall: parse<Section>(match.overall),
+                overall: parse<Section>(match.overall)
             };
 
             for (const [section, data] of Object.entries(sections)) {
@@ -409,8 +515,8 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
                         data.grid ?? '',
                         data['Total Distance (Ft)'] ?? 0,
                         data['Velocity (ft/s)'] ?? 0,
-                        data.parked ?? 0,
-                    ],
+                        data.parked ?? 0
+                    ]
                 );
 
                 const { comments, defensiveComments } = data;
@@ -438,8 +544,8 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
                         match.teamNumber,
                         comments ?? '',
                         (match.time ?? 0).toString(),
-                        'match',
-                    ],
+                        'match'
+                    ]
                 );
 
                 DB.unsafe.run(
@@ -451,48 +557,51 @@ const transferMatch2023Scouting = async (matches: Match2023[]) => {
                         match.teamNumber,
                         defensiveComments ?? '',
                         (match.time ?? 0).toString(),
-                        'defensive',
-                    ],
+                        'defensive'
+                    ]
                 );
             }
-        }),
+        })
     );
 };
 
-const transferMatchScouting = (db: Database) => {
-    const q = db.prepare('SELECT * FROM MatchScouting');
-    const matches = q.all() as (Match2022 | Match2023)[];
+const transferMatchScouting = async (db: D) => {
+    const matches = (await db.all('SELECT * FROM MatchScouting')) as (
+        | Match2022
+        | Match2023
+    )[];
+    // const matches = q.all();
 
     transferMatch2022Scouting(
-        matches.filter((m) => m?.eventKey?.startsWith('2022')) as Match2022[],
+        matches.filter(m => m?.eventKey?.startsWith('2022')) as Match2022[]
     );
     transferMatch2023Scouting(
-        matches.filter((m) => m?.eventKey?.startsWith('2023')) as Match2023[],
+        matches.filter(m => m?.eventKey?.startsWith('2023')) as Match2023[]
     );
 };
 
-const createScoutingQuestionGroups = (db: Database) => {
+const createScoutingQuestionGroups = (db: D) => {
     const sections = [
         {
             name: 'pit',
-            multiple: false,
+            multiple: false
         },
         {
             name: 'pre',
-            multiple: false,
+            multiple: false
         },
         {
             name: 'electrical',
-            multiple: false,
+            multiple: false
         },
         {
             name: 'mechanical',
-            multiple: false,
+            multiple: false
         },
         {
             name: 'elimination',
-            multiple: false,
-        },
+            multiple: false
+        }
     ];
 
     for (const s of sections) {
@@ -506,12 +615,12 @@ const createScoutingQuestionGroups = (db: Database) => {
             )
         `,
             s.name,
-            s.multiple,
+            s.multiple
         );
     }
 };
 
-const populateQuestions = (db: Database) => {
+const populateQuestions = async (db: D) => {
     type Event = {
         eventKey: string;
         picklist?: string;
@@ -551,13 +660,12 @@ const populateQuestions = (db: Database) => {
 
     type QuestionContainer = Section[];
 
-    const q = db.prepare('SELECT * FROM Events');
-    const events = q.all() as Event[];
+    const events = (await db.all('SELECT * FROM Events')) as Event[];
 
     const saveGroup = (
         name: string,
         group: QuestionContainer,
-        event: Event,
+        event: Event
     ) => {
         for (const section of group) {
             const id = uuid();
@@ -572,7 +680,7 @@ const populateQuestions = (db: Database) => {
                     ?, ?, ?, ?
                 )
             `,
-                ...[id, section.title, name, event.eventKey],
+                ...[id, section.title, name, event.eventKey]
             );
 
             for (const question of section.questions) {
@@ -581,7 +689,7 @@ const populateQuestions = (db: Database) => {
                     question.options = {
                         checkbox: [],
                         radio: [],
-                        select: [],
+                        select: []
                     };
                 }
                 if (!question.small) question.small = '';
@@ -613,8 +721,8 @@ const populateQuestions = (db: Database) => {
                         question.key,
                         question.description,
                         question.type,
-                        id,
-                    ],
+                        id
+                    ]
                 );
 
                 const saveOptions = (type: keyof Options) => {
@@ -630,7 +738,7 @@ const populateQuestions = (db: Database) => {
                                 ?, ?, ?, ?
                             )
                         `,
-                            ...[uuid(), question.id, option.text, option.order],
+                            ...[uuid(), question.id, option.text, option.order]
                         );
                     }
                 };
@@ -667,10 +775,9 @@ const populateQuestions = (db: Database) => {
     }
 };
 
-const transferTeams = async (db: Database) => {
-    const q = db.prepare('SELECT * FROM Teams');
-
-    const teams = q.all() as {
+const transferTeams = async (db: D) => {
+    // const q = db.prepare('SELECT * FROM Teams');
+    const teams = (await db.all('SELECT * FROM Teams')) as {
         number: number;
         eventKey: string;
         pitScouting?: string;
@@ -683,7 +790,7 @@ const transferTeams = async (db: Database) => {
     }[];
 
     return Promise.all(
-        teams.map(async (t) => {
+        teams.map(async t => {
             DB.unsafe.run(
                 `
             INSERT INTO Teams (
@@ -694,7 +801,7 @@ const transferTeams = async (db: Database) => {
             )
         `,
                 t.number,
-                t.eventKey,
+                t.eventKey
             );
 
             DB.unsafe.run(
@@ -712,8 +819,8 @@ const transferTeams = async (db: Database) => {
                     t.number,
                     t.eventKey,
                     t.picture ?? '',
-                    Date.now().toString(),
-                ],
+                    Date.now().toString()
+                ]
             );
 
             const questions = await DB.unsafe.all<{ id: string; key: string }>(
@@ -725,7 +832,7 @@ const transferTeams = async (db: Database) => {
             INNER JOIN ScoutingQuestionGroups ON ScoutingQuestionGroups.id = ScoutingQuestions.groupId
             WHERE ScoutingQuestionGroups.eventKey = ?
         `,
-                t.eventKey,
+                t.eventKey
             );
 
             if (questions.isErr()) {
@@ -744,7 +851,7 @@ const transferTeams = async (db: Database) => {
 
             const save = (data: { [key: string]: string }) => {
                 for (const [key, value] of Object.entries(data)) {
-                    const q = questions.value.find((q) => q.key === key);
+                    const q = questions.value.find(q => q.key === key);
                     if (!q) continue;
 
                     if (typeof value === 'object') {
@@ -763,7 +870,7 @@ const transferTeams = async (db: Database) => {
                         ?, ?, ?, ?
                     )
                 `,
-                        ...[uuid(), t.number, q.id, value],
+                        ...[uuid(), t.number, q.id, value]
                     );
                 }
             };
@@ -772,12 +879,12 @@ const transferTeams = async (db: Database) => {
             save(electrical as { [key: string]: string });
             save(mechanical as { [key: string]: string });
 
-            pre.forEach((p) => save(p as { [key: string]: string }));
-        }),
+            pre.forEach(p => save(p as { [key: string]: string }));
+        })
     );
 };
 
-const transferAccountsAndRoles = (db: Database) => {
+const transferAccountsAndRoles = async (db: D) => {
     type Info = Partial<{
         viewData: boolean;
         editDatabase: boolean;
@@ -796,10 +903,9 @@ const transferAccountsAndRoles = (db: Database) => {
         rank: number;
     };
 
-    const q = db.prepare('SELECT * FROM Roles');
-    const roles = q.all() as Role[];
+    const roles = (await db.all('SELECT * FROM Roles')) as Role[];
 
-    const newRoles = roles.map((r) => {
+    const newRoles = roles.map(r => {
         const info = parse<Info>(r.info);
 
         const id = uuid();
@@ -815,7 +921,7 @@ const transferAccountsAndRoles = (db: Database) => {
                 ?, ?, ?, ?
             );
         `,
-            ...[id, r.name, r.description, r.rank],
+            ...[id, r.name, r.description, r.rank]
         );
 
         for (const [key] of Object.entries(info)) {
@@ -828,22 +934,22 @@ const transferAccountsAndRoles = (db: Database) => {
                     ?, ?
                 )
             `,
-                ...[id, key],
+                ...[id, key]
             );
         }
 
         return {
             id,
-            name: r.name,
+            name: r.name
         };
     });
 
-    const accounts = transferAccounts(db);
+    const accounts = await transferAccounts(db);
 
     for (const a of accounts) {
         const accountRoles = a.roles
-            .map((r) => {
-                const foundRole = newRoles.find((nr) => nr.name === r);
+            .map(r => {
+                const foundRole = newRoles.find(nr => nr.name === r);
 
                 if (!foundRole) {
                     console.log(`Role ${r} not found!`);
@@ -864,13 +970,13 @@ const transferAccountsAndRoles = (db: Database) => {
                     ?, ?
                 )
             `,
-                ...[a.id, roleId],
+                ...[a.id, roleId]
             );
         }
     }
 };
 
-const run = async (db: Database, fn: (db: Database) => unknown) => {
+const run = async (db: D, fn: (db: D) => unknown) => {
     console.log(`Running ${fn.name}`);
     const start = Date.now();
     try {
@@ -879,7 +985,7 @@ const run = async (db: Database, fn: (db: Database) => unknown) => {
         log('Error running database transfer, restoring backup');
         error(e);
 
-        Deno.exit(1);
+        process.exit(1);
     }
     const end = Date.now();
     console.log(`${fn.name} | ${end - start}ms`);
@@ -889,19 +995,19 @@ export const transfer = async (oldDBPath: string): Promise<Result<void>> => {
     return attemptAsync(async () => {
         if (await test()) {
             log(
-                'The database has already been transferred! Nothing has changed :)',
+                'The database has already been transferred! Nothing has changed :)'
             );
             return;
         }
 
         if (!fs.existsSync(path.resolve(__root, './scripts/old.db'))) {
             console.log(
-                'No old database found. Please place the old database in ./scripts/old.db',
+                'No old database found. Please place the old database in ./scripts/old.db'
             );
-            Deno.exit(0);
+            process.exit(0);
         }
 
-        const db = new Database(oldDBPath);
+        const db = new D(oldDBPath);
 
         await DB.makeBackup();
         await Promise.all([
@@ -909,33 +1015,33 @@ export const transfer = async (oldDBPath: string): Promise<Result<void>> => {
             run(db, createScoutingQuestionGroups),
             run(db, populateQuestions),
             run(db, transferAccountsAndRoles),
-            run(db, transferTeams),
+            run(db, transferTeams)
         ]);
 
         await DB.unsafe.run('INSERT INTO dbTransfer (date) VALUES (:date)', {
-            date: Date.now(),
+            date: Date.now()
         });
     });
 };
 
-if (import.meta.main) {
-    const arg = Deno.args.find((a) => /^db=/.test(a));
+export const runTransfer = async () => {
+    const arg = process.argv.find(a => /^db=/.test(a));
     if (!arg) {
         console.log('No database path provided');
-        Deno.exit(1);
+        process.exit(1);
     }
 
     const db = arg.split('=')[1];
 
-    const doAccounts = Deno.args.includes('accounts');
-    const doRoles = Deno.args.includes('roles');
-    const doTeams = Deno.args.includes('teams');
-    const doQuestions = Deno.args.includes('questions');
-    const doMatchScouting = Deno.args.includes('match-scouting');
-    const doScoutingGroups = Deno.args.includes('scouting-groups');
-    const doAll = Deno.args.includes('all');
+    const doAccounts = process.argv.includes('accounts');
+    const doRoles = process.argv.includes('roles');
+    const doTeams = process.argv.includes('teams');
+    const doQuestions = process.argv.includes('questions');
+    const doMatchScouting = process.argv.includes('match-scouting');
+    const doScoutingGroups = process.argv.includes('scouting-groups');
+    const doAll = process.argv.includes('all');
 
-    const oldDB = new Database(db);
+    const oldDB = new D(db);
 
     if (doAll || doAccounts) {
         run(oldDB, transferAccounts);
@@ -963,6 +1069,6 @@ if (import.meta.main) {
     }
 
     await DB.unsafe.run('INSERT INTO dbTransfer (date) VALUES (:date)', {
-        date: Date.now(),
+        date: Date.now()
     });
-}
+};

@@ -3,7 +3,7 @@ import { Cache } from '../../cache';
 import {
     QuestionOptions,
     QuestionType,
-    ScoutingQuestion as ScoutingQuestionObj,
+    ScoutingQuestion as ScoutingQuestionObj
 } from '../../../../shared/db-types-extended';
 import { attemptAsync, Result } from '../../../../shared/check';
 import { ServerRequest } from '../../../utilities/requests';
@@ -30,21 +30,21 @@ export class Question extends Cache<QuestionUpdates> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         Question.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: Updates[K]) => void,
+        callback?: (data: Updates[K]) => void
     ): void {
         Question.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
-        data: Updates[K],
+        data: Updates[K]
     ): void {
         Question.$emitter.emit(event, data);
     }
@@ -69,7 +69,7 @@ export class Question extends Cache<QuestionUpdates> {
     }
 
     public static async fromId(
-        id: string,
+        id: string
     ): Promise<Result<Question | undefined>> {
         return attemptAsync(async () => {
             if (Question.$cache.has(id)) {
@@ -79,7 +79,7 @@ export class Question extends Cache<QuestionUpdates> {
             const res = await ServerRequest.post<
                 ScoutingQuestionObj | undefined
             >('/api/scouting-questions/get-question', {
-                id,
+                id
             });
 
             if (res.isOk()) {
@@ -160,7 +160,7 @@ export class Question extends Cache<QuestionUpdates> {
             type: this.$type,
             key: this.$key,
             description: this.$description,
-            options: this.options,
+            options: this.options
         });
     }
 
@@ -169,7 +169,7 @@ export class Question extends Cache<QuestionUpdates> {
             const res = await ServerRequest.post<{
                 id: string;
             }>('/api/scouting-questions/delete-question', {
-                id: this.id,
+                id: this.id
             });
 
             if (res.isErr()) throw res.error;
@@ -187,12 +187,12 @@ export class Question extends Cache<QuestionUpdates> {
 
     async getAnswer(
         team: FIRSTTeam,
-        event: FIRSTEvent,
+        event: FIRSTEvent
     ): Promise<Result<Answer | undefined>> {
         return attemptAsync(async () => {
             const res = await Answer.fromTeam(team.number, event);
             if (res.isOk()) {
-                return res.value.find((q) => q.questionId === this.id);
+                return res.value.find(q => q.questionId === this.id);
             } else throw res.error;
         });
     }

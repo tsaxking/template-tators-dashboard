@@ -5,14 +5,16 @@ import RobotDisplay from '../pages/RobotDisplay.svelte';
 import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
 import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
 import Checklist from '../pages/Checklist.svelte';
+import { PageGroup } from '../../utilities/general-types';
 
-const groups = [
+const groups: PageGroup[] = [
     {
         name: 'home',
         pages: [
             {
                 name: 'robot-display',
-                icon: 'home'
+                icon: 'home',
+                iconType: 'material'
             }
         ]
     },
@@ -25,11 +27,13 @@ const groups = [
             // },
             {
                 name: 'scouting-checklist',
-                icon: 'checklist'
+                icon: 'checklist',
+                iconType: 'material'
             },
             {
                 name: 'answer-scouting-questions',
-                icon: 'question_answer'
+                icon: 'question_answer',
+                iconType: 'material'
             }
         ]
     }

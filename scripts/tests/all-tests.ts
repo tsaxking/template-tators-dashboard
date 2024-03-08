@@ -1,55 +1,60 @@
-import { assertEquals } from 'https://deno.land/std@0.205.0/assert/mod.ts';
-import { __root } from '../../server/utilities/env.ts';
-import { runCommand, runTask } from '../../server/utilities/run-task.ts';
-import { log } from '../../server/utilities/terminal-logging.ts';
-import { validate } from '../../server/middleware/data-type.ts';
-import { Req } from '../../server/structure/app/req.ts';
-import { Res } from '../../server/structure/app/res.ts';
-import {
-    generateScoutGroups,
-    testAssignments,
-} from '../../shared/submodules/tatorscout-calculations/scout-groups.ts';
+import { __root } from '../../server/utilities/env';
+import { runTask, runFile } from '../../server/utilities/run-task';
+import { log } from '../../server/utilities/terminal-logging';
+import { validate } from '../../server/middleware/data-type';
+import { Req } from '../../server/structure/app/req';
+import { Res } from '../../server/structure/app/res';
+import test from 'test';
+import assert from 'assert';
+import { getJSONSync } from '../../server/utilities/files';
 import {
     TBAMatch,
-    TBATeam,
-} from '../../shared/submodules/tatorscout-calculations/tba.ts';
-import { getJSONSync } from '../../server/utilities/files.ts';
+    TBATeam
+} from '../../shared/submodules/tatorscout-calculations/tba';
+import {
+    generateScoutGroups,
+    testAssignments
+} from '../../shared/submodules/tatorscout-calculations/scout-groups';
+
+const assertEquals = (a: unknown, b: unknown) => {
+    assert.deepEqual(a, b);
+};
 
 export const runTests = async () => {
-    Deno.test('Run async task functionality', async () => {
-        const asyncTest = await runTask<string[]>(
-            '/scripts/tests/run-task-test.ts',
+    test('Run async task functionality', async () => {
+        const asyncTest = await runFile<string[]>(
+            './scripts/tests/run-task-test.ts',
             'asyncFn',
             'a',
             'b',
-            'c',
+            'c'
         );
         log('Async test result:', asyncTest);
         if (asyncTest.isErr()) throw asyncTest.error;
         else assertEquals(asyncTest.value, ['a', 'b', 'c']);
     });
 
-    Deno.test('Run sync task functionality', async () => {
-        const syncTest = await runTask<string[]>(
-            '/scripts/tests/run-task-test.ts',
+    test('Run sync task functionality', async () => {
+        const syncTest = await runFile<string[]>(
+            './scripts/tests/run-task-test.ts',
             'syncFn',
             'a',
             'b',
-            'c',
+            'c'
         );
         log('Sync test result:', syncTest);
         if (syncTest.isErr()) throw syncTest.error;
         else assertEquals(syncTest.value, ['a', 'b', 'c']);
     });
 
-    Deno.test('Run command', async () => {
-        const result = await runCommand('echo "test"');
+    test('Run command', async () => {
+        const result = await runTask('echo', ['"test"']);
         log('Command result:', result);
-        if (result.isOk()) assertEquals(true, true);
-        else throw result.error;
+        if (result.isOk()) return assertEquals(true, true);
+        throw result.error;
     });
 
-    Deno.test('Data validation', async () => {
+    test('Data validation', async () => {
         const fail = () => {
             console.log('Validation should not have passed');
 
@@ -61,6 +66,8 @@ export const runTests = async () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const invalid: [string, any][] = [];
         const missing: string[] = [];
+
+        JSON.parse;
 
         // simulate a request
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,17 +86,17 @@ export const runTests = async () => {
                 passFunction: () => true,
                 failFunction: () => false,
 
-                missing: 'string',
+                missing: 'string'
             },
             {
-                log: true,
+                // log: true,
                 onInvalid: (key, value) => {
                     invalid.push([key, value]);
                 },
-                onMissing: (key) => {
+                onMissing: key => {
                     missing.push(key);
-                },
-            },
+                }
+            }
         )(
             {
                 body: {
@@ -104,10 +111,10 @@ export const runTests = async () => {
                     passCustomArray: 'a',
                     failCustomArray: 'd',
                     passFunction: true,
-                    failFunction: false,
+                    failFunction: false
                 },
-                url: new URL('http://localhost:1234'),
-            } as Req,
+                url: new URL('http://localhost:1234')
+            } as unknown as Req,
             {
                 sendStatus: () => {
                     const passedInvalids = invalid.every(([key, _value]) => {
@@ -117,12 +124,12 @@ export const runTests = async () => {
                             'failNumber',
                             'failPrimitiveArray',
                             'failCustomArray',
-                            'failFunction',
+                            'failFunction'
                         ].includes(key);
                     });
 
                     const passedMissings = missing.every(
-                        (key) => key === 'missing',
+                        key => key === 'missing'
                     );
 
                     if (passedInvalids && passedMissings) {
@@ -134,13 +141,13 @@ export const runTests = async () => {
 
                         assertEquals(true, false);
                     }
-                },
+                }
             } as unknown as Res,
-            fail,
+            fail
         );
     });
 
-    Deno.test('Scout groups', async () => {
+    test('Scout groups', async () => {
         const eventKey = '2023cabl';
         const regex = /^([0-9]{4}[a-z]{3,4})$/i;
         if (!regex.test(eventKey)) throw new Error('Invalid event key');
@@ -161,3 +168,5 @@ export const runTests = async () => {
         }
     });
 };
+
+if (require.main) runTests();

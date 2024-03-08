@@ -15,14 +15,14 @@ export class PitScouting extends Cache<PitScoutingEvents> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: any) => void
     ): void {
         PitScouting.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: any) => void,
+        callback?: (data: any) => void
     ): void {
         PitScouting.$emitter.off(event, callback);
     }

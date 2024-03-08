@@ -2,13 +2,13 @@ import {
     Event as EventProperties,
     Match,
     Team,
-    TeamPicture,
+    TeamPicture
 } from '../../../shared/db-types-extended';
 import {
     matchSort,
     TBAEvent,
     TBAMatch,
-    TBATeam,
+    TBATeam
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { ServerRequest } from '../../utilities/requests';
 import { TBA } from '../../utilities/tba';
@@ -50,28 +50,28 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         FIRSTEvent.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: Updates[K]) => void,
+        callback?: (data: Updates[K]) => void
     ): void {
         FIRSTEvent.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
-        data: Updates[K],
+        data: Updates[K]
     ): void {
         FIRSTEvent.$emitter.emit(event, data);
     }
 
     public static once<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: any) => void
     ): void {
         FIRSTEvent.$emitter.once(event, callback);
     }
@@ -138,13 +138,13 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             const serverStream = ServerRequest.retrieveStream<Match>(
                 '/api/matches/all-from-event',
                 {
-                    eventKey: this.tba.key,
+                    eventKey: this.tba.key
                 },
-                JSON.parse,
+                JSON.parse
             );
 
             const tbaRes = await TBA.get<TBAMatch[]>(
-                `/event/${this.tba.key}/matches`,
+                `/event/${this.tba.key}/matches`
             );
 
             if (tbaRes.isOk()) {
@@ -152,15 +152,15 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                 value.data.sort(matchSort);
 
                 const matches = value.data.map(
-                    (match) => new FIRSTMatch(match, this),
+                    match => new FIRSTMatch(match, this)
                 );
 
-                serverStream.on('chunk', (match) => {
+                serverStream.on('chunk', match => {
                     const found = matches.find(
-                        (m) =>
+                        m =>
                             m.event.tba.key === match.eventKey &&
                             m.tba.match_number === match.matchNumber &&
-                            m.tba.comp_level === match.compLevel,
+                            m.tba.comp_level === match.compLevel
                     );
 
                     if (found) {
@@ -168,12 +168,12 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     }
                 });
 
-                value.onUpdate((data) => {
-                    data.forEach((m) => {
+                value.onUpdate(data => {
+                    data.forEach(m => {
                         const found = matches.find(
-                            (_m) =>
+                            _m =>
                                 _m.tba.match_number === m.match_number &&
-                                _m.tba.comp_level === m.comp_level,
+                                _m.tba.comp_level === m.comp_level
                         );
                         if (found) {
                             // readonly workaround
@@ -202,26 +202,24 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             const serverStream = ServerRequest.retrieveStream<Team>(
                 '/api/teams/all-from-event',
                 {
-                    eventKey: this.tba.key,
+                    eventKey: this.tba.key
                 },
-                JSON.parse,
+                JSON.parse
             );
 
             const res = await TBA.get<TBATeam[]>(
-                `/event/${this.tba.key}/teams`,
+                `/event/${this.tba.key}/teams`
             );
 
             if (res.isOk()) {
                 const { value } = res;
-                const teams = value.data.map((team) =>
-                    new FIRSTTeam(team, this)
-                );
+                const teams = value.data.map(team => new FIRSTTeam(team, this));
 
                 teams.sort((a, b) => a.number - b.number);
 
-                serverStream.on('chunk', (team) => {
+                serverStream.on('chunk', team => {
                     const found = teams.find(
-                        (t) => t.tba.team_number === team.number,
+                        t => t.tba.team_number === team.number
                     );
 
                     if (found) {
@@ -229,10 +227,10 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     }
                 });
 
-                value.onUpdate((data) => {
-                    data.forEach((t) => {
+                value.onUpdate(data => {
+                    data.forEach(t => {
                         const found = teams.find(
-                            (_t) => _t.tba.team_number === t.team_number,
+                            _t => _t.tba.team_number === t.team_number
                         );
                         if (found) {
                             // readonly workaround
@@ -260,17 +258,17 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             const res = await ServerRequest.post<EventProperties | undefined>(
                 '/api/events/properties',
                 {
-                    eventKey: this.tba.key,
+                    eventKey: this.tba.key
                 },
                 {
-                    cached: true,
-                },
+                    cached: true
+                }
             );
 
             if (res.isOk()) {
                 if (!res.value) {
                     console.error(
-                        `Event properties for ${this.tba.key} have not been set. The server may not have the event in its database.`,
+                        `Event properties for ${this.tba.key} have not been set. The server may not have the event in its database.`
                     );
                 } else this.$cache.set('properties', res.value);
 
@@ -285,23 +283,23 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         const teams = await this.getTeams();
         if (teams.isErr()) return [];
 
-        if (teams.value.some((t) => t.pictures.length > 0)) return [];
+        if (teams.value.some(t => t.pictures.length > 0)) return [];
 
         const res = await ServerRequest.post<TeamPicture[]>(
             '/api/teams/pictures-from-event',
             {
-                eventKey: this.key,
-            },
+                eventKey: this.key
+            }
         );
 
         if (res.isOk()) {
             return Promise.all(
-                res.value.map(async (p) => {
+                res.value.map(async p => {
                     // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
                     const t = await this.getTeam(p.teamNumber);
                     if (!t) return; // should never happen
                     t.pictures = [...t.pictures, p];
-                }),
+                })
             );
         }
     }
@@ -309,7 +307,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     async getTeam(teamNumber: number): Promise<FIRSTTeam | undefined> {
         const teams = await this.getTeams();
         if (teams.isOk()) {
-            return teams.value.find((t) => t.tba.team_number === teamNumber);
+            return teams.value.find(t => t.tba.team_number === teamNumber);
         } else return undefined;
     }
 
@@ -337,15 +335,15 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             const sections = await Section.all();
             const groups = (
                 await Promise.all(
-                    sections.map(async (s) => {
+                    sections.map(async s => {
                         const res = await s.getGroups(this);
                         if (res.isOk()) return res.value;
                         throw res.error;
-                    }),
+                    })
                 )
             ).flat();
             const questionRes = resolveAll(
-                await Promise.all(groups.map((g) => g.getQuestions())),
+                await Promise.all(groups.map(g => g.getQuestions()))
             );
 
             if (questionRes.isErr()) throw questionRes.error;
@@ -354,7 +352,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             return {
                 sections,
                 groups,
-                questions,
+                questions
             };
         });
     }
@@ -386,7 +384,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     questions: string[];
                 }[];
             }>('/api/events/status', {
-                eventKey: this.key,
+                eventKey: this.key
             });
 
             if (res.isOk()) return res.value;
@@ -403,16 +401,16 @@ socket.on(
 
         event.$cache.set('properties', properties);
         event.$emitter.emit('update-properties', properties);
-    },
+    }
 );
 
-FIRSTEvent.on('select', async (e) => {
+FIRSTEvent.on('select', async e => {
     const query = new URLSearchParams(window.location.search);
     const t = query.get('team');
     if (t) {
         const res = await e.getTeams();
         if (res.isOk()) {
-            const team = res.value.find((t) => t.tba.team_number === Number(t));
+            const team = res.value.find(t => t.tba.team_number === Number(t));
             if (team) team.select();
         }
     }

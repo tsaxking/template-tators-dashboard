@@ -8,7 +8,7 @@
 export const capitalize = (str: string): string =>
     str.replace(
         /\w\S*/g,
-        (txt) => txt.charAt(0).toUpperCase() + txt.substring(1),
+        txt => txt.charAt(0).toUpperCase() + txt.substring(1)
     );
 
 /**
@@ -19,7 +19,8 @@ export const capitalize = (str: string): string =>
 export const toCamelCase = (str: string): string =>
     str
         .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) =>
-            index === 0 ? word.toLowerCase() : word.toUpperCase())
+            index === 0 ? word.toLowerCase() : word.toUpperCase()
+        )
         .replace(/\s+/g, '');
 
 /**
@@ -29,15 +30,16 @@ export const toCamelCase = (str: string): string =>
  */
 export const toSnakeCase = (str: string, del = '_'): string =>
     str
-        .replace(/([A-Z])/g, (g) => `${del}${g[0].toLowerCase()}`)
+        .replace(/([A-Z])/g, g => `${del}${g[0].toLowerCase()}`)
         .replace(/\s+/g, '_');
 
 /**
  * Converts a string from camelCase to "camel case"
  * @param str
  * @returns
- */ export const fromCamelCase = (str: string): string =>
-    str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`);
+ */
+export const fromCamelCase = (str: string): string =>
+    str.replace(/([A-Z])/g, g => ` ${g[0].toLowerCase()}`);
 
 /**
  * Converts a string from snake_case to "snake case"
@@ -46,7 +48,7 @@ export const toSnakeCase = (str: string, del = '_'): string =>
  */
 export const fromSnakeCase = (str: string, del = '_'): string =>
     str
-        .replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`)
+        .replace(/([A-Z])/g, g => ` ${g[0].toLowerCase()}`)
         .replace(new RegExp(del, 'g'), ' ');
 
 export const streamDelimiter = '<';
@@ -67,11 +69,11 @@ export const toByteString = (byte: number): string => {
         KB: 1024,
         MB: 1048576,
         GB: 1073741824,
-        TB: 1099511627776,
+        TB: 1099511627776
     };
 
     const i = Math.floor(Math.log(byte) / Math.log(1024));
-    return `${(byte / sizes[Object.keys(sizes)[i]]).toFixed(2)} ${
+    return `${(byte / sizes[Object.keys(sizes)[i] as keyof typeof sizes]).toFixed(2)} ${
         Object.keys(sizes)[i]
     }`;
 };
@@ -82,15 +84,17 @@ export const toByteString = (byte: number): string => {
  */
 export const parseObject = (
     obj: object,
-    parser: (str: string) => string,
+    parser: (str: string) => string
 ): unknown => {
     if (typeof obj !== 'object') return obj;
-    if (Array.isArray(obj)) return obj.map((o) => parseObject(o, parser));
+    if (Array.isArray(obj))
+        return obj.map(o => parseObject(o as object, parser));
     const newObj: Record<string, unknown> = {};
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             // only do the keys, not the values
-            newObj[parser(key)] = obj[key];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            newObj[parser(key)] = (obj as any)[key];
         }
     }
     return newObj;

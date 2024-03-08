@@ -6,7 +6,7 @@ import { log } from './logging';
  * @param _target Fullscreen target
  * @returns A function that exits fullscreen
  */
-export const fullscreen = (_target: HTMLElement) => {
+export const fullscreen = (_target?: HTMLElement) => {
     const end = () =>
         attempt(() => {
             // exit fullscreen
@@ -20,12 +20,33 @@ export const fullscreen = (_target: HTMLElement) => {
     attempt(() => {
         if (document['exitFullscreen']) {
             document['exitFullscreen']();
-        } else if (document['webkitExitFullscreen']) {
-            document['webkitExitFullscreen']();
-        } else if (document['mozCancelFullScreen']) {
-            document['mozCancelFullScreen']();
-        } else if (document['msExitFullscreen']) {
-            document['msExitFullscreen']();
+        } else if (
+            Object.prototype.hasOwnProperty.call(
+                document,
+                'webkitExitFullscreen'
+            )
+        ) {
+            Object.getOwnPropertyDescriptor(
+                document,
+                'webkitExitFullscreen'
+            )?.value?.call(document);
+        } else if (
+            Object.prototype.hasOwnProperty.call(
+                document,
+                'mozCancelFullScreen'
+            )
+        ) {
+            Object.getOwnPropertyDescriptor(
+                document,
+                'mozCancelFullScreen'
+            )?.value?.call(document);
+        } else if (
+            Object.prototype.hasOwnProperty.call(document, 'msExitFullscreen')
+        ) {
+            Object.getOwnPropertyDescriptor(
+                document,
+                'msExitFullscreen'
+            )?.value?.call(document);
         }
     });
 

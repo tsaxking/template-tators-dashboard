@@ -20,11 +20,11 @@ Describe the testing process you have followed to ensure that your changes are w
 
 ## Checklist
 
-- [ ] I have reviewed the code changes thoroughly.
-- [ ] I have tested the changes locally.
-- [ ] I have updated the documentation if necessary.
-- [ ] I have added appropriate comments to the code.
-- [ ] I have followed the project's coding conventions and guidelines.
+-   [ ] I have reviewed the code changes thoroughly.
+-   [ ] I have tested the changes locally.
+-   [ ] I have updated the documentation if necessary.
+-   [ ] I have added appropriate comments to the code.
+-   [ ] I have followed the project's coding conventions and guidelines.
 
 ## Related Issues
 
@@ -33,4 +33,3 @@ List any related issues or pull requests that are addressed or referenced by thi
 ## Additional Notes
 
 Add any additional notes or context that may be helpful for reviewers.
-

@@ -1,9 +1,9 @@
-import { saveJSONSync } from '../server/utilities/files.ts';
-import { generateTrace } from '../shared/dummy-data.ts';
+import { saveJSONSync } from '../server/utilities/files';
+import { generateTrace } from '../shared/dummy-data';
 import {
     Action2024,
-    P,
-} from '../shared/submodules/tatorscout-calculations/trace.ts';
+    P
+} from '../shared/submodules/tatorscout-calculations/trace';
 
 saveJSONSync('dummy-trace', generateTrace());
 
