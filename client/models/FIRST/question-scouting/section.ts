@@ -73,8 +73,9 @@ export class Section extends Cache<SectionUpdates> {
             const res = await ServerRequest.post<ScoutingSection>(
                 '/api/scouting-questions/new-section',
                 {
-                    ...data
-                }
+                    name: data.name.trim(),
+                    multiple: data.multiple ? 1 : 0,
+                },
             );
 
             if (res.isErr()) throw res.error;

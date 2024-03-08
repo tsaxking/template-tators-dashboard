@@ -121,6 +121,10 @@ export class Account extends Cache<AccountEvents> {
      */
     public static readonly emitter = new EventEmitter<keyof Events>();
 
+    get name() {
+        return `${this.firstName} ${this.lastName}`;
+    }
+
     /**
      * adds a listener to the account emitter
      * @date 2/1/2024 - 12:54:21 AM
