@@ -1,6 +1,7 @@
 <script lang="ts">
 import { createEventDispatcher } from 'svelte';
 import { FIRSTTeam } from '../../../models/FIRST/team';
+import { Account } from '../../../models/account';
 
 const d = createEventDispatcher();
 
@@ -12,6 +13,7 @@ let scoutingSections: {
         questions: {
             question: string;
             answer: string;
+            account: string;
         }[];
     }[];
 }[] = [];
@@ -33,50 +35,74 @@ const fns = {
             await Promise.all(groups.map(g => g.getSection()))
         ).filter((s, i, a) => a.indexOf(s) === i);
 
-        scoutingSections = sections.map(s => ({
-            section: s.name,
-            groups: groups
-                .filter(g => g.section === s.id)
-                // filter duplicates
-                .filter((g, i, a) => a.indexOf(g) === i)
-                .map(g => ({
-                    name: g.name,
-                    questions: questions
-                        .filter(q => q.groupId === g.id)
+        scoutingSections = await Promise.all(
+            sections.map(async s => ({
+                section: s.name,
+                groups: await Promise.all(
+                    groups
+                        .filter(g => g.section === s.id)
                         // filter duplicates
-                        .filter((q, i, a) => a.indexOf(q) === i)
-                        .map(q => ({
-                            question: q.key,
-                            answer: (() => {
-                                switch (q.type) {
-                                    case 'text':
-                                    case 'textarea':
-                                    case 'number':
-                                    case 'radio':
-                                    case 'select':
-                                        return (
-                                            res.value.find(
-                                                a => a.questionId === q.id
-                                            )?.answer[0] || ''
-                                        );
-                                    case 'checkbox':
-                                        return res.value
-                                            .filter(a => a.questionId === q.id)
-                                            .map(a => a.answer[0])
-                                            .join(', ');
-                                    case 'boolean':
-                                        return res.value.find(
-                                            a => a.questionId === q.id
-                                        )?.answer[0] === 'true'
-                                            ? 'Yes'
-                                            : 'No';
-                                    default:
-                                        return '';
-                                }
-                            })()
+                        .filter((g, i, a) => a.indexOf(g) === i)
+                        .map(async g => ({
+                            name: g.name,
+                            questions: await Promise.all(
+                                questions
+                                    .filter(q => q.groupId === g.id)
+                                    // filter duplicates
+                                    .filter((q, i, a) => a.indexOf(q) === i)
+                                    .map(async q => ({
+                                        question: q.key,
+                                        answer: (() => {
+                                            switch (q.type) {
+                                                case 'text':
+                                                case 'textarea':
+                                                case 'number':
+                                                case 'radio':
+                                                case 'select':
+                                                    return (
+                                                        res.value.find(
+                                                            a =>
+                                                                a.questionId ===
+                                                                q.id
+                                                        )?.answer[0] || ''
+                                                    );
+                                                case 'checkbox':
+                                                    return res.value
+                                                        .filter(
+                                                            a =>
+                                                                a.questionId ===
+                                                                q.id
+                                                        )
+                                                        .map(a => a.answer[0])
+                                                        .join(', ');
+                                                case 'boolean':
+                                                    return res.value.find(
+                                                        a =>
+                                                            a.questionId ===
+                                                            q.id
+                                                    )?.answer[0] === 'true'
+                                                        ? 'Yes'
+                                                        : 'No';
+                                                default:
+                                                    return '';
+                                            }
+                                        })(),
+                                        account:
+                                            (
+                                                await Account.get(
+                                                    res.value.find(
+                                                        a =>
+                                                            a.questionId ===
+                                                            q.id
+                                                    )?.accountId
+                                                )
+                                            )?.name || ''
+                                    }))
+                            )
                         }))
-                }))
-        }));
+                )
+            }))
+        );
     }
 };
 

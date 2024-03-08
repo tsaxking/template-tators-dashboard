@@ -43,11 +43,11 @@ let active = 'robot-display';
 
 const domain = 'tatorscout.org';
 
-const navItems = [
+const navItems: string[] = [
     // 'app'
 ];
 
-const accountLinks = [
+const accountLinks: string[] = [
     // 'account',
     // 'contact',
     // null

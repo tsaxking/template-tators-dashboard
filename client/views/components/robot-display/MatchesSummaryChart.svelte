@@ -3,7 +3,7 @@ import { Trace } from '../../../../shared/submodules/tatorscout-calculations/tra
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Bar } from 'svelte-chartjs';
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 
 let data: {
     labels: string[];
@@ -18,7 +18,7 @@ let data: {
 };
 
 const fns = {
-    getEventSummary: async (team: FIRSTTeam) => {
+    getEventSummary: async (team?: FIRSTTeam) => {
         if (!team) return;
         const matches = await team.getMatchScouting();
         if (matches.isOk()) {
