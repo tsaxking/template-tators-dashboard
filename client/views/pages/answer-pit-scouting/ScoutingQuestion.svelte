@@ -46,18 +46,17 @@ const fns = {
         }
     },
     // sets the disabled variable to true if the team is undefined
-    setDisable: (team: FIRSTTeam | undefined, d: boolean) => {
-        disabled = !team || d;
+    setDisable: (team: FIRSTTeam | undefined) => {
+        disabled = !team;
     },
 };
 
 FIRSTTeam.on('select', t => {
     team = t;
-    fns.setDisable(team, disabled);
-    fns.getValue(team, question);
 });
 
 $: fns.getValue(team, question);
+$: fns.setDisable(team);
 
 // const dispatch = createEventDispatcher();
 </script>
