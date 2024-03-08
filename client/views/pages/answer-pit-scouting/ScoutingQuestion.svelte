@@ -12,112 +12,52 @@ export let value: string[] = [];
 export let team: FIRSTTeam | undefined = undefined;
 let answer: Answer | undefined = undefined;
 
-let changed = false,
+let changed = true,
     disabled = false,
     me: HTMLDivElement;
 
-$: {
-    fns.setDisable(team, disabled);
-    fns.getValue(team, question);
-}
+    // TODO: Restructure all of these functions to make more sense
+
+
 
 const fns = {
-    getValue: async (team: FIRSTTeam, q: Question) => {
-        if (!team) return console.error('Team not defined');
-        fns.set();
-        const res = await q.getAnswer(team, FIRSTEvent.current);
-        if (res.isOk()) {
-            if (!res.value) {
-                value = [];
-                answer = undefined;
-                return;
-            }
-            value = res.value.answer;
-            answer = res.value;
-
-            answer.on('update', () => {
-                value = answer.answer || [];
-                fns.set();
-                fns.setValue(q, value);
-            });
-
-            fns.setValue(q, value);
-        } else {
-            console.error(res.error);
-        }
-    },
+    // submits the answer to the server
     saveValue: async () => {
-        if (!team) return console.error('Team not defined');
-        fns.set();
-        changed = false;
-        const res = await question.saveAnswer(team, value);
-        if (res.isErr()) {
-            return console.error(res.error);
-        }
+        if (!team) return;
+        const result = await question.saveAnswer(team, value);
+        if (result.isOk()) changed = false;
     },
-    setValue: (q: Question, v: string[]) => {
-        const input = me.querySelector('input');
-        if (!input) return;
-
-        switch (q.type) {
-            case 'text':
-            case 'textarea':
-            case 'number':
-            case 'select':
-                input.value = value[0];
-                break;
-            case 'checkbox':
-                value.forEach(v => {
-                    const checkbox = me.querySelector(
-                        `input[value="${v}"]`
-                    ) as HTMLInputElement;
-                    if (checkbox) {
-                        checkbox.checked = true;
-                    }
-                });
-                break;
-            case 'radio':
-                const radio = me.querySelector(
-                    `input[value="${value[0]}"]`
-                ) as HTMLInputElement;
-                if (radio) {
-                    radio.checked = true;
-                }
-                break;
-            case 'boolean':
-                const checkbox = me.querySelector('input');
-                if (checkbox) {
-                    checkbox.checked = value[0] === 'true';
-                }
-                break;
-        }
-    },
+    // sets the changed variable to true
     change: () => {
         changed = true;
-        fns.set();
     },
-    set: async () => {
-        try {
-            document
-                .querySelectorAll('.tooltip.bs-tooltip-auto')
-                .forEach(e => e.remove());
-
-            jQuery(me.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
-        } catch {
-            // console.warn('Question not mounted')
+    // gets the value of the question, if it exists
+    getValue: async (team: FIRSTTeam | undefined, question: Question) => {
+        if (!team) return;
+        const answer = await question.getAnswer(team, team.event);
+        if (answer.isOk()) {
+            if (answer.value) {
+                value = answer.value.answer;
+                changed = false;
+            } else {
+                value = [];
+                changed = true;
+            }
         }
     },
-    setDisable: (t: FIRSTTeam, _d: boolean) => {
-        disabled = !t;
-        fns.set();
-    }
+    // sets the disabled variable to true if the team is undefined
+    setDisable: (team: FIRSTTeam | undefined, d: boolean) => {
+        disabled = !team || d;
+    },
 };
 
 FIRSTTeam.on('select', t => {
     team = t;
-    fns.setDisable(t, disabled);
-    fns.getValue(t, question);
+    fns.setDisable(team, disabled);
+    fns.getValue(team, question);
 });
+
+$: fns.getValue(team, question);
 
 // const dispatch = createEventDispatcher();
 </script>
@@ -242,23 +182,47 @@ FIRSTTeam.on('select', t => {
                         {/each}
                     </select>
                 {:else if question.type === 'boolean'}
+                    <!-- Radio buttons -->
                     <div class="form-check">
                         <input
-                            type="checkbox"
-                            id="q-{question.id}"
+                            type="radio"
+                            id="q-{question.id}-true"
                             class="form-check-input"
+                            value="true"
                             on:change="{event => {
-                                value = [
-                                    event.currentTarget.checked.toString()
-                                ];
+                                value = ['true'];
                                 fns.saveValue();
                             }}"
                             {disabled}
                             on:input="{fns.change}"
                             checked="{value[0] === 'true'}"
                         />
-                        <label for="q-{question.id}" class="form-check-label">
+                        <label
+                            for="q-{question.id}-true"
+                            class="form-check-label"
+                        >
                             Yes
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input
+                            type="radio"
+                            id="q-{question.id}-false"
+                            class="form-check-input"
+                            value="false"
+                            on:change="{event => {
+                                value = ['false'];
+                                fns.saveValue();
+                            }}"
+                            {disabled}
+                            on:input="{fns.change}"
+                            checked="{value[0] === 'false'}"
+                        />
+                        <label
+                            for="q-{question.id}-false"
+                            class="form-check-label"
+                        >
+                            No
                         </label>
                     </div>
                 {/if}
@@ -268,7 +232,7 @@ FIRSTTeam.on('select', t => {
             >
                 {#if disabled}
                     <i
-                        class="material-icons text-warning"
+                        class="material-icons text-warning no-select"
                         data-bs-title="No team selected"
                         data-toggle="tooltip"
                     >
@@ -276,7 +240,7 @@ FIRSTTeam.on('select', t => {
                     </i>
                 {:else if changed}
                     <i
-                        class="material-icons text-danger"
+                        class="material-icons text-danger no-select"
                         data-bs-title="Unsaved changes!"
                         data-toggle="tooltip"
                     >
@@ -292,7 +256,7 @@ FIRSTTeam.on('select', t => {
                     </button>
                 {:else}
                     <i
-                        class="material-icons text-success"
+                        class="material-icons text-success no-select"
                         data-bs-title="No unsaved changes"
                         data-toggle="tooltip"
                     >
@@ -310,7 +274,7 @@ FIRSTTeam.on('select', t => {
     {/if}
     {#if answer}
         <small>
-            Previously answered on {dateTime(new Date(answer.date))}
+            Previously answered on {dateTime(answer.date)}
         </small>
     {/if}
 </div>
