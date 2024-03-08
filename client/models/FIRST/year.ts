@@ -34,21 +34,21 @@ export class FIRSTYear extends Cache<YearUpdateData> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         FIRSTYear.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: Updates[K]) => void,
+        callback?: (data: Updates[K]) => void
     ): void {
         FIRSTYear.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
-        data: Updates[K],
+        data: Updates[K]
     ): void {
         FIRSTYear.$emitter.emit(event, data);
     }
@@ -114,7 +114,7 @@ export class FIRSTYear extends Cache<YearUpdateData> {
             //     return this.$cache.get('events') as TBAEvent[];
             // }
             const res = await TBA.get<TBAEvent[]>(
-                `/team/frc2122/events/${this.year}`,
+                `/team/frc2122/events/${this.year}`
             );
 
             if (res.isOk()) {
@@ -132,11 +132,11 @@ export class FIRSTYear extends Cache<YearUpdateData> {
                 });
 
                 res.value.onUpdate(
-                    (data) => {
+                    data => {
                         this.$cache.set('events', data);
                         this.$emitter.emit('update-events', data);
                     },
-                    1000 * 60 * 60 * 24 * 7,
+                    1000 * 60 * 60 * 24 * 7
                 ); // 1 week
 
                 return events;

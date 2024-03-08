@@ -55,7 +55,7 @@ export class TBA {
      */
     static get<T = unknown>(
         path: string,
-        cached = true,
+        cached = true
     ): Promise<Result<TBAResponse<T>>> {
         return attemptAsync(async () => {
             const start = Date.now();
@@ -68,11 +68,11 @@ export class TBA {
                 return fetch('https://www.thebluealliance.com/api/v3' + path, {
                     headers: {
                         'X-TBA-Auth-Key':
-                            'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ',
+                            'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
                         // 'Access-Control-Allow-Origin': '*',
                     },
-                    method: 'GET',
-                }).then((data) => data.json());
+                    method: 'GET'
+                }).then(data => data.json()) as Promise<T>;
 
                 // const res = await ServerRequest.get<T>(`/api/tba${path}`);
                 // if (res.isOk()) return res.value;
@@ -113,13 +113,13 @@ export class TBA {
                 time: Date.now() - start,
                 onUpdate: (
                     callback: (data: T) => void,
-                    interval: number = 1000 * 60 * 10,
+                    interval: number = 1000 * 60 * 10
                 ) => {
                     if (!intervals[interval]) {
                         intervals[interval] = new IntervalEmitter(interval);
                     }
                     intervals[interval].callbacks.push(callback);
-                },
+                }
             };
 
             if (cached) TBA.storeCache(path, data);
@@ -159,7 +159,7 @@ export class TBA {
         const item = localStorage.getItem(path);
         if (!item) return null;
         try {
-            return JSON.parse(item);
+            return JSON.parse(item) as T;
         } catch (error) {
             console.log('Cannot retrieve cache:', error);
             return null;
@@ -176,24 +176,24 @@ export class TBA {
      * @param {boolean} [simple=false]
      * @returns {Promise<TBAResponse<FIRSTEvent>>}
      */
-    static async getEvent(
-        eventKey: string,
-        simple = false,
-    ): Promise<Result<TBAResponse<FIRSTEvent>>> {
-        return attemptAsync(async () => {
-            const res = await TBA.get<TBAEvent>(
-                `/event/${eventKey}${simple ? '/simple' : ''}`,
-            );
+    // static async getEvent(
+    //     eventKey: string,
+    //     simple = false
+    // ): Promise<Result<TBAResponse<FIRSTEvent>>> {
+    //     return attemptAsync(async () => {
+    //         const res = await TBA.get<TBAEvent>(
+    //             `/event/${eventKey}${simple ? '/simple' : ''}`
+    //         );
 
-            if (res.isOk()) {
-                return {
-                    data: new FIRSTEvent(res.value.data),
-                    time: res.value.time,
-                    onUpdate: res.value.onUpdate.bind(res),
-                };
-            }
+    //         if (res.isOk()) {
+    //             return {
+    //                 data: new FIRSTEvent(res.value.data),
+    //                 time: res.value.time,
+    //                 onUpdate: res.value.onUpdate.bind(res)
+    //             };
+    //         }
 
-            throw res.error;
-        });
-    }
+    //         throw res.error;
+    //     });
+    // }
 }

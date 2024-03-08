@@ -8,10 +8,10 @@ interface JSON {
      * @param reviver A function that transforms the results. This function is called for each member of the object.
      * If a member contains nested objects, the nested objects are transformed before the parent object is.
      */
-    parse(
+    parse<T = unknown>(
         text: string,
-        reviver?: (this: any, key: string, value: any) => any,
-    ): unknown;
+        reviver?: (this: any, key: string, value: any) => any
+    ): T;
 }
 
 interface ArrayConstructor {
@@ -21,36 +21,36 @@ interface ArrayConstructor {
 interface ReadonlyArray<T> {
     includes(
         searchElement: T | (TSReset.WidenLiteral<T> & __A),
-        fromIndex?: number,
+        fromIndex?: number
     ): boolean;
 }
 
 interface Array<T> {
     includes(
         searchElement: T | (TSReset.WidenLiteral<T> & __A),
-        fromIndex?: number,
+        fromIndex?: number
     ): boolean;
 }
 
 interface ReadonlyArray<T> {
     lastIndexOf(
         searchElement: T | (TSReset.WidenLiteral<T> & __A),
-        fromIndex?: number,
+        fromIndex?: number
     ): number;
     indexOf(
         searchElement: T | (TSReset.WidenLiteral<T> & __A),
-        fromIndex?: number,
+        fromIndex?: number
     ): number;
 }
 
 interface Array<T> {
     lastIndexOf(
         searchElement: T | (TSReset.WidenLiteral<T> & __A),
-        fromIndex?: number,
+        fromIndex?: number
     ): number;
     indexOf(
         searchElement: T | (TSReset.WidenLiteral<T> & __A),
-        fromIndex?: number,
+        fromIndex?: number
     ): number;
 }
 
@@ -88,13 +88,18 @@ interface Storage {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace TSReset {
-    type NonFalsy<T> = T extends false | 0 | '' | null | undefined | 0n ? never
-        : T;
-
-    type WidenLiteral<T> = T extends string ? string
-        : T extends number ? number
-        : T extends boolean ? boolean
-        : T extends bigint ? bigint
-        : T extends symbol ? symbol
-        : T;
+    // type NonFalsy<T> = T extends false | 0 | '' | null | undefined | 0n
+    //     ? never
+    //     : T;
+    // type WidenLiteral<T> = T extends string
+    //     ? string
+    //     : T extends number
+    //       ? number
+    //       : T extends boolean
+    //         ? boolean
+    //         : T extends bigint
+    //           ? bigint
+    //           : T extends symbol
+    //             ? symbol
+    //             : T;
 }

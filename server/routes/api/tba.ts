@@ -1,5 +1,5 @@
-import { Route } from '../../structure/app/app.ts';
-import { TBA } from '../../utilities/tba/tba.ts';
+import { Route } from '../../structure/app/app';
+import { TBA } from '../../utilities/tba/tba';
 
 export const router = new Route();
 

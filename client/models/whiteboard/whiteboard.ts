@@ -42,7 +42,7 @@ export class WhiteboardState {
     toJSON(): string {
         return JSON.stringify({
             // initPositions: this.initPositions,
-            paths: this.paths,
+            paths: this.paths
         });
     }
 }
@@ -50,7 +50,7 @@ export class WhiteboardState {
 export class Whiteboard {
     static build(
         states: WhiteboardState[],
-        ctx: CanvasRenderingContext2D,
+        ctx: CanvasRenderingContext2D
     ): Whiteboard {
         const wb = new Whiteboard(ctx);
         for (const state of states) {
@@ -59,16 +59,15 @@ export class Whiteboard {
         return wb;
     }
 
-    public readonly stack: StateStack<WhiteboardState> = new StateStack<
-        WhiteboardState
-    >(new WhiteboardState());
+    public readonly stack: StateStack<WhiteboardState> =
+        new StateStack<WhiteboardState>(new WhiteboardState());
     public readonly canvas: Canvas;
     public currentColor: Color = Color.fromName('black');
 
     constructor(public readonly ctx: CanvasRenderingContext2D) {
-        this.stack.on('change', (state) => {
+        this.stack.on('change', state => {
             this.canvas.clear();
-            this.canvas.add(state.data);
+            // this.canvas.add(state.data);
         });
         this.canvas = new Canvas(ctx);
         this.setListeners();
@@ -100,7 +99,7 @@ export class Whiteboard {
 
             this.stack.current?.data.paths.push({
                 color: this.currentColor,
-                points: [[x, y]],
+                points: [[x, y]]
             });
         };
 
@@ -154,7 +153,7 @@ export class Whiteboard {
         const { clientX, clientY } = e instanceof MouseEvent ? e : e.touches[0];
         return [
             (clientX - left) / this.width,
-            (clientY - top) / this.height,
+            (clientY - top) / this.height
         ] as Point2D;
     }
 
@@ -184,7 +183,7 @@ export class Whiteboard {
         if (!state) return;
         const json = state.data.toJSON();
         ServerRequest.post('/api/whiteboard', {
-            json,
+            json
         });
     }
 }

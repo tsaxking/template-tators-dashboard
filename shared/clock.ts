@@ -99,10 +99,18 @@ type D = Date | number | string;
  */
 export const dateString = (format: string) => {
     return (date: D = new Date()) => {
-        if (!(date instanceof Date)) date = new Date(date);
+        const input = date;
+        if (typeof date === 'string') {
+            if (isNaN(Number(date))) {
+                date = new Date(date);
+            } else {
+                date = new Date(Number(date));
+            }
+        }
+        if (typeof date === 'number') date = new Date(date);
+
         const DATE = date as Date;
-        return (
-            format
+        const data = format
                 // year
                 .replace(/YYYY/g, DATE.getFullYear()?.toString())
                 .replace(/YY/g, DATE.getFullYear()?.toString().slice(-2))
@@ -153,8 +161,8 @@ export const dateString = (format: string) => {
                 .replace(/PM/g, DATE.getHours() >= 12 ? 'PM' : 'AM')
                 .replace(/p.m./g, DATE.getHours() >= 12 ? 'p.m.' : 'a.m.')
                 .replace(/P.M./g, DATE.getHours() >= 12 ? 'P.M.' : 'A.M.')
-        );
-    };
+            return data;
+        };
 };
 
 // some common formats

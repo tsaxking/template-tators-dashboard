@@ -1,29 +1,23 @@
 <script lang="ts">
 import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
-
-export let isOpen = false;
-
-type PageGroup = {
-    name: string;
-    pages: PageObj[];
-};
-
-type PageObj = {
-    name: string;
-    icon: string;
-};
+import { PageGroup } from '../../../utilities/general-types';
 
 export let groups: PageGroup[] = [];
 
 const dispatch = createEventDispatcher();
 
 export let active: string;
+
+const openPage = (page: string) => {
+    jQuery('#sidebar-nav').offcanvas('hide');
+    dispatch('openPage', page);
+};
+
 </script>
 
 <div
-    class="{(isOpen ? 'show ' : '') +
-        'offcanvas offcanvas-start bg-dark text-white sidebar-nav shadow'}"
+    class="offcanvas offcanvas-start"
     id="sidebar-nav"
 >
     <div class="offcanvas-body p-0">
@@ -44,8 +38,7 @@ export let active: string;
                                     ? ' active'
                                     : '') + ' nav-link ms-5'}"
                                 href="/{page.name}"
-                                on:click|preventDefault="{() =>
-                                    dispatch('openPage', page.name)}"
+                                on:click|preventDefault="{() => openPage(page.name)}"
                             >
                                 <i class="material-icons">{page.icon}</i>
                                 <span class="ms-2"

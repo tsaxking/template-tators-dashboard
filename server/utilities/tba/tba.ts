@@ -1,11 +1,11 @@
-import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba.ts';
-import { DB } from '../databases.ts';
-import env from '../env.ts';
-import { error } from '../terminal-logging.ts';
-import { saveEvent } from '../../../scripts/tba-update.ts';
-import { attemptAsync, Result } from '../../../shared/check.ts';
-// import { TBAEvent } from "../../../shared/tba.ts";
-// import { TBA_Event } from './event.ts';
+import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba';
+import { DB } from '../databases';
+import env from '../env';
+import { error } from '../terminal-logging';
+import { saveEvent } from '../../../scripts/tba-update';
+import { attemptAsync, Result } from '../../../shared/check';
+// import { TBAEvent } from "../../../shared/tba";
+// import { TBA_Event } from './event';
 
 /**
  * Imported from .env
@@ -59,12 +59,12 @@ export class TBA {
      */
     public static async get<T>(
         path: string,
-        options?: TBAOptions,
+        options?: TBAOptions
     ): Promise<Result<T | null>> {
         return attemptAsync(async () => {
             if (!TBA_KEY) {
                 throw new Error(
-                    'TBA_KEY not found in environment variables! Cannot make request to TBA API!',
+                    'TBA_KEY not found in environment variables! Cannot make request to TBA API!'
                 );
             }
 
@@ -72,7 +72,7 @@ export class TBA {
 
             if (options?.cached) {
                 const cached = await DB.get('tba/from-url', {
-                    url: path,
+                    url: path
                 });
 
                 if (cached.isOk() && cached.value && cached.value.response) {
@@ -90,8 +90,8 @@ export class TBA {
                     method: 'GET',
                     headers: {
                         'X-TBA-Auth-Key': TBA_KEY,
-                        Accept: 'application/json',
-                    },
+                        Accept: 'application/json'
+                    }
                 });
 
                 const json = await res.json();
@@ -101,7 +101,7 @@ export class TBA {
                     url: path,
                     response: JSON.stringify(json),
                     updated: Date.now(),
-                    update: options?.cached ? 1 : 0,
+                    update: options?.cached ? 1 : 0
                 });
                 return json as T;
             } catch (e) {
@@ -124,7 +124,7 @@ export class TBA {
  *
  * @type {(number | undefined)}
  */
-let interval: number | undefined = undefined;
+let interval: NodeJS.Timeout | undefined = undefined;
 
 /**
  * Run the TBA update
@@ -132,9 +132,9 @@ let interval: number | undefined = undefined;
  */
 const update = () => {
     TBA.get<TBAEvent[]>(
-        `/team/frc2122/events/${new Date().getFullYear()}/simple`,
+        `/team/frc2122/events/${new Date().getFullYear()}/simple`
     )
-        .then((result) => {
+        .then(result => {
             if (result.isErr()) return;
             const events = result.value;
             if (!events) return;
@@ -168,7 +168,7 @@ const update = () => {
                     () => {
                         saveEvent(closest.key);
                     },
-                    1000 * 60 * 10,
+                    1000 * 60 * 10
                 ); // update every 10 minutes during event
             } else {
                 // update every day
@@ -178,7 +178,7 @@ const update = () => {
         .catch(error);
 };
 
-if (Deno.args.includes('--update-interval')) {
+if (process.argv.includes('--update-interval')) {
     setInterval(update, 1000 * 60 * 60 * 24);
     update();
 }
