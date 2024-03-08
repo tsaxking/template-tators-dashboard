@@ -69,7 +69,7 @@ onMount(() => fns.set(team));
                             on:click="{() => fns.viewMatch(match)}"
                         >
                             <td>{match.matchNumber}</td>
-                            <td>{dateTime(match.date)}</td>
+                            <td>{dateTime(match.time)}</td>
                         </tr>
                     {/each}
                 </tbody>
