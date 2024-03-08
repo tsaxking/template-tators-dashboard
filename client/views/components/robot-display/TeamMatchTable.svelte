@@ -128,7 +128,7 @@ $: {
                             <i
                                 class="material-icons"
                                 style="color: {rankColor[
-                                    m.scouting.flag.rank 
+                                    m.scouting.flag.rank
                                 ]?.toString('rgb')} !important;"
                             >
                                 flag
