@@ -12,10 +12,10 @@ type C = {
     comment: string;
     type: string;
     time: number;
-    account: string;
+    account?: string;
 };
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 export let comments: TeamComment[] = [];
 let parsed: C[] = [];
 let filteredComments: C[] = [];
@@ -33,14 +33,16 @@ const fns = {
                     type: c.type,
                     time: c.time,
                     account:
+                    c.accountId ?
                         (await Account.get(c.accountId))?.username ||
                         c.accountId
+                        : undefined
                 };
             })
         );
     },
     addComment: async () => {
-        if (!team) alert('No team selected');
+        if (!team) return alert('No team selected');
         const types = [
             'General',
             'Defensive',

@@ -4,12 +4,12 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { TeamComment } from '../../../models/FIRST/team-comments';
 import CommentViewer from './CommentViewer.svelte';
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 
 let comments: TeamComment[] = [];
 
 const fns = {
-    get: async (team: FIRSTTeam) => {
+    get: async (team?: FIRSTTeam) => {
         if (!team) return;
         comments = await team.getComments();
     }

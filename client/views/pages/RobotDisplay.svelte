@@ -17,15 +17,15 @@ import { MatchScouting } from '../../models/FIRST/match-scouting';
 import ChecksSummary from '../components/robot-display/ChecksSummary.svelte';
 import PracticeMatches from '../components/robot-display/PracticeMatches.svelte';
 
-let team: FIRSTTeam;
+let team: FIRSTTeam| undefined = undefined;
 
-FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
+FIRSTTeam.on('select', (t) => (team = t));
 
 let traces: TraceArray[] = [];
 
 const fns = {
-    getTeam: async (t: FIRSTTeam) => {
-        if (!t) return;
+    getTeam: async (t?: FIRSTTeam) => {
+        if (!t) return traces = [];
         const scouting = await t.getMatchScouting();
         if (scouting.isOk()) {
             traces = scouting.value.map(s => s.trace);
@@ -35,9 +35,8 @@ const fns = {
 
 $: fns.getTeam(team);
 
-FIRSTTeam.on('select', (t: FIRSTTeam) => (team = t));
-
 MatchScouting.on('new', m => {
+    if (!team) return traces = [];
     if (m.team === team.number) {
         fns.getTeam(team);
     }
@@ -59,7 +58,7 @@ MatchScouting.on('new', m => {
     </div>
     <hr />
     <div class="row">
-        <DashboardCard title="Summary" scroll="{true}" expandable="{true}">
+        <DashboardCard title="Summary" expandable="{true}">
             <TbaSummary {team} />
         </DashboardCard>
         <DashboardCard title="Comments" scroll="{true}" expandable="{true}">
