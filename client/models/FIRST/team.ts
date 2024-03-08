@@ -3,16 +3,16 @@ import {
     RetrievedMatchScouting,
     RetrievedScoutingAnswer,
     Team,
-    TeamPicture,
+    TeamPicture
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
 import {
     TBAEvent,
-    TBATeam,
+    TBATeam
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import {
     RetrieveStreamEventEmitter,
-    ServerRequest,
+    ServerRequest
 } from '../../utilities/requests';
 import { TBA } from '../../utilities/tba';
 import { socket } from '../../utilities/socket';
@@ -65,21 +65,21 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         FIRSTTeam.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: Updates[K]) => void,
+        callback?: (data: Updates[K]) => void
     ): void {
         FIRSTTeam.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
-        data: Updates[K],
+        data: Updates[K]
     ): void {
         FIRSTTeam.$emitter.emit(event, data);
     }
@@ -112,7 +112,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      */
     constructor(
         public readonly tba: TBATeam,
-        public readonly event: FIRSTEvent,
+        public readonly event: FIRSTEvent
     ) {
         super();
         if (!FIRSTTeam.$cache.has(tba.team_number + ':' + event.key)) {
@@ -154,7 +154,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             }
 
             const res = await TBA.get<TBAEvent[]>(
-                `/team/${this.tba.key}/events${simple ? '/simple' : ''}`,
+                `/team/${this.tba.key}/events${simple ? '/simple' : ''}`
             );
 
             if (res.isOk()) {
@@ -163,7 +163,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                         this.$emitter.emit('update-events', data);
                         this.$cache.set('events', data);
                     },
-                    1000 * 60 * 60 * 24,
+                    1000 * 60 * 60 * 24
                 ); // 24 hours
 
                 this.$cache.set('events', res.value.data);
@@ -191,8 +191,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                 '/api/teams/properties',
                 {
                     teamKey: this.tba.key,
-                    eventKey: this.event.tba.key,
-                },
+                    eventKey: this.event.tba.key
+                }
             );
 
             if (res.isOk()) {
@@ -214,8 +214,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                 '/api/teams/properties',
                 {
                     teamKey: this.tba.key,
-                    eventKey: this.event.tba.key,
-                },
+                    eventKey: this.event.tba.key
+                }
             );
 
             if (res.isOk()) {
@@ -243,7 +243,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             const res = await MatchScouting.fromTeam(
                 this.event.key,
-                this.number,
+                this.number
             );
 
             if (res.isErr()) throw res.error;
@@ -265,7 +265,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         const res = await TeamComment.fromTeam(this.number, this.event);
 
         if (res.isErr()) return [];
-        return res.value.filter((c) => !!c.comment);
+        return res.value.filter(c => !!c.comment);
     }
 
     /**
@@ -304,8 +304,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                     files,
                     {
                         teamNumber: this.number,
-                        eventKey: this.event.key,
-                    },
+                        eventKey: this.event.key
+                    }
                 );
 
                 stream.on('error', rej);
@@ -328,16 +328,16 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             const matches = res.value;
 
-            const map = matches.map((m) => Trace.velocity.map(m.trace)).flat();
+            const map = matches.map(m => Trace.velocity.map(m.trace)).flat();
 
             return {
                 map,
                 histogram: Trace.velocity.histogram(
-                    matches.map((m) => m.trace).flat(),
+                    matches.map(m => m.trace).flat()
                 ),
                 average: map.reduce((a, b) => a + b, 0) / map.length,
                 // 4 ticks per second, so divide by 4, then divide by the number of matches for the average
-                averageSecondsNotMoving: (map.filter((v) => v === 0).length / 4),
+                averageSecondsNotMoving: map.filter(v => v === 0).length / 4
             };
         });
     }
@@ -350,7 +350,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         return attemptAsync(async () => {
             const res = await MatchScouting.practiceFromTeam(
                 this.number,
-                this.event.key,
+                this.event.key
             );
 
             if (res.isErr()) throw res.error;
@@ -369,9 +369,9 @@ socket.on('match-scouting:new', (data: RetrievedMatchScouting) => {
     // if it's in cache, update by either replacing data or pushing then sorting
     if (team.$cache.has('match-scouting')) {
         const ms = team.$cache.get(
-            'match-scouting',
+            'match-scouting'
         ) as RetrievedMatchScouting[];
-        const match = ms.find((m) => m.id === data.id);
+        const match = ms.find(m => m.id === data.id);
         if (match) {
             // update
             ms.splice(ms.indexOf(match), 1, data);
@@ -402,9 +402,9 @@ socket.on('match-scouting:delete', (data: RetrievedMatchScouting) => {
     // if it's in cache, update by either replacing data or pushing then sorting
     if (team.$cache.has('match-scouting')) {
         const ms = team.$cache.get(
-            'match-scouting',
+            'match-scouting'
         ) as RetrievedMatchScouting[];
-        const match = ms.find((m) => m.id === data.id);
+        const match = ms.find(m => m.id === data.id);
         if (match) {
             // update
             ms.splice(ms.indexOf(match), 1);
@@ -460,7 +460,7 @@ socket.on('pit-scouting:new', (data: RetrievedScoutingAnswer) => {
 
     if (team.$cache.has('pit-scouting')) {
         const ps = team.$cache.get('pit-scouting') as RetrievedScoutingAnswer[];
-        const match = ps.find((m) => m.id === data.id);
+        const match = ps.find(m => m.id === data.id);
         if (match) {
             ps.splice(ps.indexOf(match), 1, data);
         } else {
@@ -480,7 +480,7 @@ socket.on('pit-scouting:delete', (data: RetrievedScoutingAnswer) => {
 
     if (team.$cache.has('pit-scouting')) {
         const ps = team.$cache.get('pit-scouting') as RetrievedScoutingAnswer[];
-        const match = ps.find((m) => m.id === data.id);
+        const match = ps.find(m => m.id === data.id);
         if (match) {
             ps.splice(ps.indexOf(match), 1);
         }
@@ -504,7 +504,7 @@ socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
         time: data.time,
         accountId: data.accountId,
         eventKey: data.eventKey,
-        teamNumber: data.teamNumber,
+        teamNumber: data.teamNumber
     });
 
     team.pictures = pictures;

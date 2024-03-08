@@ -67,7 +67,7 @@ export class Cache<data = unknown> {
      */
     public on<K extends keyof data>(
         event: K,
-        callback: (data: data[K]) => void,
+        callback: (data: data[K]) => void
     ): void {
         this.$emitter.on(event, callback);
     }
@@ -82,7 +82,7 @@ export class Cache<data = unknown> {
      */
     public off<K extends keyof data>(
         event: K,
-        callback?: (data: data[K]) => void,
+        callback?: (data: data[K]) => void
     ): void {
         this.$emitter.off(event, callback);
     }
@@ -111,7 +111,7 @@ export class Cache<data = unknown> {
      */
     public once<K extends keyof data>(
         event: K,
-        callback: (data: data[K]) => void,
+        callback: (data: data[K]) => void
     ): void {
         this.$emitter.once(event, callback);
     }

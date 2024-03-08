@@ -1,5 +1,5 @@
-import { Route } from '../../structure/app/app.ts';
-import { DB } from '../../utilities/databases.ts';
+import { Route } from '../../structure/app/app';
+import { DB } from '../../utilities/databases';
 
 export const router = new Route();
 
@@ -9,7 +9,7 @@ router.get('/link/:key', async (req, res) => {
     if (!key) return res.sendStatus('discord:invalid-link');
 
     const result = await DB.get('discord/get', {
-        key,
+        key
     });
 
     if (result.isOk()) {
@@ -20,7 +20,7 @@ router.get('/link/:key', async (req, res) => {
 
         if (now - then > 1000 * 60 * 60 * 24) {
             return res.sendStatus('discord:link-expired', {
-                key,
+                key
             });
         } else {
             const { accountId } = req.session;
@@ -28,15 +28,15 @@ router.get('/link/:key', async (req, res) => {
 
             DB.run('account/set-discord-id', {
                 discordId: pair.id,
-                id: accountId,
+                id: accountId
             });
 
             DB.run('discord/delete', {
-                key,
+                key
             });
 
             return res.sendStatus('discord:account-linked', {
-                key,
+                key
             });
         }
     } else {

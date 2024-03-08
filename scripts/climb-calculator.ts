@@ -1,16 +1,16 @@
-import { TBA } from '../server/utilities/tba/tba.ts';
+import { TBA } from '../server/utilities/tba/tba';
 import {
     TBAEvent,
-    YearTBAMatch,
-} from '../shared/submodules/tatorscout-calculations/tba.ts';
-import { attemptAsync } from '../shared/check.ts';
+    YearTBAMatch
+} from '../shared/submodules/tatorscout-calculations/tba';
+import { attemptAsync } from '../shared/check';
 
 // console.log(weekEvents.map((e) => e.length));
 
-// Deno.exit()
+// process.exit()
 
 const pullClimbs2022 = (
-    alliance: YearTBAMatch[2022]['score_breakdown']['red'],
+    alliance: YearTBAMatch[2022]['score_breakdown']['red']
 ) => {
     let climbs = 0;
     climbs += alliance.endgameRobot1 !== 'None' ? 1 : 0;
@@ -22,7 +22,7 @@ const pullClimbs2022 = (
 };
 
 const pullClimbs2016 = (
-    alliance: YearTBAMatch[2016]['score_breakdown']['red'],
+    alliance: YearTBAMatch[2016]['score_breakdown']['red']
 ) => {
     let climbs = 0;
 
@@ -35,7 +35,7 @@ const pullClimbs2016 = (
 };
 
 const pullClimbs2017 = (
-    alliance: YearTBAMatch[2017]['score_breakdown']['red'],
+    alliance: YearTBAMatch[2017]['score_breakdown']['red']
 ) => {
     let climbs = 0;
     climbs += alliance.touchpadFar === 'ReadyForTakeoff' ? 1 : 0;
@@ -48,7 +48,7 @@ const pullClimbs2017 = (
 };
 
 const pullClimbs2018 = (
-    alliance: YearTBAMatch[2018]['score_breakdown']['red'],
+    alliance: YearTBAMatch[2018]['score_breakdown']['red']
 ) => {
     let climbs = 0;
 
@@ -64,13 +64,13 @@ const pullClimbs2018 = (
 const weekCount = async <y extends keyof YearTBAMatch>(
     events: TBAEvent[],
     week: number,
-    year: y,
+    year: y
 ) => {
     const climbData = (
         await Promise.all(
-            events.map(async (e) => {
+            events.map(async e => {
                 const matches = await TBA.get<YearTBAMatch[y][]>(
-                    '/event/' + e.key + '/matches',
+                    '/event/' + e.key + '/matches'
                 );
 
                 if (matches.isErr() || !matches.value) {
@@ -79,7 +79,7 @@ const weekCount = async <y extends keyof YearTBAMatch>(
                 }
 
                 const numClimbs = matches.value
-                    .map((m) => {
+                    .map(m => {
                         if (!m.score_breakdown) return null;
 
                         switch (year) {
@@ -87,61 +87,45 @@ const weekCount = async <y extends keyof YearTBAMatch>(
                                 return [
                                     pullClimbs2022(
                                         m.score_breakdown
-                                            .red as YearTBAMatch[2022][
-                                                'score_breakdown'
-                                            ]['red'],
+                                            .red as YearTBAMatch[2022]['score_breakdown']['red']
                                     ),
                                     pullClimbs2022(
                                         m.score_breakdown
-                                            .blue as YearTBAMatch[2022][
-                                                'score_breakdown'
-                                            ]['blue'],
-                                    ),
+                                            .blue as YearTBAMatch[2022]['score_breakdown']['blue']
+                                    )
                                 ];
                             case 2016:
                                 return [
                                     pullClimbs2016(
                                         m.score_breakdown
-                                            .red as YearTBAMatch[2016][
-                                                'score_breakdown'
-                                            ]['red'],
+                                            .red as YearTBAMatch[2016]['score_breakdown']['red']
                                     ),
                                     pullClimbs2016(
                                         m.score_breakdown
-                                            .blue as YearTBAMatch[2016][
-                                                'score_breakdown'
-                                            ]['blue'],
-                                    ),
+                                            .blue as YearTBAMatch[2016]['score_breakdown']['blue']
+                                    )
                                 ];
                             case 2017:
                                 return [
                                     pullClimbs2017(
                                         m.score_breakdown
-                                            .red as YearTBAMatch[2017][
-                                                'score_breakdown'
-                                            ]['red'],
+                                            .red as YearTBAMatch[2017]['score_breakdown']['red']
                                     ),
                                     pullClimbs2017(
                                         m.score_breakdown
-                                            .blue as YearTBAMatch[2017][
-                                                'score_breakdown'
-                                            ]['blue'],
-                                    ),
+                                            .blue as YearTBAMatch[2017]['score_breakdown']['blue']
+                                    )
                                 ];
                             case 2018:
                                 return [
                                     pullClimbs2018(
                                         m.score_breakdown
-                                            .red as YearTBAMatch[2018][
-                                                'score_breakdown'
-                                            ]['red'],
+                                            .red as YearTBAMatch[2018]['score_breakdown']['red']
                                     ),
                                     pullClimbs2018(
                                         m.score_breakdown
-                                            .blue as YearTBAMatch[2018][
-                                                'score_breakdown'
-                                            ]['blue'],
-                                    ),
+                                            .blue as YearTBAMatch[2018]['score_breakdown']['blue']
+                                    )
                                 ];
                             default:
                                 return null;
@@ -150,7 +134,7 @@ const weekCount = async <y extends keyof YearTBAMatch>(
                     .filter(Boolean);
 
                 return numClimbs;
-            }),
+            })
         )
     ).filter(Boolean) as number[][][];
 
@@ -180,11 +164,9 @@ const weekCount = async <y extends keyof YearTBAMatch>(
     }, 0);
 
     console.log(
-        `${year} | Week ${week}: ${
-            Math.round(
-                (100 * numClimbed) / totalMatches,
-            )
-        }%`,
+        `${year} | Week ${week}: ${Math.round(
+            (100 * numClimbed) / totalMatches
+        )}%`
     );
 };
 
@@ -207,7 +189,7 @@ const test = async <y extends keyof YearTBAMatch>(year: y) => {
             ((date.getTime() - onejan.getTime()) / 86400000 +
                 onejan.getDay() +
                 1) /
-                7,
+                7
         );
     };
 
@@ -227,13 +209,15 @@ const test = async <y extends keyof YearTBAMatch>(year: y) => {
     }
 };
 
-await attemptAsync(() => test(2016));
-console.log('---');
-await attemptAsync(() => test(2017));
-console.log('---');
-await attemptAsync(() => test(2018));
-console.log('---');
-await attemptAsync(() => test(2022));
+(async () => {
+    await attemptAsync(() => test(2016));
+    console.log('---');
+    await attemptAsync(() => test(2017));
+    console.log('---');
+    await attemptAsync(() => test(2018));
+    console.log('---');
+    await attemptAsync(() => test(2022));
+})();
 
 // console.log(climbData);
 

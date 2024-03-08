@@ -29,14 +29,14 @@ export class Modal {
 
     public on<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.on(event, listener);
     }
 
     public off<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.off(event, listener);
     }
@@ -207,7 +207,7 @@ const container = (() => {
         'top-0',
         'end-0',
         'w-100',
-        'h-100',
+        'h-100'
     );
     parent.appendChild(child);
 
@@ -241,14 +241,14 @@ export class Toast {
 
     public on<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.on(event, listener);
     }
 
     public off<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.off(event, listener);
     }
@@ -265,6 +265,8 @@ export class Toast {
         this.on('show', () => {
             $(this.target).toast('show');
         });
+
+        this.target.classList.add('notification');
 
         container.appendChild(this.target);
         this.$title = title;
@@ -333,7 +335,10 @@ export class Toast {
     }
 
     private render() {
-        this.target.classList.add('toast', 'position-absolute');
+        this.target.classList.add(
+            'toast'
+            // 'position-absolute'
+        );
         this.target.setAttribute('role', 'alert');
         this.target.setAttribute('aria-live', 'assertive');
         this.target.setAttribute('aria-atomic', 'true');
@@ -343,7 +348,7 @@ export class Toast {
             'toast-header',
             'bg-dark',
             'border-0',
-            `text-${this.color}`,
+            `text-${this.color}`
         );
 
         const strong = document.createElement('strong');
@@ -383,7 +388,7 @@ export class Toast {
         body.classList.add(
             'toast-body',
             `bg-${this.$color}`,
-            `text-${this.textColor}`,
+            `text-${this.textColor}`
         );
         body.textContent = this.$body;
 
@@ -418,14 +423,14 @@ export class Alert {
 
     public on<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.on(event, listener);
     }
 
     public off<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.off(event, listener);
     }
@@ -442,6 +447,7 @@ export class Alert {
         this.on('show', () => {
             $(this.target).alert();
         });
+        this.target.classList.add('notification');
         container.appendChild(this.target);
         this.title = title;
         this.color = color;
@@ -454,10 +460,10 @@ export class Alert {
             'alert',
             `alert-${this.color}`,
             'alert-dismissible',
-            'position-absolute',
+            // 'position-absolute',
             'animate__animated',
             'animate__fadeInDown',
-            'animate__faster',
+            'animate__faster'
         );
         this.target.style.top = '10px';
         this.target.style.left = '10px';
@@ -478,7 +484,7 @@ export class Alert {
             this.target.classList.remove(
                 'animate__fadeInDown',
                 'animate__faster',
-                'animate__animated',
+                'animate__animated'
             );
         };
 

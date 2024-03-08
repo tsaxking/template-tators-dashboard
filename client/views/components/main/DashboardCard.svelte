@@ -2,6 +2,8 @@
 export let title: string;
 export let subtitle: string = '';
 export let scroll: boolean = false;
+
+// let button: HTMLButtonElement;
 export let expandable: boolean = false;
 
 let expanded = false;
@@ -27,7 +29,7 @@ let expanded = false;
                 {/if}
             </div>
         </div>
-        <div class="card-body {scroll ? 'scroll-y' : ''}">
+        <div class="card-body {scroll ? 'scroll-y' : ''} no-scroll-x">
             <slot />
         </div>
     </div>
@@ -49,8 +51,8 @@ let expanded = false;
     z-index: 2000;
     top: 50%;
     left: 50%;
-    width: 80vw !important;
-    height: 80vh !important;
+    width: 100vw !important;
+    height: 100vh !important;
     transform: translate(-50%, -50%);
     /* animate */
 }

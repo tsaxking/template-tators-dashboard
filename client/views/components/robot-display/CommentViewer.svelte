@@ -12,10 +12,10 @@ type C = {
     comment: string;
     type: string;
     time: number;
-    account: string;
+    account?: string;
 };
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 export let comments: TeamComment[] = [];
 let parsed: C[] = [];
 let filteredComments: C[] = [];
@@ -32,13 +32,16 @@ const fns = {
                     comment: c.comment,
                     type: c.type,
                     time: c.time,
-                    account: (await Account.get(c.accountId))?.username || c.accountId,
+                    account: c.accountId
+                        ? (await Account.get(c.accountId))?.username ||
+                          c.accountId
+                        : undefined
                 };
             })
         );
     },
     addComment: async () => {
-        if (!team) alert('No team selected');
+        if (!team) return alert('No team selected');
         const types = [
             'General',
             'Defensive',
@@ -62,20 +65,15 @@ const fns = {
         const s = search.toLowerCase();
         const filtered = fuzzySearch(
             s,
-            comments.map(
-                c =>
-                    c.comment +
-                    ' ' +
-                    c.type +
-                    ' ' +
-                    c.account
-            )
+            comments.map(c => c.comment + ' ' + c.type + ' ' + c.account)
         );
-        return comments.filter((_, i) => filtered.includes(i)).sort((a, b) => {
-            // sort by time
-            // most recent comments first
-            return a.time - b.time;
-        });
+        return comments
+            .filter((_, i) => filtered.includes(i))
+            .sort((a, b) => {
+                // sort by time
+                // most recent comments first
+                return a.time - b.time;
+            });
     },
     onSet(comments: C[]) {
         jQuery(() => {
@@ -109,10 +107,7 @@ $: fns.parse(comments);
     <tbody>
         {#each filteredComments as comment}
             <tr>
-                <td
-                    class="cursor-help"
-                    >{comment.account || 'Unknown'}</td
-                >
+                <td class="cursor-help">{comment.account || 'Unknown'}</td>
                 <td>{comment.type}</td>
                 <td>{comment.comment}</td>
                 <td>{dateTime(comment.time)}</td>

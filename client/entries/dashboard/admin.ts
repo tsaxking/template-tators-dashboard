@@ -6,5 +6,5 @@ import { FIRSTYear } from '../../models/FIRST/year';
 FIRSTYear.select(new Date().getFullYear());
 
 new Dashboard({
-    target: document.body,
+    target: document.body
 });

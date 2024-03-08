@@ -58,7 +58,7 @@ $: fns.updateVelocityMap(traces);
         indexAxis: 'x',
         scales: {
             y: {
-                beginAtZero: true,
+                beginAtZero: true
                 // max: 20
             }
         }

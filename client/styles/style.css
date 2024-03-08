@@ -9,7 +9,7 @@ body {
 
 #sidebar-nav {
     position: fixed;
-    top: var(--topNavbarHeight);
+    /* top: var(--topNavbarHeight); */
     width: var(--offCanvas-width) !important;
     z-index: 1500;
 }
@@ -38,15 +38,16 @@ body {
         display: none !important;
     }
     main.dashboard {
-        margin-left: var(--offCanvas-width) !important;
-        width: calc(100vw - var(--offCanvas-width) - 24px) !important;
+        /* margin-left: var(--offCanvas-width) !important; */
+        /* width: calc(100vw - var(--offCanvas-width) - 24px) !important; */
+        width: calc(100vw - 24px) !important;
     }
-    .sidebar-nav {
+    /* .sidebar-nav {
         transform: none !important;
         visibility: visible !important;
         top: var(--topNavbarHeight) !important;
         height: calc(100% - var(--topNavbarHeight)) !important;
-    }
+    } */
     #navbarSupportedContent {
         padding-top: 0 !important;
     }
@@ -98,18 +99,18 @@ main {
 
 body::-webkit-scrollbar {
     width: 1em;
-  }
-   
-  body::-webkit-scrollbar-track {
+}
+
+body::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px var(--bs-dark);
-  }
-   
-  body::-webkit-scrollbar-thumb {
+}
+
+body::-webkit-scrollbar-thumb {
     background-color: rgba(169, 169, 169, 0.5);
     /* outline: 1px solid slategrey; */
-  }
+}
 
-  body::-webkit-scrollbar-thumb:hover {
+body::-webkit-scrollbar-thumb:hover {
     background-color: rgb(169, 169, 169, 0.75);
     /* outline: 1px solid slategrey; */
-  }
+}

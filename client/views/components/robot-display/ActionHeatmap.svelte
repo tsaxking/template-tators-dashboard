@@ -11,7 +11,7 @@ import {
     type TraceArray,
     actions
 } from '../../../../shared/submodules/tatorscout-calculations/trace';
-import { BootstrapColor, Color } from '../../../submodules/colors/color';
+import { type BootstrapColor, Color } from '../../../submodules/colors/color';
 import { capitalize } from '../../../../shared/text';
 
 const colors: BootstrapColor[] = [
@@ -23,7 +23,7 @@ const colors: BootstrapColor[] = [
     'primary'
 ];
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 
 let checks: {
     key: string;
@@ -46,7 +46,7 @@ const img = new Img('/public/pictures/2024field.png', {
 });
 
 const fns = {
-    generate: async (team: FIRSTTeam) => {
+    generate: async (team?: FIRSTTeam) => {
         if (!team) return;
 
         checks = [];
@@ -55,7 +55,7 @@ const fns = {
             // .keys(actions[2024]) // for development
             .map((k, i) => ({
                 key: k,
-                action: actions[k],
+                action: actions[k as keyof typeof actions],
                 enabled: true,
                 color: colors[i % colors.length] // loop through the colors
             }));
@@ -110,7 +110,7 @@ const fns = {
                 const found = allChecks.find(c => c.key === action);
                 checks = [...checks, found].filter(
                     (c, i, a) => a.indexOf(c) === i
-                );
+                ) as typeof checks;
                 c.properties.fill.color = Color.fromBootstrap(
                     found?.color || 'dark'
                 ).toString('rgb');

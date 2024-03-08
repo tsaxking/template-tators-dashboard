@@ -1,20 +1,19 @@
 import {
     Match as MatchObj,
     RetrievedMatchScouting,
-    Whiteboard as WhiteboardObj,
+    Whiteboard as WhiteboardObj
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { TBAMatch } from '../../../shared/submodules/tatorscout-calculations/tba';
 import {
     RetrieveStreamEventEmitter,
-    ServerRequest,
+    ServerRequest
 } from '../../utilities/requests';
 import { FIRSTEvent } from './event';
 import { FIRSTTeam } from './team';
 import { Strategy } from './strategy';
 import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/check';
-import { MatchScouting } from './match-scouting';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -45,14 +44,14 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: any) => void
     ): void {
         FIRSTMatch.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: any) => void,
+        callback?: (data: any) => void
     ): void {
         FIRSTMatch.$emitter.off(event, callback);
     }
@@ -63,7 +62,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
     public static once<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: any) => void
     ): void {
         FIRSTMatch.$emitter.once(event, callback);
     }
@@ -106,16 +105,17 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      */
     constructor(
         public readonly tba: TBAMatch,
-        public readonly event: FIRSTEvent,
+        public readonly event: FIRSTEvent
     ) {
         super();
-        this.teams.forEach((t) => {
+        this.teams.forEach(t => {
             t.on('match-scouting', async () => {
                 const scouting = await this.getMatchScouting();
-                this.$emitter.emit(
-                    'match-scouting',
-                    scouting[t.tba.team_number],
-                );
+                if (scouting.isOk() && scouting.value[t.number])
+                    this.$emitter.emit(
+                        'match-scouting',
+                        scouting.value[t.number]
+                    );
             });
         });
     }
@@ -154,7 +154,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
             const em = new RetrieveStreamEventEmitter<Strategy>();
 
-            res.forEach((s) => em.emit('chunk', s));
+            res.forEach(s => em.emit('chunk', s));
 
             return em;
         }
@@ -162,10 +162,10 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         const em = Strategy.from('match', {
             eventKey: this.event.tba.key,
             matchNumber: this.tba.match_number,
-            compLevel: this.tba.comp_level,
+            compLevel: this.tba.comp_level
         });
 
-        em.on('complete', (data) => {
+        em.on('complete', data => {
             this.$cache.set('strategy', data);
         });
 
@@ -182,11 +182,11 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
                 {
                     eventKey: this.event.tba.key,
                     matchNumber: this.tba.match_number,
-                    compLevel: this.tba.comp_level,
+                    compLevel: this.tba.comp_level
                 },
                 {
-                    cached: true,
-                },
+                    cached: true
+                }
             );
 
             if (res.isOk()) {
@@ -226,11 +226,11 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             {
                 eventKey: this.event.tba.key,
                 matchNumber: this.tba.match_number,
-                compLevel: this.tba.comp_level,
+                compLevel: this.tba.comp_level
             },
             {
-                cached: true,
-            },
+                cached: true
+            }
         );
     }
 
@@ -245,16 +245,16 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         const [red1, red2, red3] = this.tba.alliances.red.team_keys;
         const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
 
-        let teams = [red1, red2, red3, blue1, blue2, blue3].map((t) =>
+        let teams = [red1, red2, red3, blue1, blue2, blue3].map(t =>
             FIRSTTeam.$cache.get(
-                +t.replace('frc', '') + ':' + this.event.tba.key,
+                +t.replace('frc', '') + ':' + this.event.tba.key
             )
         );
 
-        if (teams.some((t) => !t)) {
+        if (teams.some(t => !t)) {
             console.error('Teams not found', teams);
 
-            teams = teams.filter((t) => t);
+            teams = teams.filter(t => t);
         }
 
         return teams as [
@@ -263,7 +263,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             FIRSTTeam,
             FIRSTTeam,
             FIRSTTeam,
-            FIRSTTeam,
+            FIRSTTeam
         ];
     }
 

@@ -2,16 +2,16 @@ import {
     Action,
     Action2024,
     P,
-    Trace as T,
+    Trace as T
 } from '../../shared/submodules/tatorscout-calculations/trace';
 import { Color } from '../submodules/colors/color';
 import { Circle } from './canvas/circle';
 import { Spline } from '../../shared/submodules/calculations/src/linear-algebra/spline';
 import {
     Point,
-    Point2D,
+    Point2D
 } from '../../shared/submodules/calculations/src/linear-algebra/point';
-import { Drawable } from './canvas/canvas';
+import { Drawable } from './canvas/drawable';
 import { Path } from './canvas/path';
 
 type TraceProperties<action = Action> = {
@@ -20,7 +20,7 @@ type TraceProperties<action = Action> = {
     slider: boolean;
 };
 
-export class Trace<action = Action> implements Drawable<Trace> {
+export class Trace<action = Action> extends Drawable<Trace<Action>> {
     public $actions: Circle[] = [];
     public readonly $path: Path;
     public $points: P[];
@@ -30,9 +30,11 @@ export class Trace<action = Action> implements Drawable<Trace> {
 
     constructor(
         points: P[],
-        public readonly options: Partial<TraceProperties<action>>,
+        public readonly options: Partial<TraceProperties<action>>
     ) {
-        this.points = points;
+        super();
+        this.$points = points;
+        this.$path = new Path(points.map(p => [p[1], p[2]]) as Point2D[]);
     }
 
     public get points() {
@@ -41,15 +43,13 @@ export class Trace<action = Action> implements Drawable<Trace> {
 
     public set points(points: P[]) {
         this.$points = points;
-        this.$path.points = points.map((p) => [p[1], p[2]]) as Point2D[];
+        this.$path.points = points.map(p => [p[1], p[2]]) as Point2D[];
 
         if (this.options.actions) {
             for (const a of this.options.actions) {
                 const points = this.$points.filter(T.filterAction<action>(a));
 
-                this.$actions = points.map((p) =>
-                    new Circle([p[1], p[2]], 0.05)
-                );
+                this.$actions = points.map(p => new Circle([p[1], p[2]], 0.05));
             }
         }
     }
@@ -87,16 +87,16 @@ export class Heatmap {
                 Color.fromName('green'),
                 Color.fromName('red'),
                 Color.fromName('purple'),
-                Color.fromName('white'),
-            ].map((c) => {
+                Color.fromName('white')
+            ].map(c => {
                 return new Point(
-                    ...(c.rgb.values.slice(0, 3).map((v) => v / 255) as [
+                    ...(c.rgb.values.slice(0, 3).map(v => v / 255) as [
                         number,
                         number,
-                        number,
-                    ]),
+                        number
+                    ])
                 );
-            }),
+            })
         );
     }
 
@@ -120,7 +120,7 @@ export class Heatmap {
                 // add 1/distance to the heatmap point
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 this.map[Math.floor(x + dx)][Math.floor(y + dy)] += Math.floor(
-                    (1 / distance) * 5,
+                    (1 / distance) * 5
                 ); // normalize to 0-5
             }
         });
@@ -130,14 +130,14 @@ export class Heatmap {
         ctx: CanvasRenderingContext2D,
         width: number,
         height: number,
-        fieldImage: string,
+        fieldImage: string
     ) {
         ctx.canvas.height = height;
         ctx.canvas.width = width;
 
         const drawHeatmap = () => {
-            const max = Math.max(...this.map.map((row) => Math.max(...row)));
-            const min = Math.min(...this.map.map((row) => Math.min(...row)));
+            const max = Math.max(...this.map.map(row => Math.max(...row)));
+            const min = Math.min(...this.map.map(row => Math.min(...row)));
 
             const scale = 1 / (max - min);
 
@@ -148,19 +148,19 @@ export class Heatmap {
                     ctx.fillStyle = new Color(
                         ...(Heatmap.spline
                             .ft(p * scale)
-                            .array.map((v) => v * 255) as [
-                                number,
-                                number,
-                                number,
-                            ]),
-                        1,
+                            .array.map(v => v * 255) as [
+                            number,
+                            number,
+                            number
+                        ]),
+                        1
                     ).toString('rgba');
 
                     ctx.fillRect(
                         +x * (width / this.map.length),
                         +y * (height / this.map[0].length),
                         width / this.map.length,
-                        height / this.map[0].length,
+                        height / this.map[0].length
                     );
                 }
             }
@@ -177,5 +177,5 @@ export class Heatmap {
 
 const t = new Trace<Action2024>([], {
     actions: ['amp', 'spk'],
-    drawTrace: true,
+    drawTrace: true
 });

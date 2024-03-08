@@ -1,5 +1,5 @@
-import Filter from 'npm:bad-words';
-import { ServerFunction } from '../structure/app/app.ts';
+import Filter from 'bad-words';
+import { ServerFunction } from '../structure/app/app';
 
 /**
  * Returns a middleware function that checks if the body keys contain profanity
@@ -9,7 +9,8 @@ export const detect = (...keys: string[]): ServerFunction => {
     const filter = new Filter();
     return (req, res, next) => {
         for (const key of keys) {
-            if (filter.isProfane(req.body ? req.body[key] : '')) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (filter.isProfane(req.body ? (req.body as any)[key] : '')) {
                 return res.sendStatus('profanity:detected');
             }
         }

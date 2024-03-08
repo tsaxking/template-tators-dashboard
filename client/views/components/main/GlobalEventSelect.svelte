@@ -49,6 +49,18 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
         values = events.map(e => e.key);
         value = options[0];
 
+        const query = new URLSearchParams(window.location.search);
+        const evt = query.get('event');
+        if (evt) {
+            const event = FIRSTEvent.cache.get(evt);
+            if (event) {
+                return event.select();
+            } else {
+                const e = res.value.find(e => e.key === evt);
+                if (e) return new FIRSTEvent(e).select();
+            }
+        }
+
         new FIRSTEvent(events[0]).select();
     }
 });
@@ -58,8 +70,8 @@ FIRSTEvent.on('select', (event: FIRSTEvent) => {
 });
 
 const handleChange = async (e: any) => {
-    const res = await FIRSTYear.current.getEvents();
-    if (res.isOk()) {
+    const res = await FIRSTYear.current?.getEvents();
+    if (res && res.isOk()) {
         const events = res.value;
         const event = events.find(evt => evt.key === e.detail);
         if (event) new FIRSTEvent(event).select();

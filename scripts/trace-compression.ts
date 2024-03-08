@@ -1,5 +1,5 @@
-import { Trace } from '../shared/submodules/tatorscout-calculations/trace.ts';
-import { generateTrace } from '../shared/dummy-data.ts';
+import { Trace } from '../shared/submodules/tatorscout-calculations/trace';
+import { generateTrace } from '../shared/dummy-data';
 
 const trace = generateTrace();
 

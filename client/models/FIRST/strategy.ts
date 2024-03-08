@@ -1,7 +1,7 @@
 import {
     CompLevel,
     Strategy as StrategyObj,
-    Whiteboard as WhiteboardObj,
+    Whiteboard as WhiteboardObj
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { RetrieveStreamEventEmitter } from '../../utilities/requests';
@@ -38,13 +38,13 @@ type FromType = {
 
     'custom-match':
         | {
-            eventKey: string;
-            matchNumber: number;
-            compLevel: CompLevel;
-        }
+              eventKey: string;
+              matchNumber: number;
+              compLevel: CompLevel;
+          }
         | {
-            id: string;
-        };
+              id: string;
+          };
 
     whiteboard: {
         id: string;
@@ -66,14 +66,14 @@ export class Strategy extends Cache<StrategyUpdateData> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: any) => void,
+        callback: (data: any) => void
     ): void {
         Strategy.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: any) => void,
+        callback?: (data: any) => void
     ): void {
         Strategy.$emitter.off(event, callback);
     }
@@ -110,12 +110,12 @@ export class Strategy extends Cache<StrategyUpdateData> {
      */
     static from<K extends keyof FromType>(
         type: K,
-        body: FromType[K],
+        body: FromType[K]
     ): RetrieveStreamEventEmitter<Strategy> {
         return ServerRequest.retrieveStream<Strategy>(
             `/api/${type}/strategy`,
             body,
-            (s) => new Strategy(JSON.parse(s) as StrategyObj),
+            s => new Strategy(JSON.parse(s) as StrategyObj)
         );
     }
 
@@ -142,14 +142,14 @@ export class Strategy extends Cache<StrategyUpdateData> {
      * @returns {RetrieveStreamEventEmitter<WhiteboardCache>}
      */
     public getWhiteboards(
-        ctx: CanvasRenderingContext2D,
+        ctx: CanvasRenderingContext2D
     ): RetrieveStreamEventEmitter<WhiteboardCache> {
         if (this.$cache.has('strategy')) {
             const res = this.$cache.get('strategy') as WhiteboardCache[];
 
             const em = new RetrieveStreamEventEmitter<WhiteboardCache>();
 
-            res.forEach((s) => em.emit('chunk', s));
+            res.forEach(s => em.emit('chunk', s));
 
             return em;
         }
@@ -157,12 +157,12 @@ export class Strategy extends Cache<StrategyUpdateData> {
         const em = ServerRequest.retrieveStream<WhiteboardCache>(
             '/api/strategy/whiteboards',
             {
-                whiteboardId: this.data.whiteboardId,
+                whiteboardId: this.data.whiteboardId
             },
-            (s) => new WhiteboardCache(JSON.parse(s) as WhiteboardObj, ctx),
+            s => new WhiteboardCache(JSON.parse(s) as WhiteboardObj, ctx)
         );
 
-        em.on('complete', (data) => {
+        em.on('complete', data => {
             this.$cache.set('strategy', data);
         });
 
