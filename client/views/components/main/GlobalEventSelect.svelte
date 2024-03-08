@@ -57,10 +57,9 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
                 return event.select();
             } else {
                 const e = res.value.find(e => e.key === evt);
-                if (e) return new FIRSTEvent(e).select()
+                if (e) return new FIRSTEvent(e).select();
             }
         }
-
 
         new FIRSTEvent(events[0]).select();
     }
