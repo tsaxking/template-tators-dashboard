@@ -16,9 +16,7 @@ let changed = true,
     disabled = false,
     me: HTMLDivElement;
 
-    // TODO: Restructure all of these functions to make more sense
-
-
+// TODO: Restructure all of these functions to make more sense
 
 const fns = {
     // submits the answer to the server
@@ -48,7 +46,7 @@ const fns = {
     // sets the disabled variable to true if the team is undefined
     setDisable: (team: FIRSTTeam | undefined) => {
         disabled = !team;
-    },
+    }
 };
 
 FIRSTTeam.on('select', t => {

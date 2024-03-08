@@ -95,24 +95,22 @@ router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
 
     res.json(
         matches.value.map(m => {
-            const data: Partial<
-                {
-                    id: string;
-                    matchId: string | undefined;
-                    team: number;
-                    scoutId: string | undefined;
-                    scoutGroup: number;
-                    checks: string;
-                    preScouting: string | undefined;
-                    time: number;
-                    prescouting: string | undefined;
-                    eventKey: string;
-                    matchNumber: number;
-                    compLevel: string;
-                    trace: TraceArray; 
-                    date: string;
-                 }
-            > = {
+            const data: Partial<{
+                id: string;
+                matchId: string | undefined;
+                team: number;
+                scoutId: string | undefined;
+                scoutGroup: number;
+                checks: string;
+                preScouting: string | undefined;
+                time: number;
+                prescouting: string | undefined;
+                eventKey: string;
+                matchNumber: number;
+                compLevel: string;
+                trace: TraceArray;
+                date: string;
+            }> = {
                 ...m,
                 trace: JSON.parse(m.trace) as TraceArray,
                 date: dateTime(new Date(m.time || Date.now())),

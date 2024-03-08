@@ -86,7 +86,6 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
                     ext,
                     size: data?.length || 0
                 });
-
             });
 
             if (
