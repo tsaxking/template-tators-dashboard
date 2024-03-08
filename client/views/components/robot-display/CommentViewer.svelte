@@ -32,10 +32,9 @@ const fns = {
                     comment: c.comment,
                     type: c.type,
                     time: c.time,
-                    account:
-                    c.accountId ?
-                        (await Account.get(c.accountId))?.username ||
-                        c.accountId
+                    account: c.accountId
+                        ? (await Account.get(c.accountId))?.username ||
+                          c.accountId
                         : undefined
                 };
             })
