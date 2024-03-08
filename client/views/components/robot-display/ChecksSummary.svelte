@@ -2,7 +2,7 @@
 import { checkRanks, rankColor } from '../../../models/FIRST/match-scouting';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 let checks: {
     [key: string]: {
         color: string;
@@ -11,7 +11,7 @@ let checks: {
 } = {};
 
 const fns = {
-    get: async (team: FIRSTTeam) => {
+    get: async (team?: FIRSTTeam) => {
         checks = {};
         if (!team) return;
         const scouting = await team.getMatchScouting();

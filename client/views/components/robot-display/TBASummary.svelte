@@ -5,21 +5,19 @@ import { TBA } from '../../../utilities/tba';
 import type { TBATeamEventStatus } from '../../../../shared/submodules/tatorscout-calculations/tba';
 import { Doughnut } from 'svelte-chartjs';
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 
 let rank: number;
 let record: [number, number, number] = [0, 0, 0]; // wins, losses, ties
 let played: number;
-let rp: number;
-let potentialRP: number;
 let velocity: number = 0;
 let secondsNotMoving: number = 0;
 
 const fns = {
-    getData: async (t: FIRSTTeam) => {
+    getData: async (t?: FIRSTTeam) => {
         if (!t) return;
 
-        const matches = await FIRSTEvent.current.getMatches();
+        const matches = await t.event.getMatches();
         if (matches.isErr()) return console.error(matches.error);
 
         const teamMatches = matches.value.filter(m => m.teams.includes(t));
@@ -28,7 +26,7 @@ const fns = {
         played = playedMatches.length;
 
         const stats = await TBA.get<TBATeamEventStatus>(
-            `/team/${t.tba.key}/event/${FIRSTEvent.current.key}/status`
+            `/team/${t.tba.key}/event/${t.event.key}/status`
         );
 
         if (stats.isErr()) return console.error(stats.error);
@@ -39,10 +37,6 @@ const fns = {
             stats.value.data.qual.ranking.record.losses,
             stats.value.data.qual.ranking.record.ties
         ];
-        const [avgRP] = stats.value.data.qual.ranking.sort_orders;
-        rp = avgRP * played;
-        potentialRP = playedMatches.reduce(acc => (acc += 4), 0) - rp; // 4 RP per played match - earned RP
-
         const dataRes = await t.getVelocityData();
         if (dataRes.isErr()) return console.error(dataRes.error);
 
@@ -60,31 +54,6 @@ $: {
 {#if team}
     <div class="container-fluid">
         <div class="row">
-            <div class="col">
-                <h5>Rank Points:</h5>
-                <div>
-                    <Doughnut
-                        data="{{
-                            labels: ['Earned', 'Potential'],
-                            datasets: [
-                                {
-                                    label: 'RP',
-                                    data: [rp, potentialRP - rp],
-                                    backgroundColor: [
-                                        'rgb(255, 99, 132)',
-                                        'rgb(54, 162, 235)'
-                                    ],
-                                    hoverOffset: 4
-                                }
-                            ]
-                        }}"
-                        options="{{
-                            responsive: true,
-                            maintainAspectRatio: false
-                        }}"
-                    />
-                </div>
-            </div>
             <div class="col">
                 <table class="table">
                     <tbody>

@@ -30,7 +30,9 @@ export const checkRanks: {
     groundPicks: 0
 };
 
-export const rankColor = {
+export const rankColor: {
+    [key: number]: Color;
+} = {
     0: Color.fromBootstrap('success'),
     1: Color.fromBootstrap('warning'),
     2: Color.fromBootstrap('danger')

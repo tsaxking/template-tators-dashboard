@@ -8,12 +8,14 @@ export let groups: PageGroup[] = [];
 const dispatch = createEventDispatcher();
 
 export let active: string;
+
+const openPage = (page: string) => {
+    jQuery('#sidebar-nav').offcanvas('hide');
+    dispatch('openPage', page);
+};
 </script>
 
-<div
-    class="offcanvas offcanvas-start"
-    id="sidebar-nav"
->
+<div class="offcanvas offcanvas-start" id="sidebar-nav">
     <div class="offcanvas-body p-0">
         <nav class="navbar-dark">
             <ul class="navbar-nav">
@@ -33,7 +35,7 @@ export let active: string;
                                     : '') + ' nav-link ms-5'}"
                                 href="/{page.name}"
                                 on:click|preventDefault="{() =>
-                                    dispatch('openPage', page.name)}"
+                                    openPage(page.name)}"
                             >
                                 <i class="material-icons">{page.icon}</i>
                                 <span class="ms-2"
