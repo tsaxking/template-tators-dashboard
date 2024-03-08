@@ -63,14 +63,14 @@ export const addPermissions = async () => {
         const perms = await role.getPermissions();
 
         if (perm === '$$New$$') {
-            perm = await repeatPrompt(
+            perm = (await repeatPrompt(
                 'Enter the permission name',
                 undefined,
                 data =>
                     !perms.some(p => p.permission === data) &&
                     !allPerms.some(p => p.permission === data),
                 false
-            ) as unknown as Permission;
+            )) as unknown as Permission;
             const description = await repeatPrompt(
                 'Enter the permission description'
             );
