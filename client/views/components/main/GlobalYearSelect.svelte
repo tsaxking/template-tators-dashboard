@@ -5,14 +5,6 @@ import Select from '../bootstrap/Select.svelte';
 
 export let allYears: string[] = years.map(y => y.year.toString());
 
-FIRSTYear.on('create', year => {
-    allYears = [...allYears, year];
-});
-
-FIRSTYear.on('delete', (year: FIRSTYear) => {
-    allYears = allYears.filter(y => y !== year.year.toString());
-});
-
 let value = '';
 
 FIRSTYear.on('select', (year: FIRSTYear) => {
