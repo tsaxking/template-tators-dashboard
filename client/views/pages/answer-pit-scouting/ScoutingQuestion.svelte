@@ -16,121 +16,47 @@ let changed = true,
     disabled = false,
     me: HTMLDivElement;
 
-$: {
-    fns.setDisable(team, disabled);
-    fns.getValue(team, question);
-}
+    // TODO: Restructure all of these functions to make more sense
+
+
 
 const fns = {
-    getValue: async (team: FIRSTTeam | undefined, q: Question) => {
-        if (!team) return console.error('Team not defined');
-        fns.set();
-        if (!FIRSTEvent.current) return console.error('Event not defined');
-        const res = await q.getAnswer(team, FIRSTEvent.current);
-        if (res.isOk()) {
-            if (!res.value) {
-                value = [];
-                answer = undefined;
-                return;
-            }
-            value = res.value.answer;
-            answer = res.value;
-
-            answer.on('update', () => {
-                value = answer?.answer || [];
-                fns.set();
-                fns.setValue(q, value);
-            });
-
-            fns.setValue(q, value);
-        } else {
-            console.error(res.error);
-        }
-    },
+    // submits the answer to the server
     saveValue: async () => {
-        if (!team) return console.error('Team not defined');
-        fns.set();
-        changed = false;
-        const res = await question.saveAnswer(team, value);
-        if (res.isErr()) {
-            return console.error(res.error);
-        }
+        if (!team) return;
+        const result = await question.saveAnswer(team, value);
+        if (result.isOk()) changed = false;
     },
-    setValue: (q: Question, v: string[]) => {
-        const input = me.querySelector('input');
-        if (!input) return;
-
-        switch (q.type) {
-            case 'text':
-            case 'textarea':
-            case 'number':
-            case 'select':
-                input.value = value[0];
-                break;
-            case 'checkbox':
-                value.forEach(v => {
-                    const checkbox = me.querySelector(
-                        `input[value="${v}"]`
-                    ) as HTMLInputElement;
-                    if (checkbox) {
-                        checkbox.checked = true;
-                    }
-                });
-                break;
-            case 'radio':
-                const radio = me.querySelector(
-                    `input[value="${value[0]}"]`
-                ) as HTMLInputElement;
-                if (radio) {
-                    radio.checked = true;
-                }
-                break;
-            case 'boolean':
-                const checkbox = me.querySelector('input');
-                if (checkbox) {
-                    checkbox.checked = value[0] === 'true';
-                }
-                break;
-        }
-    },
+    // sets the changed variable to true
     change: () => {
-        changed = !value.length;
-        fns.set();
+        changed = true;
     },
-    set: async () => {
-        try {
-            document
-                .querySelectorAll('.tooltip.bs-tooltip-auto')
-                .forEach(e => e.remove());
-
-            jQuery(me.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
-        } catch {
-            // console.warn('Question not mounted')
+    // gets the value of the question, if it exists
+    getValue: async (team: FIRSTTeam | undefined, question: Question) => {
+        if (!team) return;
+        const answer = await question.getAnswer(team, team.event);
+        if (answer.isOk()) {
+            if (answer.value) {
+                value = answer.value.answer;
+                changed = false;
+            } else {
+                value = [];
+                changed = true;
+            }
         }
     },
-    setDisable: (t: FIRSTTeam | undefined, _d: boolean) => {
-        disabled = !t;
-        fns.set();
+    // sets the disabled variable to true if the team is undefined
+    setDisable: (team: FIRSTTeam | undefined, d: boolean) => {
+        disabled = !team || d;
     },
-    setAnswer: (a: Answer | undefined) => {
-        if (!a) return;
-        answer = a;
-        a.on('update', () => {
-            value = a.answer;
-            fns.set();
-            fns.setValue(question, value);
-            fns.change();
-        });
-        fns.setValue(question, value);
-        fns.change();
-    }
 };
 
 FIRSTTeam.on('select', t => {
     team = t;
-    fns.setDisable(t, disabled);
-    fns.getValue(t, question);
+    fns.setDisable(team, disabled);
+    fns.getValue(team, question);
 });
+
 
 // const dispatch = createEventDispatcher();
 </script>
