@@ -16,7 +16,7 @@ export let pictures: P[] = [];
 
 const fns = {
     setPictures: async (team?: FIRSTTeam) => {
-        if (!team) return pictures = [];
+        if (!team) return (pictures = []);
         await team.event.cacheTeamPictures();
         // after the cache is updated, we know the pictures are up to date
         const ps = team.pictures;

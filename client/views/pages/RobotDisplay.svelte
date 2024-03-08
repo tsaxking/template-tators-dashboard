@@ -17,15 +17,15 @@ import { MatchScouting } from '../../models/FIRST/match-scouting';
 import ChecksSummary from '../components/robot-display/ChecksSummary.svelte';
 import PracticeMatches from '../components/robot-display/PracticeMatches.svelte';
 
-let team: FIRSTTeam| undefined = undefined;
+let team: FIRSTTeam | undefined = undefined;
 
-FIRSTTeam.on('select', (t) => (team = t));
+FIRSTTeam.on('select', t => (team = t));
 
 let traces: TraceArray[] = [];
 
 const fns = {
     getTeam: async (t?: FIRSTTeam) => {
-        if (!t) return traces = [];
+        if (!t) return (traces = []);
         const scouting = await t.getMatchScouting();
         if (scouting.isOk()) {
             traces = scouting.value.map(s => s.trace);
@@ -36,7 +36,7 @@ const fns = {
 $: fns.getTeam(team);
 
 MatchScouting.on('new', m => {
-    if (!team) return traces = [];
+    if (!team) return (traces = []);
     if (m.team === team.number) {
         fns.getTeam(team);
     }
