@@ -57,6 +57,7 @@ FIRSTTeam.on('select', t => {
     fns.getValue(team, question);
 });
 
+$: fns.getValue(team, question);
 
 // const dispatch = createEventDispatcher();
 </script>
