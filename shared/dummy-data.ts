@@ -1,24 +1,20 @@
-import { $Math, Random } from './math.ts';
+import { $Math, Random } from './math';
 import {
     Point,
-    Point2D,
-} from './submodules/calculations/src/linear-algebra/point.ts';
-import {
-    Action,
-    P,
-    Trace,
-} from './submodules/tatorscout-calculations/trace.ts';
+    Point2D
+} from './submodules/calculations/src/linear-algebra/point';
+import { Action, P, Trace } from './submodules/tatorscout-calculations/trace';
 
 const chars = 'abcdefghijklmnopqrstuvwxyz';
 const char = (num = 1) =>
     new Array(num)
         .fill('')
-        .map((_) => chars[Math.floor(Math.random() * chars.length)])
+        .map(_ => chars[Math.floor(Math.random() * chars.length)])
         .join('');
 const num = (num: number) =>
     +new Array(num)
         .fill(0)
-        .map((_) => Math.floor(Math.random() * 10))
+        .map(_ => Math.floor(Math.random() * 10))
         .join('');
 
 export const createEvent = () => {
@@ -29,7 +25,7 @@ export const createEvent = () => {
     return {
         key,
         flipX: false,
-        flipY: false,
+        flipY: false
     };
 };
 
@@ -37,14 +33,14 @@ export const createTeam = (eventKey: string) => {
     return {
         number: num(5),
         eventKey,
-        watchPriority: 0,
+        watchPriority: 0
     };
 };
 
 export const createMatch = (
     eventKey: string,
     i: number,
-    compLevel: 'pr' | 'qm' | 'qf' | 'sf' | 'f',
+    compLevel: 'pr' | 'qm' | 'qf' | 'sf' | 'f'
 ) => {
     if (i < 1) throw new Error('i must be greater than 0');
     const id = Random.uuid();
@@ -52,14 +48,14 @@ export const createMatch = (
         id,
         eventKey,
         matchNumber: i,
-        compLevel,
+        compLevel
     };
 };
 
 export const createMatchScouting = (
     team: number,
     matchId: string,
-    scoutId: string,
+    scoutId: string
 ) => {
     return {
         id: Random.uuid() as string,
@@ -69,7 +65,7 @@ export const createMatchScouting = (
         scoutGroup: String(Random.choose([0, 1, 2, 3, 4, 5, 6])),
         trace: JSON.stringify(generateTrace()),
         preScouting: false,
-        time: String(Date.now()),
+        time: String(Date.now())
     };
 };
 
@@ -79,7 +75,7 @@ const initPoints: Point2D[] = [
     [0.75, 0.3],
     [0.25, 0.7],
     [0.5, 0.7],
-    [0.75, 0.7],
+    [0.75, 0.7]
 ];
 
 const actions: Action[] = ['spk', 'amp', 'src', 'trp', 'clb'];
@@ -91,7 +87,7 @@ export const generateTrace = (num = 1) => {
 
         constructor(
             public readonly index: number,
-            public readonly robot: Robot,
+            public readonly robot: Robot
         ) {}
 
         simplify(): P {
@@ -99,7 +95,7 @@ export const generateTrace = (num = 1) => {
                 this.index,
                 -1,
                 -1,
-                0,
+                0
             ];
 
             if (this.pos) {
@@ -141,7 +137,7 @@ export const generateTrace = (num = 1) => {
                     const x = Math.cos(angle);
                     const y = Math.sin(angle);
                     return [x, y];
-                }),
+                })
             );
 
             const v = new Point(dir[0] * 27, dir[1] * 54);
@@ -167,7 +163,7 @@ export const generateTrace = (num = 1) => {
         }
 
         generate() {
-            return this.ticks.map((t) => this.move(t)).map((t) => t.simplify());
+            return this.ticks.map(t => this.move(t)).map(t => t.simplify());
         }
     }
 

@@ -5,7 +5,7 @@ import { FIRSTYear } from '../../models/FIRST/year';
 import '../../models/FIRST/model-builder';
 
 new Dashboard({
-    target: document.body,
+    target: document.body
 });
 
 FIRSTYear.select(2023);

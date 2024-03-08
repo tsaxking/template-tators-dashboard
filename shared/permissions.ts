@@ -12,6 +12,7 @@ export type Permission =
     | 'settings'
     | 'submitScoutingAnswers'
     | 'admin'
-    | 'mentor'
     | 'developer'
+    | 'mentor'
+    | 'scout'
     | 'comment';

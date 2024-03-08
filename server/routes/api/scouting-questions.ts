@@ -1,9 +1,9 @@
-import { Route } from '../../structure/app/app.ts';
-import Account from '../../structure/accounts.ts';
-import { QuestionOptions } from '../../../shared/db-types-extended.ts';
-import { validate } from '../../middleware/data-type.ts';
-import { DB } from '../../utilities/databases.ts';
-import { uuid } from '../../utilities/uuid.ts';
+import { Route } from '../../structure/app/app';
+import Account from '../../structure/accounts';
+import { QuestionOptions } from '../../../shared/db-types-extended';
+import { validate } from '../../middleware/data-type';
+import { DB } from '../../utilities/databases';
+import { uuid } from '../../utilities/uuid';
 
 export const router = new Route();
 
@@ -22,14 +22,14 @@ router.post<{
     '/get-groups',
     validate({
         section: 'string',
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { section, eventKey } = req.body;
 
         const groups = await DB.all('scouting-questions/groups-from-section', {
             section,
-            eventKey,
+            eventKey
         });
 
         if (groups.isErr()) {
@@ -37,7 +37,7 @@ router.post<{
         }
 
         res.json(groups.value);
-    },
+    }
 );
 
 router.post<{
@@ -45,7 +45,7 @@ router.post<{
 }>(
     '/get-questions',
     validate({
-        group: 'string',
+        group: 'string'
     }),
     async (req, res) => {
         const { group } = req.body;
@@ -53,8 +53,8 @@ router.post<{
         const questions = await DB.all(
             'scouting-questions/questions-from-group',
             {
-                groupId: group,
-            },
+                groupId: group
+            }
         );
 
         if (questions.isErr()) {
@@ -62,7 +62,7 @@ router.post<{
         }
 
         res.json(questions.value);
-    },
+    }
 );
 
 router.post<{
@@ -72,14 +72,14 @@ router.post<{
     '/get-team-answers',
     validate({
         teamNumber: 'number',
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { teamNumber, eventKey } = req.body;
 
         const answers = await DB.all('scouting-questions/answer-from-team', {
             teamNumber,
-            eventKey,
+            eventKey
         });
 
         if (answers.isErr()) {
@@ -87,7 +87,7 @@ router.post<{
         }
 
         res.json(answers.value);
-    },
+    }
 );
 
 router.post<{
@@ -95,13 +95,13 @@ router.post<{
 }>(
     '/edit-history',
     validate({
-        questionId: 'string',
+        questionId: 'string'
     }),
     async (req, res) => {
         const { questionId } = req.body;
 
         const history = await DB.all('scouting-questions/get-answer-history', {
-            questionId,
+            questionId
         });
 
         if (history.isErr()) {
@@ -109,11 +109,11 @@ router.post<{
         }
 
         res.json(history.value);
-    },
+    }
 );
 
 // ensure user is signed in
-router.post(Account.isSignedIn);
+router.post('/*', Account.isSignedIn);
 
 router.post<{
     question: string;
@@ -125,10 +125,10 @@ router.post<{
     Account.allowPermissions('submitScoutingAnswers'),
     validate({
         question: 'string',
-        answer: (value) =>
-            Array.isArray(value) && value.every((v) => typeof v === 'string'),
+        answer: value =>
+            Array.isArray(value) && value.every(v => typeof v === 'string'),
         team: 'number',
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { question, answer, team, eventKey } = req.body;
@@ -145,15 +145,15 @@ router.post<{
             'scouting-questions/answer-from-team',
             {
                 teamNumber: team,
-                eventKey,
-            },
+                eventKey
+            }
         );
 
         if (currentAnswer.isErr()) {
             return res.sendStatus('server:unknown-server-error');
         }
 
-        const a = currentAnswer.value.find((a) => a.questionId === question);
+        const a = currentAnswer.value.find(a => a.questionId === question);
         if (a) {
             // update
             DB.run('scouting-questions/update-answer', {
@@ -162,7 +162,7 @@ router.post<{
                 answer: str,
                 teamNumber: team,
                 accountId,
-                date,
+                date
             });
 
             res.sendStatus('scouting-question:update-answer', {
@@ -171,7 +171,7 @@ router.post<{
                 answer: str,
                 teamNumber: team,
                 accountId,
-                date,
+                date
             });
 
             req.io.emit('scouting-question:update-answer', {
@@ -181,7 +181,7 @@ router.post<{
                 teamNumber: team,
                 accountId,
                 date,
-                eventKey,
+                eventKey
             });
         } else {
             DB.run('scouting-questions/new-answer', {
@@ -190,7 +190,7 @@ router.post<{
                 answer: str,
                 teamNumber: team,
                 accountId,
-                date,
+                date
             });
 
             res.sendStatus('scouting-question:new-answer', {
@@ -199,7 +199,7 @@ router.post<{
                 answer: str,
                 teamNumber: team,
                 accountId,
-                date,
+                date
             });
 
             req.io.emit('scouting-question:new-answer', {
@@ -209,10 +209,10 @@ router.post<{
                 teamNumber: team,
                 accountId,
                 date,
-                eventKey,
+                eventKey
             });
         }
-    },
+    }
 );
 
 router.post<{
@@ -229,7 +229,7 @@ router.post<{
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
         const answerRes = await DB.get('scouting-questions/answer-from-id', {
-            id: answerId,
+            id: answerId
         });
 
         if (answerRes.isErr()) {
@@ -245,7 +245,7 @@ router.post<{
             date,
             accountId,
             questionId: q.questionId,
-            teamNumber: q.teamNumber,
+            teamNumber: q.teamNumber
         });
 
         res.sendStatus('scouting-question:updated-answer', {
@@ -254,7 +254,7 @@ router.post<{
             date,
             accountId,
             questionId: q.questionId,
-            teamNumber: q.teamNumber,
+            teamNumber: q.teamNumber
         });
 
         req.io.emit('scouting-question:updated-answer', {
@@ -263,9 +263,9 @@ router.post<{
             date,
             accountId,
             questionId: q.questionId,
-            teamNumber: q.teamNumber,
+            teamNumber: q.teamNumber
         });
-    },
+    }
 );
 
 const canEdit = Account.allowPermissions('editScoutingQuestions');
@@ -279,7 +279,7 @@ router.post<{
     '/delete-section', // I don't think a user should be able to do this, but I'm implementing it anyway
     canEdit,
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -288,11 +288,11 @@ router.post<{
         DB.run('scouting-questions/delete-section', { id });
 
         res.sendStatus('scouting-question:section-deleted', {
-            id,
+            id
         });
 
         req.io.emit('scouting-question:section-deleted', id);
-    },
+    }
 );
 
 router.post<{
@@ -301,7 +301,7 @@ router.post<{
     '/delete-group',
     canEdit,
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -310,11 +310,11 @@ router.post<{
         DB.run('scouting-questions/delete-group', { id });
 
         res.sendStatus('scouting-question:group-deleted', {
-            id,
+            id
         });
 
         req.io.emit('scouting-question:group-deleted', id);
-    },
+    }
 );
 
 router.post<{
@@ -323,7 +323,7 @@ router.post<{
     '/delete-question',
     canEdit,
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -332,11 +332,11 @@ router.post<{
         DB.run('scouting-questions/delete-question', { id });
 
         res.sendStatus('scouting-question:question-deleted', {
-            id,
+            id
         });
 
         req.io.emit('scouting-question:question-deleted', id);
-    },
+    }
 );
 
 router.post<{
@@ -345,7 +345,7 @@ router.post<{
     '/delete-answer',
     canEdit,
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -354,7 +354,7 @@ router.post<{
         DB.run('scouting-questions/delete-answer', { id });
 
         res.sendStatus('scouting-question:answer-deleted', id);
-    },
+    }
 );
 
 router.post<{
@@ -365,7 +365,7 @@ router.post<{
     canEdit,
     validate({
         name: 'string',
-        multiple: 'boolean',
+        multiple: 'boolean'
     }),
     (req, res) => {
         const { name, multiple } = req.body;
@@ -381,7 +381,7 @@ router.post<{
             multiple: +multiple,
             id,
             dateAdded,
-            accountId,
+            accountId
         });
 
         res.sendStatus('scouting-question:new-section', {
@@ -389,7 +389,7 @@ router.post<{
             multiple,
             id,
             dateAdded,
-            accountId,
+            accountId
         });
 
         req.io.emit('scouting-question:new-section', {
@@ -397,9 +397,9 @@ router.post<{
             multiple,
             id,
             dateAdded,
-            accountId,
+            accountId
         });
-    },
+    }
 );
 
 router.post<{
@@ -412,7 +412,7 @@ router.post<{
     validate({
         name: 'string',
         multiple: [0, 1],
-        id: 'string',
+        id: 'string'
     }),
     (req, res) => {
         const { name, multiple, id } = req.body;
@@ -427,7 +427,7 @@ router.post<{
             multiple: !!multiple,
             id,
             accountId,
-            dateAdded,
+            dateAdded
         });
 
         res.sendStatus('scouting-question:update-section', {
@@ -435,7 +435,7 @@ router.post<{
             multiple,
             id,
             dateAdded,
-            accountId,
+            accountId
         });
 
         req.io.emit('scouting-question:update-section', {
@@ -443,9 +443,9 @@ router.post<{
             multiple,
             id,
             dateAdded,
-            accountId,
+            accountId
         });
-    },
+    }
 );
 
 router.post<{
@@ -458,7 +458,7 @@ router.post<{
     validate({
         eventKey: 'string',
         section: 'string',
-        name: 'string',
+        name: 'string'
     }),
     (req, res) => {
         const { eventKey, section, name } = req.body;
@@ -473,7 +473,7 @@ router.post<{
             section,
             name,
             accountId,
-            dateAdded,
+            dateAdded
         });
 
         res.sendStatus('scouting-question:new-group', {
@@ -482,7 +482,7 @@ router.post<{
             section,
             name,
             accountId,
-            dateAdded,
+            dateAdded
         });
 
         req.io.emit('scouting-question:new-group', {
@@ -491,9 +491,9 @@ router.post<{
             section,
             name,
             accountId,
-            dateAdded,
+            dateAdded
         });
-    },
+    }
 );
 
 router.post<{
@@ -506,7 +506,7 @@ router.post<{
     validate({
         id: 'string',
         name: 'string',
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { id, name, eventKey } = req.body;
@@ -519,23 +519,23 @@ router.post<{
             name,
             accountId,
             dateAdded,
-            eventKey,
+            eventKey
         });
 
         res.sendStatus('scouting-question:group-updated', {
             id,
             name,
             accountId,
-            dateAdded,
+            dateAdded
         });
 
         req.io.emit('scouting-question:update-group', {
             id,
             name,
             accountId,
-            dateAdded,
+            dateAdded
         });
-    },
+    }
 );
 
 router.post<{
@@ -565,13 +565,13 @@ router.post<{
             'select',
             'checkbox',
             'radio',
-            'textarea',
+            'textarea'
         ],
         section: 'string',
         key: 'string',
         description: 'string',
         group: 'string',
-        options: (value) => value !== undefined,
+        options: value => value !== undefined
     }),
     (req, res) => {
         const { question, type, section, key, description, group, options } =
@@ -593,7 +593,7 @@ router.post<{
             groupId: group,
             accountId,
             dateAdded,
-            options: o,
+            options: o
         });
 
         res.sendStatus('scouting-question:new-question', {
@@ -606,7 +606,7 @@ router.post<{
             groupId: group,
             accountId,
             dateAdded,
-            options: o, // must be string to keep consistency
+            options: o // must be string to keep consistency
         });
 
         req.io.emit('scouting-question:new-question', {
@@ -619,9 +619,9 @@ router.post<{
             groupId: group,
             accountId,
             dateAdded,
-            options: o,
+            options: o
         });
-    },
+    }
 );
 
 router.post<{
@@ -651,11 +651,11 @@ router.post<{
             'select',
             'checkbox',
             'radio',
-            'textarea',
+            'textarea'
         ],
         key: 'string',
         description: 'string',
-        options: (value) => value !== undefined,
+        options: value => value !== undefined
     }),
     async (req, res) => {
         const { id, question, type, key, description, options } = req.body;
@@ -668,7 +668,7 @@ router.post<{
         const o = JSON.stringify(options);
 
         const q = await DB.get('scouting-questions/question-from-id', {
-            id,
+            id
         });
 
         if (q.isErr()) return res.sendStatus('server:unknown-server-error');
@@ -686,7 +686,7 @@ router.post<{
             accountId,
             dateAdded,
             options: o,
-            groupId: q.value.groupId,
+            groupId: q.value.groupId
         });
 
         res.sendStatus('scouting-question:question-updated', {
@@ -697,7 +697,7 @@ router.post<{
             description,
             accountId,
             dateAdded,
-            options: o,
+            options: o
         });
 
         req.io.emit('scouting-question:update-question', {
@@ -708,9 +708,9 @@ router.post<{
             description,
             accountId,
             dateAdded,
-            options: o,
+            options: o
         });
-    },
+    }
 );
 
 router.post<{
@@ -718,13 +718,13 @@ router.post<{
 }>(
     '/get-group',
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
 
         const group = await DB.get('scouting-questions/group-from-id', {
-            id,
+            id
         });
 
         if (group.isErr()) {
@@ -732,7 +732,7 @@ router.post<{
         }
 
         res.json(group.value);
-    },
+    }
 );
 
 router.post<{
@@ -740,13 +740,13 @@ router.post<{
 }>(
     '/get-section',
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
 
         const section = await DB.get('scouting-questions/section-from-id', {
-            id,
+            id
         });
 
         if (section.isErr()) {
@@ -754,7 +754,7 @@ router.post<{
         }
 
         res.json(section.value);
-    },
+    }
 );
 
 router.post<{
@@ -762,13 +762,13 @@ router.post<{
 }>(
     '/get-answer',
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
 
         const answer = await DB.get('scouting-questions/answer-from-id', {
-            id,
+            id
         });
 
         if (answer.isErr()) {
@@ -776,7 +776,7 @@ router.post<{
         }
 
         res.json(answer.value);
-    },
+    }
 );
 
 router.post<{
@@ -784,13 +784,13 @@ router.post<{
 }>(
     '/get-question',
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
 
         const question = await DB.get('scouting-questions/question-from-id', {
-            id,
+            id
         });
 
         if (question.isErr()) {
@@ -798,5 +798,5 @@ router.post<{
         }
 
         res.json(question.value);
-    },
+    }
 );

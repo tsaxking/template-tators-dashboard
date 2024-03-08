@@ -5,7 +5,7 @@ import { onMount } from 'svelte';
 import { Modal } from '../../../utilities/modals';
 import { alert } from '../../../utilities/notifications';
 
-export let team: FIRSTTeam;
+export let team: FIRSTTeam | undefined = undefined;
 let fileList: FileList;
 
 let me: HTMLDivElement;

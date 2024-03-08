@@ -27,13 +27,15 @@ export const checkRanks: {
     easilyDefended: 1,
     robotDied: 2,
     problemsDriving: 2,
-    groundPicks: 0,
+    groundPicks: 0
 };
 
-export const rankColor = {
+export const rankColor: {
+    [key: number]: Color;
+} = {
     0: Color.fromBootstrap('success'),
     1: Color.fromBootstrap('warning'),
-    2: Color.fromBootstrap('danger'),
+    2: Color.fromBootstrap('danger')
 };
 
 export class MatchScouting extends Cache<MatchScoutingEvents> {
@@ -41,28 +43,28 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
 
     public static on<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         MatchScouting.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
-        callback?: (data: Updates[K]) => void,
+        callback?: (data: Updates[K]) => void
     ): void {
         MatchScouting.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(
         event: K,
-        data: Updates[K],
+        data: Updates[K]
     ): void {
         MatchScouting.$emitter.emit(event, data);
     }
 
     public static once<K extends keyof Updates>(
         event: K,
-        callback: (data: Updates[K]) => void,
+        callback: (data: Updates[K]) => void
     ): void {
         MatchScouting.$emitter.once(event, callback);
     }
@@ -83,11 +85,11 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
 
     public static async fromTeam(
         eventKey: string,
-        teamNumber: number,
+        teamNumber: number
     ): Promise<Result<MatchScouting[]>> {
         return attemptAsync(async () => {
             const all = MatchScouting.cache.values();
-            const filtered = Array.from(all).filter((m) => {
+            const filtered = Array.from(all).filter(m => {
                 return (
                     m.eventKey === eventKey &&
                     m.team === teamNumber &&
@@ -100,19 +102,19 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
                 '/api/match-scouting/from-team',
                 {
                     eventKey,
-                    teamNumber,
-                },
+                    teamNumber
+                }
             );
 
             if (res.isErr()) throw res.error;
-            return res.value.map((d) => new MatchScouting(d));
+            return res.value.map(d => new MatchScouting(d));
         });
     }
 
     public static async practiceFromTeam(teamNumber: number, eventKey: string) {
         return attemptAsync(async () => {
             const all = MatchScouting.cache.values();
-            const filtered = Array.from(all).filter((m) => {
+            const filtered = Array.from(all).filter(m => {
                 return (
                     m.eventKey === eventKey &&
                     m.team === teamNumber &&
@@ -126,12 +128,12 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
                 '/api/match-scouting/practice-matches-from-team',
                 {
                     eventKey,
-                    teamNumber,
-                },
+                    teamNumber
+                }
             );
 
             if (res.isErr()) throw res.error;
-            return res.value.map((d) => new MatchScouting(d));
+            return res.value.map(d => new MatchScouting(d));
         });
     }
 
@@ -159,15 +161,15 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         this.scoutId = data.scoutId;
         this.scoutGroup = data.scoutGroup;
         this.scoutName = data.scoutName;
-        this.trace = JSON.parse(data.trace);
-        this.checks = JSON.parse(data.checks);
+        this.trace = JSON.parse(data.trace) as TraceArray;
+        this.checks = JSON.parse(data.checks) as string[];
         this.preScouting = data.preScouting;
         this.time = data.time;
         this.prescouting = data.prescouting;
         this.eventKey = data.eventKey;
         this.matchNumber = data.matchNumber;
         this.compLevel = data.compLevel;
-        this.comments = data.comments.map((c) => new TeamComment(c));
+        this.comments = data.comments.map(c => new TeamComment(c));
 
         if (MatchScouting.cache.has(this.id)) {
             MatchScouting.cache.delete(this.id);
@@ -198,7 +200,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
 
         return {
             flag: flag || 'none',
-            rank,
+            rank
         };
     }
 }

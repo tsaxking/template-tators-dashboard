@@ -1,13 +1,13 @@
-import Account from '../../structure/accounts.ts';
-import { Route } from '../../structure/app/app.ts';
-import { DB } from '../../utilities/databases.ts';
-import { validate } from '../../middleware/data-type.ts';
-import { uuid } from '../../utilities/uuid.ts';
-import Filter from 'npm:bad-words';
+import Account from '../../structure/accounts';
+import { Route } from '../../structure/app/app';
+import { DB } from '../../utilities/databases';
+import { validate } from '../../middleware/data-type';
+import { uuid } from '../../utilities/uuid';
+import Filter from 'bad-words';
 
 export const router = new Route();
 
-router.post(Account.isSignedIn);
+router.post('/*', Account.isSignedIn);
 
 router.post<{
     teamNumber: number;
@@ -21,7 +21,7 @@ router.post<{
         teamNumber: 'number',
         eventKey: 'string',
         comment: 'string',
-        type: 'string',
+        type: 'string'
     }),
     (req, res) => {
         const time = Date.now();
@@ -42,7 +42,7 @@ router.post<{
             type,
             time,
             accountId,
-            matchScoutingId: '',
+            matchScoutingId: ''
         });
 
         res.sendStatus('team-comment:new');
@@ -55,9 +55,9 @@ router.post<{
             type,
             time,
             accountId,
-            matchScoutingId: '',
+            matchScoutingId: ''
         });
-    },
+    }
 );
 
 router.post<{
@@ -67,14 +67,14 @@ router.post<{
     '/get',
     validate({
         team: 'number',
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { team, eventKey } = req.body;
 
         const comments = await DB.all('team-comments/from-team', {
             team,
-            eventKey,
+            eventKey
         });
 
         if (comments.isErr()) {
@@ -82,5 +82,5 @@ router.post<{
         }
 
         res.json(comments.value);
-    },
+    }
 );

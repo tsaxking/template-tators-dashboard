@@ -1,39 +1,45 @@
-import { TBA } from '../server/utilities/tba/tba.ts';
-import { TBAMatch } from '../shared/submodules/tatorscout-calculations/tba.ts';
+import { TBA } from '../server/utilities/tba/tba';
+import { TBAMatch } from '../shared/submodules/tatorscout-calculations/tba';
 
-const matches = await TBA.get<TBAMatch[]>('/event/2018utwv/matches');
+const getType = (data: any): any => {
+    let tsStr = '';
+    if (data === null) {
+        return 'null';
+    }
 
-if (matches.isErr() || !matches.value) {
-    console.log('No matches found');
-    Deno.exit(0);
-}
+    if (Array.isArray(data)) {
+        return '(' + getType(data[0]) + ')[]';
+    }
 
-console.log(matches);
+    if (typeof data === 'object') {
+        for (const [key, value] of Object.entries(data)) {
+            tsStr += `${key}: ${getType(value)};`;
+        }
 
-const [m] = matches.value;
+        return `{${tsStr}}`;
+    }
 
-console.log(m);
+    return typeof data;
+};
 
-// const getType = (data: any): any => {
-//     let tsStr = '';
-//     if (data === null) {
-//         return 'null';
-//     }
+(async () => {
+    const [eventKey] = process.argv.slice(2);
 
-//     if (Array.isArray(data)) {
-//         return '(' + getType(data[0]) + ')[]';
-//     }
+    const matches = await TBA.get<TBAMatch[]>(`/event/${eventKey}/matches`);
 
-//     if (typeof data === 'object') {
-//         for (const [key, value] of Object.entries(data)) {
-//             tsStr += `${key}: ${getType(value)};`;
-//         }
+    if (matches.isErr() || !matches.value) {
+        console.log('No matches found');
+        process.exit(0);
+    }
 
-//         return `{${tsStr}}`;
-//     }
+    console.log(matches);
 
-//     return typeof data;
-// };
+    const [m] = matches.value;
 
-// const ts = getType(m);
-// console.log(ts + ';');
+    console.log(m);
+
+    const ts = getType(m);
+    console.log(ts + ';');
+
+    process.exit(0);
+})();
