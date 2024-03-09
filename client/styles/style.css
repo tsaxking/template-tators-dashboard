@@ -14,6 +14,15 @@ body {
     z-index: 1500;
 }
 
+.notification {
+    position: fixed;
+    top: var(--topNavbarHeight);
+    right: 0;
+    z-index: 1000;
+    margin-top: 1em;
+    margin-right: 1em;
+}
+
 #top-navbar {
     z-index: 100;
     /* height: var(--topNavbarHeight) !important; */
