@@ -225,7 +225,7 @@ export const addStatusPrompt = async () => {
 //     );
 //     addStatusPrompt();
 // }
-// if (Deno.args.includes('socket')) {
+// if (process.argv.includes('socket')) {
 //     console.warn(
 //         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Socket Event instead.${Colors.Reset} ⚠️`,
 //     );
