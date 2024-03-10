@@ -359,6 +359,18 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     }
 }
 
+FIRSTTeam.on('select', (t) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('event', t?.event.key || '');
+    if (t) {
+        url.searchParams.set('team', t.tba.key);
+    } else {
+        url.searchParams.delete('team');
+    }
+
+    window.history.pushState({}, '', url.toString());
+});
+
 // update sockets:
 
 socket.on('match-scouting:new', (data: RetrievedMatchScouting) => {
