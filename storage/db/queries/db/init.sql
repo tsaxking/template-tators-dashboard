@@ -310,19 +310,9 @@ CREATE TABLE IF NOT EXISTS Strategy (
     whiteboardId TEXT, -- If paired with a whiteboard
     matchId TEXT, -- If paired with a match
     customMatchId TEXT, -- If paired with a custom match
-
-    -- Auto
-
-
-    -- Teleop
-
-
-    -- Endgame
-
-
-    -- Misc
-
     comment TEXT NOT NULL
+
+    -- checks TEXT DEFAULT '[]' -- added on 1.3.5
 );
 
 
