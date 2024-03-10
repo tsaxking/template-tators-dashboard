@@ -24,16 +24,12 @@ const groups: PageGroup[] = [
     }
 ];
 
-let active: string = 'Robot Display';
+let active: string = getOpenPage() || 'dashboard';
 const domain = 'tatorscout.org';
 
-const openPage = ({ detail }) => {
-    active = detail;
-};
+const navItems: string[] = [];
 
-const navItems = [];
-
-const accountLinks = [
+const accountLinks: string[] = [
     // 'account',
     // 'contact',
     // null
@@ -43,7 +39,7 @@ const accountLinks = [
 <Main
     title="Team Tators"
     {groups}
-    on:openPage="{openPage}"
+    on:openPage="{e => (active = e.detail)}"
     {active}
     {navItems}
     {accountLinks}
