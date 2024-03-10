@@ -95,6 +95,14 @@ $: fns.parse(comments);
     placeholder="Search..."
 />
 
+{#if canAdd}
+    <hr />
+    <button class="btn btn-primary" on:click="{fns.addComment}">
+        <i class="material-icons">add</i>
+        Add Comment
+    </button>
+{/if}
+
 <table class="table table-striped table-hover">
     <thead>
         <tr>
@@ -115,10 +123,3 @@ $: fns.parse(comments);
         {/each}
     </tbody>
 </table>
-{#if canAdd}
-    <hr />
-    <button class="btn btn-primary" on:click="{fns.addComment}">
-        <i class="material-icons">add</i>
-        Add Comment
-    </button>
-{/if}
