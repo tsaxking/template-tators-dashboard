@@ -87,21 +87,27 @@ $: fns.onSet(filteredComments);
 $: fns.parse(comments);
 </script>
 
-<input
-    type="text"
-    bind:value="{search}"
-    class="form-control"
-    disabled="{!team}"
-    placeholder="Search..."
-/>
-
-{#if canAdd}
-    <hr />
-    <button class="btn btn-primary" on:click="{fns.addComment}">
-        <i class="material-icons">add</i>
-        Add Comment
-    </button>
-{/if}
+<div class="container">
+    <div class="row justify-content-around">
+        <div class="col-sm w-50">
+            <input
+            type="text"
+            bind:value="{search}"
+            class="form-control"
+            disabled="{!team}"
+            placeholder="Search..."
+            />
+        </div>
+        <div class="col-sm w-50">
+            {#if canAdd}
+            <button class="btn btn-primary" on:click="{fns.addComment}">
+                <i class="material-icons">add</i>
+                Add Comment
+            </button>
+            {/if}
+        </div>
+    </div>
+</div>
 
 <table class="table table-striped table-hover">
     <thead>
