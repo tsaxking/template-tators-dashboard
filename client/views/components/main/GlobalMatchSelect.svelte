@@ -22,8 +22,8 @@ FIRSTEvent.on('select', async (event: FIRSTEvent) => {
 
 const handleChange = async (e: any) => {
     const { detail: matchKey } = e;
-    const res = await FIRSTEvent.current.getMatches();
-    if (res.isErr()) return;
+    const res = await FIRSTEvent.current?.getMatches();
+    if (!res || res.isErr()) return;
     const matches = res.value;
     const match = matches.find(m => m.tba.key === matchKey);
     if (match) match.select();

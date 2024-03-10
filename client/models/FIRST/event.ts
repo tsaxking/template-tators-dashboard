@@ -322,6 +322,9 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     select(): void {
         FIRSTEvent.current = this;
         FIRSTEvent.emit('select', this);
+        const url = new URL(window.location.href);
+        url.searchParams.set('event', this.tba.key);
+        window.history.replaceState({}, '', url.toString());
     }
 
     async getPitScouting(): Promise<
@@ -406,7 +409,6 @@ socket.on(
 
 FIRSTEvent.on('select', async e => {
     const url = new URL(window.location.href);
-    window.history.pushState({}, '', url.href);
     const t = url.searchParams.get('team');
     if (t) {
         const res = await e.getTeams();

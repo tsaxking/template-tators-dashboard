@@ -89,6 +89,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     public static deselect(): void {
         FIRSTTeam.current = undefined;
         FIRSTTeam.emit('select', undefined);
+
     }
 
     /**
@@ -294,6 +295,13 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     public select(): void {
         FIRSTTeam.current = this;
         FIRSTTeam.emit('select', this);
+
+        
+        const url = new URL(window.location.href);
+        url.searchParams.set('event', this.event.key || '');
+        url.searchParams.set('team', String(this.number));
+    
+        window.history.pushState({}, '', url.toString());
     }
 
     public async savePictures(files: FileList): Promise<Result<void>> {
@@ -358,18 +366,6 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         });
     }
 }
-
-FIRSTTeam.on('select', (t) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('event', t?.event.key || '');
-    if (t) {
-        url.searchParams.set('team', t.tba.key);
-    } else {
-        url.searchParams.delete('team');
-    }
-
-    window.history.pushState({}, '', url.toString());
-});
 
 // update sockets:
 
