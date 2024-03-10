@@ -359,7 +359,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     }
 }
 
-FIRSTTeam.on('select', (t) => {
+FIRSTTeam.on('select', t => {
     const url = new URL(window.location.href);
     url.searchParams.set('event', t?.event.key || '');
     if (t) {
