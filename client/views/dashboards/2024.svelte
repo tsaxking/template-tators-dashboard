@@ -6,6 +6,7 @@ import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.
 import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
 import Checklist from '../pages/Checklist.svelte';
 import { PageGroup } from '../../utilities/general-types';
+import { getOpenPage } from '../../utilities/page';
 
 const groups: PageGroup[] = [
     {
@@ -39,7 +40,7 @@ const groups: PageGroup[] = [
     }
 ];
 
-let active = 'robot-display';
+let active = getOpenPage() || 'robot-display';
 
 const domain = 'tatorscout.org';
 

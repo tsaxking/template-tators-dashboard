@@ -1,6 +1,6 @@
 import env, { __root } from './utilities/env';
 import { log } from './utilities/terminal-logging';
-import { App, ResponseStatus } from './structure/app/app';
+import { App } from './structure/app/app';
 import { getJSON, log as serverLog } from './utilities/files';
 import { homeBuilder } from './utilities/page-builder';
 import Account from './structure/accounts';
@@ -12,10 +12,10 @@ import { FileUpload } from './middleware/stream';
 import { ReqBody } from './structure/app/req';
 import { parseCookie } from '../shared/cookie';
 import { stdin } from './utilities/stdin';
-import { getJSONSync } from './utilities/files';
 import { emitter } from './middleware/data-type';
 import path from 'path';
 import { DB } from './utilities/databases';
+import { Session } from './structure/sessions';
 
 if (process.argv.includes('--stats')) {
     const measure = () => {
@@ -31,6 +31,8 @@ if (process.argv.includes('--stats')) {
 const port = +(env.PORT || 3000);
 
 export const app = new App(port, env.DOMAIN || `http://localhost:${port}`);
+
+Session.setDeleteInterval(1000 * 60 * 10); // delete unused sessions every 10 minutes
 
 if (env.ENVIRONMENT === 'dev') {
     stdin.on('rb', () => {

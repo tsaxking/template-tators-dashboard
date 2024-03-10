@@ -294,6 +294,12 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     public select(): void {
         FIRSTTeam.current = this;
         FIRSTTeam.emit('select', this);
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('event', this.event.key || '');
+        url.searchParams.set('team', String(this.number));
+
+        window.history.pushState({}, '', url.toString());
     }
 
     public async savePictures(files: FileList): Promise<Result<void>> {
