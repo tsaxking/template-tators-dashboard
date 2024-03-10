@@ -322,6 +322,9 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     select(): void {
         FIRSTEvent.current = this;
         FIRSTEvent.emit('select', this);
+        const url = new URL(window.location.href);
+        url.searchParams.set('event', this.tba.key);
+        window.history.replaceState({}, '', url.toString());
     }
 
     async getPitScouting(): Promise<
@@ -405,18 +408,16 @@ socket.on(
 );
 
 FIRSTEvent.on('select', async e => {
-    const query = new URLSearchParams(window.location.search);
-    const t = query.get('team');
+    const url = new URL(window.location.href);
+    const res = await e.getTeams();
+    if (res.isErr()) return console.error(res.error);
+    const t = url.searchParams.get('team');
     if (t) {
-        const res = await e.getTeams();
-        if (res.isOk()) {
-            const team = res.value.find(t => t.tba.team_number === Number(t));
-            if (team) team.select();
-            else {
-                const team = res.value.find(t => t.number === 2122);
-                if (team) team.select();
-            }
-        }
+        const team = res.value.find(_t => _t.number === +t);
+        if (team) return team.select();
+    } else {
+        const team = res.value.find(t => t.number === 2122);
+        if (team) team.select();
     }
 });
 
