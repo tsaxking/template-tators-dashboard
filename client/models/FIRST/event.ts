@@ -413,7 +413,7 @@ FIRSTEvent.on('select', async e => {
     if (t) {
         const res = await e.getTeams();
         if (res.isOk()) {
-            const team = res.value.find(t => t.tba.team_number === Number(t));
+            const team = res.value.find(_t => _t.number === +t);
             if (team) team.select();
             else {
                 const team = res.value.find(t => t.number === 2122);
