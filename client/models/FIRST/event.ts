@@ -409,17 +409,15 @@ socket.on(
 
 FIRSTEvent.on('select', async e => {
     const url = new URL(window.location.href);
+    const res = await e.getTeams();
+    if (res.isErr()) return console.error(res.error);
     const t = url.searchParams.get('team');
     if (t) {
-        const res = await e.getTeams();
-        if (res.isOk()) {
-            const team = res.value.find(_t => _t.number === +t);
-            if (team) team.select();
-            else {
-                const team = res.value.find(t => t.number === 2122);
-                if (team) team.select();
-            }
-        }
+        const team = res.value.find(_t => _t.number === +t);
+        if (team) return team.select();
+    } else {
+        const team = res.value.find(t => t.number === 2122);
+        if (team) team.select();
     }
 });
 
