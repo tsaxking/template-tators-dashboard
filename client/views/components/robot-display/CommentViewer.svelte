@@ -87,13 +87,26 @@ $: fns.onSet(filteredComments);
 $: fns.parse(comments);
 </script>
 
-<input
-    type="text"
-    bind:value="{search}"
-    class="form-control"
-    disabled="{!team}"
-    placeholder="Search..."
-/>
+<div class="container">
+    <div class="row justify-content-around">
+        <div class="col-lg-8 col-sm-6 mb-2">
+            <input
+            type="text"
+            bind:value="{search}"
+            class="form-control"
+            disabled="{!team}"
+            placeholder="Search..."
+            />
+        </div>
+        <div class="col-lg-4 col-sm-6 mb-2">
+            {#if canAdd}
+            <button class="btn btn-primary w-100" on:click="{fns.addComment}">
+                <i class="material-icons">add</i>
+            </button>
+            {/if}
+        </div>
+    </div>
+</div>
 
 <table class="table table-striped table-hover">
     <thead>
@@ -115,10 +128,3 @@ $: fns.parse(comments);
         {/each}
     </tbody>
 </table>
-{#if canAdd}
-    <hr />
-    <button class="btn btn-primary" on:click="{fns.addComment}">
-        <i class="material-icons">add</i>
-        Add Comment
-    </button>
-{/if}
