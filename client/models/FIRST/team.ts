@@ -89,7 +89,6 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     public static deselect(): void {
         FIRSTTeam.current = undefined;
         FIRSTTeam.emit('select', undefined);
-
     }
 
     /**
@@ -296,11 +295,10 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         FIRSTTeam.current = this;
         FIRSTTeam.emit('select', this);
 
-        
         const url = new URL(window.location.href);
         url.searchParams.set('event', this.event.key || '');
         url.searchParams.set('team', String(this.number));
-    
+
         window.history.pushState({}, '', url.toString());
     }
 
