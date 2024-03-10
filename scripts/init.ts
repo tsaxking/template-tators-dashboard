@@ -165,6 +165,21 @@ const createEnv = async () => {
         undefined,
         true
     );
+    setKey('WEBHOOK_KEY', 'Webhook Auth: (no default)', '', undefined, true);
+    setKey(
+        'HASH_SERVER',
+        'Hash Server: (default: http://localhost:4000)',
+        'http://localhost:4000',
+        i => i.length > 0,
+        true
+    );
+    setKey(
+        'HASH_SERVER_AUTH',
+        'Hash Server Auth: (secret)',
+        'secret',
+        undefined,
+        true
+    );
 
     // DATABASE
     await setKey(
@@ -223,6 +238,7 @@ const createEnv = async () => {
         undefined,
         true
     );
+    setKey('EVENT_API_KEY', 'Event API Key: (no default)', '', undefined, true);
 
     await setKey(
         'BACKUP_DAYS',
@@ -260,7 +276,7 @@ if (process.argv.includes('--db')) {
     })();
 }
 
-// if (Deno.args.includes('--db')) {
+// if (process.argv.includes('--db')) {
 //     // this will run the database setup.
 //     // You cannot import DB because github actions will not have access to the database.
 //     const res = await runTask('/server/utilities/databases.ts');
