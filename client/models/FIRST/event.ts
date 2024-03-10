@@ -405,8 +405,9 @@ socket.on(
 );
 
 FIRSTEvent.on('select', async e => {
-    const query = new URLSearchParams(window.location.search);
-    const t = query.get('team');
+    const url = new URL(window.location.href);
+    window.history.pushState({}, '', url.href);
+    const t = url.searchParams.get('team');
     if (t) {
         const res = await e.getTeams();
         if (res.isOk()) {
