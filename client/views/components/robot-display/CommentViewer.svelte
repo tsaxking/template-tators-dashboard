@@ -100,9 +100,8 @@ $: fns.parse(comments);
         </div>
         <div class="col-sm w-50">
             {#if canAdd}
-            <button class="btn btn-primary" on:click="{fns.addComment}">
+            <button class="btn btn-primary w-100" on:click="{fns.addComment}">
                 <i class="material-icons">add</i>
-                Add Comment
             </button>
             {/if}
         </div>
