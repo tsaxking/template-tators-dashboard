@@ -68,8 +68,7 @@ export class TBA {
                 return fetch('https://www.thebluealliance.com/api/v3' + path, {
                     headers: {
                         'X-TBA-Auth-Key':
-                            'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ',
-                        'Access-Control-Allow-Origin': '*',
+                            'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
                     },
                     method: 'GET'
                 }).then(data => data.json()) as Promise<T>;
