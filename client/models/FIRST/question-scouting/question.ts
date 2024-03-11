@@ -215,11 +215,15 @@ export class Question extends Cache<QuestionUpdates> {
         });
     }
 
-    async getGroup(): Promise<Group | undefined> {
-        const g = await Group.fromId(this.groupId);
-        if (g.isOk()) return g.value;
-        console.error('Error getting group', g.error);
-        return undefined;
+    async getGroup(): Promise<Result<Group>> {
+        return attemptAsync(async () => {
+            const g = await Group.fromId(this.groupId);
+            if (g.isOk()) {
+                if (!g.value) throw new Error('Group not found');
+                return g.value;
+            }
+            throw g.error;
+        });
     }
 }
 

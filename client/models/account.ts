@@ -103,6 +103,9 @@ export class Account extends Cache<AccountEvents> {
             '/account/account-info',
             {
                 id
+            },
+            {
+                cached: true
             }
         );
         if (res.isOk()) {
