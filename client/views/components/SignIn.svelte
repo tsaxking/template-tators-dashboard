@@ -26,8 +26,8 @@ const submit = () => {
     }
 
     ServerRequest.post('/account/sign-in', {
-        username,
-        password
+        username: username.trim(),
+        password: password.trim()
     });
 };
 
