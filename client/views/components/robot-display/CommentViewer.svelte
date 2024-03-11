@@ -26,18 +26,20 @@ let search = '';
 
 const fns = {
     parse: async (c: TeamComment[]) => {
-        parsed = (await Promise.all(
-            c.map(async c => {
-                return {
-                    comment: c.comment,
-                    type: c.type,
-                    time: c.time,
-                    account: c.accountId
-                        ? (await Account.get(c.accountId))?.username ||
-                          c.accountId
-                        : undefined
-                };
-            }))
+        parsed = (
+            await Promise.all(
+                c.map(async c => {
+                    return {
+                        comment: c.comment,
+                        type: c.type,
+                        time: c.time,
+                        account: c.accountId
+                            ? (await Account.get(c.accountId))?.username ||
+                              c.accountId
+                            : undefined
+                    };
+                })
+            )
         ).sort((a, b) => +b.time - +a.time);
 
         console.log({ parsed });
@@ -69,8 +71,7 @@ const fns = {
             s,
             comments.map(c => c.comment + ' ' + c.type + ' ' + c.account)
         );
-        return comments
-            .filter((_, i) => filtered.includes(i));
+        return comments.filter((_, i) => filtered.includes(i));
     },
     onSet(comments: C[]) {
         jQuery(() => {
@@ -88,18 +89,21 @@ $: fns.parse(comments);
     <div class="row justify-content-around">
         <div class="col-lg-8 col-sm-6 mb-2">
             <input
-            type="text"
-            bind:value="{search}"
-            class="form-control"
-            disabled="{!team}"
-            placeholder="Search..."
+                type="text"
+                bind:value="{search}"
+                class="form-control"
+                disabled="{!team}"
+                placeholder="Search..."
             />
         </div>
         <div class="col-lg-4 col-sm-6 mb-2">
             {#if canAdd}
-            <button class="btn btn-primary w-100" on:click="{fns.addComment}">
-                <i class="material-icons">add</i>
-            </button>
+                <button
+                    class="btn btn-primary w-100"
+                    on:click="{fns.addComment}"
+                >
+                    <i class="material-icons">add</i>
+                </button>
             {/if}
         </div>
     </div>
