@@ -27,27 +27,27 @@ const fns = {
 
         if (res.isErr()) return console.error(res.error);
 
-        const questionsRes = resolveAll((
+        const questionsRes = resolveAll(
             await Promise.all(res.value.map(s => s.getQuestion()))
-        ));
+        );
 
         if (questionsRes.isErr()) return console.error(questionsRes.error);
         const questions = questionsRes.value.filter(
             (d, i, a) => a.findIndex(_s => _s.id === d.id) === i
         );
 
-        const groupsRes = resolveAll((
+        const groupsRes = resolveAll(
             await Promise.all(questions.map(q => q.getGroup()))
-        ));
+        );
 
         if (groupsRes.isErr()) return console.error(groupsRes.error);
-        const groups = groupsRes.value.filter((d, i, a) => a.findIndex(_s => _s.id === d.id) === i);
+        const groups = groupsRes.value.filter(
+            (d, i, a) => a.findIndex(_s => _s.id === d.id) === i
+        );
 
-
-        const sectionsRes = resolveAll((
+        const sectionsRes = resolveAll(
             await Promise.all(groups.map(g => g.getSection()))
-        ));
-
+        );
 
         if (sectionsRes.isErr()) return console.error(sectionsRes.error);
         const sections = sectionsRes.value.filter(
