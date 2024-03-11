@@ -1,7 +1,7 @@
 <script lang="ts">
 import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
-import { PageGroup } from '../../../utilities/general-types';
+import type { PageGroup } from '../../../utilities/general-types';
 
 export let groups: PageGroup[] = [];
 
