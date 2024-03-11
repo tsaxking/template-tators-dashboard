@@ -43,9 +43,8 @@ router.post<Match>(
             scout,
             date,
             trace,
-            preScouting,
+            preScouting
         } = req.body;
-
 
         const matchScoutingId = uuid();
         const traceStr = JSON.stringify(trace);
@@ -54,9 +53,11 @@ router.post<Match>(
             const matches = await TBA.get<TBAMatch[]>(
                 `/event/${eventKey}/matches`
             );
-            if (matches.isErr() || !matches.value) return res.sendStatus('unknown:error');
+            if (matches.isErr() || !matches.value)
+                return res.sendStatus('unknown:error');
             const m = matches.value.find(
-                m => m.match_number === matchNumber && m.comp_level === compLevel
+                m =>
+                    m.match_number === matchNumber && m.comp_level === compLevel
             );
 
             if (!m) return res.sendStatus('unknown:error');
