@@ -41,8 +41,6 @@ const fns = {
                 })
             )
         ).sort((a, b) => +b.time - +a.time);
-
-        console.log({ parsed });
     },
     addComment: async () => {
         if (!team) return alert('No team selected');

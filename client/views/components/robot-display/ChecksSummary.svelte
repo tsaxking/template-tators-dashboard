@@ -18,8 +18,6 @@ const fns = {
         if (scouting.isOk()) {
             const allChecks = scouting.value.map(s => s.checks);
 
-            console.log({ allChecks });
-
             for (const check of allChecks) {
                 for (const str of check) {
                     if (checks[str]) {

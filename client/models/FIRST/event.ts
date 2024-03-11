@@ -281,7 +281,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
 
     async cacheTeamPictures() {
         const teams = await this.getTeams();
-        if (teams.isErr()) return [];
+        if (teams.isErr()) return;
 
         if (teams.value.some(t => t.pictures.length > 0)) return [];
 
@@ -291,6 +291,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                 eventKey: this.key
             }
         );
+
+        console.log({ res });
 
         if (res.isOk()) {
             return Promise.all(

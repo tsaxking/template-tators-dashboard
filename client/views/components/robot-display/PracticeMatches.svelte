@@ -15,8 +15,6 @@ const fns = {
         if (!team) return;
         const res = await team.getPracticeMatches();
 
-        console.log(res);
-
         if (res.isErr()) return console.error(res.error);
 
         matches = res.value;
