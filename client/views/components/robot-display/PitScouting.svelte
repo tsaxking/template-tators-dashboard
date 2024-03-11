@@ -2,6 +2,8 @@
 import { createEventDispatcher } from 'svelte';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Account } from '../../../models/account';
+import { resolveAll } from '../../../../shared/check';
+import DashboardCard from '../main/DashboardCard.svelte';
 
 const d = createEventDispatcher();
 
@@ -25,15 +27,30 @@ const fns = {
 
         if (res.isErr()) return console.error(res.error);
 
-        const questions = (
+        const questionsRes = resolveAll((
             await Promise.all(res.value.map(s => s.getQuestion()))
-        ).filter((q, i, a) => a.indexOf(q) === i);
-        const groups = (
+        ).filter((q, i, a) => a.indexOf(q) === i));
+
+        
+        if (questionsRes.isErr()) return console.error(questionsRes.error);
+        const questions = questionsRes.value;
+
+        const groupsRes = resolveAll((
             await Promise.all(questions.map(q => q.getGroup()))
-        ).filter((g, i, a) => a.indexOf(g) === i);
-        const sections = (
+        ).filter((g, i, a) => a.indexOf(g) === i));
+
+
+        if (groupsRes.isErr()) return console.error(groupsRes.error);
+        const groups = groupsRes.value;
+
+        const sectionsRes = resolveAll((
             await Promise.all(groups.map(g => g.getSection()))
-        ).filter((s, i, a) => a.indexOf(s) === i);
+        ).filter((s, i, a) => a.indexOf(s) === i));
+
+
+        if (sectionsRes.isErr()) return console.error(sectionsRes.error);
+        const sections = sectionsRes.value;
+
 
         scoutingSections = await Promise.all(
             sections.map(async s => ({
@@ -94,9 +111,9 @@ const fns = {
                                                         a =>
                                                             a.questionId ===
                                                             q.id
-                                                    )?.accountId
+                                                    )?.accountId || ''
                                                 )
-                                            )?.name || ''
+                                            )?.name || 'Unknown'
                                     }))
                             )
                         }))
@@ -110,22 +127,24 @@ $: fns.pullScouting(team);
 </script>
 
 {#each scoutingSections as section}
-    <h6>{section.section}</h6>
-    <table class="table table-striped">
-        {#each section.groups as group}
-            <thead>
-                <tr>
-                    <th colspan="2" class="text-center">{group.name}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {#each group.questions as question}
+    <DashboardCard title="{section.section}" expandable="{true}">
+        <table class="table table-striped">
+            {#each section.groups as group}
+                <thead>
                     <tr>
-                        <td>{question.question}</td>
-                        <td>{question.answer}</td>
+                        <th colspan="3" class="text-center">{group.name}</th>
                     </tr>
-                {/each}
-            </tbody>
-        {/each}
-    </table>
+                </thead>
+                <tbody>
+                    {#each group.questions as question}
+                        <tr>
+                            <td>{question.question}</td>
+                            <td>{question.answer}</td>
+                            <td>{question.account}</td>
+                        </tr>
+                    {/each}
+                </tbody>
+            {/each}
+        </table>
+    </DashboardCard>
 {/each}
