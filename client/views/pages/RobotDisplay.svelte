@@ -90,9 +90,9 @@ MatchScouting.on('new', m => {
         <DashboardCard title="Velocity Histogram" expandable="{true}">
             <VelocityHistogram {traces} />
         </DashboardCard>
-        <DashboardCard title="Pit Scouting" scroll="{true}" expandable="{true}">
+        <!-- <DashboardCard title="Pit Scouting" scroll="{true}" expandable="{true}"> -->
             <PitScouting {team} />
-        </DashboardCard>
+        <!-- </DashboardCard> -->
         <DashboardCard
             title="Checks Summary"
             scroll="{true}"
