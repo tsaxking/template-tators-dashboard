@@ -5,7 +5,7 @@ import RobotDisplay from '../pages/RobotDisplay.svelte';
 import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
 import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
 import Checklist from '../pages/Checklist.svelte';
-import { PageGroup } from '../../utilities/general-types';
+import { type PageGroup } from '../../utilities/general-types';
 import { getOpenPage } from '../../utilities/page';
 
 const groups: PageGroup[] = [

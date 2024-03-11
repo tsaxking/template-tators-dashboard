@@ -6,18 +6,21 @@ import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.
 import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
 import Accounts from '../pages/Accounts.svelte';
 import Roles from '../pages/Roles.svelte';
+import { type PageGroup } from '../../utilities/general-types';
 
-const groups = [
+const groups: PageGroup[] = [
     {
         name: 'home',
         pages: [
             {
                 name: 'accounts',
-                icon: 'person'
+                icon: 'person',
+                iconType: 'material'
             },
             {
                 name: 'roles',
-                icon: 'admin_panel_settings'
+                icon: 'admin_panel_settings',
+                iconType: 'material'
             }
         ]
     },
@@ -26,7 +29,8 @@ const groups = [
         pages: [
             {
                 name: 'create-scouting-questions',
-                icon: 'fact_check'
+                icon: 'fact_check',
+                iconType: 'material'
             }
             // {
             //     name: 'scouting-checklist',
@@ -40,11 +44,11 @@ let active = 'accounts';
 
 const domain = 'tatorscout.org';
 
-const navItems = [
+const navItems: string[] = [
     // 'app'
 ];
 
-const accountLinks = [
+const accountLinks: string[] = [
     // 'account',
     // 'contact',
     // null

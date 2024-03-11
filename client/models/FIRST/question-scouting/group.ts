@@ -236,11 +236,15 @@ export class Group extends Cache<GroupUpdates> {
         });
     }
 
-    async getSection(): Promise<Section | undefined> {
-        const s = await Section.fromId(this.section);
-        if (s.isOk()) return s.value;
-        console.log('error getting section', s.error);
-        return undefined;
+    async getSection(): Promise<Result<Section>> {
+        return attemptAsync(async () => {
+            const s = await Section.fromId(this.section);
+            if (s.isOk()) {
+                if (!s.value) throw new Error('Section not found');
+                return s.value;
+            }
+            throw s.error;
+        });
     }
 }
 
