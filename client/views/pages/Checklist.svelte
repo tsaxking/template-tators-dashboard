@@ -36,6 +36,11 @@ FIRSTEvent.on('select', async e => {
         const match = matches.find(
             _m => _m.match === m.number && _m.compLevel === m.compLevel
         );
+        if (!match) return {
+            teams: [],
+            number: m.number,
+            compLevel: m.compLevel
+        }
         const unScouted = match.teams;
         const { teams } = m;
 
@@ -57,5 +62,31 @@ FIRSTEvent.on('select', async e => {
 });
 </script>
 
-<TeamChecklist {teams} />
-<MatchScouting {matchScouting} />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        Team Checklist
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <TeamChecklist {teams} />
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        Match Scouting
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <MatchScouting {matchScouting} />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
