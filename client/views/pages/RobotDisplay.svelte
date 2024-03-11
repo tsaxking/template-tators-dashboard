@@ -16,6 +16,7 @@ import TeamCommentSummary from '../components/robot-display/TeamCommentSummary.s
 import { MatchScouting } from '../../models/FIRST/match-scouting';
 import ChecksSummary from '../components/robot-display/ChecksSummary.svelte';
 import PracticeMatches from '../components/robot-display/PracticeMatches.svelte';
+import HorizontalMatchViewer from '../components/robot-display/HorizontalMatchViewer.svelte';
 
 let team: FIRSTTeam | undefined = undefined;
 
@@ -66,6 +67,9 @@ MatchScouting.on('new', m => {
         </DashboardCard>
         <DashboardCard title="Pictures" scroll="{true}">
             <TeamPictures {team} upload="{true}" />
+        </DashboardCard>
+        <DashboardCard title="Match Viewer" expandable="{true}" scroll={true}>
+            <HorizontalMatchViewer {team} />
         </DashboardCard>
         <DashboardCard
             title="Event Summary"

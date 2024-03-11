@@ -23,6 +23,9 @@ import CommentViewer from './CommentViewer.svelte';
 import { fromCamelCase, capitalize } from '../../../../shared/text';
 import type { BootstrapColor } from '../../../submodules/colors/color';
 import { MatchScouting } from '../../../models/FIRST/match-scouting';
+import { Random } from '../../../../shared/math';
+
+const id = Random.uuid();
 
 export let team: FIRSTTeam;
 export let match: MatchScouting;
@@ -72,7 +75,7 @@ const sectionColors: {
 };
 
 let keys: {
-    action: string;
+    action: keyof typeof actions;
     color: Color;
     textColor: Color;
 }[] = [];
@@ -110,7 +113,7 @@ const fns = {
         stop();
 
         const img = new Img(
-            `/public/pictures/${FIRSTEvent.current.tba.year}field.png`
+            `/public/pictures/${team.event.tba.year}field.png`
         );
         img.options.height = 1;
         img.options.width = 1;
@@ -122,12 +125,12 @@ const fns = {
             const [_i, x, y, action] = p;
 
             if (action) {
-                const color = actionColors[action];
+                const color = actionColors[action as keyof typeof actionColors];
 
                 const foundKey = keys.find(k => k.action === action);
                 if (!foundKey) {
                     keys.push({
-                        action,
+                        action: action as keyof typeof actions,
                         color: color.clone(),
                         textColor:
                             color.detectContrast(Color.fromBootstrap('dark')) >
@@ -146,7 +149,7 @@ const fns = {
                 cir.properties.line = {
                     color: 'transparent'
                 };
-                const a = icons[action]?.clone();
+                const a = icons[action as keyof typeof icons]?.clone();
                 if (a instanceof SVG) {
                     a.center = [x, y];
                     if (!a.properties.text) a.properties.text = {};
@@ -200,13 +203,13 @@ const fns = {
         stop = canvas.animate();
 
         setTimeout(() => {
-            jQuery('#match-slider').slider({
+            jQuery(`#match-slider-${id}`).slider({
                 range: true,
                 min: 0,
                 max: trace.length - 1,
                 values: [from, to],
                 slide: (_, ui) => {
-                    const [from, to] = ui.values;
+                    const [from, to] = ui.values as [number, number];
                     filter(from, to);
                 }
             });
@@ -250,7 +253,7 @@ $: {
         <div class="w-100 aspect-ratio-2x1 mb-2">
             <canvas id="canvas" bind:this="{canvasEl}"></canvas>
         </div>
-        <div id="match-slider"></div>
+        <div id="match-slider-{id}"></div>
         <hr class="m-2" />
     </div>
     <div class="row mb-3">
