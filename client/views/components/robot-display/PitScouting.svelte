@@ -29,27 +29,31 @@ const fns = {
 
         const questionsRes = resolveAll((
             await Promise.all(res.value.map(s => s.getQuestion()))
-        ).filter((q, i, a) => a.indexOf(q) === i));
+        ));
 
         
         if (questionsRes.isErr()) return console.error(questionsRes.error);
-        const questions = questionsRes.value;
+        const questions = questionsRes.value.filter(
+            (q, i, a) => a.indexOf(q) === i
+        );
 
         const groupsRes = resolveAll((
             await Promise.all(questions.map(q => q.getGroup()))
-        ).filter((g, i, a) => a.indexOf(g) === i));
+        ));
 
 
         if (groupsRes.isErr()) return console.error(groupsRes.error);
-        const groups = groupsRes.value;
+        const groups = groupsRes.value.filter((g, i, a) => a.indexOf(g) === i);
 
         const sectionsRes = resolveAll((
             await Promise.all(groups.map(g => g.getSection()))
-        ).filter((s, i, a) => a.indexOf(s) === i));
+        ));
 
 
         if (sectionsRes.isErr()) return console.error(sectionsRes.error);
-        const sections = sectionsRes.value;
+        const sections = sectionsRes.value.filter(
+            (s, i, a) => a.indexOf(s) === i
+        );
 
 
         scoutingSections = await Promise.all(
