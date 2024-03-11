@@ -143,12 +143,15 @@ export class Answer extends Cache<AnswerEvents> {
     }
 
     async getQuestion() {
-        const q = await Question.fromId(this.questionId);
-        if (q.isOk()) return q.value;
-        else {
-            console.log('error getting question', q.error);
-            return undefined;
-        }
+        return attemptAsync(async () => {
+            const q = await Question.fromId(this.questionId);
+            if (q.isOk()) {
+                if (!q.value) throw new Error('question not found');
+                return q.value;
+            } else {
+                throw q.error;
+            }
+        });
     }
 }
 
