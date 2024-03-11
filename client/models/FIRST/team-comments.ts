@@ -75,7 +75,8 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
             );
             if (res.isErr()) throw res.error;
 
-            return res.value.map(obj => new TeamComment(obj));
+            return res.value
+                .map(obj => new TeamComment(obj));
         });
     }
 
