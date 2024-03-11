@@ -70,7 +70,8 @@ export class TBA {
                         'X-TBA-Auth-Key':
                             'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
                     },
-                    method: 'GET'
+                    method: 'GET',
+                    mode: 'cors'
                 }).then(data => data.json()) as Promise<T>;
 
                 // const res = await ServerRequest.get<T>(`/api/tba${path}`);
