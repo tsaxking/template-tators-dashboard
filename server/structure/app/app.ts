@@ -115,8 +115,8 @@ export type Next = () => void;
  * @export
  * @typedef {ServerFunction}
  */
-export type ServerFunction<T = unknown> = (
-    req: Req<T>,
+export type ServerFunction<T = unknown, S = unknown> = (
+    req: Req<T, S>,
     res: Res,
     next: Next
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -128,7 +128,7 @@ export type ServerFunction<T = unknown> = (
  * @export
  * @typedef {FinalFunction}
  */
-export type FinalFunction<T> = (req: Req<T>, res: Res) => any;
+export type FinalFunction<T, S> = (req: Req<T, S>, res: Res) => any;
 
 declare module 'express-serve-static-core' {
     interface Request {
@@ -145,7 +145,7 @@ declare module 'express-serve-static-core' {
  * @class Route
  * @typedef {Route}
  */
-export class Route {
+export class Route<sessionInfo = unknown> {
     /**
      * Express router
      * @date 3/8/2024 - 6:13:51 AM
@@ -168,7 +168,7 @@ export class Route {
     private addListener<T>(
         method: RequestMethod,
         path: string,
-        ...fn: ServerFunction<T>[]
+        ...fn: ServerFunction<T, sessionInfo>[]
     ) {
         this.router[method](path, async (req: express.Request, _res, next) => {
             const { request, response } = req;
@@ -176,7 +176,9 @@ export class Route {
             try {
                 const run = async (i: number) => {
                     if (i >= fn.length) return next();
-                    await fn[i](request as Req<T>, response, () => run(i + 1));
+                    await fn[i](request as Req<T, sessionInfo>, response, () =>
+                        run(i + 1)
+                    );
                 };
 
                 await run(0);
@@ -195,7 +197,7 @@ export class Route {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public get<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public get<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener(RequestMethod.GET, path, ...fn);
     }
 
@@ -208,7 +210,7 @@ export class Route {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public post<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public post<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener(RequestMethod.POST, path, ...fn);
     }
 
@@ -221,7 +223,7 @@ export class Route {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public put<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public put<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener(RequestMethod.PUT, path, ...fn);
     }
 
@@ -234,7 +236,7 @@ export class Route {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public delete<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public delete<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener(RequestMethod.DELETE, path, ...fn);
     }
 
@@ -247,7 +249,7 @@ export class Route {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public use<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public use<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener(RequestMethod.USE, path, ...fn);
     }
 
@@ -259,7 +261,7 @@ export class Route {
      * @param {string} path
      * @param {Route} route
      */
-    public route(path: string, route: Route) {
+    public route(path: string, route: Route<sessionInfo>) {
         this.router.use(path, route.router);
     }
 }
@@ -272,7 +274,7 @@ export class Route {
  * @class App
  * @typedef {App}
  */
-export class App {
+export class App<sessionInfo = unknown> {
     /**
      * Creates a header authorization function
      * @date 3/8/2024 - 6:13:51 AM
@@ -319,7 +321,7 @@ export class App {
      * @readonly
      * @type {FinalFunction<unknown>[]}
      */
-    public readonly finalFunctions: FinalFunction<unknown>[] = [];
+    public readonly finalFunctions: FinalFunction<unknown, sessionInfo>[] = [];
     /**
      * HTTP server
      * @date 3/8/2024 - 6:13:50 AM
@@ -344,7 +346,10 @@ export class App {
     ) {
         this.server = express();
         this.httpServer = http.createServer(this.server);
-        this.io = new SocketWrapper(this, new Server(this.httpServer));
+        this.io = new SocketWrapper(
+            this as App<unknown>,
+            new Server(this.httpServer)
+        );
 
         // s.listen(port, () => {
         //     log(`Server is listening on port ${port}`);
@@ -365,10 +370,18 @@ export class App {
         //     })
         // );
         this.server.use(async (req, res, next) => {
-            const s = await Session.from(this, req, res);
-            const request = new Req(this, req, s);
+            const s = await Session.from<sessionInfo>(
+                this as App<unknown>,
+                req,
+                res
+            );
+            const request = new Req<unknown, sessionInfo>(
+                this as App<unknown>,
+                req,
+                s
+            );
             req.request = request;
-            req.response = new Res(this, res, request);
+            req.response = new Res(this as App<unknown>, res, request);
             next();
         });
     }
@@ -386,22 +399,27 @@ export class App {
     private addListener<T>(
         method: RequestMethod,
         path: string,
-        ...fn: ServerFunction<T>[]
+        ...fn: ServerFunction<T, sessionInfo>[]
     ) {
         this.server[method](path, async (req: express.Request, _res, next) => {
             const final = async () => {
                 // console.log('Final');
                 // if (!req.response.fulfilled) return console.log('Not fulfilled');
                 for (const fn of this.finalFunctions) {
-                    await fn(req.request as Req<unknown>, req.response);
+                    await fn(
+                        req.request as Req<unknown, sessionInfo>,
+                        req.response
+                    );
                 }
             };
             try {
                 const run = async (i: number) => {
                     // console.log('Running:', i);
                     if (i >= fn.length) return next();
-                    await fn[i](req.request as Req<T>, req.response, () =>
-                        run(i + 1)
+                    await fn[i](
+                        req.request as Req<T, sessionInfo>,
+                        req.response,
+                        () => run(i + 1)
                     );
                     // console.log('Ran:', i, 'of', fn.length, 'for', path);
                 };
@@ -423,7 +441,7 @@ export class App {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public get<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public get<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener<T>(RequestMethod.GET, path, ...fn);
     }
 
@@ -436,7 +454,7 @@ export class App {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public post<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public post<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener<T>(RequestMethod.POST, path, ...fn);
     }
 
@@ -449,7 +467,7 @@ export class App {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public put<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public put<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener<T>(RequestMethod.PUT, path, ...fn);
     }
 
@@ -462,7 +480,7 @@ export class App {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public delete<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public delete<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener<T>(RequestMethod.DELETE, path, ...fn);
     }
 
@@ -475,7 +493,7 @@ export class App {
      * @param {string} path
      * @param {...ServerFunction<T>[]} fn
      */
-    public use<T>(path: string, ...fn: ServerFunction<T>[]) {
+    public use<T>(path: string, ...fn: ServerFunction<T, sessionInfo>[]) {
         this.addListener<T>(RequestMethod.USE, path, ...fn);
     }
 
@@ -487,7 +505,7 @@ export class App {
      * @param {string} path
      * @param {Route} route
      */
-    public route(path: string, route: Route) {
+    public route(path: string, route: Route<sessionInfo> | Route<unknown>) {
         this.server.use(path, route.router);
     }
 
@@ -511,8 +529,8 @@ export class App {
      * @template T
      * @param {FinalFunction<T>} fn
      */
-    public final<T>(fn: FinalFunction<T>) {
-        this.finalFunctions.push(fn as FinalFunction<unknown>);
+    public final<T>(fn: FinalFunction<T, sessionInfo>) {
+        this.finalFunctions.push(fn as FinalFunction<unknown, sessionInfo>);
     }
 
     /**
