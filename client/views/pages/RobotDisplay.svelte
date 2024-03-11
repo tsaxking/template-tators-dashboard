@@ -68,7 +68,7 @@ MatchScouting.on('new', m => {
         <DashboardCard title="Pictures" scroll="{true}">
             <TeamPictures {team} upload="{true}" />
         </DashboardCard>
-        <DashboardCard title="Match Viewer" expandable="{true}" scroll={true}>
+        <DashboardCard title="Match Viewer" expandable="{true}" scroll="{true}">
             <HorizontalMatchViewer {team} />
         </DashboardCard>
         <DashboardCard
