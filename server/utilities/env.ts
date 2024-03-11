@@ -55,4 +55,14 @@ export const __entries = path.resolve(__root, './client/entries/');
  */
 export const unify = (str: string) => str.replace(/\\/g, '/');
 
-export default process.env;
+const env = process.env;
+
+for (const key in env) {
+    if (env[key] === 'true' || env[key] === 'y' || env[key] === 'yes') {
+        env[key] = 'true'; // truthy
+    } else if (env[key] === 'false' || env[key] === 'n' || env[key] === 'no') {
+        env[key] = ''; // falsy
+    }
+}
+
+export default env;
