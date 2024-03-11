@@ -824,7 +824,7 @@ export type Update_match_scouting_update = {
     scoutId: string | undefined;
     scoutGroup: number;
     time: number;
-    preScouting: undefined;
+    preScouting: number;
     trace: string;
     checks: string;
     id: string;
@@ -837,7 +837,7 @@ export type Insert_match_scouting_new = {
     scoutId: string | undefined;
     scoutGroup: number;
     time: number;
-    preScouting: undefined;
+    preScouting: number;
     trace: string;
     checks: string;
     scoutName: string;

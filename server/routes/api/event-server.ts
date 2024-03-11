@@ -4,7 +4,8 @@ import { validate } from '../../middleware/data-type';
 import { TBA } from '../../utilities/tba/tba';
 import {
     TBAMatch,
-    TBATeam
+    TBATeam,
+    teamsFromMatch
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { generateScoutGroups } from '../../../shared/submodules/tatorscout-calculations/scout-groups';
 import { attemptAsync } from '../../../shared/check';
@@ -41,11 +42,57 @@ router.post<Match>(
             group,
             scout,
             date,
-            trace
+            trace,
+            preScouting,
         } = req.body;
+
 
         const matchScoutingId = uuid();
         const traceStr = JSON.stringify(trace);
+
+        if (preScouting) {
+            const matches = await TBA.get<TBAMatch[]>(
+                `/event/${eventKey}/matches`
+            );
+            if (matches.isErr() || !matches.value) return res.sendStatus('unknown:error');
+            const m = matches.value.find(
+                m => m.match_number === matchNumber && m.comp_level === compLevel
+            );
+
+            if (!m) return res.sendStatus('unknown:error');
+
+            const [r1, r2, r3, b1, b2, b3] = teamsFromMatch(m);
+
+            const customMatchId = uuid();
+
+            DB.run('custom-matches/new', {
+                id: customMatchId,
+                eventKey,
+                matchNumber,
+                compLevel,
+                created: Date.now(),
+                name: `Prscouting match ${eventKey} ${matchNumber} for ${teamNumber}`,
+                red1: r1,
+                red2: r2,
+                red3: r3,
+                blue1: b1,
+                blue2: b2,
+                blue3: b3
+            });
+
+            DB.run('match-scouting/new', {
+                id: matchScoutingId,
+                matchId: customMatchId,
+                team: teamNumber,
+                scoutId: scout,
+                scoutGroup: group,
+                trace: traceStr,
+                preScouting: +preScouting,
+                time: date,
+                checks: JSON.stringify(checks),
+                scoutName: scout
+            });
+        }
 
         const matchesRes = await DB.all('matches/from-event', {
             eventKey
@@ -121,7 +168,7 @@ router.post<Match>(
             scoutId,
             scoutGroup: group,
             trace: traceStr,
-            preScouting: undefined,
+            preScouting: 0,
             time: date,
             checks: JSON.stringify(checks),
             scoutName: scout // in case there is no scout id
