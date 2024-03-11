@@ -112,9 +112,7 @@ const fns = {
         canvas.clearDrawables();
         stop();
 
-        const img = new Img(
-            `/public/pictures/${team.event.tba.year}field.png`
-        );
+        const img = new Img(`/public/pictures/${team.event.tba.year}field.png`);
         img.options.height = 1;
         img.options.width = 1;
         img.options.x = 0;
