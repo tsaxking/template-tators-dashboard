@@ -1,12 +1,10 @@
 <script lang="ts">
-import { FIRSTTeam } from "../../../models/FIRST/team";
-import { MatchScouting } from "../../../models/FIRST/match-scouting";
-import MatchViewer from "./MatchViewer.svelte";
-
+import { FIRSTTeam } from '../../../models/FIRST/team';
+import { MatchScouting } from '../../../models/FIRST/match-scouting';
+import MatchViewer from './MatchViewer.svelte';
 
 export let team: FIRSTTeam | undefined = undefined;
 export let matches: MatchScouting[] = [];
-
 
 const fns = {
     getTeam: async (t?: FIRSTTeam) => {
@@ -16,7 +14,7 @@ const fns = {
             matches = matchesRes.value;
         }
     }
-}
+};
 
 $: fns.getTeam(team);
 </script>
