@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS MatchScouting (
     scoutId TEXT, -- account id of scout, can be null in case of prescouting
     scoutGroup INTEGER NOT NULL, -- 0 thru 5
     time BIGINT NOT NULL, -- time of submission (in ms)
-    prescouting TEXT, 
+    prescouting TEXT, -- turned into INTEGER (0 or 1) in 1.3.6
 
 
 
