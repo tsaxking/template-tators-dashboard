@@ -378,7 +378,6 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             throw res.error;
         });
-    
     }
 }
 
