@@ -363,6 +363,23 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             return res.value;
         });
     }
+
+    async getPictures(): Promise<Result<TeamPicture[]>> {
+        return attemptAsync(async () => {
+            // if (this.pictures.length > 0) return this.pictures;
+            const res = await ServerRequest.get<TeamPicture[]>(
+                `/api/teams/pictures/${this.number}/${this.event.key}`
+            );
+
+            if (res.isOk()) {
+                this.$cache.set('pictures', res.value);
+                return res.value;
+            }
+
+            throw res.error;
+        });
+    
+    }
 }
 
 // update sockets:
