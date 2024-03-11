@@ -105,7 +105,7 @@ onMount(() => {
     return () => {
         canvas.clearDrawables();
         stop();
-    }
+    };
 });
 
 let stop = () => {};
