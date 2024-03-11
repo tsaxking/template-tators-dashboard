@@ -1,9 +1,11 @@
 import { TBA } from '../server/utilities/tba/tba';
 import {
+    TBAMatch,
     TBATeam,
-    TBATeamEventStatus
+    TBATeamEventStatus,
+    teamsFromMatch
 } from '../shared/submodules/tatorscout-calculations/tba';
-import { attemptAsync, Result } from '../shared/check';
+import { attempt, attemptAsync, resolveAll, Result } from '../shared/check';
 import { DB } from '../server/utilities/databases';
 import {
     Trace,
@@ -242,9 +244,52 @@ export class Table {
                             };
                         });
 
-                        const scores = matches.map(m =>
-                            Trace.score.parse2024(m.trace)
+                        const tbaMatches = await TBA.get<TBAMatch[]>(
+                            '/event/' + eventKey + '/matches'
                         );
+
+                        if (tbaMatches.isErr()) throw tbaMatches.error;
+                        if (!tbaMatches.value)
+                            throw new Error('No matches found');
+
+                        const scoresRes = resolveAll(
+                            matches.map(m => {
+                                return attempt(() => {
+                                    const match = tbaMatches.value?.find(
+                                        match =>
+                                            match.match_number ===
+                                                m.matchNumber &&
+                                            match.comp_level === m.compLevel
+                                    );
+
+                                    if (!match)
+                                        throw new Error('Match not found');
+
+                                    const [r1, r2, r3, b1, b2, b3] =
+                                        teamsFromMatch(match);
+
+                                    let alliance: 'red' | 'blue';
+                                    if ([r1, r2, r3].includes(teamNumber))
+                                        alliance = 'red';
+                                    else if ([b1, b2, b3].includes(teamNumber))
+                                        alliance = 'blue';
+                                    else
+                                        throw new Error(
+                                            'Team not found in match'
+                                        );
+
+                                    const trace = m.trace;
+
+                                    return Trace.score.parse2024(
+                                        trace,
+                                        alliance
+                                    );
+                                });
+                            })
+                        );
+
+                        if (scoresRes.isErr()) throw scoresRes.error;
+                        const scores = scoresRes.value;
 
                         return {
                             headers,
@@ -294,9 +339,52 @@ export class Table {
                             };
                         });
 
-                        const scores = matches.map(
-                            m => Trace.score.parse2024(m.trace).auto
+                        const tbaMatches = await TBA.get<TBAMatch[]>(
+                            '/event/' + eventKey + '/matches'
                         );
+
+                        if (tbaMatches.isErr()) throw tbaMatches.error;
+                        if (!tbaMatches.value)
+                            throw new Error('No matches found');
+
+                        const scoresRes = resolveAll(
+                            matches.map(m => {
+                                return attempt(() => {
+                                    const match = tbaMatches.value?.find(
+                                        match =>
+                                            match.match_number ===
+                                                m.matchNumber &&
+                                            match.comp_level === m.compLevel
+                                    );
+
+                                    if (!match)
+                                        throw new Error('Match not found');
+
+                                    const [r1, r2, r3, b1, b2, b3] =
+                                        teamsFromMatch(match);
+
+                                    let alliance: 'red' | 'blue';
+                                    if ([r1, r2, r3].includes(teamNumber))
+                                        alliance = 'red';
+                                    else if ([b1, b2, b3].includes(teamNumber))
+                                        alliance = 'blue';
+                                    else
+                                        throw new Error(
+                                            'Team not found in match'
+                                        );
+
+                                    const trace = m.trace;
+
+                                    return Trace.score.parse2024(
+                                        trace,
+                                        alliance
+                                    ).auto;
+                                });
+                            })
+                        );
+
+                        if (scoresRes.isErr()) throw scoresRes.error;
+                        const scores = scoresRes.value;
 
                         return {
                             headers,
@@ -340,9 +428,52 @@ export class Table {
                             };
                         });
 
-                        const scores = matches.map(
-                            m => Trace.score.parse2024(m.trace).teleop
+                        const tbaMatches = await TBA.get<TBAMatch[]>(
+                            '/event/' + eventKey + '/matches'
                         );
+
+                        if (tbaMatches.isErr()) throw tbaMatches.error;
+                        if (!tbaMatches.value)
+                            throw new Error('No matches found');
+
+                        const scoresRes = resolveAll(
+                            matches.map(m => {
+                                return attempt(() => {
+                                    const match = tbaMatches.value?.find(
+                                        match =>
+                                            match.match_number ===
+                                                m.matchNumber &&
+                                            match.comp_level === m.compLevel
+                                    );
+
+                                    if (!match)
+                                        throw new Error('Match not found');
+
+                                    const [r1, r2, r3, b1, b2, b3] =
+                                        teamsFromMatch(match);
+
+                                    let alliance: 'red' | 'blue';
+                                    if ([r1, r2, r3].includes(teamNumber))
+                                        alliance = 'red';
+                                    else if ([b1, b2, b3].includes(teamNumber))
+                                        alliance = 'blue';
+                                    else
+                                        throw new Error(
+                                            'Team not found in match'
+                                        );
+
+                                    const trace = m.trace;
+
+                                    return Trace.score.parse2024(
+                                        trace,
+                                        alliance
+                                    ).teleop;
+                                });
+                            })
+                        );
+
+                        if (scoresRes.isErr()) throw scoresRes.error;
+                        const scores = scoresRes.value;
 
                         return {
                             headers,
@@ -382,15 +513,56 @@ export class Table {
                         const matches = res.value.map(m => {
                             return {
                                 ...m,
-                                trace: m.trace
-                                    ? (JSON.parse(m.trace) as TraceArray)
-                                    : []
+                                trace: JSON.parse(m.trace) as TraceArray
                             };
                         });
 
-                        const scores = matches.map(
-                            m => Trace.score.parse2024(m.trace).endgame
+                        const tbaMatches = await TBA.get<TBAMatch[]>(
+                            '/event/' + eventKey + '/matches'
                         );
+
+                        if (tbaMatches.isErr()) throw tbaMatches.error;
+                        if (!tbaMatches.value)
+                            throw new Error('No matches found');
+
+                        const scoresRes = resolveAll(
+                            matches.map(m => {
+                                return attempt(() => {
+                                    const match = tbaMatches.value?.find(
+                                        match =>
+                                            match.match_number ===
+                                                m.matchNumber &&
+                                            match.comp_level === m.compLevel
+                                    );
+
+                                    if (!match)
+                                        throw new Error('Match not found');
+
+                                    const [r1, r2, r3, b1, b2, b3] =
+                                        teamsFromMatch(match);
+
+                                    let alliance: 'red' | 'blue';
+                                    if ([r1, r2, r3].includes(teamNumber))
+                                        alliance = 'red';
+                                    else if ([b1, b2, b3].includes(teamNumber))
+                                        alliance = 'blue';
+                                    else
+                                        throw new Error(
+                                            'Team not found in match'
+                                        );
+
+                                    const trace = m.trace;
+
+                                    return Trace.score.parse2024(
+                                        trace,
+                                        alliance
+                                    ).endgame;
+                                });
+                            })
+                        );
+
+                        if (scoresRes.isErr()) throw scoresRes.error;
+                        const scores = scoresRes.value;
 
                         const climbTimes = matches
                             .map(m => Trace.yearInfo[2024].climbTimes(m.trace))
