@@ -31,19 +31,18 @@ const fns = {
             await Promise.all(res.value.map(s => s.getQuestion()))
         ));
 
-        
         if (questionsRes.isErr()) return console.error(questionsRes.error);
         const questions = questionsRes.value.filter(
-            (q, i, a) => a.indexOf(q) === i
+            (d, i, a) => a.findIndex(_s => _s.id === d.id) === i
         );
 
         const groupsRes = resolveAll((
             await Promise.all(questions.map(q => q.getGroup()))
         ));
 
-
         if (groupsRes.isErr()) return console.error(groupsRes.error);
-        const groups = groupsRes.value.filter((g, i, a) => a.indexOf(g) === i);
+        const groups = groupsRes.value.filter((d, i, a) => a.findIndex(_s => _s.id === d.id) === i);
+
 
         const sectionsRes = resolveAll((
             await Promise.all(groups.map(g => g.getSection()))
@@ -52,9 +51,8 @@ const fns = {
 
         if (sectionsRes.isErr()) return console.error(sectionsRes.error);
         const sections = sectionsRes.value.filter(
-            (s, i, a) => a.indexOf(s) === i
+            (d, i, a) => a.findIndex(_s => _s.id === d.id) === i
         );
-
 
         scoutingSections = await Promise.all(
             sections.map(async s => ({
