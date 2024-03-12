@@ -196,16 +196,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
      */
     async getTeams(): Promise<Result<FIRSTTeam[]>> {
         return attemptAsync(async () => {
-            const c = this.$cache.get('teams');
-            if (c) return c as FIRSTTeam[];
-
-            const serverStream = ServerRequest.retrieveStream<Team>(
-                '/api/teams/all-from-event',
-                {
-                    eventKey: this.tba.key
-                },
-                JSON.parse
-            );
+            const c = this.$cache.get('teams') as FIRSTTeam[];
+            if (c && c.length) return c;
 
             const res = await TBA.get<TBATeam[]>(
                 `/event/${this.tba.key}/teams`
@@ -216,16 +208,6 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                 const teams = value.data.map(team => new FIRSTTeam(team, this));
 
                 teams.sort((a, b) => a.number - b.number);
-
-                serverStream.on('chunk', team => {
-                    const found = teams.find(
-                        t => t.tba.team_number === team.number
-                    );
-
-                    if (found) {
-                        found.$cache.set('info', team);
-                    }
-                });
 
                 value.onUpdate(data => {
                     data.forEach(t => {
