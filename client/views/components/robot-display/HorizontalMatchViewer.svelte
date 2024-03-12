@@ -11,7 +11,7 @@ const fns = {
         if (!t) return;
         const matchesRes = await t.getMatchScouting();
         if (matchesRes.isOk()) {
-            matches = matchesRes.value;
+            matches = matchesRes.value.reverse();
         }
     }
 };
