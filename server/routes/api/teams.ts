@@ -4,6 +4,7 @@ import { DB } from '../../utilities/databases';
 import { fileStream } from '../../middleware/stream';
 import Account from '../../structure/accounts';
 import { readDir } from '../../utilities/files';
+import { resolveAll } from '../../../shared/check';
 export const router = new Route();
 
 router.post<{
@@ -175,7 +176,65 @@ router.post<{
             return res.sendStatus('unknown:error');
         }
 
-        const r = res.sendStatus('teams:pictures-uploaded');
-        // console.log(r);
+        res.sendStatus('teams:pictures-uploaded');
+    }
+);
+
+router.post<{
+    teamNumber: number;
+    eventKey: string;
+    fromEventKey: string;
+}>(
+    '/migrate-pictures',
+    validate({
+        teamNumber: 'number',
+        eventKey: 'string',
+        fromEventKey: 'string'
+    }),
+    Account.isSignedIn,
+    Account.allowPermissions('submitScoutingAnswers'),
+    async (req, res) => {
+        const { teamNumber, eventKey, fromEventKey } = req.body;
+        const { accountId } = req.session;
+
+        if (!accountId) return res.sendStatus('unknown:error');
+
+        const pictures = await DB.all('teams/get-pictures', {
+            eventKey: fromEventKey,
+            teamNumber
+        });
+
+        if (pictures.isErr()) return res.sendStatus('unknown:error');
+
+        const time = Date.now();
+        const result = resolveAll(
+            await Promise.all(
+                pictures.value.map(p => 
+                    DB.run('teams/new-picture', {
+                        teamNumber,
+                        eventKey,
+                        picture: p.picture,
+                        accountId,
+                        time
+                    })
+                )
+            )
+        );
+
+        if (result.isOk()) {
+            res.sendStatus('teams:pictures-migrated');
+        } else {
+            res.sendStatus('unknown:error');
+        }
+
+        for (const p of pictures.value) {
+            req.io.emit('teams:pictures-uploaded', {
+                eventKey,
+                teamNumber,
+                picture: p.picture,
+                accountId,
+                time
+            });
+        }
     }
 );

@@ -379,6 +379,21 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             throw res.error;
         });
     }
+
+    async migratePicturesFromEvent(eventKey: string) {
+        return attemptAsync(async () => {
+            const res = await ServerRequest.post(
+                '/api/teams/migrate-pictures',
+                {
+                    teamNumber: this.number,
+                    eventKey: this.event.key,
+                    fromEventKey: eventKey
+                }
+            );
+
+            if (res.isErr()) throw res.error;
+        });
+    }
 }
 
 // update sockets:
