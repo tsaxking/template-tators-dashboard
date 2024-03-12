@@ -1,36 +1,37 @@
 <script lang="ts">
-import { FIRSTTeam } from "../../../models/FIRST/team";
-import { resolveAll } from "../../../../shared/check";
+import { FIRSTTeam } from '../../../models/FIRST/team';
+import { resolveAll } from '../../../../shared/check';
 
-    export let team: FIRSTTeam | undefined = undefined;
-    let scouts: {
-        [key: string]: number
-    } = {}
+export let team: FIRSTTeam | undefined = undefined;
+let scouts: {
+    [key: string]: number;
+} = {};
 
-    const fns = {
-        getTeam: async (team: FIRSTTeam | undefined) => {
-            scouts = {};
-            if (!team) return;
+const fns = {
+    getTeam: async (team: FIRSTTeam | undefined) => {
+        scouts = {};
+        if (!team) return;
 
-            const scouting = await team.getMatchScouting();
-            if (scouting.isErr()) return console.error(scouting.error);
+        const scouting = await team.getMatchScouting();
+        if (scouting.isErr()) return console.error(scouting.error);
 
-            const accounts = resolveAll(await Promise.all(scouting.value.map(s => s.getScout())));
+        const accounts = resolveAll(
+            await Promise.all(scouting.value.map(s => s.getScout()))
+        );
 
-            if (accounts.isErr()) return console.error(accounts.error);
+        if (accounts.isErr()) return console.error(accounts.error);
 
-            for (const a of accounts.value) {
-                if (a) {
-                    if (!scouts[a.name]) scouts[a.name] = 0;
-                    scouts[a.name]++;
-                }
+        for (const a of accounts.value) {
+            if (a) {
+                if (!scouts[a.name]) scouts[a.name] = 0;
+                scouts[a.name]++;
             }
-
-            scouts = scouts;
         }
-    }
-</script>
 
+        scouts = scouts;
+    }
+};
+</script>
 
 <table class="table table-hover table-striped">
     <tbody>
