@@ -65,13 +65,14 @@ export class TBA {
             // }
 
             const fetcher = async (): Promise<T | null> => {
+                
                 return fetch('https://www.thebluealliance.com/api/v3' + path, {
                     headers: {
                         'X-TBA-Auth-Key':
                             'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
                     },
                     method: 'GET'
-                    // mode: 'cors'
+                    mode: 'cors'
                 }).then(data => data.json()) as Promise<T>;
 
                 // const d = await ServerRequest.get<T>(`/api/tba${path}`);
