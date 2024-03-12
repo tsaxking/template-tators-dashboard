@@ -20,23 +20,26 @@ const fns = {
         const matches = await t.event.getMatches();
         if (matches.isErr()) return console.error(matches.error);
 
-
-        const teamMatches = (await Promise.all(matches.value.map(async m => {
-            const teams = await m.getTeams();
-            if (teams.isErr()) {
-                return {
-                    ...m,
-                    teams: [],
-                    played: m.played
-                }
-            } else {
-                return {
-                    ...m,
-                    teams: teams.value,
-                    played: m.played
-                }
-            }
-        }))).filter(m => m.teams.includes(t));
+        const teamMatches = (
+            await Promise.all(
+                matches.value.map(async m => {
+                    const teams = await m.getTeams();
+                    if (teams.isErr()) {
+                        return {
+                            ...m,
+                            teams: [],
+                            played: m.played
+                        };
+                    } else {
+                        return {
+                            ...m,
+                            teams: teams.value,
+                            played: m.played
+                        };
+                    }
+                })
+            )
+        ).filter(m => m.teams.includes(t));
         const playedMatches = teamMatches.filter(m => m.played);
 
         played = playedMatches.length;
