@@ -22,6 +22,8 @@ type TBACache<T> = {
     stored: number;
 }
 
+const CACHE_VERSION = 0;
+
 /**
  * Description placeholder
  * @date 1/11/2024 - 3:11:24 AM
@@ -161,7 +163,7 @@ export class TBA {
      */
     private static storeCache<T>(path: string, data: T) {
         try {
-            localStorage.setItem('0-'+path, JSON.stringify({
+            localStorage.setItem(CACHE_VERSION +'-'+path, JSON.stringify({
                 data,
                 stored: Date.now()
             }));
@@ -181,7 +183,7 @@ export class TBA {
      * @returns {(T | null)}
      */
     private static retrieveCache<T>(path: string): TBACache<T> | null {
-        const item = localStorage.getItem(path);
+        const item = localStorage.getItem(CACHE_VERSION + '-'+path);
         if (!item) return null;
         try {
             return JSON.parse(item) as TBACache<T>;
