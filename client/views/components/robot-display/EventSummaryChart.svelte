@@ -5,7 +5,7 @@ import { Bar } from 'svelte-chartjs';
 import { generateTrace } from '../../../../shared/dummy-data';
 import { TBA } from '../../../utilities/tba';
 import {
-    TBAMatch,
+    type TBAMatch,
     teamsFromMatch
 } from '../../../../shared/submodules/tatorscout-calculations/tba';
 

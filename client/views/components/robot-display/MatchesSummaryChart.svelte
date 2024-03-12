@@ -4,7 +4,7 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Bar } from 'svelte-chartjs';
 import { TBA } from '../../../utilities/tba';
 import {
-    TBAMatch,
+    type TBAMatch,
     teamsFromMatch
 } from '../../../../shared/submodules/tatorscout-calculations/tba';
 
