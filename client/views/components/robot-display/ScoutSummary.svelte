@@ -3,32 +3,28 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { resolveAll } from '../../../../shared/check';
 
 export let team: FIRSTTeam | undefined = undefined;
-let scouts: {
-    [key: string]: number;
-} = {};
+let scouts: { name: string; number: number; }[] = [];
 
 const fns = {
     getTeam: async (team: FIRSTTeam | undefined) => {
-        scouts = {};
+        scouts = [];
         if (!team) return;
 
         const scouting = await team.getMatchScouting();
         if (scouting.isErr()) return console.error(scouting.error);
 
-        const accounts = resolveAll(
-            await Promise.all(scouting.value.map(s => s.getScout()))
-        );
+        const _scouts: { [name: string]: number; } = {};
 
-        if (accounts.isErr()) return console.error(accounts.error);
-
-        for (const a of accounts.value) {
-            if (a) {
-                if (!scouts[a.name]) scouts[a.name] = 0;
-                scouts[a.name]++;
-            }
+        for (const m of scouting.value) {
+            if (!_scouts[m.scoutName]) _scouts[m.scoutName] = 0;
+            _scouts[m.scoutName]++;
         }
 
-        scouts = scouts;
+        for (const name in _scouts) {
+            scouts.push({ name, number: _scouts[name] });
+        }
+
+        scouts = scouts.sort((a, b) => b.number - a.number);
     }
 };
 
@@ -37,10 +33,10 @@ $: fns.getTeam(team);
 
 <table class="table table-hover table-striped">
     <tbody>
-        {#each Object.keys(scouts) as scout}
+        {#each scouts as scout}
             <tr>
-                <td>{scout}</td>
-                <td>{scouts[scout]}</td>
+                <td>{scout.name}</td>
+                <td>{scout.number}</td>
             </tr>
         {/each}
     </tbody>
