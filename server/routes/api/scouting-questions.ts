@@ -670,8 +670,14 @@ router.post<{
         const q = await DB.get('scouting-questions/question-from-id', {
             id
         });
-
         if (q.isErr()) return res.sendStatus('server:unknown-server-error');
+
+        const group = await DB.get('scouting-questions/group-from-id', {
+            id: q.value?.groupId || ''
+        });
+
+        if (group.isErr()) return res.sendStatus('unknown:error');
+
 
         if (!q.value) {
             return res.sendStatus('scouting-question:question-not-found');
@@ -708,7 +714,8 @@ router.post<{
             description,
             accountId,
             dateAdded,
-            options: o
+            options: o,
+            eventKey: group.value?.eventKey || ''
         });
     }
 );
@@ -800,3 +807,44 @@ router.post<{
         res.json(question.value);
     }
 );
+
+router.post<{
+    eventKey: string;
+}>(
+    '/groups-from-event',
+    validate({
+        eventKey: 'string'
+    }),
+    async (req, res) => {
+        const { eventKey } = req.body;
+
+        const result = await DB.all('scouting-questions/groups-from-event', {
+            eventKey
+        });
+
+
+        if (result.isErr()) return res.sendStatus('unknown:error');
+
+        res.json(result.value);
+    }
+);
+
+router.post<{
+    eventKey: string;
+}>(
+    '/questions-from-event',
+    validate({
+        eventKey: 'string',
+    }),
+    async (req, res) => {
+        const { eventKey } = req.body;
+
+        const result = await DB.all('scouting-questions/questions-from-event', {
+            eventKey
+        });
+
+        if (result.isErr()) return res.sendStatus('unknown:error');
+
+        res.json(result.value);
+    }
+)
