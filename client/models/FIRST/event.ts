@@ -275,7 +275,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         );
 
         console.log({
-            pictures: res
+            pictures: res,
+            teams
         });
 
         if (res.isOk()) {
