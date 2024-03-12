@@ -7,6 +7,7 @@ import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/t
 import { socket } from '../../utilities/socket';
 import { TeamComment } from './team-comments';
 import { Color } from '../../submodules/colors/color';
+import { Account } from '../account';
 
 type MatchScoutingEvents = {
     update: MatchScouting;
@@ -203,6 +204,15 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
             rank
         };
     }
+
+    async getScout(): Promise<Result<Account | undefined>> {
+        return attemptAsync(async () => {
+            if (this.scoutId) {
+                return Account.get(this.scoutId);
+            }
+            return undefined;
+        });
+    } 
 }
 
 socket.on('match-scouting:new', (data: MatchScoutingObj) => {
