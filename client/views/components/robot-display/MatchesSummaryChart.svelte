@@ -2,6 +2,8 @@
 import { Trace } from '../../../../shared/submodules/tatorscout-calculations/trace';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Bar } from 'svelte-chartjs';
+import { TBA } from '../../../utilities/tba';
+import { TBAMatch, teamsFromMatch } from '../../../../shared/submodules/tatorscout-calculations/tba';
 
 export let team: FIRSTTeam | undefined = undefined;
 
@@ -21,6 +23,11 @@ const fns = {
     getEventSummary: async (team?: FIRSTTeam) => {
         if (!team) return;
         const matches = await team.getMatchScouting();
+
+        const tbaMatches = await TBA.get<TBAMatch[]>(`/event/${team.event.key}/matches`);
+        if (tbaMatches.isErr()) return console.error(tbaMatches.error);
+        if (!tbaMatches.value.data) return console.error('Could not find tbaMatches');
+
         if (matches.isOk()) {
             // for development
             // DELETE THIS IN PRODUCTION
@@ -32,9 +39,18 @@ const fns = {
 
             const matchData = matches.value;
 
-            const eventSummary = matchData.map(m =>
-                Trace.score.parse2024(m.trace)
-            );
+            const eventSummary = matchData.map(m =>{
+                const foundM = tbaMatches.value.data.find(_m =>
+                    m.matchNumber === _m.match_number && m.compLevel === _m.comp_level
+                );
+
+                let alliance: 'red' | 'blue' = 'red';
+                if (foundM) {
+                    const [,,, b1, b2, b3] = teamsFromMatch(foundM);
+                    if (!![b1, b2, b3].find(r => team.number === r)) alliance = 'red';
+                }
+                return Trace.score.parse2024(m.trace, alliance);
+            });
 
             data = {
                 labels: [
