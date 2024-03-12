@@ -29,7 +29,7 @@ const fns = {
         }
 
         console.clear();
-        console.log({ scouts });
+        console.log({ scouts, scouting, accounts });
 
         scouts = scouts;
     }
