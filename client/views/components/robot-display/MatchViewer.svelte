@@ -236,7 +236,7 @@ $: {
 <div class="container-fluid">
     <div class="row mb-3">
         <h5>
-            Scouted by: {scout}
+            {match.matchNumber} | {match.compLevel} | {scout}
         </h5>
     </div>
     <div class="row mb-3">

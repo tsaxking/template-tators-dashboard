@@ -48,7 +48,7 @@ const fns = {
     viewMatch: async (m: FIRSTMatch) => {
         if (!team) return alert('No team selected');
         const modal = new Modal(Math.random().toString().substring(2));
-        modal.setTitle(`Match ${m.tba.match_number} Details`);
+        modal.setTitle('Match viewer');
         modal.size = 'lg';
 
         const res = await team.getMatchScouting();
