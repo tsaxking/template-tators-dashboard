@@ -31,19 +31,23 @@ const fns = {
         if (matchScoutingRes.isErr())
             return console.error(matchScoutingRes.error);
 
-        matches = (await Promise.all(matchesRes.value
-            .map(async m => {
-                const teams = await m.getTeams();
-                if (teams.isOk()) return {
-                    match: m,
-                    teams: teams.value
-                }
+        matches = (
+            await Promise.all(
+                matchesRes.value.map(async m => {
+                    const teams = await m.getTeams();
+                    if (teams.isOk())
+                        return {
+                            match: m,
+                            teams: teams.value
+                        };
 
-                return {
-                    match: m,
-                    teams: []
-                }
-            })))
+                    return {
+                        match: m,
+                        teams: []
+                    };
+                })
+            )
+        )
             .filter(m => m.teams.find(_t => _t.number === t.number))
             .map(m => ({
                 match: m.match,
@@ -57,7 +61,7 @@ const fns = {
         const newComment = () => {
             fns.getMatches(t);
             t.off('new-comment', newComment);
-        }
+        };
 
         t.on('new-comment', newComment);
 

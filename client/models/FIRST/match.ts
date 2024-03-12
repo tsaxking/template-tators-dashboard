@@ -4,7 +4,10 @@ import {
     Whiteboard as WhiteboardObj
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { TBAMatch, teamsFromMatch } from '../../../shared/submodules/tatorscout-calculations/tba';
+import {
+    TBAMatch,
+    teamsFromMatch
+} from '../../../shared/submodules/tatorscout-calculations/tba';
 import {
     RetrieveStreamEventEmitter,
     ServerRequest
@@ -109,7 +112,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     ) {
         super();
 
-        this.getTeams().then((res) => {
+        this.getTeams().then(res => {
             if (res.isOk()) {
                 const teams = res.value;
 
@@ -124,7 +127,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
                     });
                 }
             }
-        })
+        });
     }
 
     get number() {
@@ -255,17 +258,17 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             const _teams = await this.event.getTeams();
 
             if (_teams.isErr()) throw _teams.error;
-    
+
             let teams = [r1, r2, r3, b1, b2, b3].map(t =>
                 _teams.value.find(_t => _t.number === +t)
             );
-    
+
             if (teams.some(t => !t)) {
-                console.error('Teams not found', {teams, _teams});
-    
+                console.error('Teams not found', { teams, _teams });
+
                 teams = teams.filter(t => t);
             }
-    
+
             return teams as [
                 FIRSTTeam,
                 FIRSTTeam,
