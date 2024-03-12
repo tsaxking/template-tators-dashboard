@@ -278,13 +278,22 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             for (const p of res.value) {
                 const t = teams.value.find(t => t.number === p.teamNumber);
                 if (!t) continue;
-                t.$cache.set('pictures', [
-                    ...(() => {
-                        if (t.$cache.has('pictures')) return t.$cache.get('pictures') as TeamPicture[];
-                        else return [];
-                    })(),
-                    p
-                ].filter((p, i, a) => a.findIndex(_p => _p.picture === p.picture) === i));
+                t.$cache.set(
+                    'pictures',
+                    [
+                        ...(() => {
+                            if (t.$cache.has('pictures'))
+                                return t.$cache.get(
+                                    'pictures'
+                                ) as TeamPicture[];
+                            else return [];
+                        })(),
+                        p
+                    ].filter(
+                        (p, i, a) =>
+                            a.findIndex(_p => _p.picture === p.picture) === i
+                    )
+                );
             }
         }
     }
