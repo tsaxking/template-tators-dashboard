@@ -7,6 +7,7 @@ import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.sv
 import Checklist from '../pages/Checklist.svelte';
 import { type PageGroup } from '../../utilities/general-types';
 import { getOpenPage } from '../../utilities/page';
+import Quiz from '../pages/Quiz.svelte';
 
 const groups: PageGroup[] = [
     {
@@ -34,6 +35,16 @@ const groups: PageGroup[] = [
             {
                 name: 'answer-scouting-questions',
                 icon: 'question_answer',
+                iconType: 'material'
+            }
+        ]
+    },
+    {
+        name: 'other',
+        pages: [
+            {
+                name: 'quiz',
+                icon: 'quiz',
                 iconType: 'material'
             }
         ]
@@ -71,5 +82,8 @@ const accountLinks: string[] = [
     </Page>
     <Page {active} {domain} title="scouting-checklist">
         <Checklist />
+    </Page>
+    <Page {active} {domain} title="quiz">
+        <Quiz />
     </Page>
 </Main>
