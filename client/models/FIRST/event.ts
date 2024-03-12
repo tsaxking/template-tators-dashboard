@@ -265,7 +265,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         const teams = await this.getTeams();
         if (teams.isErr()) return;
 
-        if (teams.value.some(t => t.pictures.length > 0)) return [];
+        if (teams.value.some(t => t.$cache.has('pictures'))) return;
 
         const res = await ServerRequest.post<TeamPicture[]>(
             '/api/teams/pictures-from-event',
@@ -274,18 +274,18 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             }
         );
 
-        console.log({
-            pictures: res,
-            teams
-        });
-
         if (res.isOk()) {
-            res.value.map(p => {
-                // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
+            for (const p of res.value) {
                 const t = teams.value.find(t => t.number === p.teamNumber);
-                if (!t) return; // should never happen
-                t.pictures = [...t.pictures, p];
-            });
+                if (!t) continue;
+                t.$cache.set('pictures', [
+                    ...(() => {
+                        if (t.$cache.has('pictures')) return t.$cache.get('pictures') as TeamPicture[];
+                        else return [];
+                    })(),
+                    p
+                ].filter((p, i, a) => a.findIndex(_p => _p.picture === p.picture) === i));
+            }
         }
     }
 

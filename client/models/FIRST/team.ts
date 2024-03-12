@@ -129,14 +129,6 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         return this.tba.nickname;
     }
 
-    get pictures(): TeamPicture[] {
-        return (this.$cache.get('pictures') || []) as TeamPicture[];
-    }
-
-    set pictures(pictures: TeamPicture[]) {
-        this.$cache.set('pictures', pictures);
-    }
-
     /**
      * Requests all events from TBA
      * Also starts an update that will update the cache every 24 hours and emit 'update-events' when it does
@@ -366,7 +358,9 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
     async getPictures(): Promise<Result<TeamPicture[]>> {
         return attemptAsync(async () => {
-            // if (this.pictures.length > 0) return this.pictures;
+            if (this.$cache.has('pictures')) {
+                return this.$cache.get('pictures') as TeamPicture[];
+            }
             const res = await ServerRequest.get<TeamPicture[]>(
                 `/api/teams/pictures/${this.number}/${this.event.key}`
             );
@@ -515,13 +509,15 @@ socket.on('pit-scouting:delete', (data: RetrievedScoutingAnswer) => {
 
 // TODO: sockets for watch priority
 
-socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
+socket.on('teams:pictures-uploaded', async (data: TeamPicture) => {
     const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
     if (!team) return;
 
-    const { pictures } = team;
+    const pictures = await team.getPictures();
 
-    pictures.push({
+    if (pictures.isErr()) return;
+
+    pictures.value.push({
         picture: data.picture,
         time: data.time,
         accountId: data.accountId,
@@ -529,8 +525,7 @@ socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
         teamNumber: data.teamNumber
     });
 
-    team.pictures = pictures;
-
+    team.$cache.set('pictures', pictures.value);
     team.emit('new-picture', data);
 });
 
