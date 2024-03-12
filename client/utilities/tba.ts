@@ -17,6 +17,11 @@ export type TBAResponse<T> = {
     onUpdate: (callback: (data: T) => void, interval?: number) => void;
 };
 
+type TBACache<T> = {
+    data: T;
+    stored: number;
+}
+
 /**
  * Description placeholder
  * @date 1/11/2024 - 3:11:24 AM
@@ -60,9 +65,12 @@ export class TBA {
         return attemptAsync(async () => {
             const start = Date.now();
             let data: T | null = null;
-            // if (cached) {
-            //     data = TBA.retrieveCache<T>(path);
-            // }
+            if (cached) {
+                const d = TBA.retrieveCache<T>(path);
+
+                // reset every 10 minutes
+                if (d && Date.now() - d.stored < 1000 * 10 * 60) data = d.data;
+            }
 
             const fetcher = async (): Promise<T | null> => {
                 // return fetch('https://www.thebluealliance.com/api/v3' + path, {
@@ -153,7 +161,10 @@ export class TBA {
      */
     private static storeCache<T>(path: string, data: T) {
         try {
-            localStorage.setItem(path, JSON.stringify(data));
+            localStorage.setItem('0-'+path, JSON.stringify({
+                data,
+                stored: Date.now()
+            }));
         } catch (error) {
             console.log('Cannot store cache:', error);
         }
@@ -169,11 +180,11 @@ export class TBA {
      * @param {string} path
      * @returns {(T | null)}
      */
-    private static retrieveCache<T>(path: string): T | null {
+    private static retrieveCache<T>(path: string): TBACache<T> | null {
         const item = localStorage.getItem(path);
         if (!item) return null;
         try {
-            return JSON.parse(item) as T;
+            return JSON.parse(item) as TBACache<T>;
         } catch (error) {
             console.log('Cannot retrieve cache:', error);
             return null;
