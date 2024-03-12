@@ -274,6 +274,10 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             }
         );
 
+        console.log({
+            pictures: res
+        });
+
         if (res.isOk()) {
             res.value.map(p => {
                 // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
