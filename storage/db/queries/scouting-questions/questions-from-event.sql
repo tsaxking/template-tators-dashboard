@@ -1,5 +1,6 @@
 SELECT
-    ScoutingQuestions.*
-FROM ScoutingQuestions
-INNER JOIN ScoutingQuestionGroups ON ScoutingQuestionGroups.id = ScoutingQuestions.groupId
+    ScoutingQuestions.*,
+    ScoutingQuestionGroups.eventKey
+FROM ScoutingQuestionGroups
+INNER JOIN ScoutingQuestions ON ScoutingQuestionGroups.id = ScoutingQuestions.groupId
 WHERE ScoutingQuestionGroups.eventKey = :eventKey;

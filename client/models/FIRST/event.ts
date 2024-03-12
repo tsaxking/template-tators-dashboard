@@ -337,27 +337,21 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         }>
     > {
         return attemptAsync(async () => {
-            const sections = await Section.all();
-            const groups = (
-                await Promise.all(
-                    sections.map(async s => {
-                        const res = await s.getGroups(this);
-                        if (res.isOk()) return res.value;
-                        throw res.error;
-                    })
-                )
-            ).flat();
-            const questionRes = resolveAll(
-                await Promise.all(groups.map(g => g.getQuestions()))
-            );
+            // const sections = await Section.all();
 
-            if (questionRes.isErr()) throw questionRes.error;
-            const questions = questionRes.value.flat();
+            const [sections, groups, questions] = await Promise.all([
+                Section.all(),
+                Group.fromEvent(this.key),
+                Question.fromEvent(this.key)
+            ]);
+
+            if (questions.isErr()) throw questions.error;
+            if (groups.isErr()) throw groups.error;
 
             return {
                 sections,
-                groups,
-                questions
+                groups: groups.value,
+                questions: questions.value
             };
         });
     }

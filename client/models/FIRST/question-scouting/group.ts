@@ -98,6 +98,26 @@ export class Group extends Cache<GroupUpdates> {
         });
     }
 
+    public static async fromEvent(eventKey: string): Promise<Result<Group[]>> {
+        return attemptAsync(async () => {
+            const cached = Array.from(Group.$cache.values()).filter(g => g.eventKey === eventKey);
+            if (cached.length) return cached;
+
+            const groups = await ServerRequest.post<ScoutingQuestionGroup[]>(
+                '/api/scouting-questions/groups-from-event',
+                {
+                    eventKey
+                }
+            );
+
+            if (groups.isOk()) {
+                return groups.value.map(g => new Group(g));
+            } else {
+                throw groups.error;
+            }
+        });
+    }
+
     public readonly id: string;
     public readonly eventKey: string;
     public readonly section: string;

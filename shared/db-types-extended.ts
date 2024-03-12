@@ -171,6 +171,7 @@ export type ScoutingQuestion = {
     dateAdded: string;
     accountId: string;
     options: string; // json
+    eventKey: string;
 };
 
 /**

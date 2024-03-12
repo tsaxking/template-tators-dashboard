@@ -26,17 +26,17 @@ let search = '';
 
 const fns = {
     parse: async (c: TeamComment[]) => {
+        const accounts = await Account.get(c.map(c => c.accountId));
+
         parsed = (
             await Promise.all(
-                c.map(async c => {
+                c.map(async (c, i) => {
                     return {
                         comment: c.comment,
                         type: c.type,
                         time: c.time,
-                        account: c.accountId
-                            ? (await Account.get(c.accountId))?.username ||
+                        account: accounts[i]?.username ||
                               c.accountId
-                            : undefined
                     };
                 })
             )
