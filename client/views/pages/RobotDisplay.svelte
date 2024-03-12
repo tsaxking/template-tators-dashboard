@@ -17,6 +17,7 @@ import { MatchScouting } from '../../models/FIRST/match-scouting';
 import ChecksSummary from '../components/robot-display/ChecksSummary.svelte';
 import PracticeMatches from '../components/robot-display/PracticeMatches.svelte';
 import HorizontalMatchViewer from '../components/robot-display/HorizontalMatchViewer.svelte';
+import ScoutSummary from '../components/robot-display/ScoutSummary.svelte';
 
 let team: FIRSTTeam | undefined = undefined;
 
@@ -108,6 +109,13 @@ MatchScouting.on('new', m => {
             expandable="{true}"
         >
             <PracticeMatches {team} />
+        </DashboardCard>
+        <DashboardCard
+            title="Scouts Summary"
+            scroll="{true}"
+            expandable="{true}"
+        >
+            <ScoutSummary {team} />
         </DashboardCard>
     </div>
 </div>
