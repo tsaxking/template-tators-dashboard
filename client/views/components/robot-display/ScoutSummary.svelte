@@ -29,6 +29,8 @@ import { resolveAll } from "../../../../shared/check";
             scouts = scouts;
         }
     }
+
+    $: fns.getTeam(team);
 </script>
 
 
