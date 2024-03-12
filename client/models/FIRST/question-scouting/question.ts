@@ -90,6 +90,26 @@ export class Question extends Cache<QuestionUpdates> {
         });
     }
 
+    public static async fromEvent(
+        eventKey: string
+    ) {
+        return attemptAsync(async () => {
+            const cached = Array.from(Question.$cache.values()).filter(q => q.eventKey);
+            if (cached.length) return cached;
+
+            const questions = await ServerRequest.post<ScoutingQuestionObj[]>(
+                '/api/scouting-questions/questions-from-event',
+                {
+                    eventKey
+                }
+            );
+
+            if (questions.isErr()) throw questions.error;
+
+            return questions.value.map(q => new Question(q));
+        });
+    }
+
     public readonly id: string;
     public $question: string;
     public $type: QuestionType;
@@ -98,6 +118,7 @@ export class Question extends Cache<QuestionUpdates> {
     public $description: string;
     public readonly groupId: string;
     public readonly options: QuestionOptions;
+    public readonly eventKey: string;
 
     constructor(data: ScoutingQuestionObj) {
         super();
@@ -109,6 +130,7 @@ export class Question extends Cache<QuestionUpdates> {
         this.$description = data.description;
         this.groupId = data.groupId;
         this.options = JSON.parse(data.options) as QuestionOptions;
+        this.eventKey = data.eventKey;
 
         if (Question.$cache.has(this.id)) {
             Question.$cache.delete(this.id);
