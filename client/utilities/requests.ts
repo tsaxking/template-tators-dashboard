@@ -849,12 +849,6 @@ export class ServerRequest<T = unknown> {
                 });
         });
 
-        this.promise.then(() => {
-            // delete this server request
-            const index = ServerRequest.all.indexOf(this);
-            if (index !== -1) ServerRequest.all.splice(index, 1);
-        });
-
         return this.promise;
     }
 }
