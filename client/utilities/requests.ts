@@ -753,7 +753,11 @@ export class ServerRequest<T = unknown> {
      */
     async send(): Promise<T> {
         const isRequesting = ServerRequest.all.filter(
-            r => r.url === this.url && r.sent && JSON.stringify(r.body) === JSON.stringify(this.body) && r.method === this.method
+            r =>
+                r.url === this.url &&
+                r.sent &&
+                JSON.stringify(r.body) === JSON.stringify(this.body) &&
+                r.method === this.method
         );
 
         // console.log({ isRequesting });

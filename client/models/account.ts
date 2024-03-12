@@ -99,7 +99,9 @@ export class Account extends Cache<AccountEvents> {
 
     private static requested: string[] = [];
 
-    public static async get(ids: (string|undefined)[]): Promise<(Account | undefined)[]> {
+    public static async get(
+        ids: (string | undefined)[]
+    ): Promise<(Account | undefined)[]> {
         const output = new Array(ids.length) as (Account | undefined)[];
         const toRequest = new Set<string>();
         for (let i = 0; i < ids.length; i++) {

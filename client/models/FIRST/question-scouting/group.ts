@@ -100,7 +100,9 @@ export class Group extends Cache<GroupUpdates> {
 
     public static async fromEvent(eventKey: string): Promise<Result<Group[]>> {
         return attemptAsync(async () => {
-            const cached = Array.from(Group.$cache.values()).filter(g => g.eventKey === eventKey);
+            const cached = Array.from(Group.$cache.values()).filter(
+                g => g.eventKey === eventKey
+            );
             if (cached.length) return cached;
 
             const groups = await ServerRequest.post<ScoutingQuestionGroup[]>(

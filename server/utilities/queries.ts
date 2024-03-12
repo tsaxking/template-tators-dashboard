@@ -372,7 +372,7 @@ export type Queries = {
         ScoutingQuestions & {
             eventKey: string;
         }
-    ]
+    ];
     'blacklist/from-account': [
         [
             {

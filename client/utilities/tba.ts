@@ -20,7 +20,7 @@ export type TBAResponse<T> = {
 type TBACache<T> = {
     data: T;
     stored: number;
-}
+};
 
 const CACHE_VERSION = 0;
 
@@ -163,10 +163,13 @@ export class TBA {
      */
     private static storeCache<T>(path: string, data: T) {
         try {
-            localStorage.setItem(CACHE_VERSION +'-'+path, JSON.stringify({
-                data,
-                stored: Date.now()
-            }));
+            localStorage.setItem(
+                CACHE_VERSION + '-' + path,
+                JSON.stringify({
+                    data,
+                    stored: Date.now()
+                })
+            );
         } catch (error) {
             console.log('Cannot store cache:', error);
         }
@@ -183,7 +186,7 @@ export class TBA {
      * @returns {(T | null)}
      */
     private static retrieveCache<T>(path: string): TBACache<T> | null {
-        const item = localStorage.getItem(CACHE_VERSION + '-'+path);
+        const item = localStorage.getItem(CACHE_VERSION + '-' + path);
         if (!item) return null;
         try {
             return JSON.parse(item) as TBACache<T>;
