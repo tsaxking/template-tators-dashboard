@@ -21,13 +21,12 @@ const fns = {
 
         if (accounts.isErr()) return console.error(accounts.error);
 
-        for (const a of accounts.value) {
-            if (a) {
-                if (!scouts[a.name]) scouts[a.name] = 0;
-                scouts[a.name]++;
-            }
+        for (const m of scouting.value) {
+            let s = m.scoutId || 'Unknown';
+            const a = accounts.value.find(a => !!a && a.id === s);
+            if (!a) continue;
+            s = a.name || s;
         }
-
         console.clear();
         console.log({ scouts, scouting, accounts });
 
