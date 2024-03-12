@@ -54,6 +54,15 @@ const fns = {
             (d, i, a) => a.findIndex(_s => _s.id === d.id) === i
         );
 
+        const accounts: {
+            [key: string]: Account
+        } = (await Account.get(
+            res.value.map(a => a.accountId)
+        )).reduce((a, c) => {
+            if (c) a[c.id] = c;
+            return a;
+        }, {} as { [key: string]: Account; });
+
         scoutingSections = await Promise.all(
             sections.map(async s => ({
                 section: s.name,
@@ -106,16 +115,12 @@ const fns = {
                                                     return '';
                                             }
                                         })(),
-                                        account:
-                                            (
-                                                await Account.get(
-                                                    res.value.find(
-                                                        a =>
-                                                            a.questionId ===
-                                                            q.id
-                                                    )?.accountId || ''
-                                                )
-                                            )?.name || 'Unknown'
+                                        account: (accounts[
+                                            res.value.find(a => 
+                                                a.questionId === q.id &&
+                                                a.teamNumber === t.number
+                                            )?.accountId || ''
+                                        ])?.name || 'Unknown'
                                     }))
                             )
                         }))
