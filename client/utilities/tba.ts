@@ -75,7 +75,8 @@ export class TBA {
                 // }).then(data => data.json()) as Promise<T>;
 
                 const tbaCheck = await ServerRequest.get<T>(
-                    'https://www.thebluealliance.com/api/v3/' + path, {
+                    'https://www.thebluealliance.com/api/v3/' + path,
+                    {
                         headers: {
                             'X-TBA-Auth-Key':
                                 'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
@@ -90,8 +91,6 @@ export class TBA {
                     if (d.isErr()) return null;
                     return d.value;
                 }
-
-
             };
 
             if (!data) data = await fetcher();
