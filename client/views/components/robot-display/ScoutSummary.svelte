@@ -28,6 +28,9 @@ const fns = {
             }
         }
 
+        console.clear();
+        console.log({ scouts });
+
         scouts = scouts;
     }
 };
