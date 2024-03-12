@@ -358,10 +358,12 @@ export class App<sessionInfo = unknown> {
 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: true }));
-        this.server.use(cors({
-            origin: '*',
-            credentials: true,
-        }));
+        this.server.use(
+            cors({
+                origin: '*',
+                credentials: true
+            })
+        );
         // this.server.use(
         //     session({
         //         secret: 'hello darkness my old friend',
