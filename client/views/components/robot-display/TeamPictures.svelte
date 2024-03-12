@@ -19,9 +19,7 @@ const fns = {
         if (!team) return (pictures = []);
         await team.event.cacheTeamPictures();
         // after the cache is updated, we know the pictures are up to date
-        const ps = team.pictures;
-
-        pictures = ps.map(p => ({
+        pictures = team.pictures.map(p => ({
             url: '/uploads/' + p.picture
         }));
     }
