@@ -275,14 +275,12 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         );
 
         if (res.isOk()) {
-            Promise.all(
-                res.value.map(async p => {
-                    // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
-                    const t = teams.value.find(t => t.number === p.teamNumber);
-                    if (!t) return; // should never happen
-                    t.pictures = [...t.pictures, p];
-                })
-            );
+            res.value.map(p => {
+                // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
+                const t = teams.value.find(t => t.number === p.teamNumber);
+                if (!t) return; // should never happen
+                t.pictures = [...t.pictures, p];
+            });
         }
     }
 
