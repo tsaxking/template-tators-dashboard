@@ -85,7 +85,7 @@ export class TBA {
                 // }).then(data => data.json()) as Promise<T>;
 
                 const tbaCheck = await ServerRequest.get<T>(
-                    'https://www.thebluealliance.com/api/v3/' + path,
+                    'https://www.thebluealliance.com/api/v3' + path,
                     {
                         headers: {
                             'X-TBA-Auth-Key':
