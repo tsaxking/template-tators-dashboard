@@ -60,7 +60,6 @@ app.use('/*', (req, res, next) => {
     log(`[${req.method}] ${req.originalUrl}`);
     // res.setHeader('Access-Control-Allow-Origin');
 
-
     next();
 });
 
