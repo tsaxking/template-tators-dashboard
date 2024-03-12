@@ -3,7 +3,7 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { resolveAll } from '../../../../shared/check';
 
 export let team: FIRSTTeam | undefined = undefined;
-let scouts: { name: string; number: number; }[] = [];
+let scouts: { name: string; number: number }[] = [];
 
 const fns = {
     getTeam: async (team: FIRSTTeam | undefined) => {
@@ -13,7 +13,7 @@ const fns = {
         const scouting = await team.getMatchScouting();
         if (scouting.isErr()) return console.error(scouting.error);
 
-        const _scouts: { [name: string]: number; } = {};
+        const _scouts: { [name: string]: number } = {};
 
         for (const m of scouting.value) {
             if (!_scouts[m.scoutName]) _scouts[m.scoutName] = 0;
