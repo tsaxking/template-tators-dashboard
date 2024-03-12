@@ -77,35 +77,46 @@ const fns = {
             if (matchesRes.isErr()) return console.error(matchesRes.error);
             const matches = matchesRes.value;
 
-            traceArray = (await Promise.all(scouting.value
-                .map(async m => {
-                    const match = matches.find(
-                        match =>
-                            match.number === m.matchNumber &&
-                            match.compLevel === m.compLevel
-                    );
-                    // if on red alliance, do x = 1 - x
+            traceArray = (
+                await Promise.all(
+                    scouting.value.map(async m => {
+                        const match = matches.find(
+                            match =>
+                                match.number === m.matchNumber &&
+                                match.compLevel === m.compLevel
+                        );
+                        // if on red alliance, do x = 1 - x
 
-                    // not doing .indexOf because I don't know if the caches are the same, they likely are but I don't want to assume
-                    let trace = m.trace.slice();
+                        // not doing .indexOf because I don't know if the caches are the same, they likely are but I don't want to assume
+                        let trace = m.trace.slice();
 
-                    const teams = await match?.getTeams();
-                    if (!teams || teams.isErr()) return {
-                        ...m,
-                        trace
-                    }
-                    if (
-                        match &&
-                        teams.value.findIndex(t => t.number === team.number) > 2
-                    ) {
-                        // we don't want to modify the original trace, so we make a copy
-                        trace = m.trace.map(p => [p[0], 1 - p[1], p[2], p[3]]);
-                    }
-                    return {
-                        ...m,
-                        trace
-                    };
-                })))
+                        const teams = await match?.getTeams();
+                        if (!teams || teams.isErr())
+                            return {
+                                ...m,
+                                trace
+                            };
+                        if (
+                            match &&
+                            teams.value.findIndex(
+                                t => t.number === team.number
+                            ) > 2
+                        ) {
+                            // we don't want to modify the original trace, so we make a copy
+                            trace = m.trace.map(p => [
+                                p[0],
+                                1 - p[1],
+                                p[2],
+                                p[3]
+                            ]);
+                        }
+                        return {
+                            ...m,
+                            trace
+                        };
+                    })
+                )
+            )
                 .map(m => m.trace)
                 .flat()
                 .filter(p => !!p[3]);
