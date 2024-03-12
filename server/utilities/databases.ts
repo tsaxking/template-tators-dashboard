@@ -1065,7 +1065,7 @@ export class DB {
         const res = await run();
 
         if (res.isErr()) {
-            error('Error running query:', res.error);
+            error('Error running query:', res.error, query, args);
         }
 
         return res;

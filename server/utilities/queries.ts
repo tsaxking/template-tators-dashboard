@@ -349,7 +349,9 @@ export type Queries = {
     ];
     'scouting-questions/questions-from-group': [
         [Select_scouting_questions_questions_from_group],
-        ScoutingQuestions
+        ScoutingQuestions & {
+            eventKey: string;
+        }
     ];
     'scouting-questions/question-from-id': [
         [
@@ -357,8 +359,20 @@ export type Queries = {
                 id: string;
             }
         ],
-        ScoutingQuestions
+        ScoutingQuestions & {
+            eventKey: string;
+        }
     ];
+    'scouting-questions/question-from-event': [
+        [
+            {
+                eventKey: string;
+            }
+        ],
+        ScoutingQuestions & {
+            eventKey: string;
+        }
+    ]
     'blacklist/from-account': [
         [
             {
