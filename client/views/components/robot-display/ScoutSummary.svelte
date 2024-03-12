@@ -3,24 +3,28 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { resolveAll } from '../../../../shared/check';
 
 export let team: FIRSTTeam | undefined = undefined;
-let scouts: {
-    [key: string]: number;
-} = {};
+let scouts: { name: string; number: number; }[] = [];
 
 const fns = {
     getTeam: async (team: FIRSTTeam | undefined) => {
-        scouts = {};
+        scouts = [];
         if (!team) return;
 
         const scouting = await team.getMatchScouting();
         if (scouting.isErr()) return console.error(scouting.error);
 
+        const _scouts: { [name: string]: number; } = {};
+
         for (const m of scouting.value) {
-            if (!scouts[m.scoutName]) scouts[m.scoutName] = 0;
-            scouts[m.scoutName]++;
+            if (!_scouts[m.scoutName]) _scouts[m.scoutName] = 0;
+            _scouts[m.scoutName]++;
         }
 
-        scouts = scouts;
+        for (const name in _scouts) {
+            scouts.push({ name, number: _scouts[name] });
+        }
+
+        scouts = scouts.sort((a, b) => b.number - a.number);
     }
 };
 
@@ -29,10 +33,10 @@ $: fns.getTeam(team);
 
 <table class="table table-hover table-striped">
     <tbody>
-        {#each Object.keys(scouts).sort() as scout}
+        {#each scouts as scout}
             <tr>
-                <td>{scout}</td>
-                <td>{scouts[scout]}</td>
+                <td>{scout.name}</td>
+                <td>{scout.number}</td>
             </tr>
         {/each}
     </tbody>
