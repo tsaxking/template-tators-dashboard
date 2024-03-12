@@ -65,23 +65,33 @@ export class TBA {
             // }
 
             const fetcher = async (): Promise<T | null> => {
-                return fetch('https://www.thebluealliance.com/api/v3' + path, {
-                    headers: {
-                        'X-TBA-Auth-Key':
-                            'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
-                    },
-                    method: 'GET',
-                    mode: 'cors'
-                }).then(data => data.json()) as Promise<T>;
+                // return fetch('https://www.thebluealliance.com/api/v3' + path, {
+                //     headers: {
+                //         'X-TBA-Auth-Key':
+                //             'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
+                //     },
+                //     method: 'GET',
+                //     mode: 'cors'
+                // }).then(data => data.json()) as Promise<T>;
 
-                // const d = await ServerRequest.get<T>(`/api/tba${path}`);
+                const tbaCheck = await ServerRequest.get<T>(
+                    'https://www.thebluealliance.com/api/v3/' + path, {
+                        headers: {
+                            'X-TBA-Auth-Key':
+                                'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
+                        }
+                    }
+                );
 
-                // if (d.isErr()) return null;
-                // return d.value;
+                if (tbaCheck.isOk()) return tbaCheck.value;
+                else {
+                    const d = await ServerRequest.get<T>(`/api/tba${path}`);
 
-                // const res = await ServerRequest.get<T>(`/api/tba${path}`);
-                // if (res.isOk()) return res.value;
-                // else throw res.error;
+                    if (d.isErr()) return null;
+                    return d.value;
+                }
+
+
             };
 
             if (!data) data = await fetcher();
