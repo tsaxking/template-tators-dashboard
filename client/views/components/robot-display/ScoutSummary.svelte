@@ -15,20 +15,10 @@ const fns = {
         const scouting = await team.getMatchScouting();
         if (scouting.isErr()) return console.error(scouting.error);
 
-        const accounts = resolveAll(
-            await Promise.all(scouting.value.map(s => s.getScout()))
-        );
-
-        if (accounts.isErr()) return console.error(accounts.error);
-
         for (const m of scouting.value) {
-            let s = m.scoutId || 'Unknown';
-            const a = accounts.value.find(a => !!a && a.id === s);
-            if (!a) continue;
-            s = a.name || s;
+            if (!scouts[m.scoutName]) scouts[m.scoutName] = 0;
+            scouts[m.scoutName]++;
         }
-        console.clear();
-        console.log({ scouts, scouting, accounts });
 
         scouts = scouts;
     }
