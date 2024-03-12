@@ -8,7 +8,6 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { Session } from '../sessions';
 import session from 'express-session';
-import cors from 'cors';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -358,12 +357,6 @@ export class App<sessionInfo = unknown> {
 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: true }));
-        this.server.use(
-            cors({
-                origin: '*',
-                credentials: true
-            })
-        );
         // this.server.use(
         //     session({
         //         secret: 'hello darkness my old friend',
