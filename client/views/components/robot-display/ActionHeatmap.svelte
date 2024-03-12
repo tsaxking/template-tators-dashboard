@@ -77,8 +77,8 @@ const fns = {
             if (matchesRes.isErr()) return console.error(matchesRes.error);
             const matches = matchesRes.value;
 
-            traceArray = scouting.value
-                .map(m => {
+            traceArray = (await Promise.all(scouting.value
+                .map(async m => {
                     const match = matches.find(
                         match =>
                             match.number === m.matchNumber &&
@@ -88,9 +88,15 @@ const fns = {
 
                     // not doing .indexOf because I don't know if the caches are the same, they likely are but I don't want to assume
                     let trace = m.trace.slice();
+
+                    const teams = await match?.getTeams();
+                    if (!teams || teams.isErr()) return {
+                        ...m,
+                        trace
+                    }
                     if (
                         match &&
-                        match.teams.findIndex(t => t.number === team.number) > 2
+                        teams.value.findIndex(t => t.number === team.number) > 2
                     ) {
                         // we don't want to modify the original trace, so we make a copy
                         trace = m.trace.map(p => [p[0], 1 - p[1], p[2], p[3]]);
@@ -99,7 +105,7 @@ const fns = {
                         ...m,
                         trace
                     };
-                })
+                })))
                 .map(m => m.trace)
                 .flat()
                 .filter(p => !!p[3]);
