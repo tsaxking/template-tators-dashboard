@@ -45,9 +45,11 @@ const fns = {
             return (isPlaying = false);
         }
 
-        teams = Random.shuffle(availableTeams);
+        number = undefined;
+        number = undefined;
+        teams = availableTeams
         type = Random.choose(['number', 'name']);
-        currentTeam = Random.choose(availableTeams);
+        currentTeam = Random.choose(teams);
     },
     next: async (success: boolean) => {
         if (!currentTeam) return;
@@ -96,7 +98,8 @@ let number: string | undefined;
                         <option value="default" disabled selected
                             >Please select a value</option
                         >
-                        {#each teams as team}
+                        {#each teams.sort((a, b) => a.number - b.number 
+                        ) as team}
                             <option value="{team.number}">{team.number}</option>
                         {/each}
                     </select>
@@ -129,7 +132,8 @@ let number: string | undefined;
                         <option value="default" disabled selected
                             >Please select a value</option
                         >
-                        {#each teams as team}
+                        {#each teams.sort((a, b) => a.name.localeCompare(b.name))
+                             as team}
                             <option value="{team.name}">{team.name}</option>
                         {/each}
                     </select>
@@ -150,7 +154,10 @@ let number: string | undefined;
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-middle">
-                    <button class="btn btn-success" on:click="{fns.play}"
+                    <button 
+                    class="btn btn-success"
+                    on:click="{fns.play}"
+                    disabled={!teams.length}
                         >Play!</button
                     >
                 </div>
