@@ -212,7 +212,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
             }
             return undefined;
         });
-    } 
+    }
 }
 
 socket.on('match-scouting:new', (data: MatchScoutingObj) => {
