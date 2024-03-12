@@ -29,7 +29,7 @@ $: fns.getTeam(team);
 
 <table class="table table-hover table-striped">
     <tbody>
-        {#each Object.keys(scouts) as scout}
+        {#each Object.keys(scouts).sort() as scout}
             <tr>
                 <td>{scout}</td>
                 <td>{scouts[scout]}</td>
