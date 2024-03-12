@@ -90,11 +90,11 @@ export class Question extends Cache<QuestionUpdates> {
         });
     }
 
-    public static async fromEvent(
-        eventKey: string
-    ) {
+    public static async fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            const cached = Array.from(Question.$cache.values()).filter(q => q.eventKey);
+            const cached = Array.from(Question.$cache.values()).filter(
+                q => q.eventKey
+            );
             if (cached.length) return cached;
 
             const questions = await ServerRequest.post<ScoutingQuestionObj[]>(

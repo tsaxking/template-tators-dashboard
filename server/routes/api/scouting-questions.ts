@@ -678,7 +678,6 @@ router.post<{
 
         if (group.isErr()) return res.sendStatus('unknown:error');
 
-
         if (!q.value) {
             return res.sendStatus('scouting-question:question-not-found');
         }
@@ -822,7 +821,6 @@ router.post<{
             eventKey
         });
 
-
         if (result.isErr()) return res.sendStatus('unknown:error');
 
         res.json(result.value);
@@ -834,7 +832,7 @@ router.post<{
 }>(
     '/questions-from-event',
     validate({
-        eventKey: 'string',
+        eventKey: 'string'
     }),
     async (req, res) => {
         const { eventKey } = req.body;
@@ -847,4 +845,4 @@ router.post<{
 
         res.json(result.value);
     }
-)
+);

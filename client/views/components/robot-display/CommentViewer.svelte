@@ -35,8 +35,7 @@ const fns = {
                         comment: c.comment,
                         type: c.type,
                         time: c.time,
-                        account: accounts[i]?.username ||
-                              c.accountId
+                        account: accounts[i]?.username || c.accountId
                     };
                 })
             )

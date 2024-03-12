@@ -6,7 +6,7 @@ import Select from '../bootstrap/Select.svelte';
 let value = '';
 let options: string[] = [];
 
-FIRSTTeam.on('select', (team) => {
+FIRSTTeam.on('select', team => {
     if (!team) return;
     value = team.tba.team_number.toString();
 });
