@@ -4,17 +4,24 @@ import { FIRSTEvent } from '../../../models/FIRST/event';
 import Select from '../bootstrap/Select.svelte';
 
 let options: string[] = [];
+let values: string[] = [];
 let value: string | undefined = FIRSTTeam.current?.number.toString();
 let event: FIRSTEvent | null = FIRSTEvent.current;
 
 const fns = {
     setOptions: async (event: FIRSTEvent | null) => {
-        if (!event) return (options = []);
+        if (!event) {
+            options = [];
+            values = [];
+            return;
+        }
         const res = await event.getTeams();
         if (res.isOk()) {
             const teams = res.value;
-            options = teams.map(t => t.number.toString());
+            values = teams.map(t => t.number.toString());
+            options = teams.map(t => `${t.number.toString()} | ${t.name}`);
         } else {
+            values = [];
             options = [];
         }
     },
@@ -24,7 +31,7 @@ const fns = {
         if (!res) return;
         if (res.isErr()) return;
         const teams = res.value;
-        const team = teams.find(t => t.tba.team_number === +teamNumber);
+        const team = teams.find(t => t.number === +teamNumber);
         if (team) team.select();
         else console.error(`Team ${teamNumber} not found`);
     }
@@ -44,4 +51,4 @@ FIRSTEvent.on('select', e => {
 });
 </script>
 
-<Select bind:options bind:value on:change="{fns.handleChange}" />
+<Select bind:options bind:value bind:values on:change="{fns.handleChange}" />
