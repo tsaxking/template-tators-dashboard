@@ -146,7 +146,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
     public readonly scoutName: string;
     public readonly trace: TraceArray;
     public readonly checks: string[];
-    public readonly preScouting: number;
+    public readonly preScouting: boolean;
     public readonly time: number;
     public readonly prescouting: string | undefined;
     public readonly eventKey: string;
@@ -164,7 +164,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         this.scoutName = data.scoutName;
         this.trace = JSON.parse(data.trace) as TraceArray;
         this.checks = JSON.parse(data.checks) as string[];
-        this.preScouting = Number(data.preScouting);
+        this.preScouting = !!data.preScouting;
         this.time = data.time;
         this.eventKey = data.eventKey;
         this.matchNumber = data.matchNumber;
