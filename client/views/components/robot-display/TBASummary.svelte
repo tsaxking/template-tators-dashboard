@@ -130,7 +130,7 @@ $: {
                         <tr>
                             <td>Drivebase</td>
                             {#if drivebase}
-                                <td>{drivebase} lbs</td>
+                                <td>{drivebase}</td>
                             {:else}
                                 <td>No response found :(</td>
                             {/if}
