@@ -2,17 +2,28 @@
 import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
 import RobotDisplay from '../pages/RobotDisplay.svelte';
-import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
 import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
 import Checklist from '../pages/Checklist.svelte';
 import { type PageGroup } from '../../utilities/general-types';
 import { getOpenPage } from '../../utilities/page';
 import Quiz from '../pages/Quiz.svelte';
+import EventSummary from '../pages/EventSummary.svelte';
+import MatchList from '../pages/MatchList.svelte';
 
 const groups: PageGroup[] = [
     {
         name: 'home',
         pages: [
+            {
+                name: 'event-summary',
+                icon: 'event',
+                iconType: 'material'
+            },
+            {
+                name: 'matches',
+                icon: 'list',
+                iconType: 'material'
+            },
             {
                 name: 'robot-display',
                 icon: 'home',
@@ -23,10 +34,6 @@ const groups: PageGroup[] = [
     {
         name: 'scouting',
         pages: [
-            // {
-            //     name: 'create-scouting-questions',
-            //     icon: 'fact_check'
-            // },
             {
                 name: 'scouting-checklist',
                 icon: 'checklist',
@@ -74,6 +81,12 @@ const accountLinks: string[] = [
     {navItems}
     {accountLinks}
 >
+    <Page {active} {domain} title="event-summary">
+        <EventSummary />
+    </Page>
+    <Page {active} {domain} title="matches">
+        <MatchList />
+    </Page>
     <Page {active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
     </Page>
