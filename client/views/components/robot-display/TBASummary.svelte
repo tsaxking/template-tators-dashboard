@@ -136,7 +136,7 @@ $: {
                             {/if}
                         </tr>
                         <tr>
-                            <td>Weight</td>
+                            <th>Weight</th>
                             {#if weight}
                                 <td>{weight} lbs</td>
                             {:else}
