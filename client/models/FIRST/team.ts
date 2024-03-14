@@ -240,7 +240,9 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             if (res.isErr()) throw res.error;
 
-            const data = res.value.filter((s, i, a) => a.findIndex(_s => _s.id === s.id) === i);
+            const data = res.value.filter(
+                (s, i, a) => a.findIndex(_s => _s.id === s.id) === i
+            );
 
             this.$cache.set('match-scouting', data);
             return data;
@@ -354,7 +356,9 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             );
 
             if (res.isErr()) throw res.error;
-            return res.value.filter((s, i, a) => a.findIndex(_s => _s.id === s.id) === i);
+            return res.value.filter(
+                (s, i, a) => a.findIndex(_s => _s.id === s.id) === i
+            );
         });
     }
 
