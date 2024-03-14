@@ -73,10 +73,10 @@ const fns = {
         velocity = velocityData.value.average;
         secondsNotMoving = velocityData.value.averageSecondsNotMoving;
         const weightRegex = /weight/i;
-        const weightQuestion = psQuestions.value.questions.find(
-            q => weightRegex.test(q.key + q.question)
+        const weightQuestion = psQuestions.value.questions.find(q =>
+            weightRegex.test(q.key + q.question)
         );
-        const drivebaseRegex = /drivebase|drivetrain|drive|chassis/i
+        const drivebaseRegex = /drivebase|drivetrain|drive|chassis/i;
         const drivebaseQuestion = psQuestions.value.questions.find(q =>
             drivebaseRegex.test(q.key + q.question)
         );
