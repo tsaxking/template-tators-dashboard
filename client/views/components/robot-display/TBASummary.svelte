@@ -37,8 +37,6 @@ const fns = {
         if (stats.isErr()) return fns.reset() || console.error(stats.error);
         if (psQuestions.isErr()) return fns.reset() || console.error();
 
-        console.log({ psQuestions });
-
         const teamMatches = (
             await Promise.all(
                 matches.value.map(async m => {
@@ -81,8 +79,6 @@ const fns = {
             drivebaseRegex.test(q.key + q.question)
         );
 
-        console.log({ weightQuestion, drivebaseQuestion });
-
         const weightAnswer = pitScouting.value.find(
             p => p.questionId === weightQuestion?.id
         );
@@ -90,7 +86,6 @@ const fns = {
             p => p.questionId === drivebaseQuestion?.id
         );
 
-        console.log({ weightAnswer, drivebaseAnswer });
         if (weightAnswer) weight = +weightAnswer.answer[0];
         else weight = 0;
         if (drivebaseAnswer) drivebase = drivebaseAnswer.answer[0];
@@ -137,7 +132,7 @@ $: {
                             {#if drivebase}
                                 <td>{drivebase} lbs</td>
                             {:else}
-                                <td>No "Drivebase" type question found :(</td>
+                                <td>No response found :(</td>
                             {/if}
                         </tr>
                         <tr>
@@ -145,7 +140,7 @@ $: {
                             {#if weight}
                                 <td>{weight} lbs</td>
                             {:else}
-                                <td>No "Weight" type question found :(</td>
+                                <td>No response found :(</td>
                             {/if}
                         </tr>
                         <tr>
