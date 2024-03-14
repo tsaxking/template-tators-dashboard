@@ -37,6 +37,8 @@ const fns = {
         if (stats.isErr()) return fns.reset() || console.error(stats.error);
         if (psQuestions.isErr()) return fns.reset() || console.error();
 
+        console.log({ psQuestions });
+
         const teamMatches = (
             await Promise.all(
                 matches.value.map(async m => {
