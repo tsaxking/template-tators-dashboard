@@ -1,24 +1,32 @@
 <script lang="ts">
-import { FIRSTEvent } from '../../../models/FIRST/event';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { TBA } from '../../../utilities/tba';
 import type { TBATeamEventStatus } from '../../../../shared/submodules/tatorscout-calculations/tba';
-import { Doughnut } from 'svelte-chartjs';
+import { $Math as M } from '../../../../shared/math';
 
 export let team: FIRSTTeam | undefined = undefined;
 
 let rank: number;
 let record: [number, number, number] = [0, 0, 0]; // wins, losses, ties
 let played: number;
+$: played = M.sum(record);
 let velocity: number = 0;
 let secondsNotMoving: number = 0;
+let drivebase: string = '';
+let weight: number = 0;
 
 const fns = {
     getData: async (t?: FIRSTTeam) => {
-        if (!t) return;
+        if (!t) return fns.reset();
 
-        const matches = await t.event.getMatches();
-        if (matches.isErr()) return console.error(matches.error);
+        const [matches, pitScouting, velocityData, stats, psQuestions] = await Promise.all([t.event.getMatches(), t.getPitScouting(), t.getVelocityData(), TBA.get<TBATeamEventStatus>(
+            `/team/${t.tba.key}/event/${t.event.key}/status`
+        ), t.event.getPitScouting()]);
+        if (matches.isErr()) return fns.reset() || console.error(matches.error);
+        if (pitScouting.isErr()) return fns.reset() || console.error(pitScouting.error);
+        if (velocityData.isErr()) return fns.reset() || console.error(velocityData.error);
+        if (stats.isErr()) return fns.reset() || console.error(stats.error);
+        if (psQuestions.isErr()) return fns.reset() || console.error()
 
         const teamMatches = (
             await Promise.all(
@@ -44,24 +52,40 @@ const fns = {
 
         played = playedMatches.length;
 
-        const stats = await TBA.get<TBATeamEventStatus>(
-            `/team/${t.tba.key}/event/${t.event.key}/status`
-        );
-
-        if (stats.isErr()) return console.error(stats.error);
-
         rank = stats.value.data.qual.ranking.rank;
         record = [
             stats.value.data.qual.ranking.record.wins,
             stats.value.data.qual.ranking.record.losses,
             stats.value.data.qual.ranking.record.ties
         ];
-        const dataRes = await t.getVelocityData();
-        if (dataRes.isErr()) return console.error(dataRes.error);
 
-        velocity = dataRes.value.average;
+        velocity = velocityData.value.average;
+        secondsNotMoving = velocityData.value.averageSecondsNotMoving;
+        const weightQuestion = psQuestions.value.questions.find(q => (/weight/i).test(q.question));
+        const drivebaseRegex = [
+            /drivebase/i,
+            /drivetrain/i,
+            /drive/i,
+            /chassis/i
+        ];
+        const drivebaseQuestion = psQuestions.value.questions.find(q => drivebaseRegex.some(d => d.test(q.question)));
+        const weightAnswer = pitScouting.value.find(p => p.questionId === weightQuestion?.id);
+        const drivebaseAnswer = pitScouting.value.find(p => p.questionId === drivebaseQuestion?.id);
+        if (weightAnswer) weight = +weightAnswer.answer[0];
+        else weight = 0;
+        if (drivebaseAnswer) drivebase = drivebaseAnswer.answer[0];
+        else drivebase = '';
+    },
+    reset: () => {
+        rank = 0;
+        record = [0, 0, 0];
+        played = 0;
+        velocity = 0;
+        secondsNotMoving = 0;
+        drivebase = '';
+        weight = 0;
 
-        secondsNotMoving = dataRes.value.averageSecondsNotMoving;
+        return false;
     }
 };
 
@@ -74,7 +98,7 @@ $: {
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                <table class="table">
+                <table class="table table-striped table-hover">
                     <tbody>
                         <tr>
                             <th>Rank</th>
@@ -83,6 +107,26 @@ $: {
                         <tr>
                             <th>Record</th>
                             <td>{record[0]} - {record[1]} - {record[2]}</td>
+                        </tr>
+                        <tr>
+                            <th>Played</th>
+                            <td>{played}</td>
+                        </tr>
+                        <tr>
+                            <td>Drivebase</td>
+                            {#if drivebase}
+                                <td>{drivebase} lbs</td>
+                            {:else}
+                                <td>No "Drivebase" type question found :(</td>
+                            {/if}
+                        </tr>
+                        <tr>
+                            <td>Weight</td>
+                            {#if weight}
+                                <td>{weight} lbs</td>
+                            {:else}
+                                <td>No "Weight" type question found :(</td>
+                            {/if}
                         </tr>
                         <tr>
                             <th>Average Velocity</th>
