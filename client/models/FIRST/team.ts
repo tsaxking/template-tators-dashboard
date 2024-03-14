@@ -245,6 +245,16 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         });
     }
 
+    public async getPreScouting() {
+        return attemptAsync(async () => {
+            const res = await MatchScouting.preFromTeam(this.event.key, this.number);
+
+            if (res.isErr()) throw res.error;
+
+            return res.value;
+        });
+    }
+
     /**
      * Streams the match comments for this team
      * Returns an emitter that emits chunks of the match comments
