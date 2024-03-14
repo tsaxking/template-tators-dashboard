@@ -19,14 +19,23 @@ const fns = {
     getData: async (t?: FIRSTTeam) => {
         if (!t) return fns.reset();
 
-        const [matches, pitScouting, velocityData, stats, psQuestions] = await Promise.all([t.event.getMatches(), t.getPitScouting(), t.getVelocityData(), TBA.get<TBATeamEventStatus>(
-            `/team/${t.tba.key}/event/${t.event.key}/status`
-        ), t.event.getPitScouting()]);
+        const [matches, pitScouting, velocityData, stats, psQuestions] =
+            await Promise.all([
+                t.event.getMatches(),
+                t.getPitScouting(),
+                t.getVelocityData(),
+                TBA.get<TBATeamEventStatus>(
+                    `/team/${t.tba.key}/event/${t.event.key}/status`
+                ),
+                t.event.getPitScouting()
+            ]);
         if (matches.isErr()) return fns.reset() || console.error(matches.error);
-        if (pitScouting.isErr()) return fns.reset() || console.error(pitScouting.error);
-        if (velocityData.isErr()) return fns.reset() || console.error(velocityData.error);
+        if (pitScouting.isErr())
+            return fns.reset() || console.error(pitScouting.error);
+        if (velocityData.isErr())
+            return fns.reset() || console.error(velocityData.error);
         if (stats.isErr()) return fns.reset() || console.error(stats.error);
-        if (psQuestions.isErr()) return fns.reset() || console.error()
+        if (psQuestions.isErr()) return fns.reset() || console.error();
 
         const teamMatches = (
             await Promise.all(
@@ -61,16 +70,24 @@ const fns = {
 
         velocity = velocityData.value.average;
         secondsNotMoving = velocityData.value.averageSecondsNotMoving;
-        const weightQuestion = psQuestions.value.questions.find(q => (/weight/i).test(q.question));
+        const weightQuestion = psQuestions.value.questions.find(q =>
+            /weight/i.test(q.question)
+        );
         const drivebaseRegex = [
             /drivebase/i,
             /drivetrain/i,
             /drive/i,
             /chassis/i
         ];
-        const drivebaseQuestion = psQuestions.value.questions.find(q => drivebaseRegex.some(d => d.test(q.question)));
-        const weightAnswer = pitScouting.value.find(p => p.questionId === weightQuestion?.id);
-        const drivebaseAnswer = pitScouting.value.find(p => p.questionId === drivebaseQuestion?.id);
+        const drivebaseQuestion = psQuestions.value.questions.find(q =>
+            drivebaseRegex.some(d => d.test(q.question))
+        );
+        const weightAnswer = pitScouting.value.find(
+            p => p.questionId === weightQuestion?.id
+        );
+        const drivebaseAnswer = pitScouting.value.find(
+            p => p.questionId === drivebaseQuestion?.id
+        );
         if (weightAnswer) weight = +weightAnswer.answer[0];
         else weight = 0;
         if (drivebaseAnswer) drivebase = drivebaseAnswer.answer[0];
