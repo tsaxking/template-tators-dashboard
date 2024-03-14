@@ -112,6 +112,35 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         });
     }
 
+    public static async preFromTeam(
+        eventKey: string,
+        teamNumber: number
+    ): Promise<Result<MatchScouting[]>> {
+        return attemptAsync(async () => {
+            const all = MatchScouting.cache.values();
+            const filtered = Array.from(all).filter(m => {
+                return (
+                    m.eventKey === eventKey &&
+                    m.team === teamNumber &&
+                    m.compLevel === 'pr'
+                );
+            });
+
+            if (filtered.length) return filtered;
+
+            const res = await ServerRequest.post<MatchScoutingObj[]>(
+                '/api/match-scouting/pre-from-team',
+                {
+                    eventKey,
+                    teamNumber
+                }
+            );
+
+            if (res.isErr()) throw res.error;
+            return res.value.map(d => new MatchScouting(d));
+        });
+    }
+
     public static async practiceFromTeam(teamNumber: number, eventKey: string) {
         return attemptAsync(async () => {
             const all = MatchScouting.cache.values();

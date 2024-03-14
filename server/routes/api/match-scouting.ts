@@ -106,7 +106,7 @@ router.post<{
     eventKey: string;
     teamNumber: number;
 }>(
-    '/prescouting-matches-from-team',
+    '/pre-from-team',
     validate({
         eventKey: 'string',
         teamNumber: 'number'
