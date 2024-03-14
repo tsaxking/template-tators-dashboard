@@ -72,16 +72,24 @@ const fns = {
 
         velocity = velocityData.value.average;
         secondsNotMoving = velocityData.value.averageSecondsNotMoving;
-        const weightQuestion = psQuestions.value.questions.find(q => (/weight/i).test(q.key) || (/weight/i).test(q.question));
+        const weightQuestion = psQuestions.value.questions.find(
+            q => /weight/i.test(q.key) || /weight/i.test(q.question)
+        );
         const drivebaseRegex = [
             /drivebase/i,
             /drivetrain/i,
             /drive/i,
             /chassis/i
         ];
-        const drivebaseQuestion = psQuestions.value.questions.find(q => drivebaseRegex.some(d => d.test(q.key) || d.test(q.question)));
-        const weightAnswer = pitScouting.value.find(p => p.questionId === weightQuestion?.id);
-        const drivebaseAnswer = pitScouting.value.find(p => p.questionId === drivebaseQuestion?.id);
+        const drivebaseQuestion = psQuestions.value.questions.find(q =>
+            drivebaseRegex.some(d => d.test(q.key) || d.test(q.question))
+        );
+        const weightAnswer = pitScouting.value.find(
+            p => p.questionId === weightQuestion?.id
+        );
+        const drivebaseAnswer = pitScouting.value.find(
+            p => p.questionId === drivebaseQuestion?.id
+        );
         if (weightAnswer) weight = +weightAnswer.answer[0];
         else weight = 0;
         if (drivebaseAnswer) drivebase = drivebaseAnswer.answer[0];
