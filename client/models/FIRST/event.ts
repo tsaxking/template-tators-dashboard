@@ -382,6 +382,27 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             throw res.error;
         });
     }
+
+    async getEventSummary(): Promise<Result<{
+        name: string[];
+        data: {
+            [key: number]: number[];
+        }
+    }[]>> {
+        return attemptAsync(async () => {
+            const res = await ServerRequest.post<{
+                name: string[];
+                data: {
+                    [key: number]: number[];
+                }
+            }[]>('/api/events/summary', {
+                eventKey: this.key
+            });
+
+            if (res.isOk()) return res.value;
+            throw res.error;
+        });
+    }
 }
 
 socket.on(
