@@ -384,14 +384,16 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     }
 
     async getEventSummary(): Promise<Result<{
-        name: string[];
+        labels: string[];
+        title: string;
         data: {
             [key: number]: number[];
         }
     }[]>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<{
-                name: string[];
+                labels: string[];
+                title: string;
                 data: {
                     [key: number]: number[];
                 }

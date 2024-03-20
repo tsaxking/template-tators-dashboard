@@ -7,6 +7,9 @@ import {
     TBATeam,
     matchSort
 } from '../../../shared/submodules/tatorscout-calculations/tba';
+import { RetrievedMatchScouting } from '../../utilities/tables';
+import { Status } from '../../utilities/status';
+import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 
 export const router = new Route();
 
@@ -118,3 +121,45 @@ router.post<{
         });
     }
 );
+
+
+router.post<{
+    key: string;
+}>('/summary', validate({ key: 'string' }), async (req, res) => {
+    const { key } = req.body;
+    const year = key.match(/\d+/)?.[0];
+    if (!year) return res.sendStatus('event:invalid-key');
+
+    const [matchScouting, teamsResult] = await Promise.all([
+        DB.all('match-scouting/from-event', { eventKey: key }),
+        TBA.get<TBATeam[]>('/event/' + key + '/teams')
+    ]);
+
+    if (matchScouting.isErr()) return res.sendStatus('unknown:error');
+    if (teamsResult.isErr()) return res.sendStatus('unknown:error');
+    if (!teamsResult.value) return res.sendStatus('tba:invalid-path');
+
+    const teams: {
+        number: number;
+        traces: TraceArray[];
+    }[] = teamsResult.value.map((t) => ({
+        number: t.team_number,
+        traces: matchScouting.value.filter((s) => s.team === t.team_number).map(s => JSON.parse(s.trace) as TraceArray)
+    }));
+
+    const returnValue: {
+        title: string;
+        labels: string[]; // same length as data
+        data: {
+            [key: number]: number[]; // same length as name
+        }
+    }[] = [
+        {
+            title: 'Autonomous Points',
+            labels: ['Speaker', 'Amp', 'Mobility'],
+            data: teams.reduce((acc, team) => {
+                
+            }, {} as { [key: number]: number[] })
+        }
+    ];
+});
