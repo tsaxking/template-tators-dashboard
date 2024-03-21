@@ -22,8 +22,7 @@ const handleChange = (event: Event) => {
     {#each options as option, i}
         <option
             value="{values[i] || option}"
-            selected="{value == (values[i] || option)}"
-            >{option}</option
+            selected="{value == (values[i] || option)}">{option}</option
         >
     {/each}
 </select>
