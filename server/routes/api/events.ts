@@ -195,7 +195,7 @@ router.post<{
 
     if (team) {
         returnData.push(
-            ...team.data.map(d => ({
+            ...team.data.map((d: { title: string; labels: string[]; data: { [key: number]: number[] } }) => ({
                 title: d.title,
                 labels: d.labels,
                 data: {}
