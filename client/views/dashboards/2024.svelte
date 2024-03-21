@@ -74,7 +74,7 @@ const accountLinks: string[] = [
 
 let currentEvent: FIRSTEvent | null = null;
 
-FIRSTEvent.on('select', (e) => {
+FIRSTEvent.on('select', e => {
     currentEvent = e;
 });
 </script>
@@ -89,7 +89,7 @@ FIRSTEvent.on('select', (e) => {
 >
     <Page {active} {domain} title="event-summary">
         {#if currentEvent}
-            <EventSummary event={currentEvent}></EventSummary>
+            <EventSummary event="{currentEvent}"></EventSummary>
         {/if}
     </Page>
     <Page {active} {domain} title="robot-display">

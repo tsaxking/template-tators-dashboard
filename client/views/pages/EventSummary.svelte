@@ -1,10 +1,12 @@
 <script lang="ts">
-import { Bar } from "svelte-chartjs";
-import { FIRSTEvent } from "../../models/FIRST/event";
-import { FIRSTTeam } from "../../models/FIRST/team";
-import { Color } from "../../submodules/colors/color";
+import { Bar } from 'svelte-chartjs';
+import { FIRSTEvent } from '../../models/FIRST/event';
+import { FIRSTTeam } from '../../models/FIRST/team';
+import { Color } from '../../submodules/colors/color';
 
-const colors = Array.from({ length: 10 }, () => Color.random().toString('rgba'));
+const colors = Array.from({ length: 10 }, () =>
+    Color.random().toString('rgba')
+);
 
 export let event: FIRSTEvent;
 
@@ -30,9 +32,9 @@ const fns = {
         if (teamsRes.isErr()) return console.error(teamsRes.error);
         data = eventSummary.value;
         teams = teamsRes.value;
-        filteredTeams = teams.map((t) => t.number);
+        filteredTeams = teams.map(t => t.number);
     }
-}
+};
 
 $: fns.pullData(event);
 </script>
@@ -43,7 +45,12 @@ $: fns.pullData(event);
             <!-- checkbox for each team -->
             <div class="col">
                 <div class="form-check d-flex">
-                    <input class="form-check" type="checkbox" bind:group={filteredTeams} value={team.number}>
+                    <input
+                        class="form-check"
+                        type="checkbox"
+                        bind:group="{filteredTeams}"
+                        value="{team.number}"
+                    />
                     <label class="form-check" for="flexCheckDefault">
                         {team.number}
                     </label>
@@ -66,23 +73,36 @@ $: fns.pullData(event);
                         </h6>
                         <div class="scroll-x mb-2">
                             <div class="chart-container">
-                                <Bar 
-                                    data={{
+                                <Bar
+                                    data="{{
                                         labels: Object.entries(row.data)
                                             .sort((a, b) => b[1][i] - a[1][i])
-                                            .filter((v) => filteredTeams.includes(+v[0]))
-                                            .map((v) => v[0]),
-                                        datasets: [{
-                                            label,
-                                            data: Object.entries(row.data)
-                                                .sort((a, b) => b[1][i] - a[1][i])
-                                                .filter((v) => filteredTeams.includes(+v[0]))
-                                                .map((v) => v[1][i]),
-                                            backgroundColor: colors[colors.length % (i + k)]
-                                        }]
-                                    }}
-
-                                    options={{
+                                            .filter(v =>
+                                                filteredTeams.includes(+v[0])
+                                            )
+                                            .map(v => v[0]),
+                                        datasets: [
+                                            {
+                                                label,
+                                                data: Object.entries(row.data)
+                                                    .sort(
+                                                        (a, b) =>
+                                                            b[1][i] - a[1][i]
+                                                    )
+                                                    .filter(v =>
+                                                        filteredTeams.includes(
+                                                            +v[0]
+                                                        )
+                                                    )
+                                                    .map(v => v[1][i]),
+                                                backgroundColor:
+                                                    colors[
+                                                        colors.length % (i + k)
+                                                    ]
+                                            }
+                                        ]
+                                    }}"
+                                    options="{{
                                         scales: {
                                             y: {
                                                 beginAtZero: true
@@ -90,7 +110,7 @@ $: fns.pullData(event);
                                         },
                                         responsive: true,
                                         maintainAspectRatio: false
-                                    }}
+                                    }}"
                                 />
                             </div>
                         </div>
@@ -102,10 +122,9 @@ $: fns.pullData(event);
 </div>
 
 <style>
-
-    .chart-container {
-        min-width: 1500px;
-        width: 100%;
-        height: 100%;
-    }
+.chart-container {
+    min-width: 1500px;
+    width: 100%;
+    height: 100%;
+}
 </style>

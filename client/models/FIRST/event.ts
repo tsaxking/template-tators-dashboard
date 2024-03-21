@@ -383,21 +383,27 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         });
     }
 
-    async getEventSummary(): Promise<Result<{
-        labels: string[];
-        title: string;
-        data: {
-            [key: number]: number[];
-        }
-    }[]>> {
-        return attemptAsync(async () => {
-            const res = await ServerRequest.post<{
+    async getEventSummary(): Promise<
+        Result<
+            {
                 labels: string[];
                 title: string;
                 data: {
                     [key: number]: number[];
-                }
-            }[]>('/api/events/summary', {
+                };
+            }[]
+        >
+    > {
+        return attemptAsync(async () => {
+            const res = await ServerRequest.post<
+                {
+                    labels: string[];
+                    title: string;
+                    data: {
+                        [key: number]: number[];
+                    };
+                }[]
+            >('/api/events/summary', {
                 eventKey: this.key
             });
 
