@@ -803,6 +803,12 @@ export const messages: {
     code: 200,
     instructions: '',
 },
+    'trace:year-not-supported': {
+    message: 'This year is not yet supported',
+    color: 'danger',
+    code: 400,
+    instructions: '',
+},
     'unknown:error': {
     message: 'Unknown error',
     color: 'danger',
@@ -990,6 +996,7 @@ export type StatusId =
 	| 'teams:pictures-uploaded'
 	| 'test:fail'
 	| 'test:success'
+	| 'trace:year-not-supported'
 	| 'unknown:error'
 	| 'webhook:invalid-url'
 	| 'webhook:not-found'
@@ -1051,8 +1058,8 @@ export type DiscordStatusId = 'account-linked'
 	| 'link-expired';
 
 
-export type EventStatusId = 'update-properties'
-	| 'invalid-key';
+export type EventStatusId = 'invalid-key'
+	| 'update-properties';
 
 
 export type FilesStatusId = 'invalid'
@@ -1194,3 +1201,6 @@ export type WhiteboardStatusId = 'created'
 	| 'match-not-found'
 	| 'not-found'
 	| 'update';
+
+
+export type TraceStatusId = 'year-not-supported';
