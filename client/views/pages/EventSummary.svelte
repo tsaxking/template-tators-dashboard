@@ -77,4 +77,9 @@ import { Color } from "../../submodules/colors/color";
     .card-body {
         height: 400px;
     }
+
+    .chart-container {
+        width: 1500px !important;
+        height: 100%;
+    }
 </style>
