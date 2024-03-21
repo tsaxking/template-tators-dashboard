@@ -846,3 +846,91 @@ router.post<{
         res.json(result.value);
     }
 );
+
+router.post<{
+    from: string;
+    to: string;
+}>(
+    '/copy-questions',
+    canEdit,
+    validate({
+        from: 'string',
+        to: 'string'
+    }),
+    async (req, res) => {
+        const { from, to } = req.body;
+
+        const [groups, questions] = await Promise.all([
+            DB.all('scouting-questions/groups-from-event', {
+                eventKey: from
+            }),
+            DB.all('scouting-questions/questions-from-event', {
+                eventKey: from
+            })
+        ]);
+
+        if (groups.isErr()) return res.sendStatus('unknown:error');
+        if (questions.isErr()) return res.sendStatus('unknown:error');
+
+        const g = groups.value;
+        const q = questions.value;
+
+        const dateAdded = Date.now();
+        const accountId = req.session.accountId;
+
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        for (const group of g) {
+            const id = uuid();
+            DB.run('scouting-questions/new-group', {
+                id,
+                eventKey: to,
+                section: group.section,
+                name: group.name,
+                accountId,
+                dateAdded
+            });
+
+            req.io.emit('scouting-question:new-group', {
+                id,
+                eventKey: to,
+                section: group.section,
+                name: group.name,
+                accountId,
+                dateAdded
+            });
+        }
+
+        for (const question of q) {
+            const id = uuid();
+            DB.run('scouting-questions/new-question', {
+                id,
+                question: question.question,
+                type: question.type,
+                key: question.key,
+                description: question.description,
+                groupId: question.groupId,
+                accountId,
+                dateAdded,
+                options: question.options
+            });
+
+            const section = g.find(g => g.id === question.groupId)?.section;
+
+            req.io.emit('scouting-question:new-question', {
+                id,
+                question: question.question,
+                type: question.type,
+                section,
+                key: question.key,
+                description: question.description,
+                groupId: question.groupId,
+                accountId,
+                dateAdded,
+                options: question.options
+            });
+        }
+
+        res.sendStatus('scouting-question:questions-copied');
+    }
+);

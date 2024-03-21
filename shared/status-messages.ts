@@ -731,6 +731,12 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'scouting-question:questions-copied': {
+        message: 'Questions copied from event',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'scouting-question:section-deleted': {
         message: 'Section has been archived',
         color: 'success',
@@ -1037,6 +1043,7 @@ export type StatusId =
     | 'scouting-question:question-deleted'
     | 'scouting-question:question-not-found'
     | 'scouting-question:question-updated'
+    | 'scouting-question:questions-copied'
     | 'scouting-question:section-deleted'
     | 'scouting-question:update-answer'
     | 'scouting-question:update-section'
@@ -1199,7 +1206,8 @@ export type ScoutingQuestionStatusId =
     | 'section-deleted'
     | 'update-answer'
     | 'update-section'
-    | 'updated-answer';
+    | 'updated-answer'
+    | 'questions-copied';
 
 export type ServerStatusId =
     | 'invalid-data'
@@ -1227,6 +1235,8 @@ export type TeamsStatusId = 'pictures-uploaded';
 
 export type TestStatusId = 'fail' | 'success';
 
+export type TraceStatusId = 'year-not-supported';
+
 export type UnknownStatusId = 'error';
 
 export type WebhookStatusId = 'invalid-url' | 'not-found' | 'rate-limit';
@@ -1237,5 +1247,3 @@ export type WhiteboardStatusId =
     | 'match-not-found'
     | 'not-found'
     | 'update';
-
-export type TraceStatusId = 'year-not-supported';

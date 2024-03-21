@@ -55,6 +55,7 @@ export type SocketEvent =
     | 'scouting-question:new-section'
     | 'scouting-question:question-deleted'
     | 'scouting-question:question-updated'
+    | 'scouting-question:questions-copied'
     | 'scouting-question:section-deleted'
     | 'scouting-question:update-answer'
     | 'scouting-question:update-section'
