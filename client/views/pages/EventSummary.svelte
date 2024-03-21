@@ -1,30 +1,32 @@
 <script lang="ts">
-    import { Bar } from "svelte-chartjs";
+import { Bar } from "svelte-chartjs";
 import { FIRSTEvent } from "../../models/FIRST/event";
 import { Color } from "../../submodules/colors/color";
 
 
-    export let event: FIRSTEvent;
+export let event: FIRSTEvent;
 
-    let data: {
-        title: string;
-        labels: string[];
-        data: {
-            [key: number]: number[];
-        };
-    }[] = [];
+let data: {
+    title: string;
+    labels: string[];
+    data: {
+        [key: number]: number[];
+    };
+}[] = [];
+
+let filteredTeams: number[] = [];
 
 
-    const fns = {
-        pullData: async (e?: FIRSTEvent) => {
-            if (!e) return;
-            const res = await e.getEventSummary();
-            if (res.isErr()) return console.error(res.error);
-            data = res.value;
-        }
+const fns = {
+    pullData: async (e?: FIRSTEvent) => {
+        if (!e) return;
+        const res = await e.getEventSummary();
+        if (res.isErr()) return console.error(res.error);
+        data = res.value;
     }
-    
-    $: fns.pullData(event);
+}
+
+$: fns.pullData(event);
 </script>
 
 <div class="container-fluid">
@@ -37,36 +39,32 @@ import { Color } from "../../submodules/colors/color";
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="scroll-x h-100">
-                        <div class="chart-container h-100">
-                            <Bar 
-                                data={{
-                                    labels: Object.keys(row.data),
-                                    datasets: row.labels.map((label, k) => {
-                                        const c = Color.random();
-                                        return {
+                    {#each row.labels as label, i}
+                        <div class="scroll-x">
+                            <div class="chart-containe">
+                                <Bar 
+                                    data={{
+                                        labels: Object.entries(row.data).sort((a, b) => b[1][i] - a[1][i]).map((v) => v[0]),
+                                        datasets: [{
                                             label,
-                                            data: Object.values(row.data).map((v) => v[k]),
-                                            backgroundColor: c.setAlpha(0.2).toString('rgba'),
-                                            borderColor: c.setAlpha(1).toString('rgba'),
-                                            borderWidth: 1
-                                        }
-                                    })
-                                }}
+                                            data: Object.entries(row.data).sort((a, b) => b[1][i] - a[1][i]).map((v) => v[1][i]),
+                                            backgroundColor: Color.random().toString('rgba')
+                                        }]
+                                    }}
 
-                                options={{
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true
-                                        }
-                                    },
-                                    responsive: true,
-                                    maintainAspectRatio: false
-                                }}
-                            />
+                                    options={{
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true
+                                            }
+                                        },
+                                        responsive: true,
+                                        maintainAspectRatio: false
+                                    }}
+                                />
+                            </div>
                         </div>
-
-                    </div>
+                    {/each}
                 </div>
             </div>
         </div>
@@ -74,9 +72,6 @@ import { Color } from "../../submodules/colors/color";
 </div>
 
 <style>
-    .card-body {
-        height: 400px;
-    }
 
     .chart-container {
         min-width: 1500px;
