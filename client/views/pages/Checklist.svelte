@@ -20,51 +20,16 @@ let matchScouting: {
 }[] = [];
 
 FIRSTEvent.on('select', async e => {
-    const [statusRes, teamsRes, matchesRes] = await Promise.all([
+    const [statusRes, teamsRes] = await Promise.all([
         e.getStatus(),
         e.getTeams(),
-        e.getMatches()
     ]);
     if (statusRes.isErr()) return console.error(statusRes.error);
     if (teamsRes.isErr()) return console.error(teamsRes.error);
-    if (matchesRes.isErr()) return console.error(matchesRes.error);
 
-    const { pictures, matches, questions } = statusRes.value;
+    const { pictures,questions } = statusRes.value;
     const teamsInfo = teamsRes.value;
 
-    matchScouting = await Promise.all(
-        matchesRes.value.map(async m => {
-            const match = matches.find(
-                _m => _m.match === m.number && _m.compLevel === m.compLevel
-            );
-            if (!match) {
-                return {
-                    teams: [],
-                    number: 0,
-                    compLevel: 'pr'
-                };
-            }
-            const unScouted = match.teams;
-            const teams = await m.getTeams();
-
-            if (teams.isErr()) {
-                return {
-                    teams: [],
-                    number: 0,
-                    compLevel: 'pr'
-                };
-            }
-
-            return {
-                teams: teams.value.map(t => ({
-                    team: t.number,
-                    scouted: !unScouted.includes(t.number)
-                })),
-                number: m.number,
-                compLevel: m.compLevel
-            };
-        })
-    );
 
     teams = teamsInfo.map(t => ({
         team: t,
@@ -74,27 +39,4 @@ FIRSTEvent.on('select', async e => {
 });
 </script>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-6 col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Team Checklist</h5>
-                </div>
-                <div class="card-body">
-                    <TeamChecklist {teams} />
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Match Scouting</h5>
-                </div>
-                <div class="card-body">
-                    <MatchScouting {matchScouting} />
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<TeamChecklist {teams} />

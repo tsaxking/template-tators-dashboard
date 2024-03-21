@@ -17,14 +17,13 @@ $: pullVideos(match);
 </script>
 
 {#each matchVideos as video}
-    <div class="card">
+    <div class="card p-0">
         <div class="card-header">
             <h5 class="card-title">Match Video {match?.number}</h5>
         </div>
         <div class="card-body">
             <iframe
-                width="560"
-                height="315"
+                class="w-100"
                 src="https://www.youtube.com/embed/{video}"
                 title="YouTube video player"
                 frameborder="0"
@@ -36,3 +35,9 @@ $: pullVideos(match);
         </div>
     </div>
 {/each}
+
+<style>
+    iframe {
+        aspect-ratio: 16 / 9;
+    }
+</style>

@@ -232,7 +232,7 @@ const fns = {
         if (!eventMatches) return;
         if (eventMatches.isErr()) return console.error(eventMatches.error);
         firstMatch = eventMatches.value.find(
-            _m => m.matchNumber === m.matchNumber && m.compLevel === m.compLevel
+            _m => m.matchNumber === _m.number && m.compLevel === _m.compLevel
         );
     }
 };
