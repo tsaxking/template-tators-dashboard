@@ -10,9 +10,9 @@ export let preScouting: boolean = false;
 const fns = {
     getTeam: async (t?: FIRSTTeam) => {
         if (!t) return;
-        const matchesRes = preScouting ?
-            await t.getPreScouting() 
-        : await t.getMatchScouting();
+        const matchesRes = preScouting
+            ? await t.getPreScouting()
+            : await t.getMatchScouting();
         if (matchesRes.isOk()) {
             matches = matchesRes.value
                 .filter(m => m.preScouting === preScouting)
