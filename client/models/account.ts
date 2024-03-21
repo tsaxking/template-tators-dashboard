@@ -102,7 +102,9 @@ export class Account extends Cache<AccountEvents> {
     public static async get(
         ids: (string | undefined)[]
     ): Promise<(Account | undefined)[]> {
-        const output = new Array<Account | undefined>(ids.length).fill(undefined);
+        const output = new Array<Account | undefined>(ids.length).fill(
+            undefined
+        );
         const toRequest = new Set<string>();
         for (let i = 0; i < ids.length; i++) {
             const id = ids[i];
@@ -116,7 +118,7 @@ export class Account extends Cache<AccountEvents> {
 
         if (toRequest.size) {
             Account.requested.push(...Array.from(toRequest));
-            const res = await ServerRequest.post<(AccountSafe|undefined)[]>(
+            const res = await ServerRequest.post<(AccountSafe | undefined)[]>(
                 '/account/account-info',
                 {
                     ids: Array.from(toRequest)
