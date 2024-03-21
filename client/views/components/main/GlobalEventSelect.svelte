@@ -26,13 +26,6 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
             const aEndDate = new Date(a.end_date);
             const bEndDate = new Date(b.end_date);
 
-            console.log({
-                aStartDate,
-                bStartDate,
-                aEndDate,
-                bEndDate
-            });
-
             const now = new Date();
             // event is happening now
             if (aStartDate <= now && aEndDate >= now) return -1;
@@ -61,7 +54,9 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
             }
         }
 
-        new FIRSTEvent(events[0]).select();
+        const e = events.find(e => e.key === '2024idbo');
+        if (e) new FIRSTEvent(e).select();
+        else new FIRSTEvent(events[0]).select();
     }
 });
 
