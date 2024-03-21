@@ -37,31 +37,36 @@ import { Color } from "../../submodules/colors/color";
                     </div>
                 </div>
                 <div class="card-body">
-                    <Bar 
-                        data={{
-                            labels: Object.keys(row.data),
-                            datasets: row.labels.map((label, i) => {
-                                const c = Color.random();
-                                return {
-                                    label,
-                                    data: Object.values(row.data).map((v) => v[i]),
-                                    backgroundColor: c.setAlpha(0.2).toString('rgba'),
-                                    borderColor: c.setAlpha(1).toString('rgba'),
-                                    borderWidth: 1
-                                }
-                            })
-                        }}
+                    <div class="scroll-x">
+                        <div class="chart-container">
+                            <Bar 
+                                data={{
+                                    labels: Object.keys(row.data),
+                                    datasets: row.labels.map((label, i) => {
+                                        const c = Color.random();
+                                        return {
+                                            label,
+                                            data: Object.values(row.data).map((v) => v[i]),
+                                            backgroundColor: c.setAlpha(0.2).toString('rgba'),
+                                            borderColor: c.setAlpha(1).toString('rgba'),
+                                            borderWidth: 1
+                                        }
+                                    })
+                                }}
 
-                        options={{
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            responsive: true,
-                            maintainAspectRatio: false
-                        }}
-                    />
+                                options={{
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    },
+                                    responsive: true,
+                                    maintainAspectRatio: false
+                                }}
+                            />
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
