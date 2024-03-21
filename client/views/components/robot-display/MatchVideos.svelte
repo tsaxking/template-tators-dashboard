@@ -37,7 +37,7 @@ $: pullVideos(match);
 {/each}
 
 <style>
-    iframe {
-        aspect-ratio: 16 / 9;
-    }
+iframe {
+    aspect-ratio: 16 / 9;
+}
 </style>
