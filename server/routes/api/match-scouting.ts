@@ -101,3 +101,53 @@ router.post<{
         );
     }
 );
+
+router.post<{
+    eventKey: string;
+    teamNumber: number;
+}>(
+    '/pre-from-team',
+    validate({
+        eventKey: 'string',
+        teamNumber: 'number'
+    }),
+    async (req, res) => {
+
+        const { eventKey, teamNumber } = req.body;
+        const result = await DB.all('match-scouting/teams-pre-scouting', {
+            team: teamNumber,
+            eventKey
+        });
+
+        if (result.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        return res.json(
+            await Promise.all(
+                result.value.map(async m => {
+                    const comments = await DB.all(
+                        'team-comments/from-match-scouting',
+                        {
+                            matchScoutingId: m.id
+                        }
+                    );
+
+                    if (comments.isErr()) {
+                        return {
+                            ...m,
+                            comments: []
+                        };
+                    } else {
+                        return {
+                            ...m,
+                            comments: comments.value
+                        };
+                    }
+                })
+            )
+        );
+    }
+);
+
+// TODO: migrate prescouting
