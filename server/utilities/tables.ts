@@ -372,9 +372,8 @@ export type MatchScouting = {
     scoutGroup: number;
     trace: string;
     checks: string;
-    preScouting: string | undefined;
+    preScouting: number | undefined;
     time: number;
-    prescouting: string | undefined;
 };
 
 export type MatchComments = {
