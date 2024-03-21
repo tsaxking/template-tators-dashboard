@@ -43,7 +43,7 @@ Section.on('delete', async () => {
     sections = await Section.all();
 });
 
-FIRSTEvent.on('select', async (e) => {
+FIRSTEvent.on('select', async e => {
     event = e;
     sections = await Section.all();
     const s = sections[0];
@@ -98,40 +98,40 @@ const fns = {
     <div class="row mb-3">
         <div class="col-md-8 col-sm-12 mb-2">
             <NavTabs
-            {tabs}
-            {active}
-            on:change="{e => {
-                active = e.detail;
-            }}"
-        >
-            <a
-                href="javascript:void(0)"
-                on:click="{async () => {
-                    const name = await prompt(
-                        'What name would you like the new section to be?'
-                    );
-                    // console.log(name);
-                    if (name) {
-                        if (tabs.includes(name))
-                            return alert(
-                                'A section with that name already exists'
-                            );
-                        // const multiple = await choose(
-                        //     'Would you like to add multiple questions at once?',
-                        //     'Yes',
-                        //     'No'
-                        // );
-                        Section.new({
-                            name,
-                            // multiple: multiple === 'Yes'
-                            multiple: false
-                        });
-                    }
+                {tabs}
+                {active}
+                on:change="{e => {
+                    active = e.detail;
                 }}"
             >
-                <i class="material-icons">add</i>
-            </a>
-        </NavTabs>
+                <a
+                    href="javascript:void(0)"
+                    on:click="{async () => {
+                        const name = await prompt(
+                            'What name would you like the new section to be?'
+                        );
+                        // console.log(name);
+                        if (name) {
+                            if (tabs.includes(name))
+                                return alert(
+                                    'A section with that name already exists'
+                                );
+                            // const multiple = await choose(
+                            //     'Would you like to add multiple questions at once?',
+                            //     'Yes',
+                            //     'No'
+                            // );
+                            Section.new({
+                                name,
+                                // multiple: multiple === 'Yes'
+                                multiple: false
+                            });
+                        }
+                    }}"
+                >
+                    <i class="material-icons">add</i>
+                </a>
+            </NavTabs>
         </div>
         <div class="col-md-4 col-sm-12 mb-2">
             <button
