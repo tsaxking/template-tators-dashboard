@@ -79,9 +79,7 @@ FIRSTEvent.on('select', async e => {
         <div class="col-lg-6 col-sm-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">
-                        Team Checklist
-                    </h5>
+                    <h5 class="card-title">Team Checklist</h5>
                 </div>
                 <div class="card-body">
                     <TeamChecklist {teams} />
@@ -91,9 +89,7 @@ FIRSTEvent.on('select', async e => {
         <div class="col-lg-6 col-sm-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">
-                        Match Scouting
-                    </h5>
+                    <h5 class="card-title">Match Scouting</h5>
                 </div>
                 <div class="card-body">
                     <MatchScouting {matchScouting} />
