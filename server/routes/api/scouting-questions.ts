@@ -860,20 +860,21 @@ router.post<{
     async (req, res) => {
         const { from, to } = req.body;
 
-        const [groups, questions, currentGroups, currentQuestions] = await Promise.all([
-            DB.all('scouting-questions/groups-from-event', {
-                eventKey: from
-            }),
-            DB.all('scouting-questions/questions-from-event', {
-                eventKey: from
-            }),
-            DB.all('scouting-questions/groups-from-event', {
-                eventKey: to
-            }),
-            DB.all('scouting-questions/questions-from-event', {
-                eventKey: to
-            })
-        ]);
+        const [groups, questions, currentGroups, currentQuestions] =
+            await Promise.all([
+                DB.all('scouting-questions/groups-from-event', {
+                    eventKey: from
+                }),
+                DB.all('scouting-questions/questions-from-event', {
+                    eventKey: from
+                }),
+                DB.all('scouting-questions/groups-from-event', {
+                    eventKey: to
+                }),
+                DB.all('scouting-questions/questions-from-event', {
+                    eventKey: to
+                })
+            ]);
 
         if (groups.isErr()) return res.sendStatus('unknown:error');
         if (questions.isErr()) return res.sendStatus('unknown:error');
@@ -883,13 +884,19 @@ router.post<{
         const g = groups.value;
         const q = questions.value;
 
-
         if (g.every(g => currentGroups.value.some(cg => cg.name === g.name))) {
-            if (q.every(q => currentQuestions.value.some(cq => cq.question === q.question))) {
-                return res.sendStatus('scouting-question:questions-already-exist');
+            if (
+                q.every(q =>
+                    currentQuestions.value.some(
+                        cq => cq.question === q.question
+                    )
+                )
+            ) {
+                return res.sendStatus(
+                    'scouting-question:questions-already-exist'
+                );
             }
         }
-
 
         const dateAdded = Date.now();
         const accountId = req.session.accountId;
