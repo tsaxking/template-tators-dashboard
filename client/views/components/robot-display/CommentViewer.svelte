@@ -28,6 +28,8 @@ const fns = {
     parse: async (c: TeamComment[]) => {
         const accounts = await Account.get(c.map(c => c.accountId));
 
+        console.log({ accounts });
+
         parsed = (
             await Promise.all(
                 c.map(async (c, i) => {
@@ -35,7 +37,7 @@ const fns = {
                         comment: c.comment,
                         type: c.type,
                         time: c.time,
-                        account: accounts[i]?.username || c.accountId
+                        account: accounts[i]?.name || c.accountId
                     };
                 })
             )
