@@ -9,7 +9,10 @@ import {
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { RetrievedMatchScouting } from '../../utilities/tables';
 import { Status } from '../../utilities/status';
-import { Trace, TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
+import {
+    Trace,
+    TraceArray
+} from '../../../shared/submodules/tatorscout-calculations/trace';
 
 export const router = new Route();
 
@@ -122,7 +125,6 @@ router.post<{
     }
 );
 
-
 router.post<{
     eventKey: string;
 }>('/summary', validate({ eventKey: 'string' }), async (req, res) => {
@@ -130,7 +132,8 @@ router.post<{
     const year = Number(eventKey.match(/\d+/)?.[0]);
     if (!year) return res.sendStatus('event:invalid-key');
 
-    if (!Trace.builtYears.includes(year)) return res.sendStatus('trace:year-not-supported');
+    if (!Trace.builtYears.includes(year))
+        return res.sendStatus('trace:year-not-supported');
 
     const [matchScouting, teamsResult, matchesResult] = await Promise.all([
         DB.all('match-scouting/from-event', { eventKey: eventKey }),
@@ -148,24 +151,36 @@ router.post<{
 
     const teams: {
         number: number;
-        traces: {trace: TraceArray, alliance: 'red' | 'blue'}[];
-    }[] = teamsResult.value.map((t) => ({
+        traces: { trace: TraceArray; alliance: 'red' | 'blue' }[];
+    }[] = teamsResult.value.map(t => ({
         number: t.team_number,
-        traces: matchScouting.value.filter((s) => s.team === t.team_number).map(s => {
-            const match = matches.find(m => m.match_number === s.matchNumber && m.comp_level === s.compLevel);
-            return {
-                trace: JSON.parse(s.trace) as TraceArray,
-                alliance: match?.alliances.blue.team_keys.includes('frc' + t.team_number) ? 'blue' : 'red'
-            }
-        })
+        traces: matchScouting.value
+            .filter(s => s.team === t.team_number)
+            .map(s => {
+                const match = matches.find(
+                    m =>
+                        m.match_number === s.matchNumber &&
+                        m.comp_level === s.compLevel
+                );
+                return {
+                    trace: JSON.parse(s.trace) as TraceArray,
+                    alliance: match?.alliances.blue.team_keys.includes(
+                        'frc' + t.team_number
+                    )
+                        ? 'blue'
+                        : 'red'
+                };
+            })
     }));
 
     const data = teams.map(t => {
         return {
             number: t.number,
             // TODO: type strict this
-            data: Trace.yearInfo[year as keyof typeof Trace.yearInfo]?.summarize(t.traces)
-        }
+            data: Trace.yearInfo[
+                year as keyof typeof Trace.yearInfo
+            ]?.summarize(t.traces)
+        };
     });
 
     const returnData: {
@@ -173,17 +188,19 @@ router.post<{
         title: string;
         data: {
             [key: number]: number[];
-        }
+        };
     }[] = [];
 
     const [team] = data;
-    
+
     if (team) {
-        returnData.push(...team.data.map((d) => ({
-            title: d.title,
-            labels: d.labels,
-            data: {}
-        })));
+        returnData.push(
+            ...team.data.map(d => ({
+                title: d.title,
+                labels: d.labels,
+                data: {}
+            }))
+        );
     }
 
     for (const team of data) {
