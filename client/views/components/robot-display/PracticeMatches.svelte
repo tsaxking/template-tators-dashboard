@@ -7,13 +7,16 @@ import { Modal } from '../../../utilities/modals';
 import MatchViewer from './MatchViewer.svelte';
 
 export let team: FIRSTTeam | undefined = undefined;
+export let preScouting: boolean = false;
 
 let matches: MatchScouting[] = [];
 
 const fns = {
     set: async (team?: FIRSTTeam) => {
         if (!team) return;
-        const res = await team.getPracticeMatches();
+        const res = preScouting
+            ? await team.getPreScouting()
+            : await team.getPracticeMatches();
 
         if (res.isErr()) return console.error(res.error);
 
@@ -58,6 +61,9 @@ onMount(() => fns.set(team));
                     <tr>
                         <th>#</th>
                         <th>Time</th>
+                        {#if preScouting}
+                            <th>Event</th>
+                        {/if}
                     </tr>
                 </thead>
                 <tbody>
@@ -68,6 +74,9 @@ onMount(() => fns.set(team));
                         >
                             <td>{match.matchNumber}</td>
                             <td>{dateTime(match.time)}</td>
+                            {#if preScouting}
+                                <td>{match.eventKey}</td>
+                            {/if}
                         </tr>
                     {/each}
                 </tbody>

@@ -26,21 +26,27 @@ let search = '';
 
 const fns = {
     parse: async (c: TeamComment[]) => {
+        const accounts = await Account.get(c.map(c => c.accountId));
+
         parsed = (
             await Promise.all(
-                c.map(async c => {
+                c.map(async (c, i) => {
                     return {
                         comment: c.comment,
                         type: c.type,
                         time: c.time,
-                        account: c.accountId
-                            ? (await Account.get(c.accountId))?.username ||
-                              c.accountId
-                            : undefined
+                        account: accounts[i]?.username || c.accountId
                     };
                 })
             )
-        ).sort((a, b) => +b.time - +a.time);
+        )
+            .sort((a, b) => +b.time - +a.time)
+            .filter(
+                (c, i, a) =>
+                    a.findIndex(
+                        _c => _c.comment === c.comment && c.time === _c.time
+                    ) === i
+            );
     },
     addComment: async () => {
         if (!team) return alert('No team selected');

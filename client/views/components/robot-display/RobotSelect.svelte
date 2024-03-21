@@ -6,9 +6,9 @@ import Select from '../bootstrap/Select.svelte';
 let value = '';
 let options: string[] = [];
 
-FIRSTTeam.on('select', (team: FIRSTTeam) => {
+FIRSTTeam.on('select', team => {
+    if (!team) return;
     value = team.tba.team_number.toString();
-    team = team;
 });
 
 const update = async (teams: FIRSTTeam[]) => {
@@ -29,7 +29,7 @@ FIRSTEvent.on('select', async (event: FIRSTEvent) => {
 const handleChange = async (e: any) => {
     const { detail: teamNumber } = e;
     const res = await FIRSTEvent.current?.getTeams();
-    if (res.isOk()) {
+    if (res && res.isOk()) {
         const teams = res.value;
         const team = teams.find(t => t.tba.team_number === +teamNumber);
         if (team) {

@@ -196,16 +196,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
      */
     async getTeams(): Promise<Result<FIRSTTeam[]>> {
         return attemptAsync(async () => {
-            const c = this.$cache.get('teams');
-            if (c) return c as FIRSTTeam[];
-
-            const serverStream = ServerRequest.retrieveStream<Team>(
-                '/api/teams/all-from-event',
-                {
-                    eventKey: this.tba.key
-                },
-                JSON.parse
-            );
+            const c = this.$cache.get('teams') as FIRSTTeam[];
+            if (c && c.length) return c;
 
             const res = await TBA.get<TBATeam[]>(
                 `/event/${this.tba.key}/teams`
@@ -216,16 +208,6 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                 const teams = value.data.map(team => new FIRSTTeam(team, this));
 
                 teams.sort((a, b) => a.number - b.number);
-
-                serverStream.on('chunk', team => {
-                    const found = teams.find(
-                        t => t.tba.team_number === team.number
-                    );
-
-                    if (found) {
-                        found.$cache.set('info', team);
-                    }
-                });
 
                 value.onUpdate(data => {
                     data.forEach(t => {
@@ -283,7 +265,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         const teams = await this.getTeams();
         if (teams.isErr()) return;
 
-        if (teams.value.some(t => t.pictures.length > 0)) return [];
+        if (teams.value.some(t => t.$cache.has('pictures'))) return;
 
         const res = await ServerRequest.post<TeamPicture[]>(
             '/api/teams/pictures-from-event',
@@ -292,17 +274,27 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             }
         );
 
-        console.log({ res });
-
         if (res.isOk()) {
-            return Promise.all(
-                res.value.map(async p => {
-                    // I know I could use the teams const from above, but all teams are cached, so it doesn't really matter
-                    const t = await this.getTeam(p.teamNumber);
-                    if (!t) return; // should never happen
-                    t.pictures = [...t.pictures, p];
-                })
-            );
+            for (const p of res.value) {
+                const t = teams.value.find(t => t.number === p.teamNumber);
+                if (!t) continue;
+                t.$cache.set(
+                    'pictures',
+                    [
+                        ...(() => {
+                            if (t.$cache.has('pictures'))
+                                return t.$cache.get(
+                                    'pictures'
+                                ) as TeamPicture[];
+                            else return [];
+                        })(),
+                        p
+                    ].filter(
+                        (p, i, a) =>
+                            a.findIndex(_p => _p.picture === p.picture) === i
+                    )
+                );
+            }
         }
     }
 
@@ -337,27 +329,21 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         }>
     > {
         return attemptAsync(async () => {
-            const sections = await Section.all();
-            const groups = (
-                await Promise.all(
-                    sections.map(async s => {
-                        const res = await s.getGroups(this);
-                        if (res.isOk()) return res.value;
-                        throw res.error;
-                    })
-                )
-            ).flat();
-            const questionRes = resolveAll(
-                await Promise.all(groups.map(g => g.getQuestions()))
-            );
+            // const sections = await Section.all();
 
-            if (questionRes.isErr()) throw questionRes.error;
-            const questions = questionRes.value.flat();
+            const [sections, groups, questions] = await Promise.all([
+                Section.all(),
+                Group.fromEvent(this.key),
+                Question.fromEvent(this.key)
+            ]);
+
+            if (questions.isErr()) throw questions.error;
+            if (groups.isErr()) throw groups.error;
 
             return {
                 sections,
-                groups,
-                questions
+                groups: groups.value,
+                questions: questions.value
             };
         });
     }
@@ -389,6 +375,35 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     questions: string[];
                 }[];
             }>('/api/events/status', {
+                eventKey: this.key
+            });
+
+            if (res.isOk()) return res.value;
+            throw res.error;
+        });
+    }
+
+    async getEventSummary(): Promise<
+        Result<
+            {
+                labels: string[];
+                title: string;
+                data: {
+                    [key: number]: number[];
+                };
+            }[]
+        >
+    > {
+        return attemptAsync(async () => {
+            const res = await ServerRequest.post<
+                {
+                    labels: string[];
+                    title: string;
+                    data: {
+                        [key: number]: number[];
+                    };
+                }[]
+            >('/api/events/summary', {
                 eventKey: this.key
             });
 

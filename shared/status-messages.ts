@@ -346,6 +346,12 @@ export const messages: {
         code: 400,
         instructions: 'please try again'
     },
+    'event:invalid-key': {
+        message: 'Invalid event key',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
     'event:update-properties': {
         message: 'Event properties updated',
         color: 'success',
@@ -859,6 +865,12 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'trace:year-not-supported': {
+        message: 'This year is not yet supported',
+        color: 'danger',
+        code: 400,
+        instructions: ''
+    },
     'unknown:error': {
         message: 'Unknown error',
         color: 'danger',
@@ -961,6 +973,7 @@ export type StatusId =
     | 'discord:account-linked'
     | 'discord:invalid-link'
     | 'discord:link-expired'
+    | 'event:invalid-key'
     | 'event:update-properties'
     | 'files:invalid'
     | 'files:invalid-extension'
@@ -1046,6 +1059,7 @@ export type StatusId =
     | 'teams:pictures-uploaded'
     | 'test:fail'
     | 'test:success'
+    | 'trace:year-not-supported'
     | 'unknown:error'
     | 'webhook:invalid-url'
     | 'webhook:not-found'
@@ -1100,6 +1114,13 @@ export type AccountStatusId =
 
 export type AdminStatusId = 'invalid-key';
 
+export type DiscordStatusId =
+    | 'account-linked'
+    | 'invalid-link'
+    | 'link-expired';
+
+export type EventStatusId = 'invalid-key' | 'update-properties';
+
 export type FilesStatusId =
     | 'invalid'
     | 'invalid-extension'
@@ -1108,13 +1129,6 @@ export type FilesStatusId =
     | 'too-many-files'
     | 'unknown-error'
     | 'uploaded';
-
-export type DiscordStatusId =
-    | 'account-linked'
-    | 'invalid-link'
-    | 'link-expired';
-
-export type EventStatusId = 'update-properties';
 
 export type MatchStatusId = 'not-found';
 
@@ -1223,3 +1237,5 @@ export type WhiteboardStatusId =
     | 'match-not-found'
     | 'not-found'
     | 'update';
+
+export type TraceStatusId = 'year-not-supported';
