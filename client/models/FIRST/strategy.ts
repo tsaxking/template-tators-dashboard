@@ -134,6 +134,32 @@ export class Strategy extends Cache<StrategyUpdateData> {
     }
 
     /**
+     * Generate a new strategy
+     * @param matchID The ID of the match
+     * @param comment The comment for the strategy
+     */
+    public static async generate(matchID: string, comment: string) {
+        // Create a new server request
+        const res = await ServerRequest.post<StrategyObj[]>(
+            '/api/strategy/generate',
+            {
+                matchID,
+                comment
+            }
+        );
+
+        // Validate the response
+
+        if (res.isErr()) throw res.error;
+        return res.value.map(d => new Strategy(d));
+
+        // Check permissions
+
+        // Populate the database with the strategy
+
+    }
+
+    /**
      * Streams all whiteboards associated with this strategy
      * Returns an emitter that emits chunks of the whiteboards
      * @date 10/9/2023 - 6:52:29 PM
