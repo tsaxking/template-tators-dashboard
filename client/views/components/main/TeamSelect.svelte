@@ -5,7 +5,7 @@ import Select from '../bootstrap/Select.svelte';
 import { createEventDispatcher } from 'svelte';
 
 let options: string[] = [];
-let values: string[] =[];
+let values: string[] = [];
 let value: string | undefined;
 export let selected: FIRSTTeam | undefined = undefined;
 
@@ -13,7 +13,7 @@ FIRSTEvent.on('select', async (event: FIRSTEvent) => {
     const result = await event.getTeams();
     if (result.isOk()) {
         const teams = result.value;
-        values = teams.map(t => t.number.toString())
+        values = teams.map(t => t.number.toString());
         options = teams.map(t => `${t.tba.team_number.toString()} | ${t.name}`);
     } else {
         options = [];
