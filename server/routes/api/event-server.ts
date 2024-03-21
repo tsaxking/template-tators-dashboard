@@ -55,7 +55,9 @@ router.post<Match>(
                 `/event/${eventKey}/matches`
             );
             if (matches.isErr() || !matches.value)
-                return res.status(500).json({ error: 'Error fetching matches' });
+                return res
+                    .status(500)
+                    .json({ error: 'Error fetching matches' });
 
             console.log({ matches });
 
@@ -131,7 +133,8 @@ router.post<Match>(
                 matchId: m.id
             });
 
-            if (existingRes.isErr()) return res.status(500).json({ error: 'Error' });
+            if (existingRes.isErr())
+                return res.status(500).json({ error: 'Error' });
 
             if (existingRes.value) {
                 DB.run('match-scouting/archive', {
