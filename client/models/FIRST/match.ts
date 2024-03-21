@@ -4,7 +4,10 @@ import {
     Whiteboard as WhiteboardObj
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { TBAMatch } from '../../../shared/submodules/tatorscout-calculations/tba';
+import {
+    TBAMatch,
+    teamsFromMatch
+} from '../../../shared/submodules/tatorscout-calculations/tba';
 import {
     RetrieveStreamEventEmitter,
     ServerRequest
@@ -108,15 +111,22 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         public readonly event: FIRSTEvent
     ) {
         super();
-        this.teams.forEach(t => {
-            t.on('match-scouting', async () => {
-                const scouting = await this.getMatchScouting();
-                if (scouting.isOk() && scouting.value[t.number])
-                    this.$emitter.emit(
-                        'match-scouting',
-                        scouting.value[t.number]
-                    );
-            });
+
+        this.getTeams().then(res => {
+            if (res.isOk()) {
+                const teams = res.value;
+
+                for (const t of teams) {
+                    t.on('match-scouting', async () => {
+                        const scouting = await this.getMatchScouting();
+                        if (scouting.isOk() && scouting.value[t.number])
+                            this.$emitter.emit(
+                                'match-scouting',
+                                scouting.value[t.number]
+                            );
+                    });
+                }
+            }
         });
     }
 
@@ -241,30 +251,33 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      * @readonly
      * @type {FIRSTTeam[]}
      */
-    get teams(): FIRSTTeam[] {
-        const [red1, red2, red3] = this.tba.alliances.red.team_keys;
-        const [blue1, blue2, blue3] = this.tba.alliances.blue.team_keys;
+    async getTeams(): Promise<Result<FIRSTTeam[]>> {
+        return attemptAsync(async () => {
+            const [r1, r2, r3, b1, b2, b3] = teamsFromMatch(this.tba);
 
-        let teams = [red1, red2, red3, blue1, blue2, blue3].map(t =>
-            FIRSTTeam.$cache.get(
-                +t.replace('frc', '') + ':' + this.event.tba.key
-            )
-        );
+            const _teams = await this.event.getTeams();
 
-        if (teams.some(t => !t)) {
-            console.error('Teams not found', teams);
+            if (_teams.isErr()) throw _teams.error;
 
-            teams = teams.filter(t => t);
-        }
+            let teams = [r1, r2, r3, b1, b2, b3].map(t =>
+                _teams.value.find(_t => _t.number === +t)
+            );
 
-        return teams as [
-            FIRSTTeam,
-            FIRSTTeam,
-            FIRSTTeam,
-            FIRSTTeam,
-            FIRSTTeam,
-            FIRSTTeam
-        ];
+            if (teams.some(t => !t)) {
+                console.error('Teams not found', { teams, _teams });
+
+                teams = teams.filter(t => t);
+            }
+
+            return teams as [
+                FIRSTTeam,
+                FIRSTTeam,
+                FIRSTTeam,
+                FIRSTTeam,
+                FIRSTTeam,
+                FIRSTTeam
+            ];
+        });
     }
 
     /**

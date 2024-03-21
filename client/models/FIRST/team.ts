@@ -129,14 +129,6 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         return this.tba.nickname;
     }
 
-    get pictures(): TeamPicture[] {
-        return (this.$cache.get('pictures') || []) as TeamPicture[];
-    }
-
-    set pictures(pictures: TeamPicture[]) {
-        this.$cache.set('pictures', pictures);
-    }
-
     /**
      * Requests all events from TBA
      * Also starts an update that will update the cache every 24 hours and emit 'update-events' when it does
@@ -248,7 +240,24 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             if (res.isErr()) throw res.error;
 
-            this.$cache.set('match-scouting', res.value);
+            const data = res.value.filter(
+                (s, i, a) => a.findIndex(_s => _s.id === s.id) === i
+            );
+
+            this.$cache.set('match-scouting', data);
+            return data;
+        });
+    }
+
+    public async getPreScouting() {
+        return attemptAsync(async () => {
+            const res = await MatchScouting.preFromTeam(
+                this.event.key,
+                this.number
+            );
+
+            if (res.isErr()) throw res.error;
+
             return res.value;
         });
     }
@@ -360,15 +369,23 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             );
 
             if (res.isErr()) throw res.error;
-            return res.value;
+            return res.value.filter(
+                (s, i, a) => a.findIndex(_s => _s.id === s.id) === i
+            );
         });
     }
 
     async getPictures(): Promise<Result<TeamPicture[]>> {
         return attemptAsync(async () => {
-            // if (this.pictures.length > 0) return this.pictures;
-            const res = await ServerRequest.get<TeamPicture[]>(
-                `/api/teams/pictures/${this.number}/${this.event.key}`
+            if (this.$cache.has('pictures')) {
+                return this.$cache.get('pictures') as TeamPicture[];
+            }
+            const res = await ServerRequest.post<TeamPicture[]>(
+                `/api/teams/get-pictures`,
+                {
+                    eventKey: this.event.key,
+                    teamNumber: this.number
+                }
             );
 
             if (res.isOk()) {
@@ -515,13 +532,15 @@ socket.on('pit-scouting:delete', (data: RetrievedScoutingAnswer) => {
 
 // TODO: sockets for watch priority
 
-socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
+socket.on('teams:pictures-uploaded', async (data: TeamPicture) => {
     const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
     if (!team) return;
 
-    const { pictures } = team;
+    const pictures = await team.getPictures();
 
-    pictures.push({
+    if (pictures.isErr()) return;
+
+    pictures.value.push({
         picture: data.picture,
         time: data.time,
         accountId: data.accountId,
@@ -529,8 +548,7 @@ socket.on('teams:pictures-uploaded', (data: TeamPicture) => {
         teamNumber: data.teamNumber
     });
 
-    team.pictures = pictures;
-
+    team.$cache.set('pictures', pictures.value);
     team.emit('new-picture', data);
 });
 

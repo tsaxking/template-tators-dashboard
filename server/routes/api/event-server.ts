@@ -50,17 +50,23 @@ router.post<Match>(
         const traceStr = JSON.stringify(trace);
 
         if (preScouting) {
+            console.log('Is prescouting');
             const matches = await TBA.get<TBAMatch[]>(
                 `/event/${eventKey}/matches`
             );
             if (matches.isErr() || !matches.value)
-                return res.sendStatus('unknown:error');
+                return res
+                    .status(500)
+                    .json({ error: 'Error fetching matches' });
+
+            console.log({ matches });
+
             const m = matches.value.find(
                 m =>
                     m.match_number === matchNumber && m.comp_level === compLevel
             );
 
-            if (!m) return res.sendStatus('unknown:error');
+            if (!m) return res.status(500).json({ error: 'Match not found' });
 
             const [r1, r2, r3, b1, b2, b3] = teamsFromMatch(m);
 
@@ -93,13 +99,17 @@ router.post<Match>(
                 checks: JSON.stringify(checks),
                 scoutName: scout
             });
+
+            return res.json({
+                success: true
+            });
         }
 
         const matchesRes = await DB.all('matches/from-event', {
             eventKey
         });
 
-        if (matchesRes.isErr()) return res.sendStatus('unknown:error');
+        if (matchesRes.isErr()) return res.status(500).json({ error: 'Error' });
         const matches = matchesRes.value;
 
         const m = matches.find(
@@ -123,7 +133,8 @@ router.post<Match>(
                 matchId: m.id
             });
 
-            if (existingRes.isErr()) return res.sendStatus('unknown:error');
+            if (existingRes.isErr())
+                return res.status(500).json({ error: 'Error' });
 
             if (existingRes.value) {
                 DB.run('match-scouting/archive', {

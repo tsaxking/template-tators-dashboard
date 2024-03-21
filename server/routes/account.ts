@@ -605,18 +605,19 @@ router.post('/all', async (req, res) => {
 });
 
 router.post<{
-    id: string;
+    ids: string[];
 }>(
     '/account-info',
     validate({
-        id: 'string'
+        ids: v => Array.isArray(v) && v.every(t => typeof t === 'string')
     }),
     async (req, res) => {
-        const { id } = req.body;
+        const { ids } = req.body;
 
-        const a = await Account.fromId(id);
+        const accounts = await Promise.all(ids.map(id => Account.fromId(id)));
 
-        if (a) res.json(await a.safe());
-        else res.status(404).json({ error: 'Account not found' });
+        res.json(
+            await Promise.all(accounts.map(a => (a ? a.safe() : undefined)))
+        );
     }
 );

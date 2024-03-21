@@ -19,27 +19,51 @@ let matches: {
 
 const fns = {
     getMatches: async (t?: FIRSTTeam) => {
-        if (!t) return;
+        if (!t) return (matches = []);
         const [matchesRes, matchScoutingRes] = await Promise.all([
             t.event.getMatches(),
             MatchScouting.fromTeam(t.event.key, t.number)
         ]);
+
+        console.log({ matchesRes, matchScoutingRes });
+
         if (matchesRes.isErr()) return console.error(matchesRes.error);
         if (matchScoutingRes.isErr())
             return console.error(matchScoutingRes.error);
 
-        matches = matchesRes.value
-            .filter(m => m.teams.includes(t))
+        matches = (
+            await Promise.all(
+                matchesRes.value.map(async m => {
+                    const teams = await m.getTeams();
+                    if (teams.isOk())
+                        return {
+                            match: m,
+                            teams: teams.value
+                        };
+
+                    return {
+                        match: m,
+                        teams: []
+                    };
+                })
+            )
+        )
+            .filter(m => m.teams.find(_t => _t.number === t.number))
             .map(m => ({
-                match: m,
+                match: m.match,
                 scouting: matchScoutingRes.value.find(
                     s =>
-                        s.matchNumber === m.number &&
-                        s.compLevel === m.compLevel
+                        s.matchNumber === m.match.number &&
+                        s.compLevel === m.match.compLevel
                 )
             }));
 
-        t.on('new-comment', () => fns.getMatches(t));
+        const newComment = () => {
+            fns.getMatches(t);
+            t.off('new-comment', newComment);
+        };
+
+        t.on('new-comment', newComment);
 
         setTimeout(() => {
             jQuery('[data-bs-toggle="tooltip"]').tooltip();
@@ -48,7 +72,7 @@ const fns = {
     viewMatch: async (m: FIRSTMatch) => {
         if (!team) return alert('No team selected');
         const modal = new Modal(Math.random().toString().substring(2));
-        modal.setTitle(`Match ${m.tba.match_number} Details`);
+        modal.setTitle('Match viewer');
         modal.size = 'lg';
 
         const res = await team.getMatchScouting();
@@ -76,9 +100,8 @@ const fns = {
     }
 };
 
-$: {
-    fns.getMatches(team);
-}
+$: fns.getMatches(team);
+$: console.log({ matches });
 </script>
 
 <p>

@@ -7,11 +7,19 @@ import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.sv
 import Checklist from '../pages/Checklist.svelte';
 import { type PageGroup } from '../../utilities/general-types';
 import { getOpenPage } from '../../utilities/page';
+import Quiz from '../pages/Quiz.svelte';
+import EventSummary from '../pages/EventSummary.svelte';
+import { FIRSTEvent } from '../../models/FIRST/event';
 
 const groups: PageGroup[] = [
     {
         name: 'home',
         pages: [
+            {
+                name: 'event-summary',
+                icon: 'event',
+                iconType: 'material'
+            },
             {
                 name: 'robot-display',
                 icon: 'home',
@@ -37,6 +45,16 @@ const groups: PageGroup[] = [
                 iconType: 'material'
             }
         ]
+    },
+    {
+        name: 'other',
+        pages: [
+            {
+                name: 'quiz',
+                icon: 'quiz',
+                iconType: 'material'
+            }
+        ]
     }
 ];
 
@@ -53,6 +71,12 @@ const accountLinks: string[] = [
     // 'contact',
     // null
 ];
+
+let currentEvent: FIRSTEvent | null = null;
+
+FIRSTEvent.on('select', e => {
+    currentEvent = e;
+});
 </script>
 
 <Main
@@ -63,6 +87,11 @@ const accountLinks: string[] = [
     {navItems}
     {accountLinks}
 >
+    <Page {active} {domain} title="event-summary">
+        {#if currentEvent}
+            <EventSummary event="{currentEvent}"></EventSummary>
+        {/if}
+    </Page>
     <Page {active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
     </Page>
@@ -71,5 +100,8 @@ const accountLinks: string[] = [
     </Page>
     <Page {active} {domain} title="scouting-checklist">
         <Checklist />
+    </Page>
+    <Page {active} {domain} title="quiz">
+        <Quiz />
     </Page>
 </Main>

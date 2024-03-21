@@ -97,20 +97,41 @@ export class Account extends Cache<AccountEvents> {
         }
     }
 
-    public static async get(id: string): Promise<Account | undefined> {
-        if (Account.$cache.has(id)) return Account.$cache.get(id);
-        const res = await ServerRequest.post<AccountSafe>(
-            '/account/account-info',
-            {
-                id
-            },
-            {
-                cached: true
+    private static requested: string[] = [];
+
+    public static async get(
+        ids: (string | undefined)[]
+    ): Promise<(Account | undefined)[]> {
+        const output = new Array(ids.length) as (Account | undefined)[];
+        const toRequest = new Set<string>();
+        for (let i = 0; i < ids.length; i++) {
+            const id = ids[i];
+            if (!id) continue;
+            if (Account.$cache.has(id) || Account.requested.includes(id)) {
+                output[i] = Account.$cache.get(id);
+            } else {
+                toRequest.add(id);
             }
-        );
-        if (res.isOk()) {
-            return new Account(res.value);
         }
+
+        if (toRequest.size) {
+            Account.requested.push(...Array.from(toRequest));
+            const res = await ServerRequest.post<AccountSafe[]>(
+                '/account/get',
+                {
+                    ids: Array.from(toRequest)
+                }
+            );
+
+            if (res.isOk()) {
+                for (const account of res.value) {
+                    const a = new Account(account);
+                    output[ids.indexOf(a.id)] = a;
+                }
+            }
+        }
+
+        return output;
     }
 
     /**
