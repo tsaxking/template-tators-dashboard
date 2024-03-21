@@ -16,6 +16,8 @@ const fns = {
         if (matchesRes.isOk()) {
             matches = matchesRes.value
                 .filter(m => m.preScouting === preScouting)
+                .sort((a, b) => a.matchNumber - b.matchNumber)
+                .filter((m, i, a) => a.findIndex(_m => _m.matchNumber === m.matchNumber && m.compLevel === _m.compLevel) === i)
                 .reverse();
         }
     }

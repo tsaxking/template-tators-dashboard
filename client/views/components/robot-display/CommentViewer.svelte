@@ -39,7 +39,8 @@ const fns = {
                     };
                 })
             )
-        ).sort((a, b) => +b.time - +a.time);
+        ).sort((a, b) => +b.time - +a.time)
+        .filter((c, i, a) => a.findIndex(_c => _c.comment === c.comment && c.time === _c.time) === i);
     },
     addComment: async () => {
         if (!team) return alert('No team selected');
