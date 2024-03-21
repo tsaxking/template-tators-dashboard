@@ -36,4 +36,4 @@ const handleChange = async (e: any) => {
 };
 </script>
 
-<Select bind:options bind:value on:change="{handleChange}" />
+<Select bind:options bind:value bind:values on:change="{handleChange}" />

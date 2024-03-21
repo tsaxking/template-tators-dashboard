@@ -1,4 +1,5 @@
 <script lang="ts">
+import { capitalize, fromCamelCase } from '../../../../shared/text';
 import { checkRanks, rankColor } from '../../../models/FIRST/match-scouting';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 
@@ -48,7 +49,7 @@ $: fns.get(team);
                         color: {checks[key].color}
                     "
                 >
-                    {key}
+                    {capitalize(fromCamelCase(key))}
                 </span>
                 <span
                     class=""
