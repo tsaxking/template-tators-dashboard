@@ -1,8 +1,10 @@
 <script lang="ts">
 import { Bar } from "svelte-chartjs";
 import { FIRSTEvent } from "../../models/FIRST/event";
+import { FIRSTTeam } from "../../models/FIRST/team";
 import { Color } from "../../submodules/colors/color";
 
+const colors = Array.from({ length: 10 }, () => Color.random().toString('rgba'));
 
 export let event: FIRSTEvent;
 
@@ -15,14 +17,20 @@ let data: {
 }[] = [];
 
 let filteredTeams: number[] = [];
-
+let teams: FIRSTTeam[] = [];
 
 const fns = {
     pullData: async (e?: FIRSTEvent) => {
         if (!e) return;
-        const res = await e.getEventSummary();
-        if (res.isErr()) return console.error(res.error);
-        data = res.value;
+        const [eventSummary, teamsRes] = await Promise.all([
+            e.getEventSummary(),
+            e.getTeams()
+        ]);
+        if (eventSummary.isErr()) return console.error(eventSummary.error);
+        if (teamsRes.isErr()) return console.error(teamsRes.error);
+        data = eventSummary.value;
+        teams = teamsRes.value;
+        filteredTeams = teams.map((t) => t.number);
     }
 }
 
@@ -30,7 +38,20 @@ $: fns.pullData(event);
 </script>
 
 <div class="container-fluid">
-    {#each data as row}
+    <div class="row mb-3">
+        {#each teams as team}
+            <!-- checkbox for each team -->
+            <div class="col">
+                <div class="form-check d-flex">
+                    <input class="form-check" type="checkbox" bind:group={filteredTeams} value={team.number}>
+                    <label class="form-check" for="flexCheckDefault">
+                        {team.number}
+                    </label>
+                </div>
+            </div>
+        {/each}
+    </div>
+    {#each data as row, k}
         <div class="row mb-3">
             <div class="card p-0">
                 <div class="card-header">
@@ -40,15 +61,24 @@ $: fns.pullData(event);
                 </div>
                 <div class="card-body">
                     {#each row.labels as label, i}
-                        <div class="scroll-x">
-                            <div class="chart-containe">
+                        <h6>
+                            {label}
+                        </h6>
+                        <div class="scroll-x mb-2">
+                            <div class="chart-container">
                                 <Bar 
                                     data={{
-                                        labels: Object.entries(row.data).sort((a, b) => b[1][i] - a[1][i]).map((v) => v[0]),
+                                        labels: Object.entries(row.data)
+                                            .sort((a, b) => b[1][i] - a[1][i])
+                                            .filter((v) => filteredTeams.includes(+v[0]))
+                                            .map((v) => v[0]),
                                         datasets: [{
                                             label,
-                                            data: Object.entries(row.data).sort((a, b) => b[1][i] - a[1][i]).map((v) => v[1][i]),
-                                            backgroundColor: Color.random().toString('rgba')
+                                            data: Object.entries(row.data)
+                                                .sort((a, b) => b[1][i] - a[1][i])
+                                                .filter((v) => filteredTeams.includes(+v[0]))
+                                                .map((v) => v[1][i]),
+                                            backgroundColor: colors[colors.length % (i + k)]
                                         }]
                                     }}
 
