@@ -9,7 +9,7 @@ import {
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { RetrievedMatchScouting } from '../../utilities/tables';
 import { Status } from '../../utilities/status';
-import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
+import { Trace, TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 
 export const router = new Route();
 
@@ -124,42 +124,75 @@ router.post<{
 
 
 router.post<{
-    key: string;
-}>('/summary', validate({ key: 'string' }), async (req, res) => {
-    const { key } = req.body;
-    const year = key.match(/\d+/)?.[0];
+    eventKey: string;
+}>('/summary', validate({ eventKey: 'string' }), async (req, res) => {
+    const { eventKey } = req.body;
+    const year = Number(eventKey.match(/\d+/)?.[0]);
     if (!year) return res.sendStatus('event:invalid-key');
 
-    const [matchScouting, teamsResult] = await Promise.all([
-        DB.all('match-scouting/from-event', { eventKey: key }),
-        TBA.get<TBATeam[]>('/event/' + key + '/teams')
+    if (!Trace.builtYears.includes(year)) return res.sendStatus('trace:year-not-supported');
+
+    const [matchScouting, teamsResult, matchesResult] = await Promise.all([
+        DB.all('match-scouting/from-event', { eventKey: eventKey }),
+        TBA.get<TBATeam[]>('/event/' + eventKey + '/teams'),
+        TBA.get<TBAMatch[]>('/event/' + eventKey + '/matches')
     ]);
 
     if (matchScouting.isErr()) return res.sendStatus('unknown:error');
     if (teamsResult.isErr()) return res.sendStatus('unknown:error');
     if (!teamsResult.value) return res.sendStatus('tba:invalid-path');
+    if (matchesResult.isErr()) return res.sendStatus('unknown:error');
+    if (!matchesResult.value) return res.sendStatus('tba:invalid-path');
+
+    const matches = matchesResult.value.sort(matchSort);
 
     const teams: {
         number: number;
-        traces: TraceArray[];
+        traces: {trace: TraceArray, alliance: 'red' | 'blue'}[];
     }[] = teamsResult.value.map((t) => ({
         number: t.team_number,
-        traces: matchScouting.value.filter((s) => s.team === t.team_number).map(s => JSON.parse(s.trace) as TraceArray)
+        traces: matchScouting.value.filter((s) => s.team === t.team_number).map(s => {
+            const match = matches.find(m => m.match_number === s.matchNumber && m.comp_level === s.compLevel);
+            return {
+                trace: JSON.parse(s.trace) as TraceArray,
+                alliance: match?.alliances.blue.team_keys.includes('frc' + t.team_number) ? 'blue' : 'red'
+            }
+        })
     }));
 
-    const returnValue: {
+    const data = teams.map(t => {
+        return {
+            number: t.number,
+            // TODO: type strict this
+            data: Trace.yearInfo[year as keyof typeof Trace.yearInfo]?.summarize(t.traces)
+        }
+    });
+
+    const returnData: {
+        labels: string[];
         title: string;
-        labels: string[]; // same length as data
         data: {
-            [key: number]: number[]; // same length as name
+            [key: number]: number[];
         }
-    }[] = [
-        {
-            title: 'Autonomous Points',
-            labels: ['Speaker', 'Amp', 'Mobility'],
-            data: teams.reduce((acc, team) => {
-                
-            }, {} as { [key: number]: number[] })
+    }[] = [];
+
+    const [team] = data;
+    
+    if (team) {
+        returnData.push(...team.data.map((d) => ({
+            title: d.title,
+            labels: d.labels,
+            data: {}
+        })));
+    }
+
+    for (const team of data) {
+        for (const d of team.data) {
+            const found = returnData.find(r => r.title === d.title);
+            if (!found) continue;
+            found.data[team.number] = d.data;
         }
-    ];
+    }
+
+    res.json(returnData);
 });
