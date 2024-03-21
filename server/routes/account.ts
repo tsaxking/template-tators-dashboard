@@ -617,9 +617,15 @@ router.post<{
         const accounts = await Promise.all(ids.map(id => Account.fromId(id)));
 
         res.json(
-            await Promise.all(accounts.map(a => (a ? a.safe({
-                id: true
-            }) : undefined)))
+            await Promise.all(
+                accounts.map(a =>
+                    a
+                        ? a.safe({
+                              id: true
+                          })
+                        : undefined
+                )
+            )
         );
     }
 );

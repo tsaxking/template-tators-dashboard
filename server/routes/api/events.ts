@@ -150,8 +150,12 @@ router.post<{
     const matches = matchesResult.value.sort(matchSort);
 
     const scouting = matchScouting.value.filter((s, i, a) => {
-        return a.findIndex(s2 => s2.team === s.team && s2.matchNumber === s.matchNumber) === i;
-    })
+        return (
+            a.findIndex(
+                s2 => s2.team === s.team && s2.matchNumber === s.matchNumber
+            ) === i
+        );
+    });
 
     const teams: {
         number: number;

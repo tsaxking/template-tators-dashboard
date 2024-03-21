@@ -22,14 +22,13 @@ let matchScouting: {
 FIRSTEvent.on('select', async e => {
     const [statusRes, teamsRes] = await Promise.all([
         e.getStatus(),
-        e.getTeams(),
+        e.getTeams()
     ]);
     if (statusRes.isErr()) return console.error(statusRes.error);
     if (teamsRes.isErr()) return console.error(teamsRes.error);
 
-    const { pictures,questions } = statusRes.value;
+    const { pictures, questions } = statusRes.value;
     const teamsInfo = teamsRes.value;
-
 
     teams = teamsInfo.map(t => ({
         team: t,
