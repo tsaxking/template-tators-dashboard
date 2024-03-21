@@ -14,10 +14,9 @@ let matches: MatchScouting[] = [];
 const fns = {
     set: async (team?: FIRSTTeam) => {
         if (!team) return;
-        const res = (
-            preScouting
-                ? await team.getPreScouting()
-                : await team.getPracticeMatches());
+        const res = preScouting
+            ? await team.getPreScouting()
+            : await team.getPracticeMatches();
 
         if (res.isErr()) return console.error(res.error);
 

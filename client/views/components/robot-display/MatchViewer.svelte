@@ -288,6 +288,6 @@ $: {
         </ul>
     </div>
     <div class="row mb-3">
-        <MatchVideos bind:match={firstMatch} />
+        <MatchVideos bind:match="{firstMatch}" />
     </div>
 </div>

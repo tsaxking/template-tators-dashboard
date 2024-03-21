@@ -112,7 +112,6 @@ router.post<{
         teamNumber: 'number'
     }),
     async (req, res) => {
-
         const { eventKey, teamNumber } = req.body;
         const result = await DB.all('match-scouting/teams-pre-scouting', {
             team: teamNumber,
