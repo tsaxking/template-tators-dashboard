@@ -149,12 +149,20 @@ router.post<{
 
     const matches = matchesResult.value.sort(matchSort);
 
+    const scouting = matchScouting.value.filter((s, i, a) => {
+        return (
+            a.findIndex(
+                s2 => s2.team === s.team && s2.matchNumber === s.matchNumber
+            ) === i
+        );
+    });
+
     const teams: {
         number: number;
         traces: { trace: TraceArray; alliance: 'red' | 'blue' }[];
     }[] = teamsResult.value.map(t => ({
         number: t.team_number,
-        traces: matchScouting.value
+        traces: scouting
             .filter(s => s.team === t.team_number)
             .map(s => {
                 const match = matches.find(

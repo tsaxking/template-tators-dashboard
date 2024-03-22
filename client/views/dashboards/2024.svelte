@@ -10,14 +10,20 @@ import { getOpenPage } from '../../utilities/page';
 import Quiz from '../pages/Quiz.svelte';
 import EventSummary from '../pages/EventSummary.svelte';
 import { FIRSTEvent } from '../../models/FIRST/event';
+import MatchSchedule from '../pages/MatchSchedule.svelte';
 
 const groups: PageGroup[] = [
     {
-        name: 'home',
+        name: 'overview',
         pages: [
             {
                 name: 'event-summary',
                 icon: 'event',
+                iconType: 'material'
+            },
+            {
+                name: 'matches',
+                icon: 'list',
                 iconType: 'material'
             },
             {
@@ -91,6 +97,9 @@ FIRSTEvent.on('select', e => {
         {#if currentEvent}
             <EventSummary event="{currentEvent}"></EventSummary>
         {/if}
+    </Page>
+    <Page {active} {domain} title="matches">
+        <MatchSchedule />
     </Page>
     <Page {active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
