@@ -145,7 +145,7 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
 
     if (match.isErr()) throw match.error;
 
-    const robots = filteredScoutings.filter(s => s.matchId === match.value);
+    const robots = filteredScoutings.filter(s => s.matchNumber === +match.value);
 
     // match 8 2288
 
