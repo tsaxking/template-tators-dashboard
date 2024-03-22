@@ -265,6 +265,8 @@ router.post('/event/:eventKey/summary', auth, async (req, res) => {
         });
     }
 
+    console.log(data.value[0]);
+
     res.json({
         teams: teams.value,
         matches: matches.value,

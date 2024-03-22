@@ -145,8 +145,6 @@ export class Table {
                     return attemptAsync(async () => {
                         const headers: string[] = [
                             'Average Velocity',
-                            // 'Max Velocity',
-                            // 'Average Seconds Not Moving',
                             'Weight',
                             'Height',
                             'Width',
@@ -167,11 +165,9 @@ export class Table {
                             };
                         });
 
-                        // const max = Math.max(...velocities);
                         const avg = Trace.velocity.average(
                             matches.map(m => m.trace).flat()
                         );
-                        // const hist = matches.map(m => Trace.velocity.histogram(m.trace));
 
                         const pitScouting = await DB.all(
                             'scouting-questions/answer-from-team',
@@ -204,8 +200,6 @@ export class Table {
                             headers,
                             data: [
                                 avg,
-                                // max,
-                                // velocities.filter((v) => v === 0).length / velocities.length,
                                 (JSON.parse(weight) as string[]).join(','),
                                 (JSON.parse(height) as string[]).join(','),
                                 (JSON.parse(width) as string[]).join(','),
