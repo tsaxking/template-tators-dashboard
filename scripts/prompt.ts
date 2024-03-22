@@ -263,12 +263,10 @@ export const search = async <T extends string | Option>(
                     name: '[Exit search]',
                     value: '$$exit$$' as T
                 },
-                ...values.map(v =>
-                    ({
-                        name: typeof v === 'string' ? v : v.name || v.toString(), 
-                        value: v as T
-                    })
-                )
+                ...values.map(v => ({
+                    name: typeof v === 'string' ? v : v.name || v.toString(),
+                    value: v as T
+                }))
             ]);
 
             if (res === '$$back$$') {
