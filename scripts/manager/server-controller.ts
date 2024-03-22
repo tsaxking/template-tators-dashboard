@@ -6,6 +6,7 @@ import { pullEvent } from '../../server/utilities/tba/pull-event';
 import { DB } from '../../server/utilities/databases';
 import { runFile } from '../../server/utilities/run-task';
 import { RetrievedMatchScouting } from '../../server/utilities/tables';
+import { dateTime } from '../../shared/clock';
 
 export const pullEvents = async () => {
     const year = await select(
@@ -140,7 +141,7 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
         .filter((s, i, a) => a.findIndex(_s => s.matchId === _s.matchId) === i);
     const match = await search(
         'Please select match',
-        matches.map(m =>    m.matchNumber.toString())
+        matches.map(m => m.matchNumber.toString())
     );
 
     if (match.isErr()) throw match.error;
@@ -152,7 +153,7 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
     const selectedBot = await select(
         'Please select team',
         robots.map(r => ({
-            name: r.team.toString(),
+            name: `${r.team} | ${r.matchNumber} | ${r.compLevel} | ${r.scoutGroup} | ${dateTime(new Date(r.time))}`,
             value: r
         }))
     );
