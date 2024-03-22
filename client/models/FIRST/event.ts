@@ -411,6 +411,23 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             throw res.error;
         });
     }
+
+    async copyQuestionsFromEvent(eventKey: string) {
+        return attemptAsync(async () => {
+            if (eventKey === this.key) throw new Error('Cannot copy from self');
+
+            const res = await ServerRequest.post(
+                '/api/scouting-questions/copy-questions',
+                {
+                    from: eventKey,
+                    to: this.key
+                }
+            );
+
+            if (res.isOk()) return;
+            throw res.error;
+        });
+    }
 }
 
 socket.on(

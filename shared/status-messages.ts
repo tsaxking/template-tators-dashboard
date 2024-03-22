@@ -731,6 +731,18 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'scouting-question:questions-already-exist': {
+        message: 'The questions have already been copied',
+        color: 'danger',
+        code: 412,
+        instructions: ''
+    },
+    'scouting-question:questions-copied': {
+        message: 'Questions copied from event',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'scouting-question:section-deleted': {
         message: 'Section has been archived',
         color: 'success',
@@ -1037,6 +1049,8 @@ export type StatusId =
     | 'scouting-question:question-deleted'
     | 'scouting-question:question-not-found'
     | 'scouting-question:question-updated'
+    | 'scouting-question:questions-already-exist'
+    | 'scouting-question:questions-copied'
     | 'scouting-question:section-deleted'
     | 'scouting-question:update-answer'
     | 'scouting-question:update-section'
@@ -1196,10 +1210,12 @@ export type ScoutingQuestionStatusId =
     | 'question-deleted'
     | 'question-not-found'
     | 'question-updated'
+    | 'questions-copied'
     | 'section-deleted'
     | 'update-answer'
     | 'update-section'
-    | 'updated-answer';
+    | 'updated-answer'
+    | 'questions-already-exist';
 
 export type ServerStatusId =
     | 'invalid-data'
@@ -1227,6 +1243,8 @@ export type TeamsStatusId = 'pictures-uploaded';
 
 export type TestStatusId = 'fail' | 'success';
 
+export type TraceStatusId = 'year-not-supported';
+
 export type UnknownStatusId = 'error';
 
 export type WebhookStatusId = 'invalid-url' | 'not-found' | 'rate-limit';
@@ -1237,5 +1255,3 @@ export type WhiteboardStatusId =
     | 'match-not-found'
     | 'not-found'
     | 'update';
-
-export type TraceStatusId = 'year-not-supported';
