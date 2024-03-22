@@ -108,8 +108,6 @@ const removePassword = async () => {
 };
 
 const deleteMatchScouting = async () => {
-    
-
     const scoutings = await DB.unsafe.all<RetrievedMatchScouting>(`SELECT 
 MatchScouting.*,
 Matches.eventKey as eventKey,
@@ -121,8 +119,11 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
 `);
     if (scoutings.isErr()) throw scoutings.error;
 
-
-    const events = scoutings.value.filter((s, i, a) => a.findIndex(_s => _s.eventKey === s.eventKey) === i).map(s => s.eventKey);
+    const events = scoutings.value
+        .filter(
+            (s, i, a) => a.findIndex(_s => _s.eventKey === s.eventKey) === i
+        )
+        .map(s => s.eventKey);
 
     const event = await select(
         'Please select event',
@@ -130,15 +131,15 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
             return {
                 name: v,
                 value: v
-            }
+            };
         })
     );
 
     const filteredScoutings = scoutings.value.filter(s => s.eventKey === event);
 
-
-    const matches = filteredScoutings
-        .filter((s, i, a) => a.findIndex(_s => s.matchId === _s.matchId) === i);
+    const matches = filteredScoutings.filter(
+        (s, i, a) => a.findIndex(_s => s.matchId === _s.matchId) === i
+    );
     const match = await search(
         'Please select match',
         matches.map(m => m.matchNumber.toString())
@@ -146,7 +147,9 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
 
     if (match.isErr()) throw match.error;
 
-    const robots = filteredScoutings.filter(s => s.matchNumber === +match.value);
+    const robots = filteredScoutings.filter(
+        s => s.matchNumber === +match.value
+    );
 
     // match 8 2288
 
@@ -158,15 +161,20 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
         }))
     );
 
-    const confirmed = await confirm('Are you sure you want to delete this match?');
-    if (!confirmed) return backToMain('Did not delete match'); 
+    const confirmed = await confirm(
+        'Are you sure you want to delete this match?'
+    );
+    if (!confirmed) return backToMain('Did not delete match');
 
-    const result = await DB.unsafe.run(`
+    const result = await DB.unsafe.run(
+        `
         DELETE FROM MatchScouting
         WHERE id = :id
-    `, {
-        id: selectedBot.id
-    });
+    `,
+        {
+            id: selectedBot.id
+        }
+    );
 
     if (result.isErr()) throw result.error;
 
