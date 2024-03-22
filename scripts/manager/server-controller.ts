@@ -5,6 +5,7 @@ import { confirm, select } from '../prompt';
 import { pullEvent } from '../../server/utilities/tba/pull-event';
 import { DB } from '../../server/utilities/databases';
 import { runFile } from '../../server/utilities/run-task';
+import { RetrievedMatchScouting } from '../../server/utilities/tables';
 
 export const pullEvents = async () => {
     const year = await select(
@@ -106,38 +107,35 @@ const removePassword = async () => {
 };
 
 const deleteMatchScouting = async () => {
-    const events = await TBA.get<TBAEvent[]>('/team/frc2122/events/2024', {
-        cached: false
-    });
-    if (events.isErr()) throw events.error;
-    if (!events.value) return backToMain('No events found');
     
+
+    const scoutings = await DB.unsafe.all<RetrievedMatchScouting>('SELECT * FROM MatchScouting;');
+    if (scoutings.isErr()) throw scoutings.error;
+
+
+    const events = scoutings.value.filter((s, i, a) => a.findIndex(_s => _s.eventKey === s.eventKey) === i).map(s => s.eventKey);
+
     const event = await select(
         'Please select event',
-        events.value.map(v => {
+        events.map(v => {
             return {
-                name: v.key,
+                name: v,
                 value: v
             }
         })
     );
 
-    if (!event) return backToMain('Event not selected');
+    const filteredScoutings = scoutings.value.filter(s => s.eventKey === event);
 
-    const scoutings = await DB.all('match-scouting/from-event', {
-        eventKey: event.key
-    });
 
-    if (scoutings.isErr()) throw scoutings.error;
-
-    const matches = scoutings.value
+    const matches = filteredScoutings
         .filter((s, i, a) => a.findIndex(_s => s.matchId === _s.matchId) === i);
     const match = await select(
         'Please select match',
         matches.map(m => ({ name: m.matchNumber.toString(), value: m }))
     );
 
-    const robots = scoutings.value.filter(s => s.matchId === match.matchId);
+    const robots = filteredScoutings.filter(s => s.matchId === match.matchId);
 
     // match 8 2288
 
