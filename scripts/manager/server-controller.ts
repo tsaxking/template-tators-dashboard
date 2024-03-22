@@ -160,12 +160,14 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
     const confirmed = await confirm('Are you sure you want to delete this match?');
     if (!confirmed) return backToMain('Did not delete match'); 
 
-    DB.unsafe.run(`
+    const result = await DB.unsafe.run(`
         DELETE FROM MatchScouting
         WHERE id = :id
     `, {
         id: selectedBot.id
     });
+
+    if (result.isErr()) throw result.error;
 
     backToMain('Deleted match');
 };
