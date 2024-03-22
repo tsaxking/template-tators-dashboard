@@ -109,7 +109,15 @@ const removePassword = async () => {
 const deleteMatchScouting = async () => {
     
 
-    const scoutings = await DB.unsafe.all<RetrievedMatchScouting>('SELECT * FROM MatchScouting;');
+    const scoutings = await DB.unsafe.all<RetrievedMatchScouting>(`SELECT 
+MatchScouting.*,
+Matches.eventKey as eventKey,
+Matches.matchNumber as matchNumber,
+Matches.compLevel as compLevel
+
+FROM MatchScouting
+INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
+`);
     if (scoutings.isErr()) throw scoutings.error;
 
 
