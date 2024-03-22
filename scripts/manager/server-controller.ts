@@ -1,7 +1,7 @@
 import { TBA } from '../../server/utilities/tba/tba';
 import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba';
 import { backToMain, selectFile } from '../manager';
-import { confirm, select } from '../prompt';
+import { confirm, search, select } from '../prompt';
 import { pullEvent } from '../../server/utilities/tba/pull-event';
 import { DB } from '../../server/utilities/databases';
 import { runFile } from '../../server/utilities/run-task';
@@ -123,7 +123,7 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
 
     const events = scoutings.value.filter((s, i, a) => a.findIndex(_s => _s.eventKey === s.eventKey) === i).map(s => s.eventKey);
 
-    const event = await select(
+    const event = await search(
         'Please select event',
         events.map(v => {
             return {
@@ -133,7 +133,9 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
         })
     );
 
-    const filteredScoutings = scoutings.value.filter(s => s.eventKey === event);
+    if (event.isErr()) throw event.error;
+
+    const filteredScoutings = scoutings.value.filter(s => s.eventKey === event.value);
 
 
     const matches = filteredScoutings
