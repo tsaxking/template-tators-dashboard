@@ -141,10 +141,10 @@ router.post<{
         TBA.get<TBAMatch[]>('/event/' + eventKey + '/matches')
     ]);
 
-    if (matchScouting.isErr()) return res.sendStatus('unknown:error');
-    if (teamsResult.isErr()) return res.sendStatus('unknown:error');
+    if (matchScouting.isErr()) {console.error(matchScouting.error); return res.sendStatus('unknown:error');}
+    if (teamsResult.isErr()) {console.error(teamsResult.error); return res.sendStatus('unknown:error');}
     if (!teamsResult.value) return res.sendStatus('tba:invalid-path');
-    if (matchesResult.isErr()) return res.sendStatus('unknown:error');
+    if (matchesResult.isErr()) {console.error(matchesResult.error); return res.sendStatus('unknown:error');}
     if (!matchesResult.value) return res.sendStatus('tba:invalid-path');
 
     const matches = matchesResult.value.sort(matchSort);
