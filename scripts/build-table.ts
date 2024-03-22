@@ -246,7 +246,7 @@ export class Table {
                         if (!tbaMatches.value)
                             throw new Error('No matches found');
 
-                        const scoresRes = resolveAll(
+                        const scoresRes = 
                             matches.map(m => {
                                 return attempt(() => {
                                     const match = tbaMatches.value?.find(
@@ -279,11 +279,9 @@ export class Table {
                                         alliance
                                     );
                                 });
-                            })
-                        );
+                            });
 
-                        if (scoresRes.isErr()) throw scoresRes.error;
-                        const scores = scoresRes.value;
+                        const scores = scoresRes.map(s => s.isOk() ? s.value : null).filter(Boolean);
 
                         return {
                             headers,
@@ -341,7 +339,7 @@ export class Table {
                         if (!tbaMatches.value)
                             throw new Error('No matches found');
 
-                        const scoresRes = resolveAll(
+                        const scoresRes = 
                             matches.map(m => {
                                 return attempt(() => {
                                     const match = tbaMatches.value?.find(
@@ -374,11 +372,9 @@ export class Table {
                                         alliance
                                     ).auto;
                                 });
-                            })
-                        );
+                            });
 
-                        if (scoresRes.isErr()) throw scoresRes.error;
-                        const scores = scoresRes.value;
+                        const scores = scoresRes.map(s => s.isOk() ? s.value : null).filter(Boolean);
 
                         return {
                             headers,
@@ -430,7 +426,7 @@ export class Table {
                         if (!tbaMatches.value)
                             throw new Error('No matches found');
 
-                        const scoresRes = resolveAll(
+                        const scoresRes = 
                             matches.map(m => {
                                 return attempt(() => {
                                     const match = tbaMatches.value?.find(
@@ -463,12 +459,8 @@ export class Table {
                                         alliance
                                     ).teleop;
                                 });
-                            })
-                        );
-
-                        if (scoresRes.isErr()) throw scoresRes.error;
-                        const scores = scoresRes.value;
-
+                            });
+                            const scores = scoresRes.map(s => s.isOk() ? s.value : null).filter(Boolean);
                         return {
                             headers,
                             data: [
@@ -519,7 +511,7 @@ export class Table {
                         if (!tbaMatches.value)
                             throw new Error('No matches found');
 
-                        const scoresRes = resolveAll(
+                        const scoresRes = 
                             matches.map(m => {
                                 return attempt(() => {
                                     const match = tbaMatches.value?.find(
@@ -552,11 +544,9 @@ export class Table {
                                         alliance
                                     ).endgame;
                                 });
-                            })
-                        );
+                            });
 
-                        if (scoresRes.isErr()) throw scoresRes.error;
-                        const scores = scoresRes.value;
+                        const scores = scoresRes.map(s => s.isOk() ? s.value : null).filter(Boolean);
 
                         const climbTimes = matches
                             .map(m => Trace.yearInfo[2024].climbTimes(m.trace))
