@@ -190,6 +190,8 @@ router.post<{
             })
     }));
 
+    console.log(teams);
+
     const data = teams.map(t => {
         return {
             number: t.number,
