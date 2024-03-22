@@ -123,7 +123,7 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
 
     const events = scoutings.value.filter((s, i, a) => a.findIndex(_s => _s.eventKey === s.eventKey) === i).map(s => s.eventKey);
 
-    const event = await search(
+    const event = await select(
         'Please select event',
         events.map(v => {
             return {
@@ -133,19 +133,19 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
         })
     );
 
-    if (event.isErr()) throw event.error;
-
-    const filteredScoutings = scoutings.value.filter(s => s.eventKey === event.value);
+    const filteredScoutings = scoutings.value.filter(s => s.eventKey === event);
 
 
     const matches = filteredScoutings
         .filter((s, i, a) => a.findIndex(_s => s.matchId === _s.matchId) === i);
-    const match = await select(
+    const match = await search(
         'Please select match',
-        matches.map(m => ({ name: m.matchNumber.toString(), value: m }))
+        matches.map(m =>    m.matchNumber.toString())
     );
 
-    const robots = filteredScoutings.filter(s => s.matchId === match.matchId);
+    if (match.isErr()) throw match.error;
+
+    const robots = filteredScoutings.filter(s => s.matchId === match.value);
 
     // match 8 2288
 
