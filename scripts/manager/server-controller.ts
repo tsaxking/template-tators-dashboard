@@ -1,10 +1,12 @@
 import { TBA } from '../../server/utilities/tba/tba';
 import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba';
 import { backToMain, selectFile } from '../manager';
-import { select } from '../prompt';
+import { confirm, search, select } from '../prompt';
 import { pullEvent } from '../../server/utilities/tba/pull-event';
 import { DB } from '../../server/utilities/databases';
 import { runFile } from '../../server/utilities/run-task';
+import { RetrievedMatchScouting } from '../../server/utilities/tables';
+import { dateTime } from '../../shared/clock';
 
 export const pullEvents = async () => {
     const year = await select(
@@ -105,6 +107,80 @@ const removePassword = async () => {
     }
 };
 
+const deleteMatchScouting = async () => {
+    const scoutings = await DB.unsafe.all<RetrievedMatchScouting>(`SELECT 
+MatchScouting.*,
+Matches.eventKey as eventKey,
+Matches.matchNumber as matchNumber,
+Matches.compLevel as compLevel
+
+FROM MatchScouting
+INNER JOIN Matches ON Matches.id = MatchScouting.matchId;
+`);
+    if (scoutings.isErr()) throw scoutings.error;
+
+    const events = scoutings.value
+        .filter(
+            (s, i, a) => a.findIndex(_s => _s.eventKey === s.eventKey) === i
+        )
+        .map(s => s.eventKey);
+
+    const event = await select(
+        'Please select event',
+        events.map(v => {
+            return {
+                name: v,
+                value: v
+            };
+        })
+    );
+
+    const filteredScoutings = scoutings.value.filter(s => s.eventKey === event);
+
+    const matches = filteredScoutings.filter(
+        (s, i, a) => a.findIndex(_s => s.matchId === _s.matchId) === i
+    );
+    const match = await search(
+        'Please select match',
+        matches.map(m => m.matchNumber.toString())
+    );
+
+    if (match.isErr()) throw match.error;
+
+    const robots = filteredScoutings.filter(
+        s => s.matchNumber === +match.value
+    );
+
+    // match 8 2288
+
+    const selectedBot = await select(
+        'Please select team',
+        robots.map(r => ({
+            name: `${r.team} | ${r.matchNumber} | ${r.compLevel} | ${r.scoutGroup} | ${dateTime(new Date(r.time))}`,
+            value: r
+        }))
+    );
+
+    const confirmed = await confirm(
+        'Are you sure you want to delete this match?'
+    );
+    if (!confirmed) return backToMain('Did not delete match');
+
+    const result = await DB.unsafe.run(
+        `
+        DELETE FROM MatchScouting
+        WHERE id = :id
+    `,
+        {
+            id: selectedBot.id
+        }
+    );
+
+    if (result.isErr()) throw result.error;
+
+    backToMain('Deleted match');
+};
+
 export const serverController = [
     {
         value: pullEvents,
@@ -130,5 +206,10 @@ export const serverController = [
         value: removePassword,
         icon: '🗑️',
         description: 'Remove all passwords'
+    },
+    {
+        value: deleteMatchScouting,
+        icon: '🗑️',
+        description: 'Deletes a specific match scouting from the database'
     }
 ];
