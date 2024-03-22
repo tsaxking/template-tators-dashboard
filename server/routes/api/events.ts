@@ -180,7 +180,7 @@ router.post<{
                         m.comp_level === s.compLevel
                 );
                 return {
-                    trace: (JSON.parse(s.trace) as TraceArray) || [],
+                    trace: JSON.parse(s.trace) as TraceArray,
                     alliance: match?.alliances.blue.team_keys.includes(
                         'frc' + t.team_number
                     )
@@ -189,8 +189,6 @@ router.post<{
                 };
             })
     }));
-
-    console.log(teams);
 
     const data = teams.map(t => {
         return {
