@@ -106,7 +106,9 @@ const removePassword = async () => {
 };
 
 const deleteMatchScouting = async () => {
-    const events = await TBA.get<TBAEvent[]>('/team/frc2122/events/2024');
+    const events = await TBA.get<TBAEvent[]>('/team/frc2122/events/2024', {
+        cached: false
+    });
     if (events.isErr()) throw events.error;
     if (!events.value) return backToMain('No events found');
     
