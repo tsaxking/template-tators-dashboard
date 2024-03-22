@@ -1,7 +1,7 @@
 import { TBA } from '../../server/utilities/tba/tba';
 import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba';
 import { backToMain, selectFile } from '../manager';
-import { select } from '../prompt';
+import { confirm, select } from '../prompt';
 import { pullEvent } from '../../server/utilities/tba/pull-event';
 import { DB } from '../../server/utilities/databases';
 import { runFile } from '../../server/utilities/run-task';
@@ -105,6 +105,61 @@ const removePassword = async () => {
     }
 };
 
+const deleteMatchScouting = async () => {
+    const events = await TBA.get<TBAEvent[]>('/team/frc2122/events/2024');
+    if (events.isErr()) throw events.error;
+    if (!events.value) return backToMain('No events found');
+    
+    const event = await select(
+        'Please select event',
+        events.value.map(v => {
+            return {
+                name: v.key,
+                value: v
+            }
+        })
+    );
+
+    if (!event) return backToMain('Event not selected');
+
+    const scoutings = await DB.all('match-scouting/from-event', {
+        eventKey: event.key
+    });
+
+    if (scoutings.isErr()) throw scoutings.error;
+
+    const matches = scoutings.value
+        .filter((s, i, a) => a.findIndex(_s => s.matchId === _s.matchId) === i);
+    const match = await select(
+        'Please select match',
+        matches.map(m => ({ name: m.matchNumber.toString(), value: m }))
+    );
+
+    const robots = scoutings.value.filter(s => s.matchId === match.matchId);
+
+    // match 8 2288
+
+    const selectedBot = await select(
+        'Please select team',
+        robots.map(r => ({
+            name: r.team.toString(),
+            value: r
+        }))
+    );
+
+    const confirmed = await confirm('Are you sure you want to delete this match?');
+    if (!confirmed) return backToMain('Did not delete match'); 
+
+    DB.unsafe.run(`
+        DELETE FROM MatchScouting
+        WHERE id = :id
+    `, {
+        id: selectedBot.id
+    });
+
+    backToMain('Deleted match');
+};
+
 export const serverController = [
     {
         value: pullEvents,
@@ -130,5 +185,10 @@ export const serverController = [
         value: removePassword,
         icon: '🗑️',
         description: 'Remove all passwords'
+    },
+    {
+        value: deleteMatchScouting,
+        icon: '🗑️',
+        description: 'Deletes a specific match scouting from the database'
     }
 ];
