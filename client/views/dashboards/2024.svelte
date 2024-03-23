@@ -16,11 +16,11 @@ const groups: PageGroup[] = [
     {
         name: 'overview',
         pages: [
-            {
-                name: 'event-summary',
-                icon: 'event',
-                iconType: 'material'
-            },
+            // {
+            //     name: 'event-summary',
+            //     icon: 'event',
+            //     iconType: 'material'
+            // },
             {
                 name: 'matches',
                 icon: 'list',
@@ -93,11 +93,11 @@ FIRSTEvent.on('select', e => {
     {navItems}
     {accountLinks}
 >
-    <Page {active} {domain} title="event-summary">
+    <!-- <Page {active} {domain} title="event-summary">
         {#if currentEvent}
             <EventSummary event="{currentEvent}"></EventSummary>
         {/if}
-    </Page>
+    </Page> -->
     <Page {active} {domain} title="matches">
         <MatchSchedule />
     </Page>
