@@ -227,6 +227,9 @@ export const restoreBackup = async () => {
         }))
     );
 
+    // console.log({ backup });
+    // process.exit();
+
     if (backup.isErr()) {
         return backToMain('Error selecting backup: ' + backup.error);
     }
