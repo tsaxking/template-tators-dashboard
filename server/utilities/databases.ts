@@ -208,6 +208,16 @@ export class DB {
         });
     }
 
+    public static async vacuum() {
+        return attemptAsync(async() => {
+            const tables = await DB.getTables();
+            if (tables.isErr()) throw tables.error;
+            return Promise.all(tables.value.map(async table => {
+                DB.unsafe.run(`VACUUM ${table};`);
+            }));
+        });
+    }
+
     /**
      * Parses a query and converts it to a format that the database can understand
      * All :variables are replaced with $n, and all ? are replaced with $n
@@ -1283,6 +1293,9 @@ export const run = () => {
     return attemptAsync(async () => {
         await DB.runAllUpdates();
         await DB.setIntervals();
+
+        DB.vacuum();
+        setInterval(DB.vacuum, 5 * 1000 * 60);
     });
 };
 

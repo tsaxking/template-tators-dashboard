@@ -15,6 +15,7 @@ export let groups: PageGroup[] = [];
 export let active: string;
 
 const openPage = (page: string) => {
+    console.log({ page })
     if (!page) return console.error('No page provided!');
 
     document.title =
