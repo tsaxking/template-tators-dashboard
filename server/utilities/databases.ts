@@ -210,6 +210,7 @@ export class DB {
 
     public static async vacuum() {
         return attemptAsync(async() => {
+            console.log('Vacuum go brrrrrrr');
             const tables = await DB.getTables();
             if (tables.isErr()) throw tables.error;
             return Promise.all(tables.value.map(async table => {
