@@ -209,7 +209,7 @@ export class DB {
     }
 
     public static async vacuum() {
-        return attemptAsync(async() => {
+        return attemptAsync(async () => {
             console.log('Vacuum go brrrrrrr');
             const tables = await DB.getTables();
             if (tables.isErr()) throw tables.error;
