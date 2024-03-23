@@ -265,7 +265,7 @@ export const search = async <T extends string | Option>(
                 },
                 ...values.map(v => ({
                     name: typeof v === 'string' ? v : v.name || v.toString(),
-                    value: typeof v === 'string' ? v : v.value as T
+                    value: typeof v === 'string' ? v : (v.value as T)
                 }))
             ]);
 
