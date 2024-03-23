@@ -209,12 +209,14 @@ export class DB {
     }
 
     public static async vacuum() {
-        return attemptAsync(async() => {
+        return attemptAsync(async () => {
             const tables = await DB.getTables();
             if (tables.isErr()) throw tables.error;
-            return Promise.all(tables.value.map(async table => {
-                DB.unsafe.run(`VACUUM ${table};`);
-            }));
+            return Promise.all(
+                tables.value.map(async table => {
+                    DB.unsafe.run(`VACUUM ${table};`);
+                })
+            );
         });
     }
 
