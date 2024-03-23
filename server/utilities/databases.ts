@@ -591,9 +591,9 @@ export class DB {
                 DB.getVersion()
             ]);
 
-            if (['0.0.0', '-1.-1.-1'].includes(version.join('.'))) {
-                throw new Error('Database not initialized, no backup created');
-            }
+            // if (['-1.-1.-1'].includes(version.join('.'))) {
+            //     throw new Error('Database not initialized, no backup created');
+            // }
 
             if (tables.isErr()) throw tables.error;
             const backup: {
@@ -849,9 +849,9 @@ export class DB {
      */
     static async updateToVersion(version: Version): Promise<Result<void>> {
         return attemptAsync(async () => {
+            await DB.init();
             const versions = await DB.getUpdates();
             if (versions.isErr()) throw versions.error;
-            await DB.init();
 
             const [major, minor, patch] = version;
 
