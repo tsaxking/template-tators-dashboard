@@ -20,6 +20,28 @@ type RowSection = {
     headers: string[];
 };
 
+const getMatchScouting = async (teamNumber: number, eventKey: string) => {
+    return attemptAsync(async () => {
+        const res = await DB.all('match-scouting/from-team', {
+            eventKey,
+            team: teamNumber
+        });
+    
+        if (res.isErr()) throw res.error;
+    
+        return res.value.map(m => {
+            return {
+                ...m,
+                trace: JSON.parse(m.trace) as TraceArray
+            };
+        })
+        .reverse()
+        .filter((s, i, a) => {
+            return a.findIndex(s2 => s2.matchNumber === s.matchNumber) === i;
+        });
+    });
+}
+
 export class Table {
     public static async build(
         eventKey: string
@@ -151,19 +173,9 @@ export class Table {
                             'Length'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const avg = Trace.velocity.average(
                             matches.map(m => m.trace).flat()
@@ -224,19 +236,9 @@ export class Table {
                             'Max Endgame Score'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const tbaMatches = await TBA.get<TBAMatch[]>(
                             '/event/' + eventKey + '/matches'
@@ -310,19 +312,9 @@ export class Table {
                             'Average Mobility'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const tbaMatches = await TBA.get<TBAMatch[]>(
                             '/event/' + eventKey + '/matches'
@@ -391,19 +383,9 @@ export class Table {
                             'Average Trap'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const tbaMatches = await TBA.get<TBAMatch[]>(
                             '/event/' + eventKey + '/matches'
@@ -470,19 +452,9 @@ export class Table {
                             'Max Climb Time'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const tbaMatches = await TBA.get<TBAMatch[]>(
                             '/event/' + eventKey + '/matches'

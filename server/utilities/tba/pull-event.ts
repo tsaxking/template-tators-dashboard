@@ -5,7 +5,7 @@ import {
     TBATeam
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { TBA } from './tba';
-import { attemptAsync } from '../../../shared/check';
+import { attemptAsync, resolveAll } from '../../../shared/check';
 import { uuid } from '../uuid';
 
 export const pullEvent = async (eventKey: string) => {
@@ -22,9 +22,8 @@ export const pullEvent = async (eventKey: string) => {
 
         if (hasEvent.isErr()) throw hasEvent.error;
 
-        if (hasEvent.value) {
-            throw new Error('Event already exists');
-        } else {
+        if (!hasEvent.value) {
+            console.log('Added event', event.key);
             DB.run('events/new-event', {
                 eventKey: event.key,
                 flipX: 0,
@@ -53,6 +52,7 @@ export const pullEvent = async (eventKey: string) => {
                     t => t.number === team.team_number
                 );
                 if (!has) {
+                    console.log('Added team', team.team_number);
                     DB.run('teams/new', {
                         eventKey: event.key,
                         number: team.team_number,
@@ -77,6 +77,7 @@ export const pullEvent = async (eventKey: string) => {
                 );
 
                 if (!has) {
+                    console.log('Added match', match.match_number);
                     DB.run('matches/new', {
                         eventKey: event.key,
                         matchNumber: match.match_number,
@@ -86,5 +87,17 @@ export const pullEvent = async (eventKey: string) => {
                 }
             }
         }
+    });
+};
+
+export const pullAllEvents = async () => {
+    return attemptAsync(async () => {
+        const res = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${new Date().getFullYear()}`);
+        if (res.isErr()) throw res.error;
+        if (!res.value) throw 'No events found';
+
+        const result = resolveAll(await Promise.all(res.value.map(e => pullEvent(e.key))));
+        if (result.isErr()) throw result.error;
+        return result.value;
     });
 };
