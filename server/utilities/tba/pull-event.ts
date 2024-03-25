@@ -22,7 +22,9 @@ export const pullEvent = async (eventKey: string) => {
 
         if (hasEvent.isErr()) throw hasEvent.error;
 
-        if (!hasEvent.value) {
+        if (hasEvent.value) {
+            throw new Error('Event already exists');
+        } else {
             DB.run('events/new-event', {
                 eventKey: event.key,
                 flipX: 0,

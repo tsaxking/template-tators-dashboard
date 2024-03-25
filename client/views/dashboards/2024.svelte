@@ -95,24 +95,24 @@ FIRSTEvent.on('select', e => {
     {navItems}
     {accountLinks}
 >
-    <Page bind:active={active} {domain} title="event-summary">
+    <Page {active} {domain} title="event-summary">
         {#if currentEvent}
             <EventSummary event="{currentEvent}"></EventSummary>
         {/if}
     </Page>
-    <Page bind:active={active} {domain} title="matches">
+    <Page {active} {domain} title="matches">
         <MatchSchedule />
     </Page>
-    <Page bind:active={active} {domain} title="robot-display">
+    <Page {active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
     </Page>
-    <Page bind:active={active} {domain} title="answer-scouting-questions">
+    <Page {active} {domain} title="answer-scouting-questions">
         <AnswerPitScouting />
     </Page>
-    <Page bind:active={active} {domain} title="scouting-checklist">
+    <Page {active} {domain} title="scouting-checklist">
         <Checklist />
     </Page>
-    <Page bind:active={active} {domain} title="quiz">
+    <Page {active} {domain} title="quiz">
         <Quiz />
     </Page>
 </Main>

@@ -22,7 +22,7 @@ type TBACache<T> = {
     stored: number;
 };
 
-const CACHE_VERSION = 0;
+const CACHE_VERSION = 1;
 
 /**
  * Description placeholder
