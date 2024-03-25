@@ -5,7 +5,8 @@ import { TBA } from '../../utilities/tba/tba';
 import {
     TBAMatch,
     TBATeam,
-    matchSort
+    matchSort,
+    teamsFromMatch
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { RetrievedMatchScouting } from '../../utilities/tables';
 import { Status } from '../../utilities/status';
@@ -56,7 +57,18 @@ router.post<{
         if (teams.isErr()) return res.sendStatus('unknown:error');
         if (matches.isErr()) return res.sendStatus('unknown:error');
 
-        const matchScoutingData = matchScouting.value;
+        const matchScoutingData = matchScouting.value
+            .reverse()
+            .filter((s, i, a) => {
+                return (
+                    a.findIndex(
+                        s2 =>
+                            s2.team === s.team &&
+                            s2.matchNumber === s.matchNumber &&
+                            s2.compLevel === s.compLevel
+                    ) === i
+                );
+            });
         const answersData = answers.value;
         const questionsData = questions.value;
         const picturesData = pictures.value;
@@ -83,16 +95,16 @@ router.post<{
                     : t;
             };
 
+            const teams = teamsFromMatch(m);
+
             return {
                 match: m.match_number,
                 compLevel: m.comp_level,
                 teams: [
-                    ...m.alliances.blue.team_keys
-                        .map(t => parseInt(t.substring(3)))
+                    ...teams.slice(0, 3)
                         .map(find)
                         .filter(Boolean),
-                    ...m.alliances.red.team_keys
-                        .map(t => parseInt(t.substring(3)))
+                    ...teams.slice(3)
                         .map(find)
                         .filter(Boolean)
                 ]
@@ -158,7 +170,9 @@ router.post<{
 
     const matches = matchesResult.value.sort(matchSort);
 
-    const scouting = matchScouting.value.filter((s, i, a) => {
+    const scouting = matchScouting.value
+    .reverse()
+    .filter((s, i, a) => {
         return (
             a.findIndex(
                 s2 => s2.team === s.team && s2.matchNumber === s.matchNumber

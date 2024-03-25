@@ -50,6 +50,8 @@ FIRSTEvent.on('select', async e => {
         })
     );
 });
+
+$: console.log({ matchScouting });
 </script>
 
 <div class="table-responsive">

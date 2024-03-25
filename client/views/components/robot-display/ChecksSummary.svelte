@@ -16,19 +16,18 @@ const fns = {
         checks = {};
         if (!team) return;
         const scouting = await team.getMatchScouting();
-        if (scouting.isOk()) {
-            const allChecks = scouting.value.map(s => s.checks);
 
-            for (const check of allChecks) {
-                for (const str of check) {
-                    if (checks[str]) {
-                        checks[str].number++;
-                    } else {
-                        checks[str] = {
-                            color: rankColor[checkRanks[str]].toString('rgb'),
-                            number: 1
-                        };
-                    }
+        if (scouting.isOk()) {
+            const allChecks = scouting.value.map(s => s.checks).flat();
+
+            for (const str of allChecks) {
+                if (checks[str]) {
+                    checks[str].number++;
+                } else {
+                    checks[str] = {
+                        color: rankColor[checkRanks[str]].toString('rgb'),
+                        number: 1
+                    };
                 }
             }
         }
