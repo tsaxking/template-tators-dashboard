@@ -62,6 +62,7 @@ export class TBA {
         options?: TBAOptions
     ): Promise<Result<T | null>> {
         return attemptAsync(async () => {
+
             if (!TBA_KEY) {
                 throw new Error(
                     'TBA_KEY not found in environment variables! Cannot make request to TBA API!'
@@ -85,29 +86,35 @@ export class TBA {
                 }
             }
 
-            try {
-                const res = await fetch(`${TBA.baseURL}/${path}`, {
+            return new Promise<T | null>((resolve, reject) => {
+                const t = setTimeout(() => {
+                    reject('Request to TBA API timed out!');
+                }, 1000 * 10);
+
+                fetch(`${TBA.baseURL}/${path}`, {
                     method: 'GET',
                     headers: {
                         'X-TBA-Auth-Key': TBA_KEY,
                         Accept: 'application/json'
-                    }
-                });
-
-                const json = await res.json();
-
-                // cache response, this will also update the cache if it already exists (using ON CONFLICT sql)
-                DB.run('tba/new', {
-                    url: path,
-                    response: JSON.stringify(json),
-                    updated: Date.now(),
-                    update: options?.cached ? 1 : 0
-                });
-                return json as T;
-            } catch (e) {
-                error('Error requesting from TBA:', e);
-                return null;
-            }
+                        },
+                    })
+                    .then(res => res.json())
+                    .then(json => {
+                        clearTimeout(t);
+                        // cache response, this will also update the cache if it already exists (using ON CONFLICT sql)
+                        DB.run('tba/new', {
+                            url: path,
+                            response: JSON.stringify(json),
+                            updated: Date.now(),
+                            update: options?.cached ? 1 : 0
+                        });
+                        resolve(json as T);
+                    })
+                    .catch(e => {
+                        error('Error requesting from TBA:', e);
+                        resolve(null);
+                    });
+            });
         });
     }
 
