@@ -64,7 +64,7 @@ const groups: PageGroup[] = [
     }
 ];
 
-let active = getOpenPage() || 'robot-display';
+let active = getOpenPage() || 'event-summary';
 
 const domain = 'tatorscout.org';
 
@@ -88,29 +88,31 @@ FIRSTEvent.on('select', e => {
 <Main
     title="Team Tators"
     {groups}
-    on:openPage="{e => (active = e.detail)}"
+    on:openPage="{e => {
+        active = e.detail;
+    }}"
     {active}
     {navItems}
     {accountLinks}
 >
-    <Page {active} {domain} title="event-summary">
+    <Page bind:active={active} {domain} title="event-summary">
         {#if currentEvent}
             <EventSummary event="{currentEvent}"></EventSummary>
         {/if}
     </Page>
-    <Page {active} {domain} title="matches">
+    <Page bind:active={active} {domain} title="matches">
         <MatchSchedule />
     </Page>
-    <Page {active} {domain} title="robot-display">
+    <Page bind:active={active} {domain} title="robot-display">
         <RobotDisplay></RobotDisplay>
     </Page>
-    <Page {active} {domain} title="answer-scouting-questions">
+    <Page bind:active={active} {domain} title="answer-scouting-questions">
         <AnswerPitScouting />
     </Page>
-    <Page {active} {domain} title="scouting-checklist">
+    <Page bind:active={active} {domain} title="scouting-checklist">
         <Checklist />
     </Page>
-    <Page {active} {domain} title="quiz">
+    <Page bind:active={active} {domain} title="quiz">
         <Quiz />
     </Page>
 </Main>
