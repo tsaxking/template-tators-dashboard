@@ -23,6 +23,24 @@ type TBACache<T> = {
 };
 
 const CACHE_VERSION = 1;
+const USE_CACHE = true;
+
+{
+    const items = Object.keys(localStorage);
+    for (const item of items) {
+        if (item.startsWith('/')) {
+            localStorage.removeItem(item);
+        }
+
+        for (const v of Array.from({ length: CACHE_VERSION }).map((_, i) => i)) {
+            if (item.startsWith(v + '-')) {
+                localStorage.removeItem(item);
+            }
+        }
+    }
+
+    localStorage.removeItem('2023'); // remove old cache
+}
 
 /**
  * Description placeholder
@@ -162,6 +180,7 @@ export class TBA {
      * @param {T} data
      */
     private static storeCache<T>(path: string, data: T) {
+        if (!USE_CACHE) return;
         try {
             localStorage.setItem(
                 CACHE_VERSION + '-' + path,
@@ -186,6 +205,7 @@ export class TBA {
      * @returns {(T | null)}
      */
     private static retrieveCache<T>(path: string): TBACache<T> | null {
+        if (!USE_CACHE) return null;
         const item = localStorage.getItem(CACHE_VERSION + '-' + path);
         if (!item) return null;
         try {
