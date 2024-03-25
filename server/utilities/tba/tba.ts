@@ -71,20 +71,20 @@ export class TBA {
 
             if (!path.startsWith('/')) path = '/' + path;
 
-            if (options?.cached) {
-                const cached = await DB.get('tba/from-url', {
-                    url: path
-                });
+            // if (options?.cached) {
+            //     const cached = await DB.get('tba/from-url', {
+            //         url: path
+            //     });
 
-                if (cached.isOk() && cached.value && cached.value.response) {
-                    try {
-                        return JSON.parse(cached.value.response) as T;
-                    } catch (e) {
-                        error('Error parsing cached TBA response:', e);
-                        return null;
-                    }
-                }
-            }
+            //     if (cached.isOk() && cached.value && cached.value.response) {
+            //         try {
+            //             return JSON.parse(cached.value.response) as T;
+            //         } catch (e) {
+            //             error('Error parsing cached TBA response:', e);
+            //             return null;
+            //         }
+            //     }
+            // }
 
             return new Promise<T | null>((resolve, reject) => {
                 const t = setTimeout(() => {
@@ -102,12 +102,12 @@ export class TBA {
                     .then(json => {
                         clearTimeout(t);
                         // cache response, this will also update the cache if it already exists (using ON CONFLICT sql)
-                        DB.run('tba/new', {
-                            url: path,
-                            response: JSON.stringify(json),
-                            updated: Date.now(),
-                            update: options?.cached ? 1 : 0
-                        });
+                        // DB.run('tba/new', {
+                        //     url: path,
+                        //     response: JSON.stringify(json),
+                        //     updated: Date.now(),
+                        //     update: options?.cached ? 1 : 0
+                        // });
                         resolve(json as T);
                     })
                     .catch(e => {
