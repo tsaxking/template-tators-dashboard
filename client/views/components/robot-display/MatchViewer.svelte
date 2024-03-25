@@ -130,7 +130,8 @@ const fns = {
             const [_i, x, y, action] = p;
 
             if (action) {
-                const color = actionColors[action as keyof typeof actionColors];
+                let color = actionColors[action as keyof typeof actionColors];
+                if (!color) color = Color.fromName('black');
 
                 const foundKey = keys.find(k => k.action === action);
                 if (!foundKey) {

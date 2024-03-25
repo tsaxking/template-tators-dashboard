@@ -23,9 +23,10 @@ type TBACache<T> = {
 };
 
 const CACHE_VERSION = 1;
-const USE_CACHE = true;
+const USE_CACHE = false;
 
 {
+    if (!USE_CACHE) localStorage.clear();
     const items = Object.keys(localStorage);
     for (const item of items) {
         if (item.startsWith('/')) {
@@ -183,7 +184,7 @@ export class TBA {
         if (!USE_CACHE) return;
         try {
             localStorage.setItem(
-                CACHE_VERSION + '-' + path,
+                CACHE_VERSION + '-tba-' + path,
                 JSON.stringify({
                     data,
                     stored: Date.now()
@@ -206,7 +207,7 @@ export class TBA {
      */
     private static retrieveCache<T>(path: string): TBACache<T> | null {
         if (!USE_CACHE) return null;
-        const item = localStorage.getItem(CACHE_VERSION + '-' + path);
+        const item = localStorage.getItem(CACHE_VERSION + '-tba-' + path);
         if (!item) return null;
         try {
             return JSON.parse(item) as TBACache<T>;
