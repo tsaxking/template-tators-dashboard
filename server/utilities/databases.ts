@@ -2,7 +2,7 @@ import env, { __root } from './env';
 import { error, log } from './terminal-logging';
 import { Client } from 'pg';
 import { Queries } from './queries';
-import { exists, readDir, readFile, readFileSync, saveFile } from './files';
+import { exists, readDir, readFile, saveFile, log as csv } from './files';
 import { attemptAsync, Result } from '../../shared/check';
 import {
     capitalize,
@@ -1059,6 +1059,8 @@ export class DB {
         query: string,
         args: Parameter[]
     ): Promise<Result<QueryResult<unknown>>> {
+        const start = Date.now();
+
         await DB.connect();
         const run = () =>
             attemptAsync(async () => {
@@ -1079,6 +1081,14 @@ export class DB {
         if (res.isErr()) {
             error('Error running query:', query, args, res.error);
         }
+
+        const time = Date.now() - start;
+
+        csv('queries', {
+            date: Date.now(),
+            query: query.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim(),
+            duration: time
+        });
 
         return res;
     }
