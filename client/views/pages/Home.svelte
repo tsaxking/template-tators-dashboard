@@ -2,6 +2,7 @@
 import { type BootstrapColor } from '../../submodules/colors/color';
 import { type Permission } from '../../../shared/permissions';
 import { Account } from '../../models/account';
+import Footer from '../components/main/Footer.svelte';
 
 let permissions: Permission[] = [];
 
@@ -107,9 +108,7 @@ Account.getAccount().then(async a => {
             {/each}
         </div>
     </div>
-<footer>
-    <a href=https://github.com/tsaxking/template-tators-dashboard target=_blank>Git Hub Page</a>
-</footer>
+    <Footer domain="tatorscout.org"/>
 </main>
 
 <style>
