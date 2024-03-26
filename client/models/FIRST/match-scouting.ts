@@ -27,8 +27,11 @@ export const checkRanks: {
     tippy: 1,
     easilyDefended: 1,
     robotDied: 2,
+    slow: 1,
     problemsDriving: 2,
-    groundPicks: 0
+    groundPicks: 0,
+    penalized: 3,
+    spectator: 3,
 };
 
 export const rankColor: {
@@ -90,17 +93,50 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
     ): Promise<Result<MatchScouting[]>> {
         return attemptAsync(async () => {
             const all = MatchScouting.cache.values();
-            const filtered = Array.from(all).filter(m => {
-                return (
-                    m.eventKey === eventKey &&
-                    m.team === teamNumber &&
-                    m.compLevel !== 'pr'
-                );
-            });
+            const filtered = Array.from(all)
+                .filter(m => {
+                    return (
+                        m.eventKey === eventKey &&
+                        m.team === teamNumber &&
+                        m.compLevel !== 'pr'
+                    );
+                })
+                .filter((m, i, a) => a.findIndex(m2 => {
+                    return m2.matchNumber === m.matchNumber && m2.compLevel === m.compLevel;
+                }) === i);
             if (filtered.length) return filtered;
 
             const res = await ServerRequest.post<MatchScoutingObj[]>(
                 '/api/match-scouting/from-team',
+                {
+                    eventKey,
+                    teamNumber
+                }
+            );
+
+            if (res.isErr()) throw res.error;
+            return res.value.map(d => new MatchScouting(d));
+        });
+    }
+
+    public static async preFromTeam(
+        eventKey: string,
+        teamNumber: number
+    ): Promise<Result<MatchScouting[]>> {
+        return attemptAsync(async () => {
+            const all = MatchScouting.cache.values();
+            const filtered = Array.from(all).filter(m => {
+                return (
+                    m.eventKey === eventKey &&
+                    m.team === teamNumber &&
+                    m.compLevel === 'pr'
+                );
+            });
+
+            if (filtered.length) return filtered;
+
+            const res = await ServerRequest.post<MatchScoutingObj[]>(
+                '/api/match-scouting/pre-from-team',
                 {
                     eventKey,
                     teamNumber
@@ -146,7 +182,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
     public readonly scoutName: string;
     public readonly trace: TraceArray;
     public readonly checks: string[];
-    public readonly preScouting: string | undefined;
+    public readonly preScouting: boolean;
     public readonly time: number;
     public readonly prescouting: string | undefined;
     public readonly eventKey: string;
@@ -164,9 +200,8 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         this.scoutName = data.scoutName;
         this.trace = JSON.parse(data.trace) as TraceArray;
         this.checks = JSON.parse(data.checks) as string[];
-        this.preScouting = data.preScouting;
+        this.preScouting = !!data.preScouting;
         this.time = data.time;
-        this.prescouting = data.prescouting;
         this.eventKey = data.eventKey;
         this.matchNumber = data.matchNumber;
         this.compLevel = data.compLevel;

@@ -144,7 +144,9 @@ const fns = {
     },
     filter: (trace: TraceArray) => {
         container.filter(
-            (c, i) => checks.find(c => c.key === trace[i][3])?.enabled ?? true
+            (c, i) => checks
+                .filter(Boolean)
+                .find(c => c.key === trace[i][3])?.enabled ?? true
         );
     }
 };

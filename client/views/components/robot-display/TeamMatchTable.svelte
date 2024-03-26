@@ -25,8 +25,6 @@ const fns = {
             MatchScouting.fromTeam(t.event.key, t.number)
         ]);
 
-        console.log({ matchesRes, matchScoutingRes });
-
         if (matchesRes.isErr()) return console.error(matchesRes.error);
         if (matchScoutingRes.isErr())
             return console.error(matchScoutingRes.error);
@@ -101,7 +99,6 @@ const fns = {
 };
 
 $: fns.getMatches(team);
-$: console.log({ matches });
 </script>
 
 <p>

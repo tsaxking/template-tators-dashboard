@@ -20,51 +20,15 @@ let matchScouting: {
 }[] = [];
 
 FIRSTEvent.on('select', async e => {
-    const [statusRes, teamsRes, matchesRes] = await Promise.all([
+    const [statusRes, teamsRes] = await Promise.all([
         e.getStatus(),
-        e.getTeams(),
-        e.getMatches()
+        e.getTeams()
     ]);
     if (statusRes.isErr()) return console.error(statusRes.error);
     if (teamsRes.isErr()) return console.error(teamsRes.error);
-    if (matchesRes.isErr()) return console.error(matchesRes.error);
 
-    const { pictures, matches, questions } = statusRes.value;
+    const { pictures, questions } = statusRes.value;
     const teamsInfo = teamsRes.value;
-
-    matchScouting = await Promise.all(
-        matchesRes.value.map(async m => {
-            const match = matches.find(
-                _m => _m.match === m.number && _m.compLevel === m.compLevel
-            );
-            if (!match) {
-                return {
-                    teams: [],
-                    number: 0,
-                    compLevel: 'pr'
-                };
-            }
-            const unScouted = match.teams;
-            const teams = await m.getTeams();
-
-            if (teams.isErr()) {
-                return {
-                    teams: [],
-                    number: 0,
-                    compLevel: 'pr'
-                };
-            }
-
-            return {
-                teams: teams.value.map(t => ({
-                    team: t.number,
-                    scouted: !unScouted.includes(t.number)
-                })),
-                number: m.number,
-                compLevel: m.compLevel
-            };
-        })
-    );
 
     teams = teamsInfo.map(t => ({
         team: t,
@@ -75,4 +39,3 @@ FIRSTEvent.on('select', async e => {
 </script>
 
 <TeamChecklist {teams} />
-<MatchScouting {matchScouting} />

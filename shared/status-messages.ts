@@ -346,6 +346,12 @@ export const messages: {
         code: 400,
         instructions: 'please try again'
     },
+    'event:invalid-key': {
+        message: 'Invalid event key',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
     'event:update-properties': {
         message: 'Event properties updated',
         color: 'success',
@@ -725,6 +731,18 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'scouting-question:questions-already-exist': {
+        message: 'The questions have already been copied',
+        color: 'danger',
+        code: 412,
+        instructions: ''
+    },
+    'scouting-question:questions-copied': {
+        message: 'Questions copied from event',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'scouting-question:section-deleted': {
         message: 'Section has been archived',
         color: 'success',
@@ -859,6 +877,12 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'trace:year-not-supported': {
+        message: 'This year is not yet supported',
+        color: 'danger',
+        code: 400,
+        instructions: ''
+    },
     'unknown:error': {
         message: 'Unknown error',
         color: 'danger',
@@ -961,6 +985,7 @@ export type StatusId =
     | 'discord:account-linked'
     | 'discord:invalid-link'
     | 'discord:link-expired'
+    | 'event:invalid-key'
     | 'event:update-properties'
     | 'files:invalid'
     | 'files:invalid-extension'
@@ -1024,6 +1049,8 @@ export type StatusId =
     | 'scouting-question:question-deleted'
     | 'scouting-question:question-not-found'
     | 'scouting-question:question-updated'
+    | 'scouting-question:questions-already-exist'
+    | 'scouting-question:questions-copied'
     | 'scouting-question:section-deleted'
     | 'scouting-question:update-answer'
     | 'scouting-question:update-section'
@@ -1046,6 +1073,7 @@ export type StatusId =
     | 'teams:pictures-uploaded'
     | 'test:fail'
     | 'test:success'
+    | 'trace:year-not-supported'
     | 'unknown:error'
     | 'webhook:invalid-url'
     | 'webhook:not-found'
@@ -1100,6 +1128,13 @@ export type AccountStatusId =
 
 export type AdminStatusId = 'invalid-key';
 
+export type DiscordStatusId =
+    | 'account-linked'
+    | 'invalid-link'
+    | 'link-expired';
+
+export type EventStatusId = 'invalid-key' | 'update-properties';
+
 export type FilesStatusId =
     | 'invalid'
     | 'invalid-extension'
@@ -1108,13 +1143,6 @@ export type FilesStatusId =
     | 'too-many-files'
     | 'unknown-error'
     | 'uploaded';
-
-export type DiscordStatusId =
-    | 'account-linked'
-    | 'invalid-link'
-    | 'link-expired';
-
-export type EventStatusId = 'update-properties';
 
 export type MatchStatusId = 'not-found';
 
@@ -1182,10 +1210,12 @@ export type ScoutingQuestionStatusId =
     | 'question-deleted'
     | 'question-not-found'
     | 'question-updated'
+    | 'questions-copied'
     | 'section-deleted'
     | 'update-answer'
     | 'update-section'
-    | 'updated-answer';
+    | 'updated-answer'
+    | 'questions-already-exist';
 
 export type ServerStatusId =
     | 'invalid-data'
@@ -1212,6 +1242,8 @@ export type TeamCommentStatusId = 'new';
 export type TeamsStatusId = 'pictures-uploaded';
 
 export type TestStatusId = 'fail' | 'success';
+
+export type TraceStatusId = 'year-not-supported';
 
 export type UnknownStatusId = 'error';
 

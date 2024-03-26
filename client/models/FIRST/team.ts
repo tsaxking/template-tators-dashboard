@@ -240,12 +240,32 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             if (res.isErr()) throw res.error;
 
-            const data = res.value.filter(
-                (s, i, a) => a.findIndex(_s => _s.id === s.id) === i
+            const data = res.value
+            .reverse() // reverse so that the most recent matches are first
+            .filter(
+                (s, i, a) => a.findIndex(_s => {
+                    return (
+                        _s.matchNumber === s.matchNumber &&
+                        _s.compLevel === s.compLevel
+                    );
+                }) === i
             );
 
             this.$cache.set('match-scouting', data);
             return data;
+        });
+    }
+
+    public async getPreScouting() {
+        return attemptAsync(async () => {
+            const res = await MatchScouting.preFromTeam(
+                this.event.key,
+                this.number
+            );
+
+            if (res.isErr()) throw res.error;
+
+            return res.value;
         });
     }
 

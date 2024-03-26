@@ -24,11 +24,13 @@ import { fromCamelCase, capitalize } from '../../../../shared/text';
 import type { BootstrapColor } from '../../../submodules/colors/color';
 import { MatchScouting } from '../../../models/FIRST/match-scouting';
 import { Random } from '../../../../shared/math';
+import MatchVideos from './MatchVideos.svelte';
 
 const id = Random.uuid();
 
 export let team: FIRSTTeam;
 export let match: MatchScouting;
+export let firstMatch: FIRSTMatch | undefined = undefined;
 
 let canvasEl: HTMLCanvasElement,
     alliance: 'blue' | 'red' = 'blue',
@@ -128,7 +130,8 @@ const fns = {
             const [_i, x, y, action] = p;
 
             if (action) {
-                const color = actionColors[action as keyof typeof actionColors];
+                let color = actionColors[action as keyof typeof actionColors];
+                if (!color) color = Color.fromName('black');
 
                 const foundKey = keys.find(k => k.action === action);
                 if (!foundKey) {
@@ -225,6 +228,13 @@ const fns = {
         checks = m.checks;
         scout = m.scoutName;
         comments = m.comments;
+
+        const eventMatches = await FIRSTEvent.current?.getMatches();
+        if (!eventMatches) return;
+        if (eventMatches.isErr()) return console.error(eventMatches.error);
+        firstMatch = eventMatches.value.find(
+            _m => m.matchNumber === _m.number && m.compLevel === _m.compLevel
+        );
     }
 };
 
@@ -277,5 +287,8 @@ $: {
                 </li>
             {/each}
         </ul>
+    </div>
+    <div class="row mb-3">
+        <MatchVideos bind:match="{firstMatch}" />
     </div>
 </div>

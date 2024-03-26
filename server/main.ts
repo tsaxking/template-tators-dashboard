@@ -10,6 +10,7 @@ import { deleteDeps, pullDeps } from '../scripts/pull-deps';
 import { ChildProcess, spawn } from 'child_process';
 import { stdin } from './utilities/stdin';
 import path from 'path';
+import { pullAllEvents } from './utilities/tba/pull-event';
 
 // TODO: Multithreading
 // class Server {
@@ -77,6 +78,9 @@ const log = (...args: unknown[]) =>
 const main = async () => {
     const res = await pullDeps();
     if (res.isErr()) throw res.error;
+
+    pullAllEvents();
+    setInterval(pullAllEvents, 1000 * 60 * 60);
 
     // const servers = Number(env.NUM_SERVERS) || 1;
 

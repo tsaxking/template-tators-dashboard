@@ -1,6 +1,6 @@
 import render from 'node-html-constructor/versions/v4';
 import ObjectsToCsv from 'objects-to-csv';
-import { __logs, __root, __templates, __uploads } from './env';
+import env, { __logs, __root, __templates, __uploads } from './env';
 import { attempt, attemptAsync, Result } from '../../shared/check';
 import { matchInstance } from '../../shared/match';
 import { error } from './terminal-logging';
@@ -32,12 +32,16 @@ export type FileError = 'NoFile' | 'FileExists' | 'NoAccess' | 'Unknown';
  * @param {Error} e
  * @returns {JSONError}
  */
-const matchJSONError = (e: Error): JSONError =>
-    matchInstance<Error, JSONError>(
-        e,
-        [SyntaxError, () => 'InvalidJSON'],
-        [Error, () => 'Unknown']
-    ) ?? 'Unknown';
+const matchJSONError = (e: Error): JSONError => {
+    console.log(e);
+    return (
+        matchInstance<Error, JSONError>(
+            e,
+            [SyntaxError, () => 'InvalidJSON'],
+            [Error, () => 'Unknown']
+        ) ?? 'Unknown'
+    );
+};
 
 /**
  * Matches an error to a FileError
@@ -46,14 +50,18 @@ const matchJSONError = (e: Error): JSONError =>
  * @param {Error} e
  * @returns {FileError}
  */
-const matchFileError = (e: Error): FileError =>
-    matchInstance<Error, FileError>(
-        e,
-        [Error, () => 'Unknown'],
-        [TypeError, () => 'NoFile'],
-        [Error, () => 'FileExists'],
-        [Error, () => 'NoAccess']
-    ) ?? 'Unknown';
+const matchFileError = (e: Error): FileError => {
+    console.log(e);
+    return (
+        matchInstance<Error, FileError>(
+            e,
+            [Error, () => 'Unknown'],
+            [TypeError, () => 'NoFile'],
+            [Error, () => 'FileExists'],
+            [Error, () => 'NoAccess']
+        ) ?? 'Unknown'
+    );
+};
 
 /**
  * Makes a folder
@@ -591,7 +599,13 @@ export const exists = (file: string): boolean => {
  * @export
  * @typedef {LogType}
  */
-export type LogType = 'request' | 'error' | 'debugger' | 'status' | 'console';
+export type LogType =
+    | 'request'
+    | 'error'
+    | 'debugger'
+    | 'status'
+    | 'console'
+    | 'queries';
 
 /**
  * The allowed types of data in a log (prevents deep objects)
@@ -621,4 +635,37 @@ export function log(type: LogType, dataObj: LogObj): Promise<Result<void>> {
             { append: true }
         );
     });
+}
+
+{
+    setInterval(
+        () => {
+            fs.readdir(__logs, (err, files) => {
+                if (err) {
+                    error(err);
+                    return;
+                }
+                files.forEach(file => {
+                    fs.stat(path.resolve(__logs, file), (err, stats) => {
+                        if (err) {
+                            error(err);
+                            return;
+                        }
+                        if (
+                            Date.now() - stats.mtimeMs >
+                            Number(env.LOG_CLEAR_TIMEOUT)
+                        ) {
+                            fs.rm(path.resolve(__logs, file), err => {
+                                if (err) {
+                                    error(err);
+                                    return;
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        },
+        Number(env.LOG_CLEAR_TIMEOUT) || 1000 * 60 * 60 * 24
+    );
 }

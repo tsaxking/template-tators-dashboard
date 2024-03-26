@@ -134,7 +134,6 @@ router.post<{
         eventKey: 'string',
         teamNumber: 'number'
     }),
-    Account.isSignedIn,
     Account.allowPermissions('submitScoutingAnswers'),
     fileStream({
         maxFiles: 10,
