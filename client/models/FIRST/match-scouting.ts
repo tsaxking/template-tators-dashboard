@@ -31,7 +31,7 @@ export const checkRanks: {
     problemsDriving: 2,
     groundPicks: 0,
     penalized: 3,
-    spectator: 3,
+    spectator: 3
 };
 
 export const rankColor: {
@@ -101,9 +101,15 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
                         m.compLevel !== 'pr'
                     );
                 })
-                .filter((m, i, a) => a.findIndex(m2 => {
-                    return m2.matchNumber === m.matchNumber && m2.compLevel === m.compLevel;
-                }) === i);
+                .filter(
+                    (m, i, a) =>
+                        a.findIndex(m2 => {
+                            return (
+                                m2.matchNumber === m.matchNumber &&
+                                m2.compLevel === m.compLevel
+                            );
+                        }) === i
+                );
             if (filtered.length) return filtered;
 
             const res = await ServerRequest.post<MatchScoutingObj[]>(
