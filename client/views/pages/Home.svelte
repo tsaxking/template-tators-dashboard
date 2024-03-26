@@ -108,7 +108,7 @@ Account.getAccount().then(async a => {
             {/each}
         </div>
     </div>
-    <Footer domain="tatorscout.org"/>
+    <Footer domain="tatorscout.org" />
 </main>
 
 <style>

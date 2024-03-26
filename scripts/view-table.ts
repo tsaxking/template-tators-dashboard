@@ -110,11 +110,15 @@ import { fromCamelCase, toSnakeCase } from '../shared/text';
  2015azpx
  2008sac`;
 
- const events = str.split('\n').map(e => e.trim());
+    const events = str.split('\n').map(e => e.trim());
 
- await Promise.all(events.map(async e => {
-    DB.unsafe.run('DELETE FROM events WHERE eventKey = :eventKey', { eventKey: e });
- }));
+    await Promise.all(
+        events.map(async e => {
+            DB.unsafe.run('DELETE FROM events WHERE eventKey = :eventKey', {
+                eventKey: e
+            });
+        })
+    );
 
- process.exit(0);
+    process.exit(0);
 })();
