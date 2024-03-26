@@ -14,7 +14,7 @@ const quotes = [
     "The c in code stands for carbs because it's spaghetti code",
     "It's a valley not just because there's a steep ascent on one side, but because a rise follows. Hang in there.",
     'Octopi > Squid',
-    'Fun fact: the word "fun" is in "funeral"',
+    // 'Fun fact: the word "fun" is in "funeral"',
     'Beauty fades. That is why it is beautiful.',
     "Taylor wrote 98% of this code so it's probably his fault",
     'You keep getting signed out because of cosmic rays',
@@ -26,8 +26,8 @@ const quotes = [
     'The word "bookkeeper" is the only unhyphenated English word with three consecutive double letters.',
     'The Japanese word for "origami" is "origami".',
     "If anyone wants to talk to Keyton about linguistics, he's very lonely.",
-    "Report issues you see, but don't forget, there will always be issues with this website, me, you, and everything, fixing things and going for perfection will only lead to hopeless misery... Have a Nice Day!",
-    'If you see something, say something . . . or else'
+    // "Report issues you see, but don't forget, there will always be issues with this website, me, you, and everything, fixing things and going for perfection will only lead to hopeless misery... Have a Nice Day!",
+    // 'If you see something, say something . . . or else'
 ];
 
 const quote = Random.choose(quotes);
