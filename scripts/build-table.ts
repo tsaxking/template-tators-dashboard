@@ -20,6 +20,28 @@ type RowSection = {
     headers: string[];
 };
 
+const getMatchScouting = async (teamNumber: number, eventKey: string) => {
+    return attemptAsync(async () => {
+        const res = await DB.all('match-scouting/from-team', {
+            eventKey,
+            team: teamNumber
+        });
+    
+        if (res.isErr()) throw res.error;
+    
+        return res.value.map(m => {
+            return {
+                ...m,
+                trace: JSON.parse(m.trace) as TraceArray
+            };
+        })
+        .reverse()
+        .filter((s, i, a) => {
+            return a.findIndex(s2 => s2.matchNumber === s.matchNumber) === i;
+        });
+    });
+}
+
 export class Table {
     public static async build(
         eventKey: string
@@ -145,33 +167,19 @@ export class Table {
                     return attemptAsync(async () => {
                         const headers: string[] = [
                             'Average Velocity',
-                            // 'Max Velocity',
-                            // 'Average Seconds Not Moving',
                             'Weight',
                             'Height',
                             'Width',
                             'Length'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
+                        const matches = res.value;
 
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
-
-                        // const max = Math.max(...velocities);
                         const avg = Trace.velocity.average(
                             matches.map(m => m.trace).flat()
                         );
-                        // const hist = matches.map(m => Trace.velocity.histogram(m.trace));
 
                         const pitScouting = await DB.all(
                             'scouting-questions/answer-from-team',
@@ -204,8 +212,6 @@ export class Table {
                             headers,
                             data: [
                                 avg,
-                                // max,
-                                // velocities.filter((v) => v === 0).length / velocities.length,
                                 (JSON.parse(weight) as string[]).join(','),
                                 (JSON.parse(height) as string[]).join(','),
                                 (JSON.parse(width) as string[]).join(','),
@@ -230,19 +236,9 @@ export class Table {
                             'Max Endgame Score'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const tbaMatches = await TBA.get<TBAMatch[]>(
                             '/event/' + eventKey + '/matches'
@@ -252,44 +248,35 @@ export class Table {
                         if (!tbaMatches.value)
                             throw new Error('No matches found');
 
-                        const scoresRes = resolveAll(
-                            matches.map(m => {
-                                return attempt(() => {
-                                    const match = tbaMatches.value?.find(
-                                        match =>
-                                            match.match_number ===
-                                                m.matchNumber &&
-                                            match.comp_level === m.compLevel
-                                    );
+                        const scoresRes = matches.map(m => {
+                            return attempt(() => {
+                                const match = tbaMatches.value?.find(
+                                    match =>
+                                        match.match_number === m.matchNumber &&
+                                        match.comp_level === m.compLevel
+                                );
 
-                                    if (!match)
-                                        throw new Error('Match not found');
+                                if (!match) throw new Error('Match not found');
 
-                                    const [r1, r2, r3, b1, b2, b3] =
-                                        teamsFromMatch(match);
+                                const [r1, r2, r3, b1, b2, b3] =
+                                    teamsFromMatch(match);
 
-                                    let alliance: 'red' | 'blue';
-                                    if ([r1, r2, r3].includes(teamNumber))
-                                        alliance = 'red';
-                                    else if ([b1, b2, b3].includes(teamNumber))
-                                        alliance = 'blue';
-                                    else
-                                        throw new Error(
-                                            'Team not found in match'
-                                        );
+                                let alliance: 'red' | 'blue';
+                                if ([r1, r2, r3].includes(teamNumber))
+                                    alliance = 'red';
+                                else if ([b1, b2, b3].includes(teamNumber))
+                                    alliance = 'blue';
+                                else throw new Error('Team not found in match');
 
-                                    const trace = m.trace;
+                                const trace = m.trace;
 
-                                    return Trace.score.parse2024(
-                                        trace,
-                                        alliance
-                                    );
-                                });
-                            })
-                        );
+                                return Trace.score.parse2024(trace, alliance);
+                            });
+                        });
 
-                        if (scoresRes.isErr()) throw scoresRes.error;
-                        const scores = scoresRes.value;
+                        const scores = scoresRes
+                            .map(s => (s.isOk() ? s.value : null))
+                            .filter(Boolean);
 
                         return {
                             headers,
@@ -325,19 +312,9 @@ export class Table {
                             'Average Mobility'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const tbaMatches = await TBA.get<TBAMatch[]>(
                             '/event/' + eventKey + '/matches'
@@ -347,44 +324,36 @@ export class Table {
                         if (!tbaMatches.value)
                             throw new Error('No matches found');
 
-                        const scoresRes = resolveAll(
-                            matches.map(m => {
-                                return attempt(() => {
-                                    const match = tbaMatches.value?.find(
-                                        match =>
-                                            match.match_number ===
-                                                m.matchNumber &&
-                                            match.comp_level === m.compLevel
-                                    );
+                        const scoresRes = matches.map(m => {
+                            return attempt(() => {
+                                const match = tbaMatches.value?.find(
+                                    match =>
+                                        match.match_number === m.matchNumber &&
+                                        match.comp_level === m.compLevel
+                                );
 
-                                    if (!match)
-                                        throw new Error('Match not found');
+                                if (!match) throw new Error('Match not found');
 
-                                    const [r1, r2, r3, b1, b2, b3] =
-                                        teamsFromMatch(match);
+                                const [r1, r2, r3, b1, b2, b3] =
+                                    teamsFromMatch(match);
 
-                                    let alliance: 'red' | 'blue';
-                                    if ([r1, r2, r3].includes(teamNumber))
-                                        alliance = 'red';
-                                    else if ([b1, b2, b3].includes(teamNumber))
-                                        alliance = 'blue';
-                                    else
-                                        throw new Error(
-                                            'Team not found in match'
-                                        );
+                                let alliance: 'red' | 'blue';
+                                if ([r1, r2, r3].includes(teamNumber))
+                                    alliance = 'red';
+                                else if ([b1, b2, b3].includes(teamNumber))
+                                    alliance = 'blue';
+                                else throw new Error('Team not found in match');
 
-                                    const trace = m.trace;
+                                const trace = m.trace;
 
-                                    return Trace.score.parse2024(
-                                        trace,
-                                        alliance
-                                    ).auto;
-                                });
-                            })
-                        );
+                                return Trace.score.parse2024(trace, alliance)
+                                    .auto;
+                            });
+                        });
 
-                        if (scoresRes.isErr()) throw scoresRes.error;
-                        const scores = scoresRes.value;
+                        const scores = scoresRes
+                            .map(s => (s.isOk() ? s.value : null))
+                            .filter(Boolean);
 
                         return {
                             headers,
@@ -414,19 +383,9 @@ export class Table {
                             'Average Trap'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const tbaMatches = await TBA.get<TBAMatch[]>(
                             '/event/' + eventKey + '/matches'
@@ -436,45 +395,35 @@ export class Table {
                         if (!tbaMatches.value)
                             throw new Error('No matches found');
 
-                        const scoresRes = resolveAll(
-                            matches.map(m => {
-                                return attempt(() => {
-                                    const match = tbaMatches.value?.find(
-                                        match =>
-                                            match.match_number ===
-                                                m.matchNumber &&
-                                            match.comp_level === m.compLevel
-                                    );
+                        const scoresRes = matches.map(m => {
+                            return attempt(() => {
+                                const match = tbaMatches.value?.find(
+                                    match =>
+                                        match.match_number === m.matchNumber &&
+                                        match.comp_level === m.compLevel
+                                );
 
-                                    if (!match)
-                                        throw new Error('Match not found');
+                                if (!match) throw new Error('Match not found');
 
-                                    const [r1, r2, r3, b1, b2, b3] =
-                                        teamsFromMatch(match);
+                                const [r1, r2, r3, b1, b2, b3] =
+                                    teamsFromMatch(match);
 
-                                    let alliance: 'red' | 'blue';
-                                    if ([r1, r2, r3].includes(teamNumber))
-                                        alliance = 'red';
-                                    else if ([b1, b2, b3].includes(teamNumber))
-                                        alliance = 'blue';
-                                    else
-                                        throw new Error(
-                                            'Team not found in match'
-                                        );
+                                let alliance: 'red' | 'blue';
+                                if ([r1, r2, r3].includes(teamNumber))
+                                    alliance = 'red';
+                                else if ([b1, b2, b3].includes(teamNumber))
+                                    alliance = 'blue';
+                                else throw new Error('Team not found in match');
 
-                                    const trace = m.trace;
+                                const trace = m.trace;
 
-                                    return Trace.score.parse2024(
-                                        trace,
-                                        alliance
-                                    ).teleop;
-                                });
-                            })
-                        );
-
-                        if (scoresRes.isErr()) throw scoresRes.error;
-                        const scores = scoresRes.value;
-
+                                return Trace.score.parse2024(trace, alliance)
+                                    .teleop;
+                            });
+                        });
+                        const scores = scoresRes
+                            .map(s => (s.isOk() ? s.value : null))
+                            .filter(Boolean);
                         return {
                             headers,
                             data: [
@@ -503,19 +452,9 @@ export class Table {
                             'Max Climb Time'
                         ];
 
-                        const res = await DB.all('match-scouting/from-team', {
-                            eventKey,
-                            team: teamNumber
-                        });
-
+                        const res = await getMatchScouting(teamNumber, eventKey);
                         if (res.isErr()) throw res.error;
-
-                        const matches = res.value.map(m => {
-                            return {
-                                ...m,
-                                trace: JSON.parse(m.trace) as TraceArray
-                            };
-                        });
+                        const matches = res.value;
 
                         const tbaMatches = await TBA.get<TBAMatch[]>(
                             '/event/' + eventKey + '/matches'
@@ -525,44 +464,36 @@ export class Table {
                         if (!tbaMatches.value)
                             throw new Error('No matches found');
 
-                        const scoresRes = resolveAll(
-                            matches.map(m => {
-                                return attempt(() => {
-                                    const match = tbaMatches.value?.find(
-                                        match =>
-                                            match.match_number ===
-                                                m.matchNumber &&
-                                            match.comp_level === m.compLevel
-                                    );
+                        const scoresRes = matches.map(m => {
+                            return attempt(() => {
+                                const match = tbaMatches.value?.find(
+                                    match =>
+                                        match.match_number === m.matchNumber &&
+                                        match.comp_level === m.compLevel
+                                );
 
-                                    if (!match)
-                                        throw new Error('Match not found');
+                                if (!match) throw new Error('Match not found');
 
-                                    const [r1, r2, r3, b1, b2, b3] =
-                                        teamsFromMatch(match);
+                                const [r1, r2, r3, b1, b2, b3] =
+                                    teamsFromMatch(match);
 
-                                    let alliance: 'red' | 'blue';
-                                    if ([r1, r2, r3].includes(teamNumber))
-                                        alliance = 'red';
-                                    else if ([b1, b2, b3].includes(teamNumber))
-                                        alliance = 'blue';
-                                    else
-                                        throw new Error(
-                                            'Team not found in match'
-                                        );
+                                let alliance: 'red' | 'blue';
+                                if ([r1, r2, r3].includes(teamNumber))
+                                    alliance = 'red';
+                                else if ([b1, b2, b3].includes(teamNumber))
+                                    alliance = 'blue';
+                                else throw new Error('Team not found in match');
 
-                                    const trace = m.trace;
+                                const trace = m.trace;
 
-                                    return Trace.score.parse2024(
-                                        trace,
-                                        alliance
-                                    ).endgame;
-                                });
-                            })
-                        );
+                                return Trace.score.parse2024(trace, alliance)
+                                    .endgame;
+                            });
+                        });
 
-                        if (scoresRes.isErr()) throw scoresRes.error;
-                        const scores = scoresRes.value;
+                        const scores = scoresRes
+                            .map(s => (s.isOk() ? s.value : null))
+                            .filter(Boolean);
 
                         const climbTimes = matches
                             .map(m => Trace.yearInfo[2024].climbTimes(m.trace))

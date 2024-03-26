@@ -102,9 +102,8 @@ router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
                 scoutId: string | undefined;
                 scoutGroup: number;
                 checks: string;
-                preScouting: string | undefined;
+                preScouting: number | undefined;
                 time: number;
-                prescouting: string | undefined;
                 eventKey: string;
                 matchNumber: number;
                 compLevel: string;
@@ -265,6 +264,8 @@ router.post('/event/:eventKey/summary', auth, async (req, res) => {
             error: data.error.message
         });
     }
+
+    console.log(data.value[0]);
 
     res.json({
         teams: teams.value,
