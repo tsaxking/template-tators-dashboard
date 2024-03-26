@@ -107,6 +107,9 @@ Account.getAccount().then(async a => {
             {/each}
         </div>
     </div>
+<footer>
+    <a href=https://github.com/tsaxking/template-tators-dashboard target=_blank>Git Hub Page</a>
+</footer>
 </main>
 
 <style>
