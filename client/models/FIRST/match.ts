@@ -264,7 +264,11 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             );
 
             if (teams.some(t => !t)) {
-                console.error('Teams not found', { teams, _teams, match: this });
+                console.error('Teams not found', {
+                    teams,
+                    _teams,
+                    match: this
+                });
 
                 teams = teams.filter(t => t);
             }

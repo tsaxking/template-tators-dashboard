@@ -26,21 +26,24 @@ const getMatchScouting = async (teamNumber: number, eventKey: string) => {
             eventKey,
             team: teamNumber
         });
-    
+
         if (res.isErr()) throw res.error;
-    
-        return res.value.map(m => {
-            return {
-                ...m,
-                trace: JSON.parse(m.trace) as TraceArray
-            };
-        })
-        .reverse()
-        .filter((s, i, a) => {
-            return a.findIndex(s2 => s2.matchNumber === s.matchNumber) === i;
-        });
+
+        return res.value
+            .map(m => {
+                return {
+                    ...m,
+                    trace: JSON.parse(m.trace) as TraceArray
+                };
+            })
+            .reverse()
+            .filter((s, i, a) => {
+                return (
+                    a.findIndex(s2 => s2.matchNumber === s.matchNumber) === i
+                );
+            });
     });
-}
+};
 
 export class Table {
     public static async build(
@@ -173,7 +176,10 @@ export class Table {
                             'Length'
                         ];
 
-                        const res = await getMatchScouting(teamNumber, eventKey);
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
                         if (res.isErr()) throw res.error;
                         const matches = res.value;
 
@@ -236,7 +242,10 @@ export class Table {
                             'Max Endgame Score'
                         ];
 
-                        const res = await getMatchScouting(teamNumber, eventKey);
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
                         if (res.isErr()) throw res.error;
                         const matches = res.value;
 
@@ -312,7 +321,10 @@ export class Table {
                             'Average Mobility'
                         ];
 
-                        const res = await getMatchScouting(teamNumber, eventKey);
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
                         if (res.isErr()) throw res.error;
                         const matches = res.value;
 
@@ -383,7 +395,10 @@ export class Table {
                             'Average Trap'
                         ];
 
-                        const res = await getMatchScouting(teamNumber, eventKey);
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
                         if (res.isErr()) throw res.error;
                         const matches = res.value;
 
@@ -452,7 +467,10 @@ export class Table {
                             'Max Climb Time'
                         ];
 
-                        const res = await getMatchScouting(teamNumber, eventKey);
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
                         if (res.isErr()) throw res.error;
                         const matches = res.value;
 
