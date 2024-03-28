@@ -68,7 +68,7 @@ router.post<Match>(
 
             if (!m) return res.status(500).json({ error: 'Match not found' });
 
-            const [r1, r2, r3, b1, b2, b3] = teamsFromMatch(m);
+            const [r1, r2, r3, rn, b1, b2, b3, bn] = teamsFromMatch(m);
 
             const customMatchId = uuid();
 

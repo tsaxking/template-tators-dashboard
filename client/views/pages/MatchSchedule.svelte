@@ -41,7 +41,7 @@ FIRSTEvent.on('select', async e => {
             }
 
             return {
-                teams: teams.value.map(t => ({
+                teams: teams.value.filter(Boolean).map(t => ({
                     team: t.number,
                     scouted: !unScouted.includes(t.number)
                 })),

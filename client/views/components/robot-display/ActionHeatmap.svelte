@@ -99,7 +99,7 @@ const fns = {
                         if (
                             match &&
                             teams.value.findIndex(
-                                t => t.number === team.number
+                                t => t && t.number === team.number
                             ) > 2
                         ) {
                             // we don't want to modify the original trace, so we make a copy

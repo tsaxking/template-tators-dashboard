@@ -46,7 +46,7 @@ const fns = {
                 })
             )
         )
-            .filter(m => m.teams.find(_t => _t.number === t.number))
+            .filter(m => m.teams.find(_t => _t && _t.number === t.number))
             .map(m => ({
                 match: m.match,
                 scouting: matchScoutingRes.value.find(
