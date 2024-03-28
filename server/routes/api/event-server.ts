@@ -50,7 +50,6 @@ router.post<Match>(
         const traceStr = JSON.stringify(trace);
 
         if (preScouting) {
-            console.log('Is prescouting');
             const matches = await TBA.get<TBAMatch[]>(
                 `/event/${eventKey}/matches`
             );
@@ -58,8 +57,6 @@ router.post<Match>(
                 return res
                     .status(500)
                     .json({ error: 'Error fetching matches' });
-
-            console.log({ matches });
 
             const m = matches.value.find(
                 m =>
@@ -82,9 +79,11 @@ router.post<Match>(
                 red1: r1,
                 red2: r2,
                 red3: r3,
+                red4: rn || undefined,
                 blue1: b1,
                 blue2: b2,
-                blue3: b3
+                blue3: b3,
+                blue4: bn || undefined
             });
 
             DB.run('match-scouting/new', {
@@ -163,9 +162,11 @@ router.post<Match>(
                 red1: teamNumber,
                 red2: 0,
                 red3: 0,
+                red4: 0,
                 blue1: 0,
                 blue2: 0,
-                blue3: 0
+                blue3: 0,
+                blue4: 0
             });
         }
 
