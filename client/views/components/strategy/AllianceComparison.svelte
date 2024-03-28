@@ -12,6 +12,7 @@ import TeamSelect from '../main/TeamSelect.svelte';
 export let team1: FIRSTTeam | undefined = undefined;
 export let team2: FIRSTTeam | undefined = undefined;
 export let team3: FIRSTTeam | undefined = undefined;
+import { $Math as M } from '../../../../shared/math';
 
 let bBot1 = {
     avgAuto: 0,
