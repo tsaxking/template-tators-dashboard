@@ -348,9 +348,11 @@ export type CustomMatches = {
     red1: number;
     red2: number;
     red3: number;
+    red4: number | undefined;
     blue1: number;
     blue2: number;
     blue3: number;
+    blue4: number | undefined;
     created: number;
     name: string;
 };
@@ -675,9 +677,11 @@ export type Insert_custom_matches_new = {
     red1: number;
     red2: number;
     red3: number;
+    red4: number | undefined;
     blue1: number;
     blue2: number;
     blue3: number;
+    blue4: number | undefined;
 };
 
 export type Select_custom_matches_from_id = {

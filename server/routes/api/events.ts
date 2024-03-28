@@ -83,7 +83,7 @@ router.post<{
         });
 
         const matchesLeft = matchesData.sort(matchSort).map(m => {
-            const find = (t: number): number | null => {
+            const find = (t: number | null): number | null => {
                 // return team if not found in matchScoutingData
                 return matchScoutingData.find(
                     s =>
