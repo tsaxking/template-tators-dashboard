@@ -3,6 +3,8 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { TBA } from '../../../utilities/tba';
 import type { TBATeamEventStatus } from '../../../../shared/submodules/tatorscout-calculations/tba';
 import { $Math as M } from '../../../../shared/math';
+import { Alliance } from '../../../models/FIRST/alliance';
+import { FIRSTMatch } from '../../../models/FIRST/match';
 
 export let team: FIRSTTeam | undefined = undefined;
 
@@ -37,26 +39,30 @@ const fns = {
         if (stats.isErr()) return fns.reset() || console.error(stats.error);
         if (psQuestions.isErr()) return fns.reset() || console.error();
 
-        const teamMatches = (
+        const teamMatches: {
+            match: FIRSTMatch;
+            teams: (FIRSTTeam | null)[];
+            played: boolean;
+        }[] = (
             await Promise.all(
                 matches.value.map(async m => {
                     const teams = await m.getTeams();
                     if (teams.isErr()) {
                         return {
-                            ...m,
-                            teams: [],
+                            match: m,
+                            teams: [] as (FIRSTTeam | null)[],
                             played: m.played
                         };
                     } else {
                         return {
-                            ...m,
-                            teams: teams.value,
+                            match: m,
+                            teams: teams.value as (FIRSTTeam | null)[],
                             played: m.played
                         };
                     }
                 })
             )
-        ).filter(m => m.teams.includes(t));
+        ).filter(m => t && m.teams.includes(t));
         const playedMatches = teamMatches.filter(m => m.played);
 
         played = playedMatches.length;

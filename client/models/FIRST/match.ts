@@ -17,6 +17,7 @@ import { FIRSTTeam } from './team';
 import { Strategy } from './strategy';
 import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/check';
+import { Alliance, FIRSTAlliance } from './alliance';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -117,6 +118,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
                 const teams = res.value;
 
                 for (const t of teams) {
+                    if (!t) continue;
                     t.on('match-scouting', async () => {
                         const scouting = await this.getMatchScouting();
                         if (scouting.isOk() && scouting.value[t.number])
@@ -251,36 +253,33 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      * @readonly
      * @type {FIRSTTeam[]}
      */
-    async getTeams(): Promise<Result<FIRSTTeam[]>> {
+    async getTeams(): Promise<Result<[...Alliance, ...Alliance]>> {
         return attemptAsync(async () => {
-            const [r1, r2, r3, b1, b2, b3] = teamsFromMatch(this.tba);
+            const [r1, r2, r3, rn, b1, b2, b3, bn] = teamsFromMatch(this.tba);
 
             const _teams = await this.event.getTeams();
 
             if (_teams.isErr()) throw _teams.error;
 
-            let teams = [r1, r2, r3, b1, b2, b3].map(t =>
-                _teams.value.find(_t => _t.number === +t)
-            );
+            return [r1, r2, r3, rn, b1, b2, b3, bn].map(
+                t => _teams.value.find(_t => _t.number === Number(t)) || null
+            ) as [...Alliance, ...Alliance];
+        });
+    }
 
-            if (teams.some(t => !t)) {
-                console.error('Teams not found', {
-                    teams,
-                    _teams,
-                    match: this
-                });
+    async getAlliances(): Promise<
+        Result<{ red: FIRSTAlliance; blue: FIRSTAlliance }>
+    > {
+        return attemptAsync(async () => {
+            const teamsRes = await this.getTeams();
+            if (teamsRes.isErr()) throw teamsRes.error;
 
-                teams = teams.filter(t => t);
-            }
+            const [r1, r2, r3, rn, b1, b2, b3, bn] = teamsRes.value;
 
-            return teams as [
-                FIRSTTeam,
-                FIRSTTeam,
-                FIRSTTeam,
-                FIRSTTeam,
-                FIRSTTeam,
-                FIRSTTeam
-            ];
+            const red = new FIRSTAlliance([r1, r2, r3, rn]);
+            const blue = new FIRSTAlliance([b1, b2, b3, bn]);
+
+            return { red, blue };
         });
     }
 
