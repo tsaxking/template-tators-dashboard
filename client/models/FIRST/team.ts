@@ -241,15 +241,16 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             if (res.isErr()) throw res.error;
 
             const data = res.value
-            .reverse() // reverse so that the most recent matches are first
-            .filter(
-                (s, i, a) => a.findIndex(_s => {
-                    return (
-                        _s.matchNumber === s.matchNumber &&
-                        _s.compLevel === s.compLevel
-                    );
-                }) === i
-            );
+                .reverse() // reverse so that the most recent matches are first
+                .filter(
+                    (s, i, a) =>
+                        a.findIndex(_s => {
+                            return (
+                                _s.matchNumber === s.matchNumber &&
+                                _s.compLevel === s.compLevel
+                            );
+                        }) === i
+                );
 
             this.$cache.set('match-scouting', data);
             return data;
