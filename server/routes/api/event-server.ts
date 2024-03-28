@@ -50,7 +50,6 @@ router.post<Match>(
         const traceStr = JSON.stringify(trace);
 
         if (preScouting) {
-            console.log('Is prescouting');
             const matches = await TBA.get<TBAMatch[]>(
                 `/event/${eventKey}/matches`
             );
@@ -59,8 +58,6 @@ router.post<Match>(
                     .status(500)
                     .json({ error: 'Error fetching matches' });
 
-            console.log({ matches });
-
             const m = matches.value.find(
                 m =>
                     m.match_number === matchNumber && m.comp_level === compLevel
@@ -68,7 +65,7 @@ router.post<Match>(
 
             if (!m) return res.status(500).json({ error: 'Match not found' });
 
-            const [r1, r2, r3, b1, b2, b3] = teamsFromMatch(m);
+            const [r1, r2, r3, rn, b1, b2, b3, bn] = teamsFromMatch(m);
 
             const customMatchId = uuid();
 
@@ -82,9 +79,11 @@ router.post<Match>(
                 red1: r1,
                 red2: r2,
                 red3: r3,
+                red4: rn || undefined,
                 blue1: b1,
                 blue2: b2,
-                blue3: b3
+                blue3: b3,
+                blue4: bn || undefined
             });
 
             DB.run('match-scouting/new', {
@@ -163,9 +162,11 @@ router.post<Match>(
                 red1: teamNumber,
                 red2: 0,
                 red3: 0,
+                red4: 0,
                 blue1: 0,
                 blue2: 0,
-                blue3: 0
+                blue3: 0,
+                blue4: 0
             });
         }
 
