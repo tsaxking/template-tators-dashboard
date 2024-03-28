@@ -11,6 +11,7 @@ import Quiz from '../pages/Quiz.svelte';
 import EventSummary from '../pages/EventSummary.svelte';
 import { FIRSTEvent } from '../../models/FIRST/event';
 import MatchSchedule from '../pages/MatchSchedule.svelte';
+import Strategy from '../pages/Strategy.svelte';
 
 const groups: PageGroup[] = [
     {
@@ -29,6 +30,11 @@ const groups: PageGroup[] = [
             {
                 name: 'robot-display',
                 icon: 'home',
+                iconType: 'material'
+            },
+            {
+                name: 'strategy',
+                icon: 'chess',
                 iconType: 'material'
             }
         ]
@@ -114,5 +120,8 @@ FIRSTEvent.on('select', e => {
     </Page>
     <Page {active} {domain} title="quiz">
         <Quiz />
+    </Page>
+    <Page {active} {domain} title="strategy">
+        <Strategy />
     </Page>
 </Main>

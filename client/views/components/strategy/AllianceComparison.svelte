@@ -1,14 +1,14 @@
 <script lang='ts'>
-    import { FIRSTTeam } from '../../models/FIRST/team';
-    import { TBA } from '../../utilities/tba';
-    import { Trace } from '../../../shared/submodules/tatorscout-calculations/trace';
+    import { FIRSTTeam } from '../../../models/FIRST/team';
+    import { TBA } from '../../../utilities/tba';
+    import { Trace } from '../../../../shared/submodules/tatorscout-calculations/trace';
     import {
         type TBAMatch,
         teamsFromMatch
-    } from '../../../shared/submodules/tatorscout-calculations/tba';
-    import { FIRSTEvent } from '../../models/FIRST/event';
-    import Select from '../components/bootstrap/Select.svelte';
-    import TeamSelect from '../components/main/TeamSelect.svelte';
+    } from '../../../../shared/submodules/tatorscout-calculations/tba';
+    import { FIRSTEvent } from '../../../models/FIRST/event';
+    import Select from '../bootstrap/Select.svelte';
+    import TeamSelect from '../main/TeamSelect.svelte';
     export let team1: FIRSTTeam | undefined = undefined;
     export let team2: FIRSTTeam | undefined = undefined;
     export let team3: FIRSTTeam | undefined = undefined;
@@ -107,7 +107,7 @@
 
 <TeamSelect bind:selected="{team1}"></TeamSelect>
 <TeamSelect bind:selected="{team2}"></TeamSelect>
-<TeamSelect bind:selected="{team3}"></TeamSelect>
+<TeamSelect bind:selected="{team3}"></TeamSelect> 
 
 <div class="card" style="width: 18rem;">                                                                                                                                                                                                                                                              div class="card-body">
     <h5 class="card-title">Alliance Summary</h5>
