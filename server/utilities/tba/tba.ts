@@ -62,7 +62,6 @@ export class TBA {
         options?: TBAOptions
     ): Promise<Result<T | null>> {
         return attemptAsync(async () => {
-
             if (!TBA_KEY) {
                 throw new Error(
                     'TBA_KEY not found in environment variables! Cannot make request to TBA API!'
@@ -96,8 +95,8 @@ export class TBA {
                     headers: {
                         'X-TBA-Auth-Key': TBA_KEY,
                         Accept: 'application/json'
-                        },
-                    })
+                    }
+                })
                     .then(res => res.json())
                     .then(json => {
                         clearTimeout(t);

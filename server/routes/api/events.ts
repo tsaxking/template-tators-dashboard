@@ -101,12 +101,8 @@ router.post<{
                 match: m.match_number,
                 compLevel: m.comp_level,
                 teams: [
-                    ...teams.slice(0, 3)
-                        .map(find)
-                        .filter(Boolean),
-                    ...teams.slice(3)
-                        .map(find)
-                        .filter(Boolean)
+                    ...teams.slice(0, 3).map(find).filter(Boolean),
+                    ...teams.slice(3).map(find).filter(Boolean)
                 ]
             };
         }) as {
@@ -170,9 +166,7 @@ router.post<{
 
     const matches = matchesResult.value.sort(matchSort);
 
-    const scouting = matchScouting.value
-    .reverse()
-    .filter((s, i, a) => {
+    const scouting = matchScouting.value.reverse().filter((s, i, a) => {
         return (
             a.findIndex(
                 s2 => s2.team === s.team && s2.matchNumber === s.matchNumber

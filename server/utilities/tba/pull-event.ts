@@ -92,11 +92,15 @@ export const pullEvent = async (eventKey: string) => {
 
 export const pullAllEvents = async () => {
     return attemptAsync(async () => {
-        const res = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${new Date().getFullYear()}`);
+        const res = await TBA.get<TBAEvent[]>(
+            `/team/frc2122/events/${new Date().getFullYear()}`
+        );
         if (res.isErr()) throw res.error;
         if (!res.value) throw 'No events found';
 
-        const result = resolveAll(await Promise.all(res.value.map(e => pullEvent(e.key))));
+        const result = resolveAll(
+            await Promise.all(res.value.map(e => pullEvent(e.key)))
+        );
         if (result.isErr()) throw result.error;
         return result.value;
     });

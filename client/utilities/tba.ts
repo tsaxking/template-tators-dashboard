@@ -33,7 +33,9 @@ const USE_CACHE = false;
             localStorage.removeItem(item);
         }
 
-        for (const v of Array.from({ length: CACHE_VERSION }).map((_, i) => i)) {
+        for (const v of Array.from({ length: CACHE_VERSION }).map(
+            (_, i) => i
+        )) {
             if (item.startsWith(v + '-')) {
                 localStorage.removeItem(item);
             }
