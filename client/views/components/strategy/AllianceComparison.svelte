@@ -53,7 +53,7 @@ const fns = {
                     const [r1, r2, r3,] = teams.value;
                     
                     let alliance: 'red' | 'blue';
-                    if ([r1, r2, r3, rn].includes(myTeam)) {
+                    if ([r1, r2, r3,].includes(myTeam)) {
                         alliance = 'red';
                     } else {
                         alliance = 'blue';
