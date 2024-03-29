@@ -4,59 +4,59 @@
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="2" value="Videos" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="2" value="Videos" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="360" y="-1010" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="3" value="Github&lt;br&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="190" y="-770" width="80" height="80" as="geometry"/>
+                <mxCell id="3" value="Github&lt;br&gt;" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="180" y="-770" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="4" value="Canvas" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="160" y="-340" width="80" height="80" as="geometry"/>
+                <mxCell id="4" value="Canvas" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="-470" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="5" value="Svelte" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="260" y="-350" width="80" height="80" as="geometry"/>
+                <mxCell id="5" value="Svelte" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="-500" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="6" value="Typescript" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="250" y="-260" width="80" height="80" as="geometry"/>
+                <mxCell id="6" value="Typescript" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="-410" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="7" value="Socket&lt;br&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="150" y="-240" width="80" height="80" as="geometry"/>
+                <mxCell id="7" value="Socket&lt;br&gt;" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="-370" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="8" value="Requests" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="190" y="-420" width="80" height="80" as="geometry"/>
+                <mxCell id="8" value="Requests" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="-570" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="9" value="General &lt;br&gt;Data Flow" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="550" y="-750" width="80" height="80" as="geometry"/>
+                <mxCell id="9" value="General &lt;br&gt;Data Flow" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="580" y="-810" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="10" value="View&lt;br&gt;Model&lt;br&gt;Controller" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="650" y="-510" width="80" height="80" as="geometry"/>
+                <mxCell id="10" value="View&lt;br&gt;Model&lt;br&gt;Controller" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="-570" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="11" value="Cloud Hosting" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="520" y="-670" width="80" height="80" as="geometry"/>
+                <mxCell id="11" value="Cloud Hosting" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="540" y="-720" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="12" value="DNS" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="590" y="-590" width="80" height="80" as="geometry"/>
+                <mxCell id="12" value="DNS" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="-660" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="13" value="Node" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="190" y="-650" width="80" height="80" as="geometry"/>
+                <mxCell id="13" value="Node" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="260" y="-720" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="14" value="async/await" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="190" y="-530" width="80" height="80" as="geometry"/>
+                <mxCell id="14" value="async/await" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="-670" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="15" value="event loop" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="630" y="-680" width="80" height="80" as="geometry"/>
+                <mxCell id="15" value="event loop" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="650" y="-750" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="16" value="Data references" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="510" y="-550" width="80" height="80" as="geometry"/>
+                <mxCell id="16" value="Data references" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="540" y="-620" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="Basic" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="17" value="Basic" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="170" y="-890" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="19" value="Advanced" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="19" value="Advanced" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="560" y="-890" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="20" value="Bootstrap" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="280" y="-460" width="80" height="80" as="geometry"/>
+                <mxCell id="20" value="Bootstrap" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="260" y="-610" width="80" height="80" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
