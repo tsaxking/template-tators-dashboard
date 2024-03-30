@@ -30,7 +30,9 @@ const quotes = [
     'The word "bed" looks like a bed.',
     'The word "bookkeeper" is the only unhyphenated English word with three consecutive double letters.',
     'The Japanese word for "origami" is "origami".',
-    "If anyone wants to talk to Keyton about linguistics, he's very lonely."
+    "If anyone wants to talk to Keyton about linguistics, he's very lonely.",
+    'Programming is like trying to untangle a bowl of spaghetti with a pair of chopsticks.',
+    "We write lasagna, not spaghetti. It's not a mess until you look closely."
 ];
 
 let quote: string = Random.choose(quotes);
