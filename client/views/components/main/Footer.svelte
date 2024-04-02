@@ -49,7 +49,9 @@ const quote = Random.choose(quotes);
             href="https://github.com/tsaxking/template-tators-dashboard"
             target="_blank"
         >
-            <i class="fa-brands fa-github"> </i>
+            <i class="fa-brands fa-github fa-2x"> 
+
+            </i>
         </a>
         <br />
         {quote}
