@@ -34,7 +34,7 @@ const quote = Random.choose(quotes);
 </script>
 
 <footer>
-    <p class="text-muted text-center text-reset" >
+    <p class="text-muted text-center link-secondary" >
         &copy; {new Date().getFullYear()}
         {domain} | All Rights Reserved
         <br />
