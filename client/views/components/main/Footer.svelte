@@ -34,7 +34,7 @@ const quote = Random.choose(quotes);
 </script>
 
 <footer>
-    <p class="text-muted text-center link-secondary" >
+    <p class="text-muted text-center" >
         &copy; {new Date().getFullYear()}
         {domain} | All Rights Reserved
         <br />
@@ -49,7 +49,7 @@ const quote = Random.choose(quotes);
             href="https://github.com/tsaxking/template-tators-dashboard"
             target="_blank"
         >
-            <i class="fa-brands fa-github fa-2x"> 
+            <i class="fa-brands fa-github fa-2x link-secondary"> 
 
             </i>
         </a>
