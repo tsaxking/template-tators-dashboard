@@ -3,7 +3,7 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { TBA } from '../../../utilities/tba';
 import type { TBATeamEventStatus } from '../../../../shared/submodules/tatorscout-calculations/tba';
 import { $Math as M } from '../../../../shared/math';
-import { Alliance } from '../../../models/FIRST/alliance';
+import { FIRSTAlliance } from '../../../models/FIRST/alliance';
 import { FIRSTMatch } from '../../../models/FIRST/match';
 
 export let team: FIRSTTeam | undefined = undefined;
