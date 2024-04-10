@@ -10,6 +10,7 @@ const dispatch = createEventDispatcher();
 export let active: string;
 
 const openPage = (page: string) => {
+    console.log({ page });
     jQuery('#sidebar-nav').offcanvas('hide');
     dispatch('openPage', page);
 };
