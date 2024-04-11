@@ -50,6 +50,7 @@ const fns = {
         if (!team) return;
 
         checks = [];
+        traceArray = [];
 
         const allChecks = Object.keys(actions)
             // .keys(actions[2024]) // for development
@@ -150,8 +151,6 @@ const fns = {
         );
     }
 };
-
-onMount(() => fns.generate(team));
 
 $: fns.generate(team);
 $: fns.filter(traceArray);
