@@ -17,6 +17,7 @@ import ChecksSummary from '../components/robot-display/ChecksSummary.svelte';
 import PracticeMatches from '../components/robot-display/PracticeMatches.svelte';
 import HorizontalMatchViewer from '../components/robot-display/HorizontalMatchViewer.svelte';
 import ScoutSummary from '../components/robot-display/ScoutSummary.svelte';
+import { onMount } from 'svelte';
 
 let team: FIRSTTeam | undefined = undefined;
 
@@ -33,6 +34,8 @@ const fns = {
         }
     }
 };
+
+onMount(() => fns.getTeam(team));
 
 $: fns.getTeam(team);
 
