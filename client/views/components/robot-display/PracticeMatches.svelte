@@ -14,6 +14,7 @@ let matches: MatchScouting[] = [];
 const fns = {
     set: async (team?: FIRSTTeam) => {
         if (!team) return;
+        matches = [];
         const res = preScouting
             ? await team.getPreScouting()
             : await team.getPracticeMatches();
