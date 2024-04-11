@@ -27,6 +27,7 @@ let traces: TraceArray[] = [];
 
 const fns = {
     getTeam: async (t?: FIRSTTeam) => {
+        console.log('Loading: ', t);
         if (!t) return (traces = []);
         traces = [];
         const scouting = await t.getMatchScouting();
@@ -38,7 +39,7 @@ const fns = {
 
 
 $: fns.getTeam(team);
-onMount(() => team?.select());
+onMount(() => team = team);
 
 MatchScouting.on('new', m => {
     if (!team) return (traces = []);
