@@ -73,6 +73,24 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         MatchScouting.$emitter.once(event, callback);
     }
 
+    public static fromId(id: string) {
+        return attemptAsync(async () => {
+            const cached = MatchScouting.cache.get(id);
+            if (cached) return cached;
+
+            const res = await ServerRequest.post<MatchScoutingObj | undefined>(
+                `/api/match-scouting/from-id`,
+                {
+                    id
+                }
+            );
+
+            if (res.isErr()) throw res.error;
+
+            return res.value;
+        });
+    }
+
     /**
      * Cache for all {@link MatchScouting} objects
      * @date 10/9/2023 - 6:59:50 PM
