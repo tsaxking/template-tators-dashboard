@@ -884,6 +884,7 @@ router.post<{
         const g = groups.value;
         const q = questions.value;
 
+        // check if questions already exists
         if (g.every(g => currentGroups.value.some(cg => cg.name === g.name))) {
             if (
                 q.every(q =>
@@ -905,6 +906,13 @@ router.post<{
 
         for (const group of g) {
             const id = uuid();
+            // change the question id
+            for (const ques of q.filter(
+                _q => _q.groupId === group.id
+            )) {
+                ques.groupId = id;
+            }
+
             DB.run('scouting-questions/new-group', {
                 id,
                 eventKey: to,
