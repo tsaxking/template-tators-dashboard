@@ -550,7 +550,6 @@ export type Queries = {
         [
             {
                 team: number;
-                eventKey: string;
             }
         ],
         RetrievedMatchScouting

@@ -115,7 +115,6 @@ router.post<{
         const { eventKey, teamNumber } = req.body;
         const result = await DB.all('match-scouting/teams-pre-scouting', {
             team: teamNumber,
-            eventKey
         });
 
         if (result.isErr()) {
@@ -124,7 +123,9 @@ router.post<{
 
         return res.json(
             await Promise.all(
-                result.value.map(async m => {
+                result.value
+                .filter((m => m.eventKey.slice(0, 4) === eventKey.slice(0, 4))) // Filter out events that are not the same year
+                .map(async m => {
                     const comments = await DB.all(
                         'team-comments/from-match-scouting',
                         {
