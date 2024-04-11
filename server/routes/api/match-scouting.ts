@@ -113,41 +113,50 @@ router.post<{
     }),
     async (req, res) => {
         const { eventKey, teamNumber } = req.body;
-        const result = await DB.all('match-scouting/teams-pre-scouting', {
-            team: teamNumber,
-        });
+        const [preScoutingResult, teamScouting] = await Promise.all([
+            DB.all('match-scouting/teams-pre-scouting', {
+                team: teamNumber
+            }),
+            DB.all('match-scouting/from-team-only', {
+                team: teamNumber
+            })
+        ]);
 
-        if (result.isErr()) {
+        if (preScoutingResult.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        if (teamScouting.isErr()) {
             return res.sendStatus('server:unknown-server-error');
         }
 
         return res.json(
             await Promise.all(
-                result.value
-                .filter((m => m.eventKey.slice(0, 4) === eventKey.slice(0, 4))) // Filter out events that are not the same year
-                .map(async m => {
-                    const comments = await DB.all(
-                        'team-comments/from-match-scouting',
-                        {
-                            matchScoutingId: m.id
-                        }
-                    );
+                [...preScoutingResult.value, ...teamScouting.value]
+                    .filter(
+                        m => m.eventKey.slice(0, 4) === eventKey.slice(0, 4)
+                    ) // Filter out events that are not the same year
+                    .map(async m => {
+                        const comments = await DB.all(
+                            'team-comments/from-match-scouting',
+                            {
+                                matchScoutingId: m.id
+                            }
+                        );
 
-                    if (comments.isErr()) {
-                        return {
-                            ...m,
-                            comments: []
-                        };
-                    } else {
-                        return {
-                            ...m,
-                            comments: comments.value
-                        };
-                    }
-                })
+                        if (comments.isErr()) {
+                            return {
+                                ...m,
+                                comments: []
+                            };
+                        } else {
+                            return {
+                                ...m,
+                                comments: comments.value
+                            };
+                        }
+                    })
             )
         );
     }
 );
-
-// TODO: migrate prescouting

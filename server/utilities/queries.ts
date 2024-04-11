@@ -511,6 +511,10 @@ export type Queries = {
         [{ team: number; eventKey: string }],
         RetrievedMatchScouting
     ];
+    'match-scouting/from-team-only': [
+        [{ team: number }],
+        RetrievedMatchScouting
+    ];
     'match-scouting/from-event': [
         [{ eventKey: string }],
         RetrievedMatchScouting
