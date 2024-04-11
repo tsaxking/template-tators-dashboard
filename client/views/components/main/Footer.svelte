@@ -27,7 +27,9 @@ const quotes = [
     'The Japanese word for "origami" is "origami".',
     "If anyone wants to talk to Keyton about linguistics, he's very lonely."
     // "Report issues you see, but don't forget, there will always be issues with this website, me, you, and everything, fixing things and going for perfection will only lead to hopeless misery... Have a Nice Day!",
-    // 'If you see something, say something . . . or else'
+    // 'If you see something, say something . . . or else',
+        '"Maintain a healthy fear of what can go wrong" - Detrich R.',
+        '"Not all who wander are lost, but this robot is awfully close" - '
 ];
 
 const quote = Random.choose(quotes);
