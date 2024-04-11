@@ -3,11 +3,7 @@ import { FIRSTTeam } from '../../../models/FIRST/team';
 import { TBA } from '../../../utilities/tba';
 import type { TBATeamEventStatus } from '../../../../shared/submodules/tatorscout-calculations/tba';
 import { $Math as M } from '../../../../shared/math';
-<<<<<<< HEAD
 import { FIRSTAlliance } from '../../../models/FIRST/alliance';
-=======
-import {FIRSTAlliance} from '../../../models/FIRST/alliance';
->>>>>>> 352ee1c8c86c94ffe6a751f743e33852df2afc6d
 import { FIRSTMatch } from '../../../models/FIRST/match';
 
 export let team: FIRSTTeam | undefined = undefined;
@@ -24,6 +20,8 @@ let weight: number = 0;
 const fns = {
     getData: async (t?: FIRSTTeam) => {
         if (!t) return fns.reset();
+
+        fns.reset();
 
         const [matches, pitScouting, velocityData, stats, psQuestions] =
             await Promise.all([

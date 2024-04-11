@@ -26,6 +26,12 @@ let data: {
 const fns = {
     getEventSummary: async (team?: FIRSTTeam) => {
         if (!team) return;
+
+        data = {
+            labels: [],
+            datasets: []
+        }
+
         const matches = await team.getMatchScouting();
 
         const tbaMatches = await TBA.get<TBAMatch[]>(
