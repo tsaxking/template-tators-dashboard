@@ -25,7 +25,7 @@ const quotes = [
     'The word "bed" looks like a bed.',
     'The word "bookkeeper" is the only unhyphenated English word with three consecutive double letters.',
     'The Japanese word for "origami" is "origami".',
-    "If anyone wants to talk to Keyton about linguistics, he's very lonely."
+    "If anyone wants to talk to Keyton about linguistics, he's very lonely.",
     // "Report issues you see, but don't forget, there will always be issues with this website, me, you, and everything, fixing things and going for perfection will only lead to hopeless misery... Have a Nice Day!",
     // 'If you see something, say something . . . or else',
         '"Maintain a healthy fear of what can go wrong" - Detrich R.',
