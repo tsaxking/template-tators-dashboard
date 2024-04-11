@@ -28,6 +28,7 @@ let traces: TraceArray[] = [];
 const fns = {
     getTeam: async (t?: FIRSTTeam) => {
         if (!t) return (traces = []);
+        traces = [];
         const scouting = await t.getMatchScouting();
         if (scouting.isOk()) {
             traces = scouting.value.map(s => s.trace);
@@ -35,14 +36,14 @@ const fns = {
     }
 };
 
-onMount(() => fns.getTeam(team));
 
 $: fns.getTeam(team);
+onMount(() => team = team);
 
 MatchScouting.on('new', m => {
     if (!team) return (traces = []);
     if (m.team === team.number) {
-        fns.getTeam(team);
+        team = team; // reset view
     }
 });
 </script>
