@@ -20,6 +20,9 @@ let matches: {
 const fns = {
     getMatches: async (t?: FIRSTTeam) => {
         if (!t) return (matches = []);
+
+        matches = [];
+
         const [matchesRes, matchScoutingRes] = await Promise.all([
             t.event.getMatches(),
             MatchScouting.fromTeam(t.event.key, t.number)

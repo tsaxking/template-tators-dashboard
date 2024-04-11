@@ -17,6 +17,7 @@ import ChecksSummary from '../components/robot-display/ChecksSummary.svelte';
 import PracticeMatches from '../components/robot-display/PracticeMatches.svelte';
 import HorizontalMatchViewer from '../components/robot-display/HorizontalMatchViewer.svelte';
 import ScoutSummary from '../components/robot-display/ScoutSummary.svelte';
+import { onMount } from 'svelte';
 
 let team: FIRSTTeam | undefined = undefined;
 
@@ -27,6 +28,7 @@ let traces: TraceArray[] = [];
 const fns = {
     getTeam: async (t?: FIRSTTeam) => {
         if (!t) return (traces = []);
+        traces = [];
         const scouting = await t.getMatchScouting();
         if (scouting.isOk()) {
             traces = scouting.value.map(s => s.trace);
@@ -34,12 +36,14 @@ const fns = {
     }
 };
 
+
 $: fns.getTeam(team);
+onMount(() => team = team);
 
 MatchScouting.on('new', m => {
     if (!team) return (traces = []);
     if (m.team === team.number) {
-        fns.getTeam(team);
+        team = team; // reset view
     }
 });
 </script>

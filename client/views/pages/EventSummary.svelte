@@ -3,6 +3,7 @@ import { Bar } from 'svelte-chartjs';
 import { FIRSTEvent } from '../../models/FIRST/event';
 import { FIRSTTeam } from '../../models/FIRST/team';
 import { Color } from '../../submodules/colors/color';
+import { onMount } from 'svelte';
 
 const colors = Array.from({ length: 10 }, () =>
     Color.random().toString('rgba')
@@ -36,7 +37,14 @@ const fns = {
     }
 };
 
-$: fns.pullData(event);
+onMount(() => {
+    fns.pullData(event);
+    return () => {
+        data = [];
+        teams = [];
+        filteredTeams = [];
+    };
+});
 </script>
 
 <div class="container-fluid">
