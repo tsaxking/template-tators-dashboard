@@ -5,6 +5,28 @@ import { DB } from '../../utilities/databases';
 export const router = new Route();
 
 router.post<{
+    id: string;
+}>(
+    '/from-id',
+    validate({
+        id: 'string'
+    }),
+    async (req, res) => {
+        const { id } = req.body;
+
+        const result = await DB.get('match-scouting/from-id', {
+            id
+        });
+
+        if (result.isErr()) {
+            return res.sendStatus('server:unknown-server-error');
+        }
+
+        return res.json(result.value);
+    }
+)
+
+router.post<{
     eventKey: string;
     teamNumber: number;
 }>(
