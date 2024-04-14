@@ -20,6 +20,9 @@ let matches: {
 const fns = {
     getMatches: async (t?: FIRSTTeam) => {
         if (!t) return (matches = []);
+
+        matches = [];
+
         const [matchesRes, matchScoutingRes] = await Promise.all([
             t.event.getMatches(),
             MatchScouting.fromTeam(t.event.key, t.number)
@@ -46,7 +49,7 @@ const fns = {
                 })
             )
         )
-            .filter(m => m.teams.find(_t => _t.number === t.number))
+            .filter(m => m.teams.find(_t => _t && _t.number === t.number))
             .map(m => ({
                 match: m.match,
                 scouting: matchScoutingRes.value.find(

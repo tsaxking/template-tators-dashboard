@@ -9,5 +9,4 @@ FROM MatchScouting
 INNER JOIN CustomMatches ON CustomMatches.id = MatchScouting.matchId
 
 WHERE MatchScouting.team = :team
-    AND CustomMatches.eventKey = :eventKey
     AND MatchScouting.preScouting = 1;

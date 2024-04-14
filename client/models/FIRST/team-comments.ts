@@ -6,6 +6,7 @@ import { ServerRequest } from '../../utilities/requests';
 import { FIRSTEvent } from './event';
 import { socket } from '../../utilities/socket';
 import { FIRSTTeam } from './team';
+import { MatchScouting } from './match-scouting';
 
 type TeamCommentUpdates = {
     update: string; // comment
@@ -100,6 +101,15 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
         this.eventKey = obj.eventKey;
 
         TeamComment.cache.set(this.id, this);
+    }
+
+    async getMatchScouting() {
+        return attemptAsync(async () => {
+            if (!this.matchScoutingId) throw new Error('No match scouting ID');
+            const res = await MatchScouting.fromId(this.matchScoutingId);
+            if (res.isErr()) throw res.error;
+            return res.value;
+        });
     }
 }
 
