@@ -11,6 +11,7 @@ let comments: TeamComment[] = [];
 const fns = {
     get: async (team?: FIRSTTeam) => {
         if (!team) return;
+        comments = [];
         comments = await team.getComments();
     }
 };

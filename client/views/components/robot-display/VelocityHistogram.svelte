@@ -12,6 +12,10 @@ let data: any;
 const fns = {
     updateVelocityMap: (traces: TraceArray[]) => {
         if (!traces) return;
+        data = {
+            labels: [],
+            datasets: []
+        };
         const all = traces
             // .map(Trace.expand)
             .map(t => {

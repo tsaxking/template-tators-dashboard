@@ -154,7 +154,8 @@ CREATE TABLE IF NOT EXISTS CustomMatches (
     compLevel TEXT NOT NULL,
     red1 INTEGER NOT NULL, 
     red2 INTEGER NOT NULL, 
-    red3 INTEGER NOT NULL, 
+    red3 INTEGER NOT NULL,
+    -- added red4 and blue4 in 1.4.2
     blue1 INTEGER NOT NULL,
     blue2 INTEGER NOT NULL,
     blue3 INTEGER NOT NULL,

@@ -266,7 +266,16 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             if (res.isErr()) throw res.error;
 
-            return res.value;
+            return res.value
+                .filter((p, i, a) => {
+                    return (
+                        a.findIndex(
+                            p2 =>
+                                p2.matchNumber === p.matchNumber &&
+                                p2.compLevel === p.compLevel
+                        ) === i
+                    );
+                });
         });
     }
 
@@ -378,7 +387,12 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             if (res.isErr()) throw res.error;
             return res.value.filter(
-                (s, i, a) => a.findIndex(_s => _s.id === s.id) === i
+                (s, i, a) => a.findIndex(_s => {
+                    return (
+                        _s.matchNumber === s.matchNumber &&
+                        _s.compLevel === s.compLevel
+                    );
+                }) === i
             );
         });
     }

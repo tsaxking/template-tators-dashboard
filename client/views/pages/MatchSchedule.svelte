@@ -1,4 +1,5 @@
 <script lang="ts">
+import { onMount } from 'svelte';
 import { dateTime } from '../../../shared/clock';
 import { FIRSTEvent } from '../../models/FIRST/event';
 import { FIRSTMatch } from '../../models/FIRST/match';
@@ -11,47 +12,57 @@ let matchScouting: {
     match?: FIRSTMatch;
 }[] = [];
 
-FIRSTEvent.on('select', async e => {
-    const [statusRes, matchesRes] = await Promise.all([
-        e.getStatus(),
-        e.getMatches()
-    ]);
-    if (statusRes.isErr()) return console.error(statusRes.error);
-    if (matchesRes.isErr()) return console.error(matchesRes.error);
+onMount(() => {
+    const fn = async (e: FIRSTEvent) => {
+        const [statusRes, matchesRes] = await Promise.all([
+            e.getStatus(),
+            e.getMatches()
+        ]);
+        if (statusRes.isErr()) return console.error(statusRes.error);
+        if (matchesRes.isErr()) return console.error(matchesRes.error);
 
-    const { matches } = statusRes.value;
+        const { matches } = statusRes.value;
 
-    matchScouting = await Promise.all(
-        matchesRes.value.map(async m => {
-            const match = matches.find(
-                _m => _m.match === m.number && _m.compLevel === m.compLevel
-            );
-            if (!match) {
+        matchScouting = await Promise.all(
+            matchesRes.value.map(async m => {
+                const match = matches.find(
+                    _m => _m.match === m.number && _m.compLevel === m.compLevel
+                );
+                if (!match) {
+                    return {
+                        teams: []
+                    };
+                }
+                const unScouted = match.teams;
+                const teams = await m.getTeams();
+
+                if (teams.isErr()) {
+                    return {
+                        teams: []
+                    };
+                }
+
                 return {
-                    teams: []
+                    teams: teams.value.filter(Boolean).map(t => ({
+                        team: t.number,
+                        scouted: !unScouted.includes(t.number)
+                    })),
+                    match: m
                 };
-            }
-            const unScouted = match.teams;
-            const teams = await m.getTeams();
+            })
+        );
+    }
 
-            if (teams.isErr()) {
-                return {
-                    teams: []
-                };
-            }
+    FIRSTEvent.on('select', fn);
 
-            return {
-                teams: teams.value.map(t => ({
-                    team: t.number,
-                    scouted: !unScouted.includes(t.number)
-                })),
-                match: m
-            };
-        })
-    );
+    if (FIRSTEvent.current) {
+        fn(FIRSTEvent.current);
+    }
+
+    return () => {
+        FIRSTEvent.off('select', fn);
+    }
 });
-
-$: console.log({ matchScouting });
 </script>
 
 <div class="table-responsive">

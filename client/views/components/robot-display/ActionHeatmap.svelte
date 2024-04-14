@@ -50,6 +50,7 @@ const fns = {
         if (!team) return;
 
         checks = [];
+        traceArray = [];
 
         const allChecks = Object.keys(actions)
             // .keys(actions[2024]) // for development
@@ -99,7 +100,7 @@ const fns = {
                         if (
                             match &&
                             teams.value.findIndex(
-                                t => t.number === team.number
+                                t => t && t.number === team.number
                             ) > 2
                         ) {
                             // we don't want to modify the original trace, so we make a copy
@@ -150,8 +151,6 @@ const fns = {
         );
     }
 };
-
-onMount(() => fns.generate(team));
 
 $: fns.generate(team);
 $: fns.filter(traceArray);

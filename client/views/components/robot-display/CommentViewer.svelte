@@ -13,6 +13,8 @@ type C = {
     type: string;
     time: number;
     account?: string;
+    matchNumber?: number;
+    compLevel?: string;
 };
 
 export let team: FIRSTTeam | undefined = undefined;
@@ -31,12 +33,22 @@ const fns = {
         parsed = (
             await Promise.all(
                 c.map(async (c, i) => {
-                    return {
+                    const match = await c.getMatchScouting();
+                    const obj: C = {
                         comment: c.comment,
                         type: c.type,
                         time: c.time,
                         account: accounts[i]?.name || c.accountId
-                    };
+                    }
+                    if (match.isErr())return obj;
+
+                    if (match.value) {
+                        obj.matchNumber = match.value.matchNumber;
+                        obj.compLevel = match.value.compLevel;
+                        return obj;
+                    } else {
+                        return obj;
+                    }
                 })
             )
         )
@@ -113,23 +125,34 @@ $: fns.parse(comments);
     </div>
 </div>
 
-<table class="table table-striped table-hover">
-    <thead>
-        <tr>
-            <th>Account</th>
-            <th>Type</th>
-            <th>Comment</th>
-            <th>Time</th>
-        </tr>
-    </thead>
-    <tbody>
-        {#each filteredComments as comment}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <caption>
+            * Match Number and Comp Level are only shown if the comment is associated with a match
+        </caption>
+        <thead>
             <tr>
-                <td class="cursor-help">{comment.account || 'Unknown'}</td>
-                <td>{comment.type}</td>
-                <td>{comment.comment}</td>
-                <td>{dateTime(comment.time)}</td>
+                <th>Account</th>
+                <th>Type</th>
+                <th>Comment</th>
+                <th>Time</th>
+                <th>Match*</th>
             </tr>
-        {/each}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {#each filteredComments as comment}
+                <tr>
+                    <td class="cursor-help">{comment.account || 'Unknown'}</td>
+                    <td>{comment.type}</td>
+                    <td>{comment.comment}</td>
+                    <td>{dateTime(comment.time)}</td>
+                    <td>
+                        {#if comment.compLevel && comment.matchNumber}
+                            {comment.compLevel.toUpperCase()} {comment.matchNumber}
+                        {/if}
+                    </td>
+                </tr>
+            {/each}
+        </tbody>
+    </table>
+</div>

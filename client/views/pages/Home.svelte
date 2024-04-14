@@ -2,6 +2,7 @@
 import { type BootstrapColor } from '../../submodules/colors/color';
 import { type Permission } from '../../../shared/permissions';
 import { Account } from '../../models/account';
+import Footer from '../components/main/Footer.svelte';
 
 let permissions: Permission[] = [];
 
@@ -107,6 +108,7 @@ Account.getAccount().then(async a => {
             {/each}
         </div>
     </div>
+    <Footer domain="tatorscout.org" />
 </main>
 
 <style>
