@@ -14,6 +14,7 @@ import { TeamComments } from '../../utilities/tables';
 import { RetrievedMatchScouting } from '../../utilities/tables';
 import { dateTime } from '../../../shared/clock';
 import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
+import { readFile } from '../../utilities/files';
 
 export const router = new Route();
 
@@ -278,4 +279,19 @@ router.post('/accounts/all', auth, async (req, res) => {
     const accounts = await Account.getAll();
 
     res.json(await Promise.all(accounts.map(a => a.safe())));
+});
+
+router.post('/accounts/all', auth, async (req, res) => {
+    const backups = await DB.getBackups();
+    if (backups.isErr()) return res.sendStatus('webhook:backup-failed');
+
+    const [backup] = backups.value;
+
+    const data = await readFile(`/storage/db/backups/${backup}`);
+    if (data.isErr()) return res.sendStatus('webhook:backup-failed');
+
+    res.json({
+        name: backup,
+        data: data.value
+    });
 });

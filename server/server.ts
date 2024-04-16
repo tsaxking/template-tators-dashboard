@@ -1,7 +1,7 @@
 import env, { __root } from './utilities/env';
 import { log } from './utilities/terminal-logging';
 import { App } from './structure/app/app';
-import { getJSON, log as serverLog } from './utilities/files';
+import { getJSON, saveFile, log as serverLog } from './utilities/files';
 import { homeBuilder } from './utilities/page-builder';
 import Account from './structure/accounts';
 import { router as admin } from './routes/admin';
@@ -16,6 +16,7 @@ import { emitter } from './middleware/data-type';
 import path from 'path';
 import { DB } from './utilities/databases';
 import { Session } from './structure/sessions';
+import { request } from './utilities/request';
 
 if (process.argv.includes('--stats')) {
     const measure = () => {
@@ -282,3 +283,24 @@ app.final<{
 });
 
 DB.em.on('connect', () => app.start());
+
+if (env.PULL_BACKUP) {
+    setInterval(async () => {
+        const data = await request<{
+            name: string;
+            data: string;
+        }>('https://tatorscout/api/webhooks/backup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: {
+                key: env.WEBHOOK_KEY
+            }
+        });
+
+        if (data.isOk()) {
+            saveFile(`/storage/db/backups/${data.value.name}`, data.value.data);
+        }
+    }, 1000 * 60 * 60 * 24);
+}
