@@ -34,8 +34,8 @@ const groups: PageGroup[] = [
             },
             {
                 name: 'strategy',
-                icon: 'chess',
-                iconType: 'material'
+                icon: 'strategy',
+                iconType: 'symbols'
             }
         ]
     },

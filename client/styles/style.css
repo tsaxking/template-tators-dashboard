@@ -70,7 +70,8 @@ main {
     /* height: calc(100vh - var(--topNavbarHeight)); */
 }
 
-.material-icons {
+.material-icons,
+.material-symbols-outlined {
     vertical-align: middle;
     line-height: 0 !important;
     position: relative;

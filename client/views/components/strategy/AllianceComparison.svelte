@@ -15,7 +15,6 @@ export let team3: FIRSTTeam | undefined = undefined;
 export let team4: FIRSTTeam | undefined = undefined;
 export let team5: FIRSTTeam | undefined = undefined;
 export let team6: FIRSTTeam | undefined = undefined;
-import { $Math as M } from '../../../../shared/math';
 
 let blueBot1 = { avgAuto: 0, avgTele: 0, avgEnd: 0 };
 let blueBot2 = { avgAuto: 0, avgTele: 0, avgEnd: 0 };
@@ -25,7 +24,15 @@ let redBot2 = { avgAuto: 0, avgTele: 0, avgEnd: 0 };
 let redBot3 = { avgAuto: 0, avgTele: 0, avgEnd: 0 };
 
 const fns = {
-    getMatchData: async (team: FIRSTTeam) => {
+    getMatchData: async (team: FIRSTTeam | undefined) => {
+        if (!team) {
+            return {
+                avgAuto: 0,
+                avgTele: 0,
+                avgEnd: 0
+            }
+        }
+
         const matchScouting = await team.getMatchScouting();
         if (matchScouting.isOk()) {
             const matchData = matchScouting.value;
@@ -85,7 +92,7 @@ const fns = {
     },
     getAllianceData: async (...teams: (FIRSTTeam | undefined)[]) => {
         const data = await Promise.all(
-            teams.filter(Boolean).map(fns.getMatchData)
+            teams.map(fns.getMatchData)
         );
 
         const [d1, d2, d3, d4, d5, d6] = data;
@@ -167,76 +174,61 @@ $: fns.getAllianceData(team1, team2, team3, team4, team5, team6);
 
 <div class="container-fluid">
     <div class="row justify-content-between">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card bg-danger text-white">
-                <div class="card-header">Red Alliance</div>
-                <div class="card-body">
-                    <TeamSelect bind:selected="{team1}"></TeamSelect>
-                    <TeamSelect bind:selected="{team2}"></TeamSelect>
-                    <TeamSelect bind:selected="{team3}"></TeamSelect>
+                <div class="card-header">
+                    <div class="d-flex">
+                        <TeamSelect bind:selected="{team1}"></TeamSelect>
+                        <TeamSelect bind:selected="{team2}"></TeamSelect>
+                        <TeamSelect bind:selected="{team3}"></TeamSelect>
+                    </div>
                 </div>
-            </div>
-            <div class="card bg-danger text-white">
-                <h5 class="card-title">Alliance Summary</h5>
-                <p class="card-text">
-                    Average auto score: {blueBot1.avgAuto +
-                        blueBot2.avgAuto +
-                        blueBot3.avgAuto}
-                </p>
-                <p class="card-text">
-                    Average tele score: {blueBot1.avgTele +
-                        blueBot2.avgTele +
-                        blueBot3.avgTele}
-                </p>
-                <p class="card-text">
-                    Average endgame score: {blueBot1.avgEnd +
-                        blueBot2.avgEnd +
-                        blueBot3.avgEnd}
-                </p>
-                <p class="card-text"></p>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">Alliance Comparison</div>
                 <div class="card-body">
                     <p class="card-text">
-                        {blueAllianceTotal > redAllianceTotal
-                            ? 'Blue Alliance is better'
-                            : 'Red Alliance is better'}
+                        Average auto score: {blueBot1.avgAuto +
+                            blueBot2.avgAuto +
+                            blueBot3.avgAuto}
+                    </p>
+                    <p class="card-text">
+                        Average tele score: {blueBot1.avgTele +
+                            blueBot2.avgTele +
+                            blueBot3.avgTele}
+                    </p>
+                    <p class="card-text">
+                        Average endgame score: {blueBot1.avgEnd +
+                            blueBot2.avgEnd +
+                            blueBot3.avgEnd}
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card bg-primary text-white">
-                <div class="card-header">Blue Alliance</div>
-                <div class="card-body">
-                    <TeamSelect bind:selected="{team4}"></TeamSelect>
-                    <TeamSelect bind:selected="{team5}"></TeamSelect>
-                    <TeamSelect bind:selected="{team6}"></TeamSelect>
+                <div class="card-header">
+                    <div class="d-flex">
+                        <TeamSelect bind:selected="{team4}"></TeamSelect>
+                        <TeamSelect bind:selected="{team5}"></TeamSelect>
+                        <TeamSelect bind:selected="{team6}"></TeamSelect>
+                    </div>
                 </div>
-            </div>
-            <div class="card bg-primary text-white">
-                <h5 class="card-title">Alliance Summary</h5>
-                <p class="card-text">
-                    Average auto score: {redBot1.avgAuto +
-                        redBot2.avgAuto +
-                        redBot3.avgAuto}
-                </p>
-                <p class="card-text">
-                    Average tele score: {redBot1.avgTele +
-                        redBot2.avgTele +
-                        redBot3.avgTele}
-                </p>
-                <p class="card-text">
-                    Average endgame score: {redBot1.avgEnd +
-                        redBot2.avgEnd +
-                        redBot3.avgEnd}
-                </p>
-                <p class="card-text"></p>
+                <div class="card-body">
+                    <p class="card-text">
+                        Average auto score: {redBot1.avgAuto +
+                            redBot2.avgAuto +
+                            redBot3.avgAuto}
+                    </p>
+                    <p class="card-text">
+                        Average tele score: {redBot1.avgTele +
+                            redBot2.avgTele +
+                            redBot3.avgTele}
+                    </p>
+                    <p class="card-text">
+                        Average endgame score: {redBot1.avgEnd +
+                            redBot2.avgEnd +
+                            redBot3.avgEnd}
+                    </p>
+                </div>
             </div>
         </div>
     </div>
