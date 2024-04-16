@@ -907,9 +907,7 @@ router.post<{
         for (const group of g) {
             const id = uuid();
             // change the question id
-            for (const ques of q.filter(
-                _q => _q.groupId === group.id
-            )) {
+            for (const ques of q.filter(_q => _q.groupId === group.id)) {
                 ques.groupId = id;
             }
 

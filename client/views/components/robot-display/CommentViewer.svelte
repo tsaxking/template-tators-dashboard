@@ -39,8 +39,8 @@ const fns = {
                         type: c.type,
                         time: c.time,
                         account: accounts[i]?.name || c.accountId
-                    }
-                    if (match.isErr())return obj;
+                    };
+                    if (match.isErr()) return obj;
 
                     if (match.value) {
                         obj.matchNumber = match.value.matchNumber;
@@ -128,7 +128,8 @@ $: fns.parse(comments);
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <caption>
-            * Match Number and Comp Level are only shown if the comment is associated with a match
+            * Match Number and Comp Level are only shown if the comment is
+            associated with a match
         </caption>
         <thead>
             <tr>
@@ -148,7 +149,8 @@ $: fns.parse(comments);
                     <td>{dateTime(comment.time)}</td>
                     <td>
                         {#if comment.compLevel && comment.matchNumber}
-                            {comment.compLevel.toUpperCase()} {comment.matchNumber}
+                            {comment.compLevel.toUpperCase()}
+                            {comment.matchNumber}
                         {/if}
                     </td>
                 </tr>
