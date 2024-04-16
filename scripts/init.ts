@@ -283,3 +283,24 @@ if (process.argv.includes('--db')) {
 //     if (res.isOk()) console.log(res.value);
 //     else console.error(res.error);
 // }
+
+type S = {
+    currentRobot: number;
+};
+
+const state: S = {
+    currentRobot: 0
+}
+
+const getBots = (state: S) => {
+    const robots = [
+        5, 37
+    ];
+
+
+    state.currentRobot = robots[0];
+}
+
+getBots(state);
+
+console.log(state.currentRobot); // 5
