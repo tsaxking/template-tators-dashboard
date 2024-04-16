@@ -24,7 +24,7 @@ router.post<{
 
         return res.json(result.value);
     }
-)
+);
 
 router.post<{
     eventKey: string;

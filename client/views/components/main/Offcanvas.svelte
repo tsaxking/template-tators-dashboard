@@ -41,7 +41,9 @@ const openPage = (page: string) => {
                                 {#if page.iconType === 'material'}
                                     <i class="material-icons">{page.icon}</i>
                                 {:else if page.iconType === 'symbols'}
-                                    <i class="material-symbols-outlined">{page.icon}</i>
+                                    <i class="material-symbols-outlined"
+                                        >{page.icon}</i
+                                    >
                                 {:else if page.iconType === 'fontawesome'}
                                     <i class="fa fa-{page.icon}"></i>
                                 {:else}

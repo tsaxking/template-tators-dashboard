@@ -290,16 +290,13 @@ type S = {
 
 const state: S = {
     currentRobot: 0
-}
+};
 
 const getBots = (state: S) => {
-    const robots = [
-        5, 37
-    ];
-
+    const robots = [5, 37];
 
     state.currentRobot = robots[0];
-}
+};
 
 getBots(state);
 
