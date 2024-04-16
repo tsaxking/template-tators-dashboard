@@ -253,6 +253,13 @@ const createEnv = async () => {
         i => +i > 0,
         true
     );
+    await setKey(
+        'PULL_BACKUP',
+        'Pull Backup: (default: n) (y/n)',
+        'n',
+        i => ['y', 'n'].includes(i),
+        true
+    );
 
     const e = Object.keys(values)
         .map(key => `${key} = '${values[key]}'`)
