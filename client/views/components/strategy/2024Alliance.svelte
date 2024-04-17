@@ -260,6 +260,7 @@ $: fns.getAllianceData(team1, team2, team3);
                         stacked: true,
                     }
                 },
+                responsive: true
             }
         }
     />

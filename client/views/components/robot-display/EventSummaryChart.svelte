@@ -132,6 +132,7 @@ $: {
 <Bar
     {data}
     options="{{
+        responsive: true,
         maintainAspectRatio: false,
         scales: {
             y: {

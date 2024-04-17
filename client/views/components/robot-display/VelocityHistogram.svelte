@@ -65,6 +65,7 @@ $: fns.updateVelocityMap(traces);
                 beginAtZero: true
                 // max: 20
             }
-        }
+        },
+        responsive: true
     }}"
 />
