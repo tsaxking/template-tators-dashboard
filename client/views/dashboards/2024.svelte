@@ -33,7 +33,7 @@ const groups: PageGroup[] = [
                 iconType: 'material'
             },
             {
-                name: 'strategy',
+                name: 'alliance-builder',
                 icon: 'strategy',
                 iconType: 'symbols'
             }
@@ -121,7 +121,7 @@ FIRSTEvent.on('select', e => {
     <Page {active} {domain} title="quiz">
         <Quiz />
     </Page>
-    <Page {active} {domain} title="strategy">
+    <Page {active} {domain} title="alliance-builder">
         <Strategy />
     </Page>
 </Main>
