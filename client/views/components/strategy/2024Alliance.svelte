@@ -16,24 +16,29 @@ export let team2: FIRSTTeam | undefined = undefined;
 export let team3: FIRSTTeam | undefined = undefined;
 export let color: 'blue' | 'red' = 'blue';
 
+// [min, max, avg]
 
-let allianceInfo = {
+type Data = {
     auto: {
-        avg: 0,
-        max: 0,
-        min: 0
+        spk: number;
+        amp: number;
+        mobility: number;
+        total: number;
     },
-    tele: {
-        avg: 0,
-        max: 0,
-        min: 0
+    teleop: {
+        spk: number;
+        amp: number;
+        trp: number;
+        total: number;
     },
-    end: {
-        avg: 0,
-        max: 0,
-        min: 0
-    }
-};
+    endgame: {
+        clb: number;
+        park: number;
+        total: number;
+    },
+    total: number;
+}
+
 
 const fns = {
     getMatchData: async (team: FIRSTTeam | undefined) => {
@@ -89,27 +94,78 @@ const fns = {
         }
 
         const scores = data.value.flat();
+
+        const allData: Data[] = scores.map(s => {
+            const auto = {
+                spk: s.auto.spk,
+                amp: s.auto.amp,
+                mobility: s.auto.mobility,
+                total: s.auto.total
+            };
+            const teleop = {
+                spk: s.teleop.spk,
+                amp: s.teleop.amp,
+                trp: s.teleop.trp,
+                total: s.teleop.total
+            };
+            const endgame = {
+                clb: s.endgame.clb,
+                park: s.endgame.park,
+                total: s.endgame.total
+            };
+            const total = s.total;
+
+            return {
+                auto,
+                teleop,
+                endgame,
+                total
+            };
+        });
+
+        allianceInfo = [
+            {
+                
+            }
+        ]
     },
     reset: () => {
-        allianceInfo = {
+        allianceInfo = [
+            fns.buildDefault(),
+            fns.buildDefault(),
+            fns.buildDefault()
+        ]
+    },
+    buildDefault: (): Data => {
+        return {
             auto: {
-                avg: 0,
-                max: 0,
-                min: 0
+                spk: 0,
+                amp: 0,
+                mobility: 0,
+                total: 0
             },
-            tele: {
-                avg: 0,
-                max: 0,
-                min: 0
+            teleop: {
+                spk: 0,
+                amp: 0,
+                trp: 0,
+                total: 0
             },
-            end: {
-                avg: 0,
-                max: 0,
-                min: 0
-            }
-        };
+            endgame: {
+                clb: 0,
+                park: 0,
+                total: 0
+            },
+            total: 0
+        }
     }
 };
+
+
+let allianceInfo: [Data, Data, Data] = [
+    fns.buildDefault(),
+    fns.buildDefault(),
+    fns.buildDefault()
+]
 
 $: fns.getAllianceData(team1, team2, team3);
 //pull matches, match# + comp level, pull alliance
