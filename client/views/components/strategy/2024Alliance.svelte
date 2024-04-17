@@ -1,49 +1,45 @@
 <script lang="ts">
 import { FIRSTTeam } from '../../../models/FIRST/team';
-import { TBA } from '../../../utilities/tba';
 import { Trace } from '../../../../shared/submodules/tatorscout-calculations/trace';
-import {
-    type TBAMatch,
-    teamsFromMatch
-} from '../../../../shared/submodules/tatorscout-calculations/tba';
 import { FIRSTEvent } from '../../../models/FIRST/event';
-import Select from '../bootstrap/Select.svelte';
 import TeamSelect from '../main/TeamSelect.svelte';
-import { match } from 'assert';
-import { attemptAsync, resolveAll } from '../../../../shared/check';
+import { $Math as M } from '../../../../shared/math';
+import { type Result, attemptAsync, resolveAll } from '../../../../shared/check';
+import { Bar } from 'svelte-chartjs';
+
+
+
 export let team1: FIRSTTeam | undefined = undefined;
 export let team2: FIRSTTeam | undefined = undefined;
 export let team3: FIRSTTeam | undefined = undefined;
 export let color: 'blue' | 'red' = 'blue';
 
-// [min, max, avg]
-
-type Data = {
+type DataArr = {
     auto: {
-        spk: number;
-        amp: number;
-        mobility: number;
-        total: number;
+        spk: number[];
+        amp: number[];
+        mobility: number[];
+        total: number[];
     },
     teleop: {
-        spk: number;
-        amp: number;
-        trp: number;
-        total: number;
+        spk: number[];
+        amp: number[];
+        trp: number[];
+        total: number[];
     },
     endgame: {
-        clb: number;
-        park: number;
-        total: number;
+        clb: number[];
+        park: number[];
+        total: number[];
     },
-    total: number;
+    total: number[];
 }
 
 
 const fns = {
-    getMatchData: async (team: FIRSTTeam | undefined) => {
+    getMatchData: async (team: FIRSTTeam | undefined): Promise<Result<DataArr>> => {
         return attemptAsync(async () => {
-            if (!team) return [];
+            if (!team) return fns.buildDefaultArr();
 
             const matchScouting = await team.getMatchScouting();
             if (matchScouting.isErr()) throw matchScouting.error;
@@ -83,7 +79,25 @@ const fns = {
                 })
             );
 
-            return data.map(d => Trace.score.parse2024(d.trace, d.alliance));
+            return data.map(d => Trace.score.parse2024(d.trace, d.alliance)).reduce((acc, data) => {
+                acc.auto.spk.push(data.auto.spk);
+                acc.auto.amp.push(data.auto.amp);
+                acc.auto.mobility.push(data.auto.mobility);
+                acc.auto.total.push(data.auto.total);
+
+                acc.teleop.spk.push(data.teleop.spk);
+                acc.teleop.amp.push(data.teleop.amp);
+                acc.teleop.trp.push(data.teleop.trp);
+                acc.teleop.total.push(data.teleop.total);
+
+                acc.endgame.clb.push(data.endgame.clb);
+                acc.endgame.park.push(data.endgame.park);
+                acc.endgame.total.push(data.endgame.total);
+
+                acc.total.push(data.total);
+
+                return acc;
+            }, fns.buildDefaultArr()) as DataArr;
         });
     },
     getAllianceData: async (...teams: (FIRSTTeam | undefined)[]) => {
@@ -93,91 +107,161 @@ const fns = {
             return console.error(data.error);
         }
 
-        const scores = data.value.flat();
+        allianceInfo = data.value as [DataArr, DataArr, DataArr];
 
-        const allData: Data[] = scores.map(s => {
-            const auto = {
-                spk: s.auto.spk,
-                amp: s.auto.amp,
-                mobility: s.auto.mobility,
-                total: s.auto.total
-            };
-            const teleop = {
-                spk: s.teleop.spk,
-                amp: s.teleop.amp,
-                trp: s.teleop.trp,
-                total: s.teleop.total
-            };
-            const endgame = {
-                clb: s.endgame.clb,
-                park: s.endgame.park,
-                total: s.endgame.total
-            };
-            const total = s.total;
-
-            return {
-                auto,
-                teleop,
-                endgame,
-                total
-            };
-        });
-
-        allianceInfo = [
-            {
-                
-            }
-        ]
     },
     reset: () => {
         allianceInfo = [
-            fns.buildDefault(),
-            fns.buildDefault(),
-            fns.buildDefault()
+            fns.buildDefaultArr(),
+            fns.buildDefaultArr(),
+            fns.buildDefaultArr()
         ]
     },
-    buildDefault: (): Data => {
+    buildDefaultArr: (): DataArr => {
         return {
             auto: {
-                spk: 0,
-                amp: 0,
-                mobility: 0,
-                total: 0
+                spk: [],
+                amp: [],
+                mobility: [],
+                total: []
             },
             teleop: {
-                spk: 0,
-                amp: 0,
-                trp: 0,
-                total: 0
+                spk: [],
+                amp: [],
+                trp: [],
+                total: []
             },
             endgame: {
-                clb: 0,
-                park: 0,
-                total: 0
+                clb: [],
+                park: [],
+                total: []
             },
-            total: 0
+            total: []
         }
     }
 };
 
-
-let allianceInfo: [Data, Data, Data] = [
-    fns.buildDefault(),
-    fns.buildDefault(),
-    fns.buildDefault()
-]
+// team, team, team
+let allianceInfo: [DataArr, DataArr, DataArr] = [
+    fns.buildDefaultArr(),
+    fns.buildDefaultArr(),
+    fns.buildDefaultArr()
+];
 
 $: fns.getAllianceData(team1, team2, team3);
 //pull matches, match# + comp level, pull alliance
 </script>
 
-<div class="card bg-{color === 'red' ? 'danger' : 'primary'} text-white">
-    <div class="card-header">
+<div class="card bg-dark text-white">
+    <div class="card-header bg-{color === 'red' ? 'danger' : 'primary'}">
         <div class="d-flex">
             <TeamSelect bind:selected="{team1}"></TeamSelect>
             <TeamSelect bind:selected="{team2}"></TeamSelect>
             <TeamSelect bind:selected="{team3}"></TeamSelect>
         </div>
     </div>
-    <div class="card-body"></div>
+    <div class="card-body">
+        <h5 class="text-center">Average</h5>
+        <Bar 
+            data={{
+                labels: ['Auto', 'Teleop', 'Endgame', 'Total'],
+                datasets: [
+                    {
+                        label: 'Speaker',
+                        data: [
+                            M.sum(allianceInfo.map(a => M.average(a.auto.spk))),
+                            M.sum(allianceInfo.map(a => M.average(a.teleop.spk))),
+                        ]
+                    },
+                    {
+                        label: 'Amplifier',
+                        data: [
+                            M.sum(allianceInfo.map(a => M.average(a.auto.amp))),
+                            M.sum(allianceInfo.map(a => M.average(a.teleop.amp))),
+                        ]
+                    },
+                    {
+                        label: 'Mobility',
+                        data: [
+                            M.sum(allianceInfo.map(a => M.average(a.auto.mobility))),
+                        ]
+                    },
+                    {
+                        label: 'Total',
+                        data: [
+                            M.sum(allianceInfo.map(a => M.average(a.auto.total))),
+                            M.sum(allianceInfo.map(a => M.average(a.teleop.total))),
+                            M.sum(allianceInfo.map(a => M.average(a.endgame.total))),
+                            M.sum(allianceInfo.map(a => M.average(a.total))),
+                        ]
+                    }
+                ]
+            }}
+            options={
+                {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 60,
+                            stacked: true,
+                        },
+                        x: {
+                            stacked: true,
+                        }
+                    },
+                }
+            }
+        />
+        <h5 class="text-center">Max</h5>
+        <Bar 
+        data={{
+            labels: ['Auto', 'Teleop', 'Endgame', 'Total'],
+            datasets: [
+                {
+                    label: 'Speaker',
+                    data: [
+                        M.sum(allianceInfo.map(a => Math.max(...a.auto.spk))),
+                        M.sum(allianceInfo.map(a => Math.max(...a.teleop.spk))),
+                    ]
+                },
+                {
+                    label: 'Amplifier',
+                    data: [
+                        M.sum(allianceInfo.map(a => Math.max(...a.auto.amp))),
+                        M.sum(allianceInfo.map(a => Math.max(...a.teleop.amp))),
+                    ]
+                },
+                {
+                    label: 'Mobility',
+                    data: [
+                        M.sum(allianceInfo.map(a => Math.max(...a.auto.mobility))),
+                    ]
+                },
+                {
+                    label: 'Total',
+                    data: [
+                        M.sum(allianceInfo.map(a => Math.max(...a.auto.total))),
+                        M.sum(allianceInfo.map(a => Math.max(...a.teleop.total))),
+                        M.sum(allianceInfo.map(a => Math.max(...a.endgame.total))),
+                        M.sum(allianceInfo.map(a => Math.max(...a.total))),
+                    ]
+                }
+            ]
+        }}
+        options={
+            {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 150,
+                        stacked: true,
+                    },
+                    x: {
+                        stacked: true,
+                    }
+                },
+            }
+        }
+    />
+    </div>
 </div>
