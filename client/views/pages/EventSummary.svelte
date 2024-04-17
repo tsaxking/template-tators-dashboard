@@ -45,6 +45,10 @@ onMount(() => {
         filteredTeams = [];
     };
 });
+
+FIRSTEvent.on('select', (e: FIRSTEvent) => {
+    fns.pullData(e);
+});
 </script>
 
 <div class="container-fluid">
