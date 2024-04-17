@@ -73,7 +73,7 @@ app.post('/socket-url', (req, res) => {
 });
 
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.resolve(__root, './public/pictures/logo-square.png'));
+    res.sendFile(path.resolve(__root, './public/pictures/logo-square.jpg'));
 });
 
 app.get('/robots.txt', (req, res) => {
