@@ -54,7 +54,7 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
             }
         }
 
-        const e = events.find(e => e.key === '2024okok');
+        const e = events.find(e => e.key === '2024gal');
         if (e) new FIRSTEvent(e).select();
         else new FIRSTEvent(events[0]).select();
     }
