@@ -8,6 +8,7 @@ import { socket } from '../../utilities/socket';
 import { TeamComment } from './team-comments';
 import { Color } from '../../submodules/colors/color';
 import { Account } from '../account';
+import { FIRSTMatch } from './match';
 
 type MatchScoutingEvents = {
     update: MatchScouting;

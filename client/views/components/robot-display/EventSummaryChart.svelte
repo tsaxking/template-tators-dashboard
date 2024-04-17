@@ -30,7 +30,7 @@ const fns = {
         data = {
             labels: [],
             datasets: []
-        }
+        };
 
         const matches = await team.getMatchScouting();
 
