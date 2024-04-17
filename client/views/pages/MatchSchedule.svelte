@@ -51,7 +51,7 @@ onMount(() => {
                 };
             })
         );
-    }
+    };
 
     FIRSTEvent.on('select', fn);
 
@@ -61,7 +61,7 @@ onMount(() => {
 
     return () => {
         FIRSTEvent.off('select', fn);
-    }
+    };
 });
 </script>
 

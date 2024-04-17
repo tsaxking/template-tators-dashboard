@@ -37,9 +37,8 @@ const fns = {
     }
 };
 
-
 $: fns.getTeam(team);
-onMount(() => team = team);
+onMount(() => (team = team));
 
 MatchScouting.on('new', m => {
     if (!team) return (traces = []);
