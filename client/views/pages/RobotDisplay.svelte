@@ -18,6 +18,7 @@ import PracticeMatches from '../components/robot-display/PracticeMatches.svelte'
 import HorizontalMatchViewer from '../components/robot-display/HorizontalMatchViewer.svelte';
 import ScoutSummary from '../components/robot-display/ScoutSummary.svelte';
 import { onMount } from 'svelte';
+import Progress from '../components/robot-display/Progress.svelte';
 
 let team: FIRSTTeam | undefined = undefined;
 
@@ -88,6 +89,9 @@ MatchScouting.on('new', m => {
             expandable="{true}"
         >
             <MatchesSummaryChart {team} />
+        </DashboardCard>
+        <DashboardCard title="Progress" expandable="{true}">
+            <Progress {team} />
         </DashboardCard>
         <DashboardCard title="Matches" scroll="{true}" expandable="{true}">
             <TeamMatchTable {team} />

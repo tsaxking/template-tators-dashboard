@@ -174,7 +174,6 @@ router.post<{
             return res.sendStatus('unknown:error');
         }
 
-        const r = res.sendStatus('teams:pictures-uploaded');
-        // console.log(r);
+        res.sendStatus('teams:pictures-uploaded');
     }
 );
