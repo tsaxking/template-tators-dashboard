@@ -121,4 +121,7 @@ import { FIRSTEvent } from "../../../models/FIRST/event";
             ]
         }
     }
+    options={{
+        responsive: true
+    }}
 />

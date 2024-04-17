@@ -1,13 +1,13 @@
 <script lang="ts">
 import type {
-    Action2024,
+    Action,
     TraceArray
 } from '../../../../shared/submodules/tatorscout-calculations/trace';
 //import {Trace} from './../../../shared/submodules/tatorscout-calculations/trace';
 export let trace: TraceArray;
 
 type A = {
-    [key in Action2024]: number;
+    [key in Action]: number;
 };
 
 const filter = (t: TraceArray, from: number, to: number): A =>
