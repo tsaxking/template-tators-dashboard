@@ -3,7 +3,7 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { MatchScouting as MatchScoutingObj } from '../../../shared/db-types-extended';
 import { ServerRequest } from '../../utilities/requests';
 import { attemptAsync, Result } from '../../../shared/check';
-import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
+import { TraceArray, Trace } from '../../../shared/submodules/tatorscout-calculations/trace';
 import { socket } from '../../utilities/socket';
 import { TeamComment } from './team-comments';
 import { Color } from '../../submodules/colors/color';
@@ -205,7 +205,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
     public readonly scoutId: string | undefined;
     public readonly scoutGroup: number;
     public readonly scoutName: string;
-    public readonly trace: TraceArray;
+    public readonly $trace: TraceArray;
     public readonly checks: string[];
     public readonly preScouting: boolean;
     public readonly time: number;
@@ -223,7 +223,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         this.scoutId = data.scoutId;
         this.scoutGroup = data.scoutGroup;
         this.scoutName = data.scoutName;
-        this.trace = JSON.parse(data.trace) as TraceArray;
+        this.$trace = JSON.parse(data.trace) as TraceArray;
         this.checks = JSON.parse(data.checks) as string[];
         this.preScouting = !!data.preScouting;
         this.time = data.time;
@@ -237,6 +237,14 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
         }
 
         MatchScouting.cache.set(this.id, this);
+    }
+
+    get trace(): TraceArray {
+        try {
+            return Trace.fixZeroIssue(this.$trace);
+        } catch {
+            return this.$trace;
+        }
     }
 
     get date(): Date {
