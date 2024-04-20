@@ -4,7 +4,8 @@
         "manager": "ts-node -P tsconfig.json ./scripts/manager.ts",
         "build": "ts-node ./server/bundler.ts",
         "test": "ts-node ./scripts/tests/all-tests.ts",
-        "init": "ts-node ./scripts/init.ts"
+        "init": "ts-node ./scripts/init.ts",
+        "fix-gal-issue": "ts-node ./scripts/fix-gal-issue.ts"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",

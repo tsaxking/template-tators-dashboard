@@ -316,7 +316,7 @@ export class Table {
                         const headers: string[] = [
                             'Average Speaker',
                             'Max Speaker',
-                            'Average Amp',
+                            // 'Average Amp',
                             'Max Amp',
                             'Average Mobility'
                         ];
@@ -373,8 +373,8 @@ export class Table {
                                 scores.reduce((a, b) => a + b.spk, 0) /
                                     scores.length,
                                 Math.max(...scores.map(s => s.spk)),
-                                scores.reduce((a, b) => a + b.amp, 0) /
-                                    scores.length,
+                                // scores.reduce((a, b) => a + b.amp, 0) /
+                                //     scores.length,
                                 Math.max(...scores.map(s => s.amp)),
                                 scores.reduce((a, b) => a + b.mobility, 0) /
                                     scores.length
