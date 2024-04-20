@@ -471,6 +471,10 @@ router.post<{
     async (req, res) => {
         const { username } = req.body;
 
+        if (username.toLocaleLowerCase() === 'tatorscoutguest') {
+            return res.sendStatus('account:cannot-reset-guest');
+        }
+
         const a =
             (await Account.fromUsername(username)) ||
             (await Account.fromEmail(username));
