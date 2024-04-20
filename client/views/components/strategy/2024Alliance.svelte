@@ -161,7 +161,7 @@ $: fns.getAllianceData(team1, team2, team3);
         </div>
     </div>
     <div class="card-body">
-        <h5 class="text-center">Average</h5>
+        <h5 class="text-center">Average ({M.sum(allianceInfo.map(a => M.average(a.total)))})</h5>
         <Bar 
             data={{
                 labels: ['Auto', 'Teleop', 'Endgame', 'Total'],
@@ -186,15 +186,15 @@ $: fns.getAllianceData(team1, team2, team3);
                             M.sum(allianceInfo.map(a => M.average(a.auto.mobility))),
                         ]
                     },
-                    {
-                        label: 'Total',
-                        data: [
-                            M.sum(allianceInfo.map(a => M.average(a.auto.total))),
-                            M.sum(allianceInfo.map(a => M.average(a.teleop.total))),
-                            M.sum(allianceInfo.map(a => M.average(a.endgame.total))),
-                            M.sum(allianceInfo.map(a => M.average(a.total))),
-                        ]
-                    }
+                    // {
+                    //     label: 'Total',
+                    //     data: [
+                    //         M.sum(allianceInfo.map(a => M.average(a.auto.total))),
+                    //         M.sum(allianceInfo.map(a => M.average(a.teleop.total))),
+                    //         M.sum(allianceInfo.map(a => M.average(a.endgame.total))),
+                    //         M.sum(allianceInfo.map(a => M.average(a.total))),
+                    //     ]
+                    // }
                 ]
             }}
             options={
@@ -212,7 +212,7 @@ $: fns.getAllianceData(team1, team2, team3);
                 }
             }
         />
-        <h5 class="text-center">Max</h5>
+        <h5 class="text-center">Max ({M.sum(allianceInfo.map(a => Math.max(...a.total)))})</h5>
         <Bar 
         data={{
             labels: ['Auto', 'Teleop', 'Endgame', 'Total'],
@@ -237,15 +237,15 @@ $: fns.getAllianceData(team1, team2, team3);
                         M.sum(allianceInfo.map(a => Math.max(...a.auto.mobility))),
                     ]
                 },
-                {
-                    label: 'Total',
-                    data: [
-                        M.sum(allianceInfo.map(a => Math.max(...a.auto.total))),
-                        M.sum(allianceInfo.map(a => Math.max(...a.teleop.total))),
-                        M.sum(allianceInfo.map(a => Math.max(...a.endgame.total))),
-                        M.sum(allianceInfo.map(a => Math.max(...a.total))),
-                    ]
-                }
+                // {
+                //     label: 'Total',
+                //     data: [
+                //         M.sum(allianceInfo.map(a => Math.max(...a.auto.total))),
+                //         M.sum(allianceInfo.map(a => Math.max(...a.teleop.total))),
+                //         M.sum(allianceInfo.map(a => Math.max(...a.endgame.total))),
+                //         M.sum(allianceInfo.map(a => Math.max(...a.total))),
+                //     ]
+                // }
             ]
         }}
         options={
