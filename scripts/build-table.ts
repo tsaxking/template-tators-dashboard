@@ -544,7 +544,7 @@ export class Table {
                                 'Checks'
                             ],
                             data: [
-                                checks.join(', ')
+                                checks.join(' ')
                             ]
                         }
                     });
