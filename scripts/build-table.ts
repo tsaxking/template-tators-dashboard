@@ -531,6 +531,23 @@ export class Table {
                             ]
                         };
                     });
+                },
+                checks: async (teamNumber: number, eventKey: string) => {
+                    return attemptAsync(async () => {
+                        const scouting = await getMatchScouting(teamNumber, eventKey);
+                        if (scouting.isErr()) throw scouting.error;
+
+                        const checks = scouting.value.map(s => JSON.parse(s.checks)).flat() as string[];
+
+                        return {
+                            headers: [
+                                'Checks'
+                            ],
+                            data: [
+                                checks.join(', ')
+                            ]
+                        }
+                    });
                 }
             }
         } as const;
