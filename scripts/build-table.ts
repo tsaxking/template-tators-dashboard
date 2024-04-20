@@ -39,7 +39,9 @@ const getMatchScouting = async (teamNumber: number, eventKey: string) => {
             .reverse()
             .filter((s, i, a) => {
                 return (
-                    a.findIndex(s2 => s2.matchNumber === s.matchNumber) === i
+                    a.findIndex(s2 => s2.matchNumber === s.matchNumber
+                        && s.compLevel === s2.compLevel
+                    ) === i
                 );
             });
     });
@@ -134,7 +136,7 @@ export class Table {
                             'Team Number',
                             'Team Name',
                             'Rank',
-                            'Rank Points'
+                            'Rank Points',
                         ];
 
                         const [team, event] = await Promise.all([
@@ -170,6 +172,7 @@ export class Table {
                     return attemptAsync(async () => {
                         const headers: string[] = [
                             'Average Velocity',
+                            'Checks',
                             'Weight',
                             'Height',
                             'Width',
@@ -214,10 +217,15 @@ export class Table {
                                 /length/i.test(p.question)
                             )?.answer || '[]';
 
+                        const checks = matches.reduce((acc, cur) => {
+                            return acc + ' ' + (JSON.parse(cur.checks) as string[]).join(' ');
+                        }, '');
+
                         return {
                             headers,
                             data: [
                                 avg,
+                                checks,
                                 (JSON.parse(weight) as string[]).join(','),
                                 (JSON.parse(height) as string[]).join(','),
                                 (JSON.parse(width) as string[]).join(','),
@@ -532,23 +540,23 @@ export class Table {
                         };
                     });
                 },
-                checks: async (teamNumber: number, eventKey: string) => {
-                    return attemptAsync(async () => {
-                        const scouting = await getMatchScouting(teamNumber, eventKey);
-                        if (scouting.isErr()) throw scouting.error;
+                // checks: async (teamNumber: number, eventKey: string) => {
+                //     return attemptAsync(async () => {
+                //         const scouting = await getMatchScouting(teamNumber, eventKey);
+                //         if (scouting.isErr()) throw scouting.error;
 
-                        const checks = scouting.value.map(s => JSON.parse(s.checks)).flat() as string[];
+                //         const checks = scouting.value.map(s => JSON.parse(s.checks)).flat() as string[];
 
-                        return {
-                            headers: [
-                                'Checks'
-                            ],
-                            data: [
-                                checks.join(' ')
-                            ]
-                        }
-                    });
-                }
+                //         return {
+                //             headers: [
+                //                 'Checks'
+                //             ],
+                //             data: [
+                //                 checks.join(' ')
+                //             ]
+                //         }
+                //     });
+                // }
             }
         } as const;
     }
