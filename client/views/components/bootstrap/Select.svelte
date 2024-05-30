@@ -12,6 +12,14 @@ const handleChange = (event: Event) => {
     const target = event.target as HTMLSelectElement;
     dispatch('change', target.value);
 };
+
+$: {
+    if (values.length) {
+        if (values.length !== options.length) {
+            throw new Error('Values and options must be the same length');
+        }
+    }
+}
 </script>
 
 <select bind:value on:change="{handleChange}" class="form-select">
