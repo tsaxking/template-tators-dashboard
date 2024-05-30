@@ -1,0 +1,1 @@
+DELETE FROM ScoutingQuestionGroups WHERE id = :id;
