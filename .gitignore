@@ -145,3 +145,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Duplicate packages
+.package.json
+.package-lock.json
