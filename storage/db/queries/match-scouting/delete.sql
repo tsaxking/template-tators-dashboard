@@ -1,0 +1,1 @@
+DELETE FROM MatchScouting WHERE id = :id;
