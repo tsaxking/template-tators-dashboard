@@ -558,6 +558,14 @@ export type Queries = {
         ],
         RetrievedMatchScouting
     ];
+    'match-scouting/delete': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
+    ]
     'tba/from-url': [[Select_tba_from_url], TBARequests];
     'tba/new': [[Insert_tba_new], unknown];
     'discord/insert': [[Insert_discord_insert], unknown];
