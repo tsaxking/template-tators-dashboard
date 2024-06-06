@@ -501,6 +501,7 @@ export type Queries = {
     'events/delete-event': [[Delete_events_delete_event], unknown];
     'events/new-alliance': [[Insert_events_new_alliance], unknown];
     'events/delete-alliance': [[Delete_events_delete_alliance], unknown];
+    'events/update': [[Events], unknown];
     'match-scouting/update': [[Update_match_scouting_update], unknown];
     'match-scouting/new': [[Insert_match_scouting_new], unknown];
     'match-scouting/from-match': [
@@ -554,6 +555,7 @@ export type Queries = {
         [
             {
                 team: number;
+                eventKey: string;
             }
         ],
         RetrievedMatchScouting

@@ -5,6 +5,9 @@ import { DB } from "../../utilities/databases";
 import Account from "../accounts";
 
 export class MatchScouting extends Cache {
+    public static filterDuplicates(m: M, i: number, a: M[]) {
+        return a.findIndex(s => s.matchNumber === m.matchNumber && s.compLevel === m.compLevel) === i;
+    }
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
@@ -14,7 +17,7 @@ export class MatchScouting extends Cache {
         });
     }
 
-    new(data: M) {
+    public static new(data: M) {
         return attemptAsync(async () => {
             const scoutings =( await DB.all('match-scouting/from-event', {
                 eventKey: data.eventKey
@@ -44,6 +47,68 @@ export class MatchScouting extends Cache {
         });
     }
 
+    public static fromTeam(eventKey: string, teamNumber: number) {
+        return attemptAsync(async () => {
+            const matches = (await DB.all('match-scouting/from-team', { eventKey, team: teamNumber })).unwrap();
+            return matches
+                .filter(MatchScouting.filterDuplicates)
+                .map(m => new MatchScouting(m));
+        });
+    }
+
+    public static fromEvent(eventKey: string) {
+        return attemptAsync(async () => {
+            const matches = (await DB.all('match-scouting/from-event', { eventKey })).unwrap();
+            return matches
+                .filter(MatchScouting.filterDuplicates)
+                .map(m => new MatchScouting(m));
+        });
+    }
+
+    public static fromMatch(matchId: string) {
+        return attemptAsync(async () => {
+            const matches = (await DB.all('match-scouting/from-match', { matchId })).unwrap();
+            return matches
+                .filter(MatchScouting.filterDuplicates)
+                .map(m => new MatchScouting(m));
+        });
+    }
+
+    public static fromScoutGroup(eventKey: string, group: number) {
+        return attemptAsync(async () => {
+            const matches = (await DB.all('match-scouting/from-scout-group', { eventKey, scoutGroup: group.toString() })).unwrap();
+            return matches
+                .filter(MatchScouting.filterDuplicates)
+                .map(m => new MatchScouting(m));
+        });
+    }
+
+    public static fromScout(id: string, eventKey: string) {
+        return attemptAsync(async () => {
+            const matches = (await DB.all('match-scouting/from-scout', { scoutId: id, eventKey })).unwrap();
+            return matches
+                .filter(MatchScouting.filterDuplicates)
+                .map(m => new MatchScouting(m));
+        });
+    }
+
+    public static fromCustomMatch(team: number, eventKey: string) {
+        return attemptAsync(async () => {
+            const matches = (await DB.all('match-scouting/team-custom-match', { team: team, eventKey })).unwrap();
+            return matches
+                .filter(MatchScouting.filterDuplicates)
+                .map(m => new MatchScouting(m));
+        });
+    }
+
+    public static teamsPreScouting(team: number, eventKey: string) {
+        return attemptAsync(async () => {
+            const matches = (await DB.all('match-scouting/teams-pre-scouting', { team, eventKey })).unwrap();
+            return matches
+                .filter(MatchScouting.filterDuplicates)
+                .map(m => new MatchScouting(m));
+        });
+    }
 
     public id: string;
     public matchId: string | undefined;
