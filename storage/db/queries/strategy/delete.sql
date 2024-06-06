@@ -1,0 +1,1 @@
+DELETE FROM Strategy WHERE id = :id;

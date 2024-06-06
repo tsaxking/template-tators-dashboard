@@ -3,21 +3,204 @@
         {
             "role": {
                 "name": "admin",
-                "description": "Administrative permissions",
+                "description": "This user has all permissions",
                 "rank": 0,
-                "id": "147659b2-b7b9-440a-b5a0-6164889c2bdc"
+                "id": "a02400c2-c553-4707-bb43-d846f664a319"
             },
             "permissions": [
-                { "permission": "admin", "description": "admin" },
-                { "permission": "verify", "description": "verify" },
-                { "permission": "editUsers", "description": "edit users" }
+                {
+                    "permission": "editRoles",
+                    "description": "This user has the ability to manage roles on other accounts"
+                },
+                {
+                    "permission": "viewData",
+                    "description": "This user has the ability to view information"
+                },
+                {
+                    "permission": "editDatabase",
+                    "description": "This user has the ability to manage the database"
+                },
+                {
+                    "permission": "editPermissions",
+                    "description": "This user has the ability to change permissions on roles"
+                },
+                {
+                    "permission": "editUsers",
+                    "description": "This user has the ability to manage other users"
+                },
+                {
+                    "permission": "viewLogs",
+                    "description": "This user has the ability to view the logs for the server"
+                },
+                {
+                    "permission": "verify",
+                    "description": "This user has the ability to verify other accounts"
+                },
+                {
+                    "permission": "editScoutingQuestions",
+                    "description": "This user has the ability to change scouting questions"
+                },
+                {
+                    "permission": "settings",
+                    "description": "This user has the ability to edit global settings"
+                },
+                {
+                    "permission": "submitScoutingAnswers",
+                    "description": "This user has the ability to submit scouting answers"
+                }
             ]
+        },
+        {
+            "role": {
+                "name": "developer",
+                "description": "This user is a developer for the scouting team",
+                "rank": 1,
+                "id": "fc509993-c5b5-4133-aee5-16758bd94798"
+            },
+            "permissions": [
+                {
+                    "permission": "viewData",
+                    "description": "This user has the ability to view information"
+                },
+                {
+                    "permission": "editDatabase",
+                    "description": "This user has the ability to manage the database"
+                },
+                {
+                    "permission": "viewLogs",
+                    "description": "This user has the ability to view the logs for the server"
+                },
+                {
+                    "permission": "verify",
+                    "description": "This user has the ability to verify other accounts"
+                },
+                {
+                    "permission": "settings",
+                    "description": "This user has the ability to edit global settings"
+                }
+            ]
+        },
+        {
+            "role": {
+                "name": "mentor",
+                "description": "This user is a mentor for team 2122",
+                "rank": 2,
+                "id": "160c0bfb-8299-4564-b5a3-f6a8abbde7bb"
+            },
+            "permissions": [
+                {
+                    "permission": "viewData",
+                    "description": "This user has the ability to view information"
+                },
+                {
+                    "permission": "editPermissions",
+                    "description": "This user has the ability to change permissions on roles"
+                },
+                {
+                    "permission": "editUsers",
+                    "description": "This user has the ability to manage other users"
+                },
+                {
+                    "permission": "verify",
+                    "description": "This user has the ability to verify other accounts"
+                },
+                {
+                    "permission": "editScoutingQuestions",
+                    "description": "This user has the ability to change scouting questions"
+                }
+            ]
+        },
+        {
+            "role": {
+                "name": "mentor",
+                "description": "This user is a mentor of Team Tators",
+                "rank": 2,
+                "id": "a4b619bf-b47c-40d8-b547-a54ab5d6e9dd"
+            },
+            "permissions": []
+        },
+        {
+            "role": {
+                "name": "scout",
+                "description": "This user is a scout for team 2122",
+                "rank": 3,
+                "id": "51ed9e18-ddb6-4a40-96d6-8dedbb8f937b"
+            },
+            "permissions": [
+                {
+                    "permission": "viewData",
+                    "description": "This user has the ability to view information"
+                },
+                {
+                    "permission": "submitScoutingAnswers",
+                    "description": "This user has the ability to submit scouting answers"
+                }
+            ]
+        },
+        {
+            "role": {
+                "name": "viewer",
+                "description": "This user can view information",
+                "rank": 4,
+                "id": "c76985f7-5525-4f75-821d-3414230ebe71"
+            },
+            "permissions": [
+                {
+                    "permission": "viewData",
+                    "description": "This user has the ability to view information"
+                }
+            ]
+        },
+        {
+            "role": {
+                "name": "user",
+                "description": "Default role",
+                "rank": 5,
+                "id": "21369cd3-7e0d-4fdc-aa64-9c32bf89a5f4"
+            },
+            "permissions": []
         }
     ],
     "permissions": [
-        { "permission": "admin", "description": "admin" },
-        { "permission": "editRoles", "description": "Edit roles" },
-        { "permission": "verify", "description": "verify" },
-        { "permission": "editUsers", "description": "edit users" }
+        {
+            "permission": "editRoles",
+            "description": "This user has the ability to manage roles on other accounts"
+        },
+        {
+            "permission": "viewData",
+            "description": "This user has the ability to view information"
+        },
+        {
+            "permission": "editDatabase",
+            "description": "This user has the ability to manage the database"
+        },
+        {
+            "permission": "editPermissions",
+            "description": "This user has the ability to change permissions on roles"
+        },
+        {
+            "permission": "editUsers",
+            "description": "This user has the ability to manage other users"
+        },
+        {
+            "permission": "viewLogs",
+            "description": "This user has the ability to view the logs for the server"
+        },
+        {
+            "permission": "verify",
+            "description": "This user has the ability to verify other accounts"
+        },
+        {
+            "permission": "editScoutingQuestions",
+            "description": "This user has the ability to change scouting questions"
+        },
+        {
+            "permission": "settings",
+            "description": "This user has the ability to edit global settings"
+        },
+        {
+            "permission": "submitScoutingAnswers",
+            "description": "This user has the ability to submit scouting answers"
+        }
     ]
 }

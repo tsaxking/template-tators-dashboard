@@ -1,0 +1,1 @@
+DELETE FROM Whiteboards WHERE id = :id;
