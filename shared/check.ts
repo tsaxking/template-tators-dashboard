@@ -90,11 +90,11 @@ export class Err<E = Error, T = unknown> {
         return new Ok(value);
     }
 
-    unwrap(): E {
+    unwrap(): T {
         console.warn(
             'Warning: Unwrapping Err result, this is not recommended for anything other than testing.'
         );
-        return this.error;
+        throw this.error;
     }
 }
 
