@@ -53,7 +53,7 @@ export const newVersion = async () => {
     if (doScript) {
         saveFileSync(
             `storage/db/scripts/versions/1-${minor}-${patch}.ts`,
-            `// New version 1.${minor}.${patch}\n\nDeno.exit(0) // Please do not remove this`
+            `// New version 1.${minor}.${patch}\n\nprocess.exit(0) // Please do not remove this`
         );
     }
 
@@ -232,6 +232,9 @@ export const restoreBackup = async () => {
             value: b
         }))
     );
+
+    // console.log({ backup });
+    // process.exit();
 
     if (backup.isErr()) {
         return backToMain('Error selecting backup: ' + backup.error);
