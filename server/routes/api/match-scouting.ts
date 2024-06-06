@@ -137,7 +137,8 @@ router.post<{
         const { eventKey, teamNumber } = req.body;
         const [preScoutingResult, teamScouting] = await Promise.all([
             DB.all('match-scouting/teams-pre-scouting', {
-                team: teamNumber
+                team: teamNumber,
+                eventKey
             }),
             DB.all('match-scouting/from-team-only', {
                 team: teamNumber
