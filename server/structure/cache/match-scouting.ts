@@ -3,6 +3,7 @@ import { RetrievedMatchScouting as M } from "../../utilities/tables";
 import { attemptAsync } from "../../../shared/check";
 import { DB } from "../../utilities/databases";
 import Account from "../accounts";
+import { uuid } from "../../utilities/uuid";
 
 export class MatchScouting extends Cache {
     public static filterDuplicates(m: M, i: number, a: M[]) {
@@ -17,7 +18,18 @@ export class MatchScouting extends Cache {
         });
     }
 
-    public static new(data: M) {
+    public static new(data: {
+        matchId: string | undefined;
+        team: number;
+        scoutId: string | undefined;
+        scoutGroup: number;
+        trace: string;
+        checks: string;
+        preScouting: number | undefined;
+        eventKey: string;
+        matchNumber: number;
+        compLevel: string;
+    }) {
         return attemptAsync(async () => {
             const scoutings =( await DB.all('match-scouting/from-event', {
                 eventKey: data.eventKey
@@ -29,9 +41,11 @@ export class MatchScouting extends Cache {
             }
 
             const account = await Account.fromId(data.scoutId || '');
+            const id = uuid();
+            const time = Date.now();
 
             (await DB.run('match-scouting/new', {
-                id: data.id,
+                id,
                 matchId: data.matchId,
                 team: data.team,
                 scoutId: data.scoutId,
@@ -39,11 +53,15 @@ export class MatchScouting extends Cache {
                 trace: data.trace,
                 checks: data.checks,
                 preScouting: data.preScouting || 0,
-                time: data.time,
+                time,
                 scoutName: account?.username || data.scoutId || ''
             })).unwrap();
 
-            return new MatchScouting(data);
+            return new MatchScouting({
+                ...data,
+                time,
+                id
+            });
         });
     }
 

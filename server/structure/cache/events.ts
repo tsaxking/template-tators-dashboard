@@ -12,6 +12,13 @@ export class Event extends Cache {
         });
     }
 
+    public static new(eventKey: string) {
+        return attemptAsync(async () => {
+            const e = (await Event.fromKey(eventKey)).unwrap();
+            if (e) throw new Error('Event already exists');
+            await DB.run('events/new-event', { eventKey, flipX: 0, flipY: 0 });
+        });
+    }
 
     eventKey: string;
     flipX: number;
