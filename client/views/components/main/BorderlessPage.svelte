@@ -9,14 +9,7 @@ export let active: string;
 </script>
 
 {#if active === title}
-    <div class="container-fluid m-0">
+    <div class="container-fluid m-0 p-0">
         <slot />
     </div>
 {/if}
-
-<style>
-.m-0 {
-    margin: 0;
-    padding: 0;
-}
-</style>

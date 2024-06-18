@@ -5,6 +5,8 @@ import { FIRSTEvent } from './../../../models/FIRST/event';
 import { FIRSTMatch } from './../../../models/FIRST/match';
 import { onMount } from 'svelte';
 import RobotCard from './RobotCard.svelte';
+import { Color } from '../../../submodules/colors/color';
+
 
 let matchScouting: {
     teams: {
@@ -89,6 +91,11 @@ function findClosestMatch(time: number) {
     return closestMatch;
 }
 
+// TODO: if eliminations, display alliance number
+
+let redTeams: [number, number, number] = [0, 0, 0];
+let blueTeams: [number, number, number] = [0, 0, 0];
+
 let red1 = 1;
 let red2 = 2;
 let red3 = 3;
@@ -99,23 +106,27 @@ let blue3 = 6;
 
 let minutes = 0;
 
-function fetchTeamsData(match: FIRSTMatch) {
-    const teams = match.getTeams();
-    return teams.then(teamsResult => {
-        if (teamsResult.isErr()) {
-            console.error(teamsResult.error);
-            return [];
-        }
-        return teamsResult.value.map(team => team?.tba.team_number);
-    });
+async function fetchTeamsData(match: FIRSTMatch) {
+    const teamsResult = await match.getTeams();
+    if (teamsResult.isErr()) {
+        console.error(teamsResult.error);
+        return [];
+    }
+    return teamsResult.value
+        .filter(Boolean) // TODO: deal with the 4th robot
+        .map(team => team.tba.team_number);
 }
 
 $: {
     if (closestMatch) {
         fetchTeamsData(closestMatch).then(teams => {
-            teams.forEach(team => {
-                console.log(team);
-            });
+            for (let i = 0; i < teams.length; i++) {
+                if (i < 3) {
+                    redTeams[i] = teams[i];
+                } else {
+                    blueTeams[i - 3] = teams[i];
+                }
+            }
         });
     }
 }
@@ -127,7 +138,7 @@ $: console.log(selectedMatchTime * 1000, dateTime(selectedMatchTime * 1000));
 $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 </script>
 
-<div class="vh-display vw-100 container-fluid position-relative">
+<div class="vh-display vw-100 container-fluid position-relative no-scroll no-select">
     <div class="row h-100">
         <div class="col-md-6 bg-danger">
             <div
@@ -161,7 +172,7 @@ $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
             <p class="display-1 text-black" style="font-size:400%">
                 {matchtime}
             </p>
-            <select bind:value="{selectedMatchTime}">
+            <select bind:value="{selectedMatchTime}" class="form-select">
                 {#each matchScouting as { match }}
                     {#if match}
                         <option value="{match.tba.predicted_time}"
@@ -176,7 +187,7 @@ $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 
 <style>
 .vh-display {
-    height: calc(100vh - 58px);
+    height: calc(100vh - var(--topNavbarHeight)) !important;
 }
 
 .bg-gray-light {
