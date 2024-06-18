@@ -532,7 +532,7 @@ export type TeamComments = {
     type: string;
     matchScoutingId: string | undefined;
     accountId: string | undefined;
-    time: number;
+    time: string;
     eventKey: string;
 };
 
@@ -886,7 +886,7 @@ export type Insert_team_comments_delete = {
 
 export type Update_team_comments_update = {
     id: string;
-    team: number;
+    team: string;
     comment: string;
     type: string;
     matchScoutingId: string | undefined;
@@ -902,7 +902,7 @@ export type Insert_team_comments_new = {
     type: string;
     matchScoutingId: string;
     accountId: string | undefined;
-    time: number;
+    time: string;
     eventKey: string;
 };
 
@@ -1057,7 +1057,7 @@ export type Insert_team_comments_update = {
 };
 
 export type Select_team_comments_from_account = {
-    accountId: string | undefined;
+    accountId: string;
 };
 
 export type Insert_permissions_add_to_role = {
