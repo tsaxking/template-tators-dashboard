@@ -4,6 +4,7 @@ import { attemptAsync } from "../../../shared/check";
 import { DB } from "../../utilities/databases";
 import Account from "../accounts";
 import { uuid } from "../../utilities/uuid";
+import { TraceArray } from "../../../shared/submodules/tatorscout-calculations/trace";
 
 export class MatchScouting extends Cache {
     public static filterDuplicates(m: M, i: number, a: M[]) {
@@ -29,17 +30,17 @@ export class MatchScouting extends Cache {
         eventKey: string;
         matchNumber: number;
         compLevel: string;
-    }) {
+    }, overWrite?: boolean) {
         return attemptAsync(async () => {
             const scoutings =( await DB.all('match-scouting/from-event', {
                 eventKey: data.eventKey
             })).unwrap();
             const matchScouting = scoutings.find(s => s.matchNumber === data.matchNumber && s.compLevel === data.compLevel && s.team === data.team);
+            if (matchScouting && !overWrite) throw new Error('Match scouting already exists, and overwrite is not enabled');
             if (matchScouting) {
-                const old = new MatchScouting(matchScouting);
-                (await old.archive()).unwrap();
+                const ms = new MatchScouting(matchScouting);
+                (await ms.archive()).unwrap();
             }
-
             const account = await Account.fromId(data.scoutId || '');
             const id = uuid();
             const time = Date.now();
@@ -133,8 +134,8 @@ export class MatchScouting extends Cache {
     public team: number;
     public scoutId: string | undefined;
     public scoutGroup: number;
-    public trace: string;
-    public checks: string;
+    public trace: TraceArray;
+    public checks: string[];
     public preScouting: number | undefined;
     public time: number;
     public eventKey: string;
@@ -148,15 +149,14 @@ export class MatchScouting extends Cache {
         this.team = data.team;
         this.scoutId = data.scoutId;
         this.scoutGroup = data.scoutGroup;
-        this.trace = data.trace;
-        this.checks = data.checks;
+        this.trace = JSON.parse(data.trace);
+        this.checks = JSON.parse(data.checks);
         this.preScouting = data.preScouting;
         this.time = data.time;
         this.eventKey = data.eventKey;
         this.matchNumber = data.matchNumber;
         this.compLevel = data.compLevel;
     }
-
 
     archive() {
         return attemptAsync(async () => {
@@ -170,5 +170,22 @@ export class MatchScouting extends Cache {
             })).unwrap();
             return DB.run('match-scouting/delete', { id: this.id });
         });
+    }
+
+    get json() {
+        return {
+            id: this.id,
+            matchId: this.matchId,
+            team: this.team,
+            scoutId: this.scoutId,
+            scoutGroup: this.scoutGroup,
+            trace: JSON.stringify(this.trace),
+            checks: JSON.stringify(this.checks),
+            preScouting: this.preScouting,
+            time: this.time,
+            eventKey: this.eventKey,
+            matchNumber: this.matchNumber,
+            compLevel: this.compLevel
+        }
     }
 }
