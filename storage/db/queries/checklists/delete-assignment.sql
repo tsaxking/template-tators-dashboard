@@ -1,0 +1,1 @@
+DELETE FROM ChecklistAssignments WHERE checklistId = :checklistId AND accountId = :accountId;

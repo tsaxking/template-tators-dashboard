@@ -14,7 +14,8 @@ export let accountLinks: (string | null)[] = [];
 export let groups: PageGroup[] = [];
 export let active: string;
 
-const openPage = (page: string) => {
+const openPage = (page?: string) => {
+    console.log({ page });
     if (!page) return console.error('No page provided!');
 
     document.title =
@@ -39,7 +40,7 @@ $: openPage(active);
     <Offcanvas
         {groups}
         on:openPage="{e => {
-            active = e.detail;
+            openPage(e.detail);
         }}"
         {active}
     ></Offcanvas>
