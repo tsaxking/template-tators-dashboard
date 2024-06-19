@@ -12,6 +12,7 @@ import { FileUpload } from './middleware/stream';
 import { ReqBody } from './structure/app/req';
 import { parseCookie } from '../shared/cookie';
 import { stdin } from './utilities/stdin';
+import { emitter } from './middleware/data-type';
 import path from 'path';
 import { DB } from './utilities/databases';
 import { Session } from './structure/sessions';
@@ -40,6 +41,8 @@ if (env.ENVIRONMENT === 'dev') {
         console.log('Reloading clients...');
         app.io.emit('reload');
     });
+
+    emitter.on('fail', console.log);
 }
 
 app.post('/env', (req, res) => {
@@ -75,7 +78,7 @@ app.post('/socket-url', (req, res) => {
 });
 
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.resolve(__root, './public/pictures/logo-square.png'));
+    res.sendFile(path.resolve(__root, './public/pictures/logo-square.jpg'));
 });
 
 app.get('/robots.txt', (req, res) => {
@@ -124,6 +127,7 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
+    // log(`[${req.method}] ${req.url}`);
 
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
@@ -176,6 +180,10 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
+app.get('/home', (_req, res) => {
+    res.sendTemplate('entries/home');
+});
+
 app.route('/api', api);
 app.route('/account', account);
 app.route('/roles', role);
@@ -184,6 +192,7 @@ app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
     if (env.ENVIRONMENT === 'test') return next();
+    // return next(); // TODO: THIS IS TEMPORARY FOR 3-1-2024
     if (!req.session.accountId) {
         if (
             ![
@@ -206,13 +215,28 @@ app.get('/dashboard/admin', Account.allowPermissions('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
 });
 
+app.get(
+    '/dashboard/mentor',
+    Account.allowPermissions('mentor'),
+    (_req, res) => {
+        res.sendTemplate('entries/dashboard/mentor');
+    }
+);
+
 app.route('/admin', admin);
 
 app.get('/dashboard/:dashboard', (req, res) => {
     res.sendTemplate('entries/dashboard/' + req.params.dashboard);
 });
 
-app.get('/user/*', Account.isSignedIn, (req, res) => {
+// this is how the user will access the dashboard
+app.get('/dashboard/:year', (req, res) => {
+    const { year } = req.params;
+    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + year);
+});
+
+app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
 });
 

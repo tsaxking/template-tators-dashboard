@@ -51,29 +51,18 @@ export const fromSnakeCase = (str: string, del = '_'): string =>
         .replace(/([A-Z])/g, g => ` ${g[0].toLowerCase()}`)
         .replace(new RegExp(del, 'g'), ' ');
 
+export const streamDelimiter = '<';
+
 /**
  * Abbreviates a string to a given length (appending ...)
  * @date 1/9/2024 - 12:04:06 PM
- */
-export const abbreviate = (string: string, length = 10): string => {
+ */ export const abbreviate = (string: string, length = 10): string => {
     if (length < 3) throw new Error('Abbreviation length must be at least 3');
 
     if (string.length <= length) return string;
     return string.substring(0, length - 3) + '...';
 };
 
-/**
- * Used for streams, you can ignore this
- * @date 1/9/2024 - 12:04:06 PM
- *
- * @type {"<"}
- */
-export const streamDelimiter = '<';
-
-/**
- * Converts a byte number to a string
- * @date 2/7/2024 - 1:47:58 PM
- */
 export const toByteString = (byte: number): string => {
     const sizes = {
         B: 1,
