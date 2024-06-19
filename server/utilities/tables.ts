@@ -61,14 +61,15 @@ export type Sessions = {
     requests: number;
     created: number;
     prevUrl: string | undefined;
+    customData: string | undefined;
 };
 
 export type Blacklist = {
     id: string;
-    ip: string;
+    ip: string | undefined;
     created: number;
     accountId: string | undefined;
-    reason: string;
+    reason: string | undefined;
 };
 
 export type AccountSettings = {
@@ -120,7 +121,7 @@ export type Update_sessions_update = {
     ip: string | undefined;
     prevUrl: string | undefined;
     id: string;
-    customData: string;
+    customData: string | undefined;
 };
 
 export type Insert_sessions_new = {
@@ -166,7 +167,7 @@ export type Update_member_remove_from_board = {
 
 export type Insert_member_new = {
     id: string;
-    status: string | undefined;
+    status: undefined;
 };
 
 export type Update_member_update_bio = {
@@ -252,7 +253,7 @@ export type Select_account_from_email = {
 export type Insert_account_new = {
     id: string;
     username: string;
-    key: string;
+    key: undefined;
     salt: string;
     firstName: string;
     lastName: string;
@@ -355,6 +356,7 @@ export type CustomMatches = {
     blue4: number | undefined;
     created: number;
     name: string;
+    archive: 0 | 1;
 };
 
 export type Whiteboards = {
@@ -364,6 +366,7 @@ export type Whiteboards = {
     matchId: string | undefined;
     customMatchId: string | undefined;
     board: string;
+    archive: 0 | 1;
 };
 
 export type MatchScouting = {
@@ -376,6 +379,14 @@ export type MatchScouting = {
     checks: string;
     preScouting: number | undefined;
     time: number;
+    scoutName: string | undefined;
+    archive: 0 | 1;
+};
+
+export type RetrievedMatchScouting = MatchScouting & {
+    eventKey: string;
+    matchNumber: number;
+    compLevel: string;
 };
 
 export type MatchComments = {
@@ -393,6 +404,7 @@ export type ScoutingQuestionSections = {
     dateAdded: number;
     accountId: string;
     id: string;
+    archive: 0 | 1;
 };
 
 export type ScoutingQuestionGroups = {
@@ -402,6 +414,7 @@ export type ScoutingQuestionGroups = {
     name: string;
     dateAdded: number;
     accountId: string;
+    archive: 0 | 1;
 };
 
 export type ScoutingQuestions = {
@@ -414,6 +427,7 @@ export type ScoutingQuestions = {
     dateAdded: number;
     accountId: string;
     options: string;
+    archive: 0 | 1;
 };
 
 export type ScoutingAnswers = {
@@ -423,6 +437,7 @@ export type ScoutingAnswers = {
     teamNumber: number;
     date: number;
     accountId: string;
+    archive: 0 | 1;
 };
 
 export type TBARequests = {
@@ -437,6 +452,7 @@ export type Checklists = {
     name: string;
     eventKey: string;
     description: string;
+    archive: 0 | 1;
 };
 
 export type ChecklistQuestions = {
@@ -444,6 +460,7 @@ export type ChecklistQuestions = {
     checklistId: string;
     question: string;
     interval: number;
+    archive: 0 | 1;
 };
 
 export type ChecklistAssignments = {
@@ -465,6 +482,7 @@ export type Alliances = {
     team1: number;
     team2: number;
     team3: number;
+    archive: 0 | 1;
 };
 
 export type Strategy = {
@@ -476,6 +494,8 @@ export type Strategy = {
     matchId: string | undefined;
     customMatchId: string | undefined;
     comment: string;
+    checks: string | undefined;
+    archive: 0 | 1;
 };
 
 export type ScoutingQuestionAnswerHistory = {
@@ -530,10 +550,11 @@ export type TeamComments = {
     team: number;
     comment: string;
     type: string;
-    matchScoutingId: string | undefined;
+    matchScoutingId: string;
     accountId: string | undefined;
     time: number;
     eventKey: string;
+    archive: 0 | 1;
 };
 
 export type ScoutingQuestionOptions = {
@@ -547,7 +568,7 @@ export type TeamPictures = {
     teamNumber: number;
     eventKey: string;
     picture: string;
-    time: string;
+    time: string | undefined;
     accountId: string;
 };
 
@@ -722,9 +743,9 @@ export type Insert_scouting_questions_new_question = {
     description: string;
     type: string;
     groupId: string;
-    dateAdded: number | undefined;
-    accountId: string | undefined;
-    options: string | undefined;
+    dateAdded: number;
+    accountId: string;
+    options: string;
 };
 
 export type Delete_scouting_questions_delete_section = {
@@ -829,7 +850,7 @@ export type Update_match_scouting_update = {
     scoutId: string | undefined;
     scoutGroup: number;
     time: number;
-    preScouting: number;
+    preScouting: string | undefined;
     trace: string;
     checks: string;
     id: string;
@@ -842,10 +863,10 @@ export type Insert_match_scouting_new = {
     scoutId: string | undefined;
     scoutGroup: number;
     time: number;
-    preScouting: number;
+    preScouting: string | undefined;
     trace: string;
     checks: string;
-    scoutName: string;
+    scoutName: string | undefined;
 };
 
 export type Select_tba_from_url = {
@@ -1070,12 +1091,6 @@ export type Delete_permissions_remove_from_role = {
     permission: string;
 };
 
-export type RetrievedMatchScouting = MatchScouting & {
-    eventKey: string;
-    matchNumber: number;
-    compLevel: string;
-};
-
 export type Select_blacklist_all = undefined;
 
 export type Update_sessions_sign_in = {
@@ -1094,3 +1109,136 @@ export type Insert_db_change_version = {
 };
 
 export type Delete_db_delete_version = undefined;
+
+export type dbTransfer = {
+    date: number;
+};
+
+export type Delete_blacklist_delete_by_account = {
+    accountId: string | undefined;
+};
+
+export type Delete_blacklist_delete_by_ip = {
+    ip: string | undefined;
+};
+
+export type Delete_blacklist_delete = {
+    id: string;
+};
+
+export type Select_blacklist_from_account = {
+    accountId: string | undefined;
+};
+
+export type Select_blacklist_from_ip = {
+    ip: string | undefined;
+};
+
+export type Insert_blacklist_new = {
+    id: string;
+    ip: string | undefined;
+    created: number;
+    accountId: string | undefined;
+    reason: string | undefined;
+};
+
+export type Update_checklists_delete_answer = {
+    id: string;
+};
+
+export type Update_checklists_delete_checklist = {
+    id: string;
+};
+
+export type Update_checklists_delete_question = {
+    id: string;
+};
+
+export type Update_events_delete_alliance = {
+    id: string;
+};
+
+export type Update_events_update = {
+    flipX: number;
+    flipY: number;
+    eventKey: string;
+};
+
+export type Update_match_scouting_delete = {
+    id: string;
+};
+
+export type Update_scouting_questions_delete_answer = {
+    id: string;
+};
+
+export type Update_scouting_questions_delete_group = {
+    id: string;
+};
+
+export type Update_scouting_questions_delete_question = {
+    id: string;
+};
+
+export type Update_scouting_questions_delete_section = {
+    id: string;
+};
+
+export type Select_scouting_questions_group_from_id = {
+    id: string;
+};
+
+export type Select_scouting_questions_groups_from_section = {
+    section: string;
+    eventKey: string;
+};
+
+export type Select_scouting_questions_section_from_id = {
+    id: string;
+};
+
+export type Update_scouting_questions_update_answer = {
+    questionId: string;
+    teamNumber: number;
+    answer: string;
+    date: number;
+    accountId: string;
+    id: string;
+};
+
+export type Update_scouting_questions_update_section = {
+    name: string;
+    multiple: number;
+    dateAdded: number;
+    accountId: string;
+    id: string;
+};
+
+export type Update_strategy_delete = {
+    id: string;
+};
+
+export type Update_team_comments_delete = {
+    id: string;
+};
+
+export type Select_teams_get_pictures = {
+    teamNumber: number;
+    eventKey: string;
+};
+
+export type Insert_teams_new_picture = {
+    teamNumber: number;
+    eventKey: string;
+    picture: string;
+    time: string | undefined;
+    accountId: string;
+};
+
+export type Select_teams_pictures_from_event = {
+    eventKey: string;
+};
+
+export type Update_whiteboards_delete = {
+    id: string;
+};

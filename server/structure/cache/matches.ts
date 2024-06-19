@@ -1,7 +1,7 @@
-import { Cache } from "./cache";
-import { Matches as M } from "../../utilities/tables";
-import { attemptAsync } from "../../../shared/check";
-import { DB } from "../../utilities/databases";
+import { Cache } from './cache';
+import { Matches as M } from '../../utilities/tables';
+import { attemptAsync } from '../../../shared/check';
+import { DB } from '../../utilities/databases';
 
 export class Match extends Cache {
     public static fromId(id: string) {
@@ -14,7 +14,9 @@ export class Match extends Cache {
 
     public static fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            const data = (await DB.all('matches/from-event', { eventKey })).unwrap();
+            const data = (
+                await DB.all('matches/from-event', { eventKey })
+            ).unwrap();
             return data.map(d => new Match(d));
         });
     }

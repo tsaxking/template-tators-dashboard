@@ -3,7 +3,10 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { MatchScouting as MatchScoutingObj } from '../../../shared/db-types-extended';
 import { ServerRequest } from '../../utilities/requests';
 import { attemptAsync, Result } from '../../../shared/check';
-import { TraceArray, Trace } from '../../../shared/submodules/tatorscout-calculations/trace';
+import {
+    TraceArray,
+    Trace
+} from '../../../shared/submodules/tatorscout-calculations/trace';
 import { socket } from '../../utilities/socket';
 import { TeamComment } from './team-comments';
 import { Color } from '../../submodules/colors/color';
