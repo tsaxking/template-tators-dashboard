@@ -7,5 +7,6 @@ SET
     time = :time,
     preScouting = :preScouting,
     trace = :trace,
-    checks = :checks
+    checks = :checks,
+    scoutName = :scoutName
 WHERE id = :id;
