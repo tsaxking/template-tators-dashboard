@@ -9,6 +9,6 @@ FROM MatchScouting
 INNER JOIN CustomMatches ON CustomMatches.id = MatchScouting.matchId
 
 WHERE MatchScouting.team = :team
-    AND eventKey = :eventKey
+    AND CustomMatches.eventKey = :eventKey
     AND MatchScouting.preScouting = 1
     AND MatchScouting.archived = 0;

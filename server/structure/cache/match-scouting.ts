@@ -84,7 +84,7 @@ export class MatchScouting extends Cache {
         });
     }
 
-    public static fromTeam(eventKey: string, teamNumber: number) {
+    public static fromTeam(teamNumber: number, eventKey: string) {
         return attemptAsync(async () => {
             const matches = (
                 await DB.all('match-scouting/from-team', {
@@ -211,15 +211,10 @@ export class MatchScouting extends Cache {
         return attemptAsync(async () => {
             (
                 await DB.run('match-scouting/archive', {
-                    content: JSON.stringify(this),
-                    compLevel: this.compLevel,
-                    eventKey: this.eventKey,
-                    matchNumber: this.matchNumber,
-                    teamNumber: this.team,
-                    created: Date.now()
+                    id: this.id
                 })
             ).unwrap();
-            return DB.run('match-scouting/delete', { id: this.id });
+            return DB.run('match-scouting/archive', { id: this.id });
         });
     }
 }

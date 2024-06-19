@@ -137,12 +137,7 @@ router.post<Match>(
 
             if (existingRes.value) {
                 DB.run('match-scouting/archive', {
-                    content: JSON.stringify(bigIntEncode(req.body)),
-                    created: Date.now(),
-                    compLevel,
-                    eventKey,
-                    matchNumber,
-                    teamNumber
+                    id: existingRes.value.id
                 });
                 return res.json({
                     success: false,
