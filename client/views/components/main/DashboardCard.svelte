@@ -1,6 +1,8 @@
 <script lang="ts">
+import { onMount } from 'svelte';
 import { DashboardCard } from '../../../models/cards';
 import { Settings } from '../../../models/settings';
+import { Keyboard } from '../../../utilities/keybinds';
 
 export let title: string;
 export let subtitle = '';
@@ -10,23 +12,46 @@ export let id: string;
 // let button: HTMLButtonElement;
 export let expandable = false;
 export let minimizable = false;
+export let keyboard: Keyboard = Keyboard.default;
 
 let expanded = false;
+
+const toggleExpand = () => (expanded = !expanded);
+
+$: {
+    if (expanded) {
+        keyboard.on('Escape', toggleExpand);
+    } else {
+        keyboard.off('Escape', toggleExpand);
+    }
+}
+
+// TODO: Currently this will set settings every time the component is mounted. This is BAD
 DashboardCard.add(id, title, {
     minimized: false
 });
 let minimized = DashboardCard.get(id)?.settings.minimized || false;
 
-$: {
+const toggleMinimize = () => {
+    minimized = !minimized;
     DashboardCard.change(id, {
         minimized
     });
-}
+};
 
-Settings.on('set', ([key, value]) => {
+const onSettings = ([key, value]: [string, unknown]) => {
     if (key === 'dashboardCards') {
         minimized = DashboardCard.get(id)?.settings.minimized || false;
     }
+};
+
+Settings.on('set', onSettings);
+
+onMount(() => {
+    return () => {
+        Settings.off('set', onSettings);
+        keyboard.off('Escape', toggleExpand);
+    };
 });
 </script>
 
@@ -39,7 +64,7 @@ Settings.on('set', ([key, value]) => {
                         {#if minimizable}
                             <button
                                 class="btn m-0 p-0"
-                                on:click="{() => (minimized = !minimized)}"
+                                on:click="{toggleMinimize}"
                             >
                                 <i class="material-icons">
                                     {minimized ? 'expand_more' : 'expand_less'}
@@ -55,7 +80,7 @@ Settings.on('set', ([key, value]) => {
                         {#if expandable}
                             <button
                                 class="btn m-0 p-0"
-                                on:click="{() => (expanded = !expanded)}"
+                                on:click="{toggleExpand}"
                             >
                                 <i class="material-icons">
                                     {expanded
@@ -82,7 +107,8 @@ Settings.on('set', ([key, value]) => {
         top 0.3s ease,
         left 0.3s ease,
         width 0.3s ease,
-        height 0.3s ease;
+        transform 0.3s ease,
+        padding 0.3s ease;
 }
 
 .dashboard-card.expanded {
