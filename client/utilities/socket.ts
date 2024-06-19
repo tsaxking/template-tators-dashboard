@@ -6,6 +6,12 @@ import { sleep } from '../../shared/sleep';
 import { alert } from './notifications';
 import { attemptAsync } from '../../shared/check';
 
+type SocketOptions = {
+    type: 'adaptive' | 'constant';
+    interval: number;
+    timeLimit?: number;
+};
+
 type Cache = {
     event: string;
     data: any;
@@ -19,12 +25,18 @@ let latest = 0;
  * @date 3/8/2024 - 7:27:46 AM
  *
  * @class SocketWrapper
- * @typedef {SocketWrapper}
+ * @typedef {Socket}
  */
-class SocketWrapper {
+class Socket {
     private cache: Cache[] = [];
     private id?: string;
-    public static isActive = false;
+    public isActive = false;
+
+    public options: SocketOptions = {
+        type: 'adaptive',
+        interval: 1000,
+        timeLimit: 1000 * 60 * 5 // 5 minutes
+    };
 
     private readonly em = new EventEmitter();
 
@@ -101,7 +113,7 @@ class SocketWrapper {
     }
 
     private newEvent(event: string, data: any) {
-        console.log({ event, data });
+        // console.log({ event, data });
         this.em.emit(event, data);
     }
 
@@ -111,7 +123,7 @@ class SocketWrapper {
      */
     connect() {
         let running = false;
-        let timeout: number;
+        let timeout: number = this.options.interval;
         let sessionTimeout: NodeJS.Timeout;
         let isOffline = false;
         const run = async () => {
@@ -119,25 +131,38 @@ class SocketWrapper {
             running = true;
             await sleep(timeout);
             await this.ping();
-            timeout += SOCKET_INTERVAL;
+            if (this.options.type === 'adaptive') timeout += SOCKET_INTERVAL;
             run();
         };
+        const on = document.addEventListener;
+        const off = document.removeEventListener;
+
         const reset = () => {
             timeout = SOCKET_INTERVAL;
             if (sessionTimeout) clearTimeout(sessionTimeout);
-            sessionTimeout = setTimeout(
-                () => {
+            if (this.options.timeLimit)
+                sessionTimeout = setTimeout(() => {
                     isOffline = true;
+                    off('visibilitychange', reset);
+                    off('focus', reset);
+                    off('blur', () => (timeout = 0));
+                    off('scroll', reset);
+                    off('mousemove', reset);
+                    off('keydown', reset);
+                    off('keyup', reset);
+                    off('click', reset);
+                    off('touchstart', reset);
+                    off('touchend', reset);
+                    off('touchmove', reset);
+                    off('touchcancel', reset);
+                    off('touchleave', reset);
                     alert('Session expired, please refresh the page.')
                         .then(() => location.reload())
                         .catch(() => location.reload());
-                },
-                1000 * 60 * 5
-            ); // 5 minutes
+                }, this.options.timeLimit); // 5 minutes
             if (!running) run();
         };
         reset();
-        const on = document.addEventListener;
         on('visibilitychange', reset);
         on('focus', reset);
         on('blur', () => (timeout = 0));
@@ -177,8 +202,25 @@ class SocketWrapper {
  * Socket.io client
  * @date 3/8/2024 - 7:27:46 AM
  *
- * @type {SocketWrapper}
+ * @type {Socket}
  */
-export const socket = new SocketWrapper();
-socket.connect();
+export const socket = new Socket();
+
 Object.assign(window, { socket });
+
+let changed = false;
+
+// Yes, this has side effects. But this is used to control the socket connection.
+/**
+ * Builds the socket connection, can only be called once. Must be called for the socket to work.
+ * // TODO: this likely isn't great, so I'll need to revisit this
+ * @date 3/8/2024 - 7:27:46 AM
+ *
+ * @param {SocketOptions} options
+ */
+export const buildSocket = ({ type, interval, timeLimit }: SocketOptions) => {
+    if (changed) throw new Error('Socket already built');
+    socket.options = { type, interval, timeLimit };
+    socket.connect();
+    changed = true;
+};
