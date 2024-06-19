@@ -1,13 +1,22 @@
-import { attemptAsync } from "../../../shared/check";
-import { DB } from "../../utilities/databases";
-import { ScoutingQuestionSections as S, ScoutingQuestionGroups as G, ScoutingQuestions as Q, ScoutingAnswers as A } from "../../utilities/tables";
-import { Cache } from "./cache";
+import { attemptAsync } from '../../../shared/check';
+import { DB } from '../../utilities/databases';
+import {
+    ScoutingQuestionSections as S,
+    ScoutingQuestionGroups as G,
+    ScoutingQuestions as Q,
+    ScoutingAnswers as A
+} from '../../utilities/tables';
+import { Cache } from './cache';
 import { uuid } from '../../utilities/uuid';
 
 export class Question extends Cache {
     public static fromGroup(groupId: string) {
         return attemptAsync(async () => {
-            return (await DB.all('scouting-questions/questions-from-group', { groupId }))
+            return (
+                await DB.all('scouting-questions/questions-from-group', {
+                    groupId
+                })
+            )
                 .unwrap()
                 .map(q => new Question(q));
         });
@@ -15,7 +24,9 @@ export class Question extends Cache {
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const q = (await DB.get('scouting-questions/question-from-id', { id })).unwrap();
+            const q = (
+                await DB.get('scouting-questions/question-from-id', { id })
+            ).unwrap();
             if (!q) return undefined;
             return new Question(q);
         });
@@ -23,11 +34,13 @@ export class Question extends Cache {
 
     public static fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            return (await DB.all('scouting-questions/questions-from-event', { eventKey }))
+            return (
+                await DB.all('scouting-questions/questions-from-event', {
+                    eventKey
+                })
+            )
                 .unwrap()
-                .map(q => new Question(
-                    { ...q, eventKey }
-                ));
+                .map(q => new Question({ ...q, eventKey }));
         });
     }
 
@@ -44,15 +57,18 @@ export class Question extends Cache {
         return attemptAsync(async () => {
             const id = uuid();
             const dateAdded = Date.now();
-            (await DB.run('scouting-questions/new-question', {
-                ...data,
-                id,
-                dateAdded
-            })).unwrap();
+            (
+                await DB.run('scouting-questions/new-question', {
+                    ...data,
+                    id,
+                    dateAdded
+                })
+            ).unwrap();
             return new Question({
                 ...data,
                 id,
                 dateAdded,
+                archive: 0
             });
         });
     }
@@ -67,6 +83,7 @@ export class Question extends Cache {
     accountId: string;
     options: string;
     eventKey: string;
+    archive: 0 | 1;
 
     constructor(data: Q & { eventKey: string }) {
         super();
@@ -80,6 +97,7 @@ export class Question extends Cache {
         this.accountId = data.accountId;
         this.options = data.options;
         this.eventKey = data.eventKey;
+        this.archive = data.archive;
     }
 
     delete() {
@@ -90,11 +108,7 @@ export class Question extends Cache {
         return DB.run('scouting-questions/migrate-question', { id: this.id });
     }
 
-    answer(data: {
-        answer: string;
-        teamNumber: number;
-        accountId: string;
-    }) {
+    answer(data: { answer: string; teamNumber: number; accountId: string }) {
         return Answer.new({
             ...data,
             questionId: this.id
@@ -111,15 +125,22 @@ export class Question extends Cache {
         options: string;
     }) {
         const date = Date.now();
-        return DB.run('scouting-questions/update-question', { ...this, date, ...data });
+        return DB.run('scouting-questions/update-question', {
+            ...this,
+            date,
+            ...data
+        });
     }
 }
-
 
 export class Group extends Cache {
     public static fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            return (await DB.all('scouting-questions/groups-from-event', { eventKey }))
+            return (
+                await DB.all('scouting-questions/groups-from-event', {
+                    eventKey
+                })
+            )
                 .unwrap()
                 .map(g => new Group(g));
         });
@@ -127,7 +148,9 @@ export class Group extends Cache {
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const group = (await DB.get('scouting-questions/group-from-id', { id })).unwrap();
+            const group = (
+                await DB.get('scouting-questions/group-from-id', { id })
+            ).unwrap();
             if (!group) return undefined;
             return new Group(group);
         });
@@ -135,7 +158,12 @@ export class Group extends Cache {
 
     public static fromSection(id: string, eventKey: string) {
         return attemptAsync(async () => {
-            return (await DB.all('scouting-questions/groups-from-section', { section: id, eventKey }))
+            return (
+                await DB.all('scouting-questions/groups-from-section', {
+                    section: id,
+                    eventKey
+                })
+            )
                 .unwrap()
                 .map(g => new Group(g));
         });
@@ -150,15 +178,18 @@ export class Group extends Cache {
         return attemptAsync(async () => {
             const id = uuid();
             const dateAdded = Date.now();
-            (await DB.run('scouting-questions/new-group', {
-                ...data,
-                id,
-                dateAdded
-            })).unwrap();
+            (
+                await DB.run('scouting-questions/new-group', {
+                    ...data,
+                    id,
+                    dateAdded
+                })
+            ).unwrap();
             return new Group({
                 ...data,
                 id,
-                dateAdded
+                dateAdded,
+                archive: 0
             });
         });
     }
@@ -169,6 +200,7 @@ export class Group extends Cache {
     name: string;
     dateAdded: number;
     accountId: string;
+    archive: 0 | 1;
 
     constructor(data: G) {
         super();
@@ -178,6 +210,7 @@ export class Group extends Cache {
         this.name = data.name;
         this.dateAdded = data.dateAdded;
         this.accountId = data.accountId;
+        this.archive = data.archive;
     }
 
     delete() {
@@ -188,21 +221,22 @@ export class Group extends Cache {
         return DB.run('scouting-questions/migrate-group', { id: this.id });
     }
 
-    update(data: {
-        name: string;
-        accountId: string;
-    }) {
+    update(data: { name: string; accountId: string }) {
         const date = Date.now();
-        return DB.run('scouting-questions/update-group', { ...this, date, ...data });
+        return DB.run('scouting-questions/update-group', {
+            ...this,
+            date,
+            ...data
+        });
     }
 }
-
-
 
 export class Section extends Cache {
     public static all() {
         return attemptAsync(async () => {
-            const all = (await DB.all('scouting-questions/all-sections')).unwrap();
+            const all = (
+                await DB.all('scouting-questions/all-sections')
+            ).unwrap();
             return all.map(a => new Section(a));
         });
     }
@@ -215,18 +249,27 @@ export class Section extends Cache {
         return attemptAsync(async () => {
             const dateAdded = Date.now();
             const id = uuid();
-            (await DB.run('scouting-questions/new-section', { ...data, dateAdded, id })).unwrap();
+            (
+                await DB.run('scouting-questions/new-section', {
+                    ...data,
+                    dateAdded,
+                    id
+                })
+            ).unwrap();
             return new Section({
                 ...data,
                 id,
-                dateAdded
+                dateAdded,
+                archive: 0
             });
         });
     }
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const section = (await DB.get('scouting-questions/section-from-id', { id })).unwrap();
+            const section = (
+                await DB.get('scouting-questions/section-from-id', { id })
+            ).unwrap();
             if (!section) return undefined;
             return new Section(section);
         });
@@ -237,6 +280,7 @@ export class Section extends Cache {
     dateAdded: number;
     accountId: string;
     id: string;
+    archive: 0 | 1;
 
     constructor(data: S) {
         super();
@@ -245,6 +289,7 @@ export class Section extends Cache {
         this.dateAdded = data.dateAdded;
         this.accountId = data.accountId;
         this.id = data.id;
+        this.archive = data.archive;
     }
 
     delete() {
@@ -259,20 +304,22 @@ export class Section extends Cache {
         return DB.run('scouting-questions/migrate-section', { id: this.id });
     }
 
-    update(data: {
-        name: string;
-        multiple: boolean;
-        accountId: string;
-    }) {
+    update(data: { name: string; multiple: boolean; accountId: string }) {
         const date = Date.now();
-        return DB.run('scouting-questions/update-section', { ...this, dateAdded: date, ...data });
+        return DB.run('scouting-questions/update-section', {
+            ...this,
+            dateAdded: date,
+            ...data
+        });
     }
 }
 
 export class Answer extends Cache {
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const data = (await DB.get('scouting-questions/answer-from-id', { id })).unwrap();
+            const data = (
+                await DB.get('scouting-questions/answer-from-id', { id })
+            ).unwrap();
             if (!data) return null;
             return new Answer(data);
         });
@@ -288,7 +335,11 @@ export class Answer extends Cache {
 
     public static fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            return (await DB.all('scouting-questions/answers-from-event', { eventKey }))
+            return (
+                await DB.all('scouting-questions/answers-from-event', {
+                    eventKey
+                })
+            )
                 .unwrap()
                 .map(a => new Answer(a));
         });
@@ -303,15 +354,18 @@ export class Answer extends Cache {
         return attemptAsync(async () => {
             const id = uuid();
             const date = Date.now();
-            (await DB.run('scouting-questions/new-answer', {
-                ...data,
-                id,
-                date
-            })).unwrap();
+            (
+                await DB.run('scouting-questions/new-answer', {
+                    ...data,
+                    id,
+                    date
+                })
+            ).unwrap();
             return new Answer({
                 ...data,
                 date,
-                id
+                id,
+                archive: 0
             });
         });
     }
@@ -322,6 +376,7 @@ export class Answer extends Cache {
     teamNumber: number;
     date: number;
     accountId: string;
+    archive: 0 | 1;
 
     constructor(data: A) {
         super();
@@ -331,6 +386,7 @@ export class Answer extends Cache {
         this.teamNumber = data.teamNumber;
         this.date = data.date;
         this.accountId = data.accountId;
+        this.archive = data.archive;
     }
 
     delete() {
@@ -341,11 +397,12 @@ export class Answer extends Cache {
         return DB.run('scouting-questions/migrate-answer', { id: this.id });
     }
 
-    update(data: {
-        answer: string;
-        accountId: string;
-    }) {
+    update(data: { answer: string; accountId: string }) {
         const date = Date.now();
-        return DB.run('scouting-questions/update-answer', { ...this, date, ...data });
+        return DB.run('scouting-questions/update-answer', {
+            ...this,
+            date,
+            ...data
+        });
     }
 }

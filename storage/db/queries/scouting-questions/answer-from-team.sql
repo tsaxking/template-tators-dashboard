@@ -20,4 +20,5 @@ FROM ScoutingAnswers
     INNER JOIN ScoutingQuestionGroups
     ON ScoutingQuestions.groupId = ScoutingQuestionGroups.id
 WHERE ScoutingAnswers.teamNumber = :teamNumber
-AND ScoutingQuestionGroups.eventKey = :eventKey
+    AND ScoutingQuestionGroups.eventKey = :eventKey
+    AND ScoutingAnswers.archived = 0;

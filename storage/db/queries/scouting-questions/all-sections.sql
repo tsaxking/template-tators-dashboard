@@ -1,1 +1,1 @@
-SELECT * FROM ScoutingQuestionSections;
+SELECT * FROM ScoutingQuestionSections WHERE archived = 0;

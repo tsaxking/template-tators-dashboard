@@ -1,1 +1,1 @@
-SELECT * FROM Whiteboards WHERE matchId = :matchId;
+SELECT * FROM Whiteboards WHERE matchId = :matchId AND archived = 0;

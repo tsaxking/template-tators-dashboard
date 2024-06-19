@@ -1,1 +1,1 @@
-SELECT * FROM Strategy WHERE whiteboardId = :whiteboardId;
+SELECT * FROM Strategy WHERE whiteboardId = :whiteboardId AND archived = 0;
