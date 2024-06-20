@@ -4,7 +4,7 @@ import { validate } from '../../middleware/data-type';
 import { TBA } from '../../utilities/tba/tba';
 import {
     TBAMatch,
-    TBATeam,
+    TBATeam
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { generateScoutGroups } from '../../../shared/submodules/tatorscout-calculations/scout-groups';
 import { attemptAsync } from '../../../shared/check';
@@ -45,20 +45,23 @@ router.post<MatchObject>(
         } = req.body;
         const { stringify } = JSON;
 
-        const addComments = (ms: MatchScouting) => attemptAsync(async () => {
-            const allComments = Object.entries(comments);
-            for (let i = 0; i < allComments.length; i++) {
-                const [type, comment] = allComments[i];
-                (await TeamComment.new({
-                    team: teamNumber,
-                    comment,
-                    type,
-                    matchScoutingId: ms.id,
-                    accountId: ms.scoutId,
-                    eventKey
-                })).unwrap();
-            }
-        });
+        const addComments = (ms: MatchScouting) =>
+            attemptAsync(async () => {
+                const allComments = Object.entries(comments);
+                for (let i = 0; i < allComments.length; i++) {
+                    const [type, comment] = allComments[i];
+                    (
+                        await TeamComment.new({
+                            team: teamNumber,
+                            comment,
+                            type,
+                            matchScoutingId: ms.id,
+                            accountId: ms.scoutId,
+                            eventKey
+                        })
+                    ).unwrap();
+                }
+            });
 
         if (preScouting) {
             // build a custom match
@@ -89,7 +92,7 @@ router.post<MatchObject>(
                 preScouting: 1,
                 eventKey,
                 matchNumber,
-                compLevel,
+                compLevel
             });
 
             if (ms.isErr()) return res.status(500).json({ error: ms.error });
@@ -131,7 +134,7 @@ router.post<MatchObject>(
                 preScouting: 0,
                 eventKey,
                 matchNumber,
-                compLevel,
+                compLevel
             });
 
             if (ms.isErr()) return res.status(500).json({ error: ms.error });
@@ -146,7 +149,8 @@ router.post<MatchObject>(
         // official match
 
         const matches = await Match.fromEvent(eventKey);
-        if (matches.isErr()) return res.status(500).json({ error: matches.error });
+        if (matches.isErr())
+            return res.status(500).json({ error: matches.error });
 
         const match = matches.value.find(
             m => m.matchNumber === matchNumber && m.compLevel === compLevel
@@ -159,24 +163,28 @@ router.post<MatchObject>(
         }
 
         const exists = await MatchScouting.fromMatch(match.id);
-        if (exists.isErr()) return res.status(500).json({ error: exists.error });
+        if (exists.isErr())
+            return res.status(500).json({ error: exists.error });
 
         const found = exists.value.find(m => m.team === teamNumber);
 
         if (found) {
             // assume rescouting, overwrite old data
-            const ms = await MatchScouting.new({
-                matchId: match.id,
-                team: teamNumber,
-                scoutId: scout,
-                scoutGroup: group || 0,
-                trace: stringify(trace),
-                checks: stringify(checks),
-                preScouting: 0,
-                eventKey,
-                matchNumber,
-                compLevel,
-            }, true);
+            const ms = await MatchScouting.new(
+                {
+                    matchId: match.id,
+                    team: teamNumber,
+                    scoutId: scout,
+                    scoutGroup: group || 0,
+                    trace: stringify(trace),
+                    checks: stringify(checks),
+                    preScouting: 0,
+                    eventKey,
+                    matchNumber,
+                    compLevel
+                },
+                true
+            );
             if (ms.isErr()) return res.status(500).json({ error: ms.error });
             const c = await addComments(ms.value);
             if (c.isErr()) return res.status(500).json({ error: c.error });
@@ -197,7 +205,7 @@ router.post<MatchObject>(
             preScouting: 0,
             eventKey,
             matchNumber,
-            compLevel,
+            compLevel
         });
 
         if (ms.isErr()) return res.status(500).json({ error: ms.error });

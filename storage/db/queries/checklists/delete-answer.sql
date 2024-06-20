@@ -1,2 +1,1 @@
-DELETE FROM ChecklistAnswers
-WHERE id = :id;
+UPDATE ChecklistAnswers SET archived = 1 WHERE id = :id;

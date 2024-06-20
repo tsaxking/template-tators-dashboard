@@ -7,4 +7,5 @@ SELECT
 FROM MatchScouting 
 INNER JOIN Matches ON Matches.id = MatchScouting.matchId
 
-WHERE MatchScouting.id = :matchId;
+WHERE MatchScouting.id = :matchId
+    AND MatchScouting.archived = 0;

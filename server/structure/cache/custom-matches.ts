@@ -1,12 +1,14 @@
-import { attemptAsync } from "../../../shared/check";
-import { DB } from "../../utilities/databases";
-import { CustomMatches as CM } from "../../utilities/tables";
-import { uuid } from "../../utilities/uuid";
+import { attemptAsync } from '../../../shared/check';
+import { DB } from '../../utilities/databases';
+import { CustomMatches as CM } from '../../utilities/tables';
+import { uuid } from '../../utilities/uuid';
 
 export class CustomMatch extends Cache {
     public static fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            const data = (await DB.get('custom-matches/from-event', { eventKey })).unwrap();
+            const data = (
+                await DB.get('custom-matches/from-event', { eventKey })
+            ).unwrap();
             if (!data) return undefined;
             return new CustomMatch(data);
         });
@@ -29,18 +31,22 @@ export class CustomMatch extends Cache {
         return attemptAsync(async () => {
             const id = uuid();
             const created = Date.now();
-            (await DB.run('custom-matches/new', {
-                ...data,
-                id,
-                created
-            })).unwrap();
-            return new CustomMatch({ ...data, id, created });
+            (
+                await DB.run('custom-matches/new', {
+                    ...data,
+                    id,
+                    created
+                })
+            ).unwrap();
+            return new CustomMatch({ ...data, id, created, archive: 0 });
         });
     }
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const data = (await DB.get('custom-matches/from-id', { id })).unwrap();
+            const data = (
+                await DB.get('custom-matches/from-id', { id })
+            ).unwrap();
             if (!data) return undefined;
             return new CustomMatch(data);
         });
@@ -60,6 +66,7 @@ export class CustomMatch extends Cache {
     blue4: number | undefined;
     created: number;
     name: string;
+    archive: 0 | 1;
 
     constructor(data: CM) {
         super();
@@ -77,5 +84,6 @@ export class CustomMatch extends Cache {
         this.blue4 = data.blue4;
         this.created = data.created;
         this.name = data.name;
+        this.archive = data.archive;
     }
 }
