@@ -1,8 +1,8 @@
-import { Cache } from "./cache";
-import { TeamComments } from "../../utilities/tables";
-import { attemptAsync } from "../../../shared/check";
-import { uuid } from "../../utilities/uuid";
-import { DB } from "../../utilities/databases";
+import { Cache } from './cache';
+import { TeamComments } from '../../utilities/tables';
+import { attemptAsync } from '../../../shared/check';
+import { uuid } from '../../utilities/uuid';
+import { DB } from '../../utilities/databases';
 import Filter from 'bad-words';
 
 export class TeamComment extends Cache {
@@ -22,45 +22,58 @@ export class TeamComment extends Cache {
             const f = new Filter();
             data.comment = f.clean(data.comment);
 
-            (await DB.run('team-comments/new', {
-                ...data,
-                id,
-                time: time.toString(),
-                matchScoutingId: data.matchScoutingId || '',
-            })).unwrap();
+            (
+                await DB.run('team-comments/new', {
+                    ...data,
+                    id,
+                    time: time.toString(),
+                    matchScoutingId: data.matchScoutingId || ''
+                })
+            ).unwrap();
 
             return new TeamComment({
                 ...data,
                 id,
-                time: time.toString()
+                time: time.toString(),
+                archive: 0
             });
         });
     }
 
     public static fromAccount(accountId: string) {
         return attemptAsync(async () => {
-            const data = (await DB.all('team-comments/from-account', { accountId })).unwrap();
+            const data = (
+                await DB.all('team-comments/from-account', { accountId })
+            ).unwrap();
             return data.map(d => new TeamComment(d));
         });
     }
 
     public static fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            const data = (await DB.all('team-comments/from-event', { eventKey })).unwrap();
+            const data = (
+                await DB.all('team-comments/from-event', { eventKey })
+            ).unwrap();
             return data.map(d => new TeamComment(d));
         });
     }
 
     public static fromMatchScouting(matchScoutingId: string) {
         return attemptAsync(async () => {
-            const data = (await DB.all('team-comments/from-match-scouting', { matchScoutingId })).unwrap();
+            const data = (
+                await DB.all('team-comments/from-match-scouting', {
+                    matchScoutingId
+                })
+            ).unwrap();
             return data.map(d => new TeamComment(d));
         });
     }
 
     public static fromTeam(team: number, eventKey: string) {
         return attemptAsync(async () => {
-            const data = (await DB.all('team-comments/from-team', { team, eventKey })).unwrap();
+            const data = (
+                await DB.all('team-comments/from-team', { team, eventKey })
+            ).unwrap();
             return data.map(d => new TeamComment(d));
         });
     }
@@ -73,6 +86,7 @@ export class TeamComment extends Cache {
     public accountId: string | undefined;
     public time: number;
     public eventKey: string;
+    public archive: 0 | 1;
 
     constructor(data: TeamComments) {
         super();
@@ -84,6 +98,7 @@ export class TeamComment extends Cache {
         this.accountId = data.accountId;
         this.eventKey = data.eventKey;
         this.time = +data.time;
+        this.archive = data.archive;
     }
 
     update(data: {
@@ -95,13 +110,15 @@ export class TeamComment extends Cache {
         eventKey: string;
     }) {
         return attemptAsync(async () => {
-            (await DB.run('team-comments/update', {
-                ...data,
-                id: this.id,
-                matchScoutingId: data.matchScoutingId || '',
-                accountId: data.accountId || '',
-                time: this.time.toString()
-            })).unwrap();
+            (
+                await DB.run('team-comments/update', {
+                    ...data,
+                    id: this.id,
+                    matchScoutingId: data.matchScoutingId || '',
+                    accountId: data.accountId || '',
+                    time: this.time.toString()
+                })
+            ).unwrap();
 
             this.team = data.team;
             this.comment = data.comment;

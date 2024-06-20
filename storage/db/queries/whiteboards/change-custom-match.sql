@@ -1,3 +1,4 @@
 UPDATE Whiteboards
 SET customMatchId = :customMatchId
-WHERE id = :id;
+WHERE id = :id
+AND archived = 0;

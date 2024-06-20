@@ -1,1 +1,1 @@
-SELECT * FROM Checklists WHERE eventKey = :eventKey;
+SELECT * FROM Checklists WHERE eventKey = :eventKey AND archived = 0;

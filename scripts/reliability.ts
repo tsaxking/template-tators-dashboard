@@ -1,8 +1,8 @@
-import { attemptAsync } from "../shared/check";
-import { DB } from "../server/utilities/databases";
-import { TraceArray } from "../shared/submodules/tatorscout-calculations/trace";
+import { attemptAsync } from '../shared/check';
+import { DB } from '../server/utilities/databases';
+import { TraceArray } from '../shared/submodules/tatorscout-calculations/trace';
 import { TBA } from '../server/utilities/tba/tba';
-import { TBATeam } from "../shared/submodules/tatorscout-calculations/tba";
+import { TBATeam } from '../shared/submodules/tatorscout-calculations/tba';
 
 const getMatchScouting = async (teamNumber: number, eventKey: string) => {
     return attemptAsync(async () => {
@@ -35,6 +35,4 @@ const main = async () => {
     if (teams === null) throw new Error('No teams');
 
     const teamNumbers = (teams.value || []).map(t => t.team_number);
-
-    
-}
+};

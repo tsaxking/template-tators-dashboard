@@ -1,74 +1,104 @@
-import { Cache } from "./cache";
-import { RetrievedMatchScouting as M } from "../../utilities/tables";
-import { attemptAsync } from "../../../shared/check";
-import { DB } from "../../utilities/databases";
-import Account from "../accounts";
-import { uuid } from "../../utilities/uuid";
-import { TraceArray } from "../../../shared/submodules/tatorscout-calculations/trace";
+import { Cache } from './cache';
+import { RetrievedMatchScouting as M } from '../../utilities/tables';
+import { attemptAsync } from '../../../shared/check';
+import { DB } from '../../utilities/databases';
+import Account from '../accounts';
+import { uuid } from '../../utilities/uuid';
+import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 
 export class MatchScouting extends Cache {
     public static filterDuplicates(m: M, i: number, a: M[]) {
-        return a.findIndex(s => s.matchNumber === m.matchNumber && s.compLevel === m.compLevel) === i;
+        return (
+            a.findIndex(
+                s =>
+                    s.matchNumber === m.matchNumber &&
+                    s.compLevel === m.compLevel
+            ) === i
+        );
     }
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const data = (await DB.get('match-scouting/from-id', { id })).unwrap();
+            const data = (
+                await DB.get('match-scouting/from-id', { id })
+            ).unwrap();
             if (!data) return null;
             return new MatchScouting(data);
         });
     }
 
-    public static new(data: {
-        matchId: string | undefined;
-        team: number;
-        scoutId: string | undefined;
-        scoutGroup: number;
-        trace: string;
-        checks: string;
-        preScouting: number | undefined;
-        eventKey: string;
-        matchNumber: number;
-        compLevel: string;
-    }, overWrite?: boolean) {
+    public static new(
+        data: {
+            matchId: string | undefined;
+            team: number;
+            scoutId: string | undefined;
+            scoutGroup: number;
+            trace: string;
+            checks: string;
+            preScouting: number | undefined;
+            eventKey: string;
+            matchNumber: number;
+            compLevel: string;
+        },
+        overWrite?: boolean
+    ) {
         return attemptAsync(async () => {
-            const scoutings =( await DB.all('match-scouting/from-event', {
-                eventKey: data.eventKey
-            })).unwrap();
-            const matchScouting = scoutings.find(s => s.matchNumber === data.matchNumber && s.compLevel === data.compLevel && s.team === data.team);
-            if (matchScouting && !overWrite) throw new Error('Match scouting already exists, and overwrite is not enabled');
+            const scoutings = (
+                await DB.all('match-scouting/from-event', {
+                    eventKey: data.eventKey
+                })
+            ).unwrap();
+            const matchScouting = scoutings.find(
+                s =>
+                    s.matchNumber === data.matchNumber &&
+                    s.compLevel === data.compLevel &&
+                    s.team === data.team
+            );
+            if (matchScouting && !overWrite)
+                throw new Error(
+                    'Match scouting already exists, and overwrite is not enabled'
+                );
             if (matchScouting) {
                 const ms = new MatchScouting(matchScouting);
-                (await ms.archive()).unwrap();
+                (await ms.remove()).unwrap();
             }
             const account = await Account.fromId(data.scoutId || '');
             const id = uuid();
             const time = Date.now();
 
-            (await DB.run('match-scouting/new', {
-                id,
-                matchId: data.matchId,
-                team: data.team,
-                scoutId: data.scoutId,
-                scoutGroup: data.scoutGroup,
-                trace: data.trace,
-                checks: data.checks,
-                preScouting: data.preScouting || 0,
-                time,
-                scoutName: account?.username || data.scoutId || ''
-            })).unwrap();
+            (
+                await DB.run('match-scouting/new', {
+                    id,
+                    matchId: data.matchId,
+                    team: data.team,
+                    scoutId: data.scoutId,
+                    scoutGroup: data.scoutGroup,
+                    trace: data.trace,
+                    checks: data.checks,
+                    preScouting: data.preScouting || 0,
+                    time,
+                    scoutName: account?.username || data.scoutId || ''
+                })
+            ).unwrap();
 
             return new MatchScouting({
                 ...data,
                 time,
-                id
+                id,
+                archive: 0,
+                scoutName: account?.username || data.scoutId || ''
             });
         });
     }
 
-    public static fromTeam(eventKey: string, teamNumber: number) {
+    public static fromTeam(teamNumber: number, eventKey: string) {
         return attemptAsync(async () => {
-            const matches = (await DB.all('match-scouting/from-team', { eventKey, team: teamNumber })).unwrap();
+            const matches = (
+                await DB.all('match-scouting/from-team', {
+                    eventKey,
+                    team: teamNumber
+                })
+            ).unwrap();
             return matches
                 .filter(MatchScouting.filterDuplicates)
                 .map(m => new MatchScouting(m));
@@ -77,7 +107,9 @@ export class MatchScouting extends Cache {
 
     public static fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            const matches = (await DB.all('match-scouting/from-event', { eventKey })).unwrap();
+            const matches = (
+                await DB.all('match-scouting/from-event', { eventKey })
+            ).unwrap();
             return matches
                 .filter(MatchScouting.filterDuplicates)
                 .map(m => new MatchScouting(m));
@@ -86,7 +118,9 @@ export class MatchScouting extends Cache {
 
     public static fromMatch(matchId: string) {
         return attemptAsync(async () => {
-            const matches = (await DB.all('match-scouting/from-match', { matchId })).unwrap();
+            const matches = (
+                await DB.all('match-scouting/from-match', { matchId })
+            ).unwrap();
             return matches
                 .filter(MatchScouting.filterDuplicates)
                 .map(m => new MatchScouting(m));
@@ -95,7 +129,12 @@ export class MatchScouting extends Cache {
 
     public static fromScoutGroup(eventKey: string, group: number) {
         return attemptAsync(async () => {
-            const matches = (await DB.all('match-scouting/from-scout-group', { eventKey, scoutGroup: group.toString() })).unwrap();
+            const matches = (
+                await DB.all('match-scouting/from-scout-group', {
+                    eventKey,
+                    scoutGroup: group.toString()
+                })
+            ).unwrap();
             return matches
                 .filter(MatchScouting.filterDuplicates)
                 .map(m => new MatchScouting(m));
@@ -104,7 +143,12 @@ export class MatchScouting extends Cache {
 
     public static fromScout(id: string, eventKey: string) {
         return attemptAsync(async () => {
-            const matches = (await DB.all('match-scouting/from-scout', { scoutId: id, eventKey })).unwrap();
+            const matches = (
+                await DB.all('match-scouting/from-scout', {
+                    scoutId: id,
+                    eventKey
+                })
+            ).unwrap();
             return matches
                 .filter(MatchScouting.filterDuplicates)
                 .map(m => new MatchScouting(m));
@@ -113,7 +157,12 @@ export class MatchScouting extends Cache {
 
     public static fromCustomMatch(team: number, eventKey: string) {
         return attemptAsync(async () => {
-            const matches = (await DB.all('match-scouting/team-custom-match', { team: team, eventKey })).unwrap();
+            const matches = (
+                await DB.all('match-scouting/team-custom-match', {
+                    team: team,
+                    eventKey
+                })
+            ).unwrap();
             return matches
                 .filter(MatchScouting.filterDuplicates)
                 .map(m => new MatchScouting(m));
@@ -122,7 +171,12 @@ export class MatchScouting extends Cache {
 
     public static teamsPreScouting(team: number, eventKey: string) {
         return attemptAsync(async () => {
-            const matches = (await DB.all('match-scouting/teams-pre-scouting', { team, eventKey })).unwrap();
+            const matches = (
+                await DB.all('match-scouting/teams-pre-scouting', {
+                    team,
+                    eventKey
+                })
+            ).unwrap();
             return matches
                 .filter(MatchScouting.filterDuplicates)
                 .map(m => new MatchScouting(m));
@@ -141,6 +195,7 @@ export class MatchScouting extends Cache {
     public eventKey: string;
     public matchNumber: number;
     public compLevel: string;
+    public archive: 0 | 1;
 
     constructor(data: M) {
         super();
@@ -156,19 +211,17 @@ export class MatchScouting extends Cache {
         this.eventKey = data.eventKey;
         this.matchNumber = data.matchNumber;
         this.compLevel = data.compLevel;
+        this.archive = data.archive;
     }
 
-    archive() {
+    remove() {
         return attemptAsync(async () => {
-            (await DB.run('match-scouting/archive', {
-                content: JSON.stringify(this),
-                compLevel: this.compLevel,
-                eventKey: this.eventKey,
-                matchNumber: this.matchNumber,
-                teamNumber: this.team,
-                created: Date.now()
-            })).unwrap();
-            return DB.run('match-scouting/delete', { id: this.id });
+            (
+                await DB.run('match-scouting/archive', {
+                    id: this.id
+                })
+            ).unwrap();
+            return DB.run('match-scouting/archive', { id: this.id });
         });
     }
 
@@ -186,6 +239,6 @@ export class MatchScouting extends Cache {
             eventKey: this.eventKey,
             matchNumber: this.matchNumber,
             compLevel: this.compLevel
-        }
+        };
     }
 }
