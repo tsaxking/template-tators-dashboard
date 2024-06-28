@@ -1,3 +1,1 @@
-class EventEmitter {
-
-}
+class EventEmitter {}

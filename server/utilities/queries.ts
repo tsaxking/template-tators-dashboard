@@ -76,11 +76,6 @@ import { ChecklistAssignments } from './tables';
 import { ChecklistAnswers } from './tables';
 import { Alliances } from './tables';
 import { Strategy } from './tables';
-import { ScoutingQuestionAnswerHistory } from './tables';
-import { ScoutingQuestionHistory } from './tables';
-import { ScoutingQuestionGroupHistory } from './tables';
-import { ScoutingQuestionSectionHistory } from './tables';
-import { TeamCommentsHistory } from './tables';
 import { TeamComments } from './tables';
 import { ScoutingQuestionOptions } from './tables';
 import { TeamPictures } from './tables';
@@ -859,12 +854,6 @@ export type Queries = {
             Delete_scouting_questions_delete_section
         ],
         unknown
-    ];
-'scouting-questions/get-answer-history': [
-        [
-            Select_scouting_questions_get_answer_history
-        ],
-        ScoutingQuestionAnswerHistory
     ];
 'scouting-questions/group-from-id': [
         [

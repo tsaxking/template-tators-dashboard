@@ -173,7 +173,7 @@ app.get('/*', async (req, res, next) => {
 });
 
 app.get('/test/:page', (req, res, next) => {
-    if (env.ENVIRONMENT !== 'dev') return next();
+    if (!['dev', 'test'].includes(env.ENVIRONMENT as string)) return next();
     const s = res.sendTemplate('entries/test/' + req.params.page);
     if (s.isErr()) {
         res.sendStatus('page:not-found', { page: req.params.page });
@@ -191,8 +191,8 @@ app.route('/roles', role);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
+    if (env.ENVIRONMENT === 'test') return next();
     // return next(); // TODO: THIS IS TEMPORARY FOR 3-1-2024
-    console.log('Testing if user is logged in: ', req.session);
     if (!req.session.accountId) {
         if (
             ![
