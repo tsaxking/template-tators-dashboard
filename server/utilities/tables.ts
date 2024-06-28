@@ -356,6 +356,7 @@ export type CustomMatches = {
     blue4: string | undefined;
     created: number;
     name: string;
+    archive: 0 | 1;
 };
 
 export type Whiteboards = {
@@ -365,6 +366,7 @@ export type Whiteboards = {
     matchId: string | undefined;
     customMatchId: string | undefined;
     board: string;
+    archive: 0 | 1;
 };
 
 export type MatchScouting = {
@@ -377,9 +379,8 @@ export type MatchScouting = {
     checks: string;
     preScouting: string | undefined;
     time: number;
-    prescouting: string | undefined;
-    scoutName: string | undefined;
-    IF: string | undefined;
+    archive: 0 | 1;
+    scoutName: string;
 };
 
 export type MatchComments = {
@@ -397,6 +398,7 @@ export type ScoutingQuestionSections = {
     dateAdded: number;
     accountId: string;
     id: string;
+    archive: 0 | 1;
 };
 
 export type ScoutingQuestionGroups = {
@@ -406,6 +408,7 @@ export type ScoutingQuestionGroups = {
     name: string;
     dateAdded: number;
     accountId: string;
+    archive: 0 | 1;
 };
 
 export type ScoutingQuestions = {
@@ -418,6 +421,7 @@ export type ScoutingQuestions = {
     dateAdded: number;
     accountId: string;
     options: string;
+    archive: 0 | 1;
 };
 
 export type ScoutingAnswers = {
@@ -427,6 +431,7 @@ export type ScoutingAnswers = {
     teamNumber: number;
     date: number;
     accountId: string;
+    archive: 0 | 1;
 };
 
 export type TBARequests = {
@@ -441,6 +446,7 @@ export type Checklists = {
     name: string;
     eventKey: string;
     description: string;
+    archive: 0 | 1;
 };
 
 export type ChecklistQuestions = {
@@ -448,6 +454,7 @@ export type ChecklistQuestions = {
     checklistId: string;
     question: string;
     interval: number;
+    archive: 0 | 1;
 };
 
 export type ChecklistAssignments = {
@@ -460,6 +467,7 @@ export type ChecklistAnswers = {
     accountId: string;
     questionId: string;
     matchId: string;
+    archive: 0 | 1;
 };
 
 export type Alliances = {
@@ -469,6 +477,7 @@ export type Alliances = {
     team1: number;
     team2: number;
     team3: number;
+    archive: 0 | 1;
 };
 
 export type Strategy = {
@@ -480,54 +489,7 @@ export type Strategy = {
     matchId: string | undefined;
     customMatchId: string | undefined;
     comment: string;
-    checks: string | undefined;
-};
-
-export type ScoutingQuestionAnswerHistory = {
-    questionId: string;
-    answer: string;
-    teamNumber: number;
-    date: string;
-    accountId: string;
-};
-
-export type ScoutingQuestionHistory = {
-    id: string;
-    question: string;
-    key: string;
-    description: string;
-    type: string;
-    groupId: string;
-    dateAdded: string;
-    accountId: string;
-};
-
-export type ScoutingQuestionGroupHistory = {
-    id: string;
-    eventKey: string;
-    section: string;
-    name: string;
-    dateAdded: string;
-    accountId: string;
-};
-
-export type ScoutingQuestionSectionHistory = {
-    id: string;
-    name: string;
-    multiple: number;
-    dateAdded: string;
-    accountId: string;
-};
-
-export type TeamCommentsHistory = {
-    id: string;
-    team: number;
-    comment: string;
-    type: string;
-    matchScoutingId: string | undefined;
-    accountId: string | undefined;
-    time: string;
-    eventKey: string;
+    archive: 0 | 1;
 };
 
 export type TeamComments = {
@@ -537,8 +499,9 @@ export type TeamComments = {
     type: string;
     matchScoutingId: string;
     accountId: string | undefined;
-    time: number;
+    time: string;
     eventKey: string;
+    archive: 0 | 1;
 };
 
 export type ScoutingQuestionOptions = {
@@ -838,6 +801,7 @@ export type Update_match_scouting_update = {
     trace: string;
     checks: string;
     id: string;
+    scoutName: string;
 };
 
 export type Insert_match_scouting_new = {
@@ -891,7 +855,7 @@ export type Insert_team_comments_delete = {
 
 export type Update_team_comments_update = {
     id: string;
-    team: number;
+    team: string;
     comment: string;
     type: string;
     matchScoutingId: string | undefined;
@@ -907,7 +871,7 @@ export type Insert_team_comments_new = {
     type: string;
     matchScoutingId: string;
     accountId: string | undefined;
-    time: number;
+    time: string;
     eventKey: string;
 };
 
@@ -1062,7 +1026,7 @@ export type Insert_team_comments_update = {
 };
 
 export type Select_team_comments_from_account = {
-    accountId: string | undefined;
+    accountId: string;
 };
 
 export type Insert_permissions_add_to_role = {

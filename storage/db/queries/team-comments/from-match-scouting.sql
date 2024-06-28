@@ -1,2 +1,3 @@
 SELECT * FROM TeamComments
-WHERE matchScoutingId = :matchScoutingId;
+WHERE matchScoutingId = :matchScoutingId
+AND archived = 0;

@@ -1,1 +1,1 @@
-DELETE FROM ScoutingQuestions WHERE id = :id;
+UPDATE ScoutingQuestions SET archived = 1 WHERE id = :id;
