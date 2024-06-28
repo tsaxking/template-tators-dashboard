@@ -1,1 +1,1 @@
-SELECT * FROM TeamComments WHERE eventKey = :eventKey;
+SELECT * FROM TeamComments WHERE eventKey = :eventKey AND archived = 0;
