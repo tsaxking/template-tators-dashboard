@@ -81,11 +81,6 @@ import { ChecklistAssignments } from './tables';
 import { ChecklistAnswers } from './tables';
 import { Alliances } from './tables';
 import { Strategy } from './tables';
-import { ScoutingQuestionAnswerHistory } from './tables';
-import { ScoutingQuestionHistory } from './tables';
-import { ScoutingQuestionGroupHistory } from './tables';
-import { ScoutingQuestionSectionHistory } from './tables';
-import { TeamCommentsHistory } from './tables';
 import { TeamComments } from './tables';
 import { ScoutingQuestionOptions } from './tables';
 import { TeamPictures } from './tables';
@@ -437,10 +432,6 @@ export type Queries = {
         [{ section: string; eventKey: string }],
         ScoutingQuestionGroups
     ];
-    'scouting-questions/get-answer-history': [
-        [Select_scouting_questions_get_answer_history],
-        ScoutingQuestionAnswerHistory
-    ];
     'scouting-questions/update-answer': [
         [Insert_scouting_questions_update_answer],
         unknown
@@ -501,6 +492,7 @@ export type Queries = {
     'events/delete-event': [[Delete_events_delete_event], unknown];
     'events/new-alliance': [[Insert_events_new_alliance], unknown];
     'events/delete-alliance': [[Delete_events_delete_alliance], unknown];
+    'events/update': [[Events], unknown];
     'match-scouting/update': [[Update_match_scouting_update], unknown];
     'match-scouting/new': [[Insert_match_scouting_new], unknown];
     'match-scouting/from-match': [
@@ -531,12 +523,7 @@ export type Queries = {
     'match-scouting/archive': [
         [
             {
-                content: string;
-                eventKey: string;
-                matchNumber: number;
-                teamNumber: number;
-                compLevel: string;
-                created: number;
+                id: string;
             }
         ],
         unknown
@@ -554,6 +541,7 @@ export type Queries = {
         [
             {
                 team: number;
+                eventKey: string;
             }
         ],
         RetrievedMatchScouting

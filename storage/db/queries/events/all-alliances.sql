@@ -1,1 +1,1 @@
-SELECT * FROM Alliances WHERE eventKey = :eventKey;
+SELECT * FROM Alliances WHERE eventKey = :eventKey AND archived = 0;

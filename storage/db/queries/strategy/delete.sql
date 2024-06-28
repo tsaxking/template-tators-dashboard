@@ -1,1 +1,1 @@
-DELETE FROM Strategy WHERE id = :id;
+UPDATE Strategy SET archived = 1 WHERE id = :id;

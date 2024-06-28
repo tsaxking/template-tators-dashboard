@@ -1,1 +1,1 @@
-SELECT * FROM ScoutingQuestionGroups WHERE section = :section AND eventKey = :eventKey;
+SELECT * FROM ScoutingQuestionGroups WHERE section = :section AND eventKey = :eventKey AND archived = 0;

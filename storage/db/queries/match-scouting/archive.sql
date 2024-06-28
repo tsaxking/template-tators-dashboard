@@ -1,15 +1,1 @@
-INSERT INTO MatchScoutingArchive (
-    content,
-    eventKey,
-    matchNumber,
-    teamNumber,
-    compLevel,
-    created
-) VALUES (
-    :content,
-    :eventKey,
-    :matchNumber,
-    :teamNumber,
-    :compLevel,
-    :created
-);
+UPDATE MatchScouting SET archived = 1 WHERE id = :id;

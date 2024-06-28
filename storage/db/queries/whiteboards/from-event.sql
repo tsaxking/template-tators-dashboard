@@ -1,1 +1,1 @@
-SELECT * FROM Whiteboards WHERE eventKey = :eventKey;
+SELECT * FROM Whiteboards WHERE eventKey = :eventKey AND archived = 0;
