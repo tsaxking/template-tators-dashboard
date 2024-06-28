@@ -63,6 +63,10 @@ router.post<MatchObject>(
                 }
             });
 
+        const account = await Account.fromUsername(scout);
+        const scoutId = account ? account.id : scout;
+
+
         if (preScouting) {
             // build a custom match
             const cm = await CustomMatch.new({
@@ -85,7 +89,7 @@ router.post<MatchObject>(
             const ms = await MatchScouting.new({
                 matchId: cm.value.id,
                 team: teamNumber,
-                scoutId: scout,
+                scoutId,
                 scoutGroup: group || 0,
                 trace: stringify(trace),
                 checks: stringify(checks),
@@ -127,7 +131,7 @@ router.post<MatchObject>(
             const ms = await MatchScouting.new({
                 matchId: cm.value.id,
                 team: teamNumber,
-                scoutId: scout,
+                scoutId,
                 scoutGroup: group || 0,
                 trace: stringify(trace),
                 checks: stringify(checks),
@@ -174,7 +178,7 @@ router.post<MatchObject>(
                 {
                     matchId: match.id,
                     team: teamNumber,
-                    scoutId: scout,
+                    scoutId,
                     scoutGroup: group || 0,
                     trace: stringify(trace),
                     checks: stringify(checks),
@@ -198,7 +202,7 @@ router.post<MatchObject>(
         const ms = await MatchScouting.new({
             matchId: match.id,
             team: teamNumber,
-            scoutId: scout,
+            scoutId,
             scoutGroup: group || 0,
             trace: stringify(trace),
             checks: stringify(checks),
