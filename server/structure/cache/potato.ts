@@ -21,7 +21,8 @@ export class Potato extends Cache {
         });
     }
 
-    public static build(accountId: string) {
+    // this should only be called if the potato doesn't exist
+    private static build(accountId: string) {
         return attemptAsync(async () => {
             const init = JSON.stringify({
                 level: 0,
@@ -67,31 +68,7 @@ export class Potato extends Cache {
     }
 
 
-    update(data: P) {
+    private update(data: P) {
         return DB.run('potato/update', data);
-    }
-
-    save(state: State) {
-        return attemptAsync(async () => {
-            const { floor } = Math;
-
-            // TODO: logic for if the state is valid
-            const { level, achievements: {
-                normal, shadow
-            } } = this.state;
-            const { lastAccessed } = this; 
-            const now = Date.now();
-            const ticks = floor((now - lastAccessed) / (5 * 1000 * 60)); // 5 minutes per tick
-            const canSave = true;
-
-
-
-            if (canSave) {(await this.update({
-                accountId: this.accountId,
-                lastAccessed: Date.now(),
-                json: JSON.stringify(state)
-            })).unwrap(); return 'saved';}
-            else return 'not allowed';
-        });
     }
 }
