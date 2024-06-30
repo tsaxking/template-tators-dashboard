@@ -1,9 +1,15 @@
 INSERT INTO Potato (
     accountId,
-    json,
-    lastAccessed
+    lastAccessed,
+    achievements,
+    shadowAchievements,
+    potatoChips,
+    name
 ) VALUES (
     :accountId,
-    :json,
-    :lastAccessed
+    :lastAccessed,
+    :achievements,
+    :shadowAchievements,
+    :potatoChips,
+    :name
 );

@@ -39,6 +39,7 @@ export type SocketEvent =
     | 'permissions:removed'
     | 'pit-scouting:delete'
     | 'pit-scouting:new'
+    | 'potato:updated'
     | 'roles:added-permission'
     | 'roles:added'
     | 'roles:deleted'

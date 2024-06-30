@@ -1,142 +1,138 @@
-import { attemptAsync } from "../../../shared/check";
-import { EventEmitter } from "../../../shared/event-emitter";
-import { ServerRequest } from "../../utilities/requests";
-import { socket } from "../../utilities/socket";
-import { State, Phase, Achievement, ShadowAchievement } from '../../../shared/potato-types';
+import { attemptAsync } from '../../../shared/check';
+import { EventEmitter } from '../../../shared/event-emitter';
+import { ServerRequest } from '../../utilities/requests';
+import {
+    Achievement,
+    Phase,
+    ShadowAchievement
+} from '../../../shared/potato-types';
+import { Potato as P } from '../../../server/utilities/tables';
 
-
-type SaveResult = 'saved' | 'not allowed';
-
-type GameEvents = {
-    'init': State;
-    'achievement': Achievement;
+type PotatoEvents = {
+    achievement: Achievement;
     'shadow-achievement': ShadowAchievement;
-    'saved': void;
-}
+    saved: void;
+    init: Potato;
+};
 
-class Game {
-    public readonly emitter = new EventEmitter<keyof GameEvents>();
+type P_extended = P & {
+    username: string;
+};
 
-    on<K extends keyof GameEvents>(event: K, fn: (data: GameEvents[K]) => void) {
+export class Potato extends Cache {
+    public static readonly phases: Phase[] = [
+        'sprout',
+        'plant',
+        'flower',
+        'mature',
+        'sentient',
+        'intelligent',
+        'transcendental',
+        'omnipotent',
+        'omnipresent',
+        'god'
+    ];
+
+    public static readonly cache = new Map<string, Potato>();
+
+    public static getSelf() {
+        return attemptAsync(async () => {
+            const p = (
+                await ServerRequest.post<P_extended>('/api/potato/init')
+            ).unwrap();
+            return Potato.retrieve(p);
+        });
+    }
+
+    public static getLeaderboard() {
+        return attemptAsync(async () => {
+            return (
+                await ServerRequest.post<P_extended[]>(
+                    '/api/potato/leaderboard'
+                )
+            )
+                .unwrap()
+                .map(Potato.retrieve);
+        });
+    }
+
+    private static retrieve(data: P_extended): Potato {
+        const exists = Potato.cache.get(data.accountId);
+        if (exists) return exists;
+        else return new Potato(data);
+    }
+
+    public readonly accountId: string;
+    public lastAccessed: number;
+    public achievements: string;
+    public shadowAchievements: string;
+    public potatoChips: number;
+    public username: string;
+    public name: string;
+
+    constructor(data: P_extended) {
+        super();
+        this.accountId = data.accountId;
+        this.lastAccessed = data.lastAccessed;
+        this.achievements = data.achievements;
+        this.shadowAchievements = data.shadowAchievements;
+        this.potatoChips = data.potatoChips;
+        this.username = data.username;
+        this.name = data.name;
+
+        Potato.cache.set(this.accountId, this);
+    }
+
+    get phaseIndex() {
+        // each 1000 chips is a phase
+        return Math.floor(this.potatoChips / 1000);
+    }
+
+    get phase() {
+        return Potato.phases[this.phaseIndex];
+    }
+
+    public readonly emitter = new EventEmitter<keyof PotatoEvents>();
+
+    on<K extends keyof PotatoEvents>(
+        event: K,
+        fn: (data: PotatoEvents[K]) => void
+    ) {
         this.emitter.on(event, fn);
     }
 
-    off<K extends keyof GameEvents>(event: K, fn: (data: GameEvents[K]) => void) {
+    off<K extends keyof PotatoEvents>(
+        event: K,
+        fn: (data: PotatoEvents[K]) => void
+    ) {
         this.emitter.off(event, fn);
     }
 
-    emit<K extends keyof GameEvents>(event: K, data: GameEvents[K]) {
+    emit<K extends keyof PotatoEvents>(event: K, data: PotatoEvents[K]) {
         this.emitter.emit(event, data);
     }
 
-
-    state: State = {
-        level: 0,
-        achievements: {
-            shadow: [],
-            normal: []
-        }
+    update(data: Partial<P>) {
+        if (data.accountId) throw new Error('Cannot update accountId');
+        return ServerRequest.post('/api/potato/update', data);
     }
 
-    async init() {
-        return attemptAsync(async () => {
-            this.state = (await ServerRequest.post<State>('/api/potato/init')).unwrap();
+    give(chips: number) {
+        return this.update({ potatoChips: this.potatoChips + chips });
+    }
+
+    award(achievement: Achievement) {
+        return this.update({
+            achievements: JSON.stringify([...this.achievements, achievement])
         });
     }
 
-    get phaseIndex(): number {
-        const { floor, log10 } = Math;
-        const { level } = this.state;
-
-        return floor(log10(level)) - 1;
-    }
-
-    get rate(): number {
-        const { shadow, normal } = this.state.achievements;
-        const { phaseIndex } = this;
-        return shadow.length * -0.01 + normal.length * 0.01 + phaseIndex;
-    }
-
-    get phase(): Phase {
-        const phases: Phase[] = [
-            'seed',
-            'sprout',
-            'plant',
-            'flower',
-            'mature',
-            'sentient',
-            'intelligent',
-            'transcendental',
-            'omnipotent',
-            'omnipresent',
-            'god'
-        ];
-        return phases[
-            this.phaseIndex
-        ];
-    }
-
-    public win(a: Achievement) {
-        this.emit('achievement', a);
-    }
-
-    public winShadow(a: ShadowAchievement) {
-        this.emit('shadow-achievement', a);
-    }
-
-    public gain(levels: number) {
-        return attemptAsync(async () => {
-            return (await this.saveState(
-                {
-                    ...this.state,
-                    level: this.state.level + levels
-                }
-            )).unwrap();
-        });
-    }
-
-    private saveState(state: State) {
-        return attemptAsync(async () => {
-            const saved = (await ServerRequest.post<SaveResult>('/api/potato/save', state)).unwrap();
-            if (saved === 'not allowed'){
-                this.winShadow('hacker');
-            }
-
-            if (saved === 'saved') {
-                this.emit('saved', undefined);
-            }
-        });
-    }
-
-    save() {
-        this.saveState(this.state);
-    }
-
-    changeState(state: State) {
-        const current = this.state;
-        const newAchievements = state.achievements.normal.filter((a) => current.achievements.normal.includes(a));
-        const shadowAchievements = state.achievements.shadow.filter((a) => current.achievements.shadow.includes(a));
-
-        for (const a of newAchievements) this.win(a);
-        for (const s of shadowAchievements) this.winShadow(s);
-
-        this.state = state;
-    }
-
-    getRanking() {
-        return attemptAsync(async () => {
-            // returns the list of potato friends sorted by level
+    shadow(achievement: ShadowAchievement) {
+        return this.update({
+            shadowAchievements: JSON.stringify([
+                ...this.shadowAchievements,
+                achievement
+            ])
         });
     }
 }
-
-export const game = new Game();
-game.init();
-
-socket.on('game:update', (data: State) => {
-    game.changeState(data);
-});
-
-document.addEventListener('close', () => {
-    game.save();
-});

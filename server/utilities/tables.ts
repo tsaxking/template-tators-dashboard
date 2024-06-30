@@ -1074,8 +1074,11 @@ export type dbTransfer = {
 
 export type Potato = {
     accountId: string;
-    json: string;
     lastAccessed: number;
+    achievements: string;
+    shadowAchievements: string;
+    potatoChips: number;
+    name: string;
 };
 
 export type Delete_blacklist_delete_by_account = {
@@ -1123,14 +1126,20 @@ export type Select_potato_from_account = {
 
 export type Insert_potato_new = {
     accountId: string;
-    json: string;
     lastAccessed: number;
+    achievements: string;
+    shadowAchievements: string;
+    potatoChips: number;
+    name: string;
 };
 
 export type Update_potato_update = {
-    json: string;
     lastAccessed: number;
     accountId: string;
+    achievements: string;
+    shadowAchievements: string;
+    potatoChips: number;
+    name: string;
 };
 
 export type Delete_scouting_questions_delete_answer = {
@@ -1219,4 +1228,3 @@ export type Insert_teams_new_picture = {
 export type Select_teams_pictures_from_event = {
     eventKey: string;
 };
-
