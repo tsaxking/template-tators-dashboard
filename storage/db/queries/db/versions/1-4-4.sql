@@ -1,5 +1,7 @@
 CREATE TABLE IF NOT EXISTS Potato (
     accountId TEXT NOT NULL PRIMARY KEY,
-    json JSON NOT NULL,
-    lastAccessed BIGINT NOT NULL
+    lastAccessed INTEGER NOT NULL,
+    achievements JSON NOT NULL,
+    shadowAchievements JSON NOT NULL,
+    potatoChips INTEGER NOT NULL
 );

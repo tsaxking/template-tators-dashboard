@@ -1,13 +1,23 @@
-import { attemptAsync } from "../../../shared/check";
-import { DB } from "../../utilities/databases";
-import { Cache } from "./cache";
-import { Potato as P } from "../../utilities/tables";
-import { State } from "../../../shared/potato-types";
+import { attemptAsync } from '../../../shared/check';
+import { DB } from '../../utilities/databases';
+import { Cache } from './cache';
+import { Potato as P } from '../../utilities/tables';
+import Account from '../accounts';
 
 export class Potato extends Cache {
+    public static fromUsername(username: string) {
+        return attemptAsync(async () => {
+            const account = await Account.fromUsername(username);
+            if (!account) return null;
+            return (await this.fromAccount(account.id)).unwrap();
+        });
+    }
+
     public static fromAccount(accountId: string) {
         return attemptAsync(async () => {
-            const potato = (await DB.get('potato/from-account', { accountId })).unwrap();
+            const potato = (
+                await DB.get('potato/from-account', { accountId })
+            ).unwrap();
             if (potato) {
                 const p = new Potato(potato);
                 p.update({
@@ -24,27 +34,35 @@ export class Potato extends Cache {
     // this should only be called if the potato doesn't exist
     private static build(accountId: string) {
         return attemptAsync(async () => {
-            const init = JSON.stringify({
-                level: 0,
-                achievements: {
-                    normal: [],
-                    shadow: []
-                }
-            });
-
             const now = Date.now();
 
-            (await DB.run('potato/new', {
-                accountId,
-                json: init,
-                lastAccessed: now
-            })).unwrap();
+            (
+                await DB.run('potato/new', {
+                    accountId,
+                    lastAccessed: now,
+                    achievements: '[]',
+                    shadowAchievements: '[]',
+                    potatoChips: 0,
+                    name: ''
+                })
+            ).unwrap();
 
             return new Potato({
                 accountId,
-                json: init,
-                lastAccessed: now
+                achievements: '[]',
+                shadowAchievements: '[]',
+                potatoChips: 0,
+                lastAccessed: now,
+                name: ''
             });
+        });
+    }
+
+    public static all() {
+        return attemptAsync(async () => {
+            return (await DB.all('potato/all'))
+                .unwrap()
+                .map(p => new Potato(p));
         });
     }
 
@@ -54,21 +72,70 @@ export class Potato extends Cache {
 
     lastAccessed: number;
     accountId: string;
-    json: string;
+    achievements: string[];
+    shadowAchievements: string[];
+    potatoChips: number;
+    name: string;
 
     constructor(data: P) {
         super();
         this.lastAccessed = data.lastAccessed;
         this.accountId = data.accountId;
-        this.json = data.json;
+        this.achievements = JSON.parse(data.achievements);
+        this.shadowAchievements = JSON.parse(data.shadowAchievements);
+        this.potatoChips = data.potatoChips;
+        this.name = data.name;
     }
 
-    get state() {
-        return JSON.parse(this.json) as State;
+    update(data: Partial<P>) {
+        return DB.run('potato/update', {
+            ...this.json,
+            ...data
+        });
     }
 
+    private get json() {
+        return {
+            lastAccessed: this.lastAccessed,
+            accountId: this.accountId,
+            achievements: JSON.stringify(this.achievements),
+            shadowAchievements: JSON.stringify(this.shadowAchievements),
+            potatoChips: this.potatoChips,
+            name: this.name
+        };
+    }
 
-    private update(data: P) {
-        return DB.run('potato/update', data);
+    give(chips: number) {
+        this.potatoChips += chips;
+        if (this.potatoChips < 0) this.potatoChips = 0;
+        return this.update(this.json);
+    }
+
+    award(achievement: string, shadow = false) {
+        if (shadow) {
+            this.shadowAchievements.push(achievement);
+        } else {
+            this.achievements.push(achievement);
+        }
+
+        return this.update(this.json);
+    }
+
+    getUsername() {
+        return attemptAsync(async () => {
+            const a = await Account.fromId(this.accountId);
+            if (!a) return 'Unknown';
+            return a.username;
+        });
+    }
+
+    toObject() {
+        return attemptAsync(async () => {
+            const username = (await this.getUsername()).unwrap();
+            return {
+                username,
+                ...this.json
+            };
+        });
     }
 }

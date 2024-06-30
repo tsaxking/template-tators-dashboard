@@ -593,6 +593,18 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'potato:cannot-update-self': {
+        message: 'you cannot edit your own potato',
+        color: 'danger',
+        code: 403,
+        instructions: ''
+    },
+    'potato:updated': {
+        message: 'Potato Updated',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'profanity:detected': {
         message: 'Profanity detected',
         color: 'danger',
@@ -1032,6 +1044,8 @@ export type StatusId =
     | 'permissions:unauthorized'
     | 'pit-scouting:delete'
     | 'pit-scouting:new'
+    | 'potato:cannot-update-self'
+    | 'potato:updated'
     | 'profanity:detected'
     | 'role:not-found'
     | 'roles:added'
@@ -1096,6 +1110,7 @@ export type AccountStatusId =
     | 'cannot-edit-other-account'
     | 'cannot-edit-self'
     | 'cannot-reject-verified'
+    | 'cannot-reset-guest'
     | 'check-email'
     | 'created'
     | 'email-change-expired'
@@ -1131,8 +1146,7 @@ export type AccountStatusId =
     | 'updated'
     | 'username-changed'
     | 'username-taken'
-    | 'verified'
-    | 'cannot-reset-guest';
+    | 'verified';
 
 export type AdminStatusId = 'invalid-key';
 
@@ -1188,6 +1202,8 @@ export type PermissionsStatusId =
     | 'unauthorized';
 
 export type PitScoutingStatusId = 'delete' | 'new';
+
+export type PotatoStatusId = 'cannot-update-self' | 'updated';
 
 export type ProfanityStatusId = 'detected';
 
