@@ -71,9 +71,9 @@ app.static('/public', path.resolve(__root, './public'));
 app.static('/dist', path.resolve(__root, './dist'));
 app.static('/uploads', path.resolve(__root, './storage/uploads'));
 
-app.post('/socket-url', (req, res) => {
+app.post('/test/get-socket', (req, res) => {
     res.json({
-        url: env.SOCKET_DOMAIN
+        id: req.socket?.id || 'Not found!'
     });
 });
 
