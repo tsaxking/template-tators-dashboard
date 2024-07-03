@@ -341,6 +341,8 @@ export class SendStream {
  * @template [T=unknown]
  */
 export class ServerRequest<T = unknown> {
+    static readonly metadata = new Map<string, string>();
+
     /**
      * List of all requests (for caching, debugging, and statistics)
      * @date 10/12/2023 - 1:19:15 PM
@@ -805,7 +807,15 @@ export class ServerRequest<T = unknown> {
                 method: this.method.toUpperCase(),
                 headers: {
                     'Content-Type': 'application/json',
-                    ...this.options?.headers
+                    ...this.options?.headers,
+                    // populate metadata
+                    ...Array.from(ServerRequest.metadata.entries()).reduce(
+                        (acc, cur) => {
+                            acc[cur[0]] = cur[1];
+                            return acc;
+                        },
+                        {} as { [key: string]: string }
+                    )
                 },
                 body: JSON.stringify(this.body)
             })
