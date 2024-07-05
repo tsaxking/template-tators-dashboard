@@ -1,12 +1,11 @@
 <script lang="ts">
 import { dateTime } from './../../../../shared/clock';
-import { match } from './../../../../shared/match';
 import { FIRSTEvent } from './../../../models/FIRST/event';
 import { FIRSTMatch } from './../../../models/FIRST/match';
 import { onMount } from 'svelte';
 import RobotCard from './RobotCard.svelte';
 import { Color } from '../../../submodules/colors/color';
-
+import { FIRSTTeam } from '../../../models/FIRST/team';
 
 let matchScouting: {
     teams: {
@@ -16,9 +15,17 @@ let matchScouting: {
     match?: FIRSTMatch;
 }[] = [];
 
-let selectedMatchTime: number = 0; // Initialize with default time
+let selectedMatch: number = 0;
+let redTeams: number[] = [0, 0, 0];
+let blueTeams: number[] = [0, 0, 0];
 
-onMount(() => {
+let minutes = 0;
+let closestMatch: FIRSTMatch | undefined;
+
+$: selectedMatchTime =
+    matchScouting[selectedMatch]?.match?.tba.predicted_time || 0;
+
+onMount(async () => {
     const fn = async (e: FIRSTEvent) => {
         const [statusRes, matchesRes] = await Promise.all([
             e.getStatus(),
@@ -77,11 +84,9 @@ function findClosestMatch(time: number) {
     matchScouting.forEach(({ match }) => {
         if (!match) return;
 
-        // Calculate the difference in time
         const matchTime = match.tba.predicted_time;
         const diff = Math.abs(matchTime - time);
 
-        // Update closest match if this one is closer
         if (diff < closestDiff) {
             closestDiff = diff;
             closestMatch = match;
@@ -91,31 +96,34 @@ function findClosestMatch(time: number) {
     return closestMatch;
 }
 
-// TODO: if eliminations, display alliance number
-
-let redTeams: [number, number, number] = [0, 0, 0];
-let blueTeams: [number, number, number] = [0, 0, 0];
-
-let red1 = 1;
-let red2 = 2;
-let red3 = 3;
-
-let blue1 = 4;
-let blue2 = 5;
-let blue3 = 6;
-
-let minutes = 0;
-
 async function fetchTeamsData(match: FIRSTMatch) {
     const teamsResult = await match.getTeams();
     if (teamsResult.isErr()) {
         console.error(teamsResult.error);
         return [];
     }
-    return teamsResult.value
-        .filter(Boolean) // TODO: deal with the 4th robot
-        .map(team => team.tba.team_number);
+    return teamsResult.value.filter(Boolean).map(team => team.tba.team_number);
 }
+
+$: (async () => {
+    let teams: FIRSTTeam[] = [];
+    const match = matchScouting[selectedMatch]?.match;
+    if (match) {
+        const teamsResult = await match.getTeams();
+        if (teamsResult.isErr()) {
+            console.error(teamsResult.error);
+        } else {
+            teams = teamsResult.value.filter(Boolean) as FIRSTTeam[];
+        }
+    }
+    for (let i = 0; i < teams.length; i++) {
+        if (i % 2 === 0) {
+            redTeams[i / 2] = teams[i].tba.team_number;
+        } else {
+            blueTeams[Math.floor(i / 2)] = teams[i].tba.team_number;
+        }
+    }
+})();
 
 $: {
     if (closestMatch) {
@@ -132,30 +140,55 @@ $: {
 }
 
 $: closestMatch = findClosestMatch(selectedMatchTime);
-$: matchnum = closestMatch?.number || 0;
 $: minutes = Math.floor((selectedMatchTime * 1000 - Date.now()) / 60000);
 $: console.log(selectedMatchTime * 1000, dateTime(selectedMatchTime * 1000));
 $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 </script>
 
-<div class="vh-display vw-100 container-fluid position-relative no-scroll no-select">
+<div
+    class="vh-display vw-100 container-fluid position-relative no-scroll no-select"
+>
     <div class="row h-100">
         <div class="col-md-6 bg-danger">
             <div
                 class="d-flex flex-column h-100 justify-content-between align-items-start p-3"
             >
-                <RobotCard robot="{red1}" {matchnum} />
-                <RobotCard robot="{red2}" {matchnum} />
-                <RobotCard robot="{red3}" {matchnum} />
+                <RobotCard
+                    alignment="end"
+                    robot="{redTeams[0]}"
+                    {selectedMatch}
+                />
+                <RobotCard
+                    alignment="end"
+                    robot="{redTeams[1]}"
+                    {selectedMatch}
+                />
+                <RobotCard
+                    alignment="end"
+                    robot="{redTeams[2]}"
+                    {selectedMatch}
+                />
             </div>
         </div>
         <div class="col-md-6 bg-primary">
             <div
                 class="d-flex flex-column h-100 justify-content-between align-items-end p-3"
             >
-                <RobotCard robot="{blue1}" {matchnum} />
-                <RobotCard robot="{blue2}" {matchnum} />
-                <RobotCard robot="{blue3}" {matchnum} />
+                <RobotCard
+                    alignment="start"
+                    robot="{blueTeams[0]}"
+                    {selectedMatch}
+                />
+                <RobotCard
+                    alignment="start"
+                    robot="{blueTeams[1]}"
+                    {selectedMatch}
+                />
+                <RobotCard
+                    alignment="start"
+                    robot="{blueTeams[2]}"
+                    {selectedMatch}
+                />
             </div>
         </div>
     </div>
@@ -167,20 +200,41 @@ $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
             class="d-flex flex-column justify-content-center align-items-center h-100 my-2"
         >
             <h4 class="text-black">
-                Match {matchnum} is in {minutes} minutes at
+                Match {selectedMatch + 1} is in {minutes} minutes at
             </h4>
-            <p class="display-1 text-black" style="font-size:400%">
-                {matchtime}
-            </p>
-            <select bind:value="{selectedMatchTime}" class="form-select">
-                {#each matchScouting as { match }}
-                    {#if match}
-                        <option value="{match.tba.predicted_time}"
-                            >{match.compLevel} {match.number}</option
-                        >
-                    {/if}
-                {/each}
-            </select>
+            <div class="d-flex align-items-center mb-3">
+                <p class="display-1 text-black" style="font-size: 400%;">
+                    {matchtime}
+                </p>
+            </div>
+            <div class="d-flex w-100">
+                <button
+                    class="btn btn-primary me-2"
+                    on:click="{() => {
+                        if (selectedMatch > 0) {
+                            selectedMatch -= 1;
+                        }
+                    }}">-</button
+                >
+                <select bind:value="{selectedMatch}" class="form-select">
+                    {#each matchScouting as { match }, index}
+                        {#if match}
+                            <option value="{index}">
+                                {match.compLevel}
+                                {match.number}
+                            </option>
+                        {/if}
+                    {/each}
+                </select>
+                <button
+                    class="btn btn-primary ms-2"
+                    on:click="{() => {
+                        if (matchScouting.length - 1 !== selectedMatch) {
+                            selectedMatch += 1;
+                        }
+                    }}">+</button
+                >
+            </div>
         </div>
     </div>
 </div>
