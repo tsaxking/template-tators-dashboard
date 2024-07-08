@@ -92,6 +92,14 @@ export class Potato extends Cache {
         return Potato.phases[this.phaseIndex];
     }
 
+    get nextPhase() {
+        return Potato.phases[this.phaseIndex + 1];
+    }
+
+    get nextPhaseChips() {
+        return (this.phaseIndex + 1) * 1000;
+    }
+
     public readonly emitter = new EventEmitter<keyof PotatoEvents>();
 
     on<K extends keyof PotatoEvents>(
@@ -134,5 +142,9 @@ export class Potato extends Cache {
                 achievement
             ])
         });
+    }
+
+    changeName(name: string) {
+        return ServerRequest.post('/api/potato/change-name', {name});
     }
 }

@@ -8,9 +8,15 @@ import Filter from 'bad-words';
 export const router = new Route();
 
 router.post('/init', async (req, res) => {
-    if (!req.session.accountId) return res.sendStatus('account:not-logged-in');
+    const a = await req.session.getAccount();
+    if (!a) return res.sendStatus('account:not-logged-in');
 
-    const p = (await Potato.fromAccount(req.session.accountId)).unwrap();
+    const roles = await a.getRoles();
+    if (roles.find(r => r.name.toLowerCase() === 'mentor')) return res.status(401).json({
+        error: 'Mentors are not allowed to have a potato.'
+    });
+
+    const p = (await Potato.fromAccount(a.id)).unwrap();
     res.json((await p.toObject()).unwrap());
 });
 
@@ -68,7 +74,7 @@ router.post<{
 
 router.post<{
     name: string;
-}>('/update-name', async (req, res) => {
+}>('/change-name', async (req, res) => {
     const { name } = req.body;
     const filter = new Filter();
     if (filter.isProfane(name)) return res.sendStatus('profanity:detected');
@@ -77,6 +83,9 @@ router.post<{
     if (!id) return res.sendStatus('account:not-logged-in');
 
     const p = (await Potato.fromAccount(id)).unwrap();
+    if (p.potatoChips < 1000) {
+        return res.sendStatus('potato:not-enough-chips');
+    }
     p.update({ name });
 
     res.sendStatus('potato:updated');
