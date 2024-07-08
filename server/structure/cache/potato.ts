@@ -5,6 +5,14 @@ import { Potato as P } from '../../utilities/tables';
 import Account from '../accounts';
 
 export class Potato extends Cache {
+    public static award(username: string, number: number) {
+        return attemptAsync(async () => {
+            const potato = (await Potato.fromUsername(username)).unwrap();
+            if (!potato) throw new Error('Potato not found');
+            potato.give(number);
+        });
+    }
+
     public static fromUsername(username: string) {
         return attemptAsync(async () => {
             const account = await Account.fromUsername(username);
@@ -94,7 +102,7 @@ export class Potato extends Cache {
         });
     }
 
-    private get json() {
+    private get json(): P {
         return {
             lastAccessed: this.lastAccessed,
             accountId: this.accountId,
@@ -121,17 +129,15 @@ export class Potato extends Cache {
         return this.update(this.json);
     }
 
-    getUsername() {
+    getAccount() {
         return attemptAsync(async () => {
-            const a = await Account.fromId(this.accountId);
-            if (!a) return 'Unknown';
-            return a.username;
+            return Account.fromId(this.accountId);
         });
     }
 
     toObject() {
         return attemptAsync(async () => {
-            const username = (await this.getUsername()).unwrap();
+            const username = (await this.getAccount()).unwrap()?.username || 'Unknown';
             return {
                 username,
                 ...this.json
