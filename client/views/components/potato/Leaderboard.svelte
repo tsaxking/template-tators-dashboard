@@ -5,11 +5,15 @@ import { Account } from '../../../models/account';
 import { prompt } from '../../../utilities/notifications';
 
 let potatoes: Potato[] = [];
+let self: Potato | undefined;
 let actions = false;
 const getLeaderboard = async () => {
     const res = await Potato.getLeaderboard();
     if (res.isErr()) return console.error(res.error);
     potatoes = res.value;
+    const s = await Potato.getSelf();
+    if (s.isErr()) return console.error(s.error);
+    self = s.value;
 };
 
 const isAdmin = async () => {
@@ -45,7 +49,9 @@ onMount(() => {
         </thead>
         <tbody>
             {#each potatoes as potato, i}
-                <tr>
+                <tr
+                    class="{self && self.accountId === potato.accountId ? 'table-primary' : ''}"
+                >
                     <td>{i + 1}</td>
                     <td>{potato.username}</td>
                     <td>{potato.name || 'Unnamed'}</td>

@@ -12,6 +12,7 @@ import EventSummary from '../pages/EventSummary.svelte';
 import { FIRSTEvent } from '../../models/FIRST/event';
 import MatchSchedule from '../pages/MatchSchedule.svelte';
 import Strategy from '../pages/Strategy.svelte';
+import Leaderboard from '../componenets/potato/Leaderboard.svelte';
 
 const groups: PageGroup[] = [
     {
@@ -64,6 +65,11 @@ const groups: PageGroup[] = [
             {
                 name: 'quiz',
                 icon: 'quiz',
+                iconType: 'material'
+            },
+            {
+                name: 'leaderoard',
+                icon: 'leaderboard',
                 iconType: 'material'
             }
         ]
@@ -123,5 +129,8 @@ FIRSTEvent.on('select', e => {
     </Page>
     <Page {active} {domain} title="alliance-builder">
         <Strategy />
+    </Page>
+    <Page {active} {domain} title="leaderboard">
+        <Leaderboard />
     </Page>
 </Main>
