@@ -13,6 +13,9 @@
     // "functionLikeReturnTypes.enabled": true,
     "parameterNames.enabled": "all",
     "parameterTypes.enabled": true,
-    "propertyDeclarationTypes.enabled": true
+    "propertyDeclarationTypes.enabled": true,
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
     // "variableTypes.enabled": true,
 }
