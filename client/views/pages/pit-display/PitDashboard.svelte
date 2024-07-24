@@ -6,142 +6,124 @@ import { onMount } from 'svelte';
 import RobotCard from './RobotCard.svelte';
 import { Color } from '../../../submodules/colors/color';
 import { FIRSTTeam } from '../../../models/FIRST/team';
+import { Ok } from '../../../../shared/check';
+import { fade } from 'svelte/transition'; // Import fade transition
 
-let matchScouting: {
-    teams: {
-        team: number;
-        scouted: boolean;
-    }[];
+interface MatchScouting {
+    teams: { team: number; scouted: boolean }[];
     match?: FIRSTMatch;
-}[] = [];
+}
 
-let selectedMatch: number = 0;
-let redTeams: number[] = [0, 0, 0];
-let blueTeams: number[] = [0, 0, 0];
-
+let matchScouting: MatchScouting[] = [];
+let selectedMatch = 0;
+let redTeams: FIRSTTeam[] = [];
+let blueTeams: FIRSTTeam[] = [];
 let minutes = 0;
 let closestMatch: FIRSTMatch | undefined;
+let loading = true; // New state for loading
 
-$: selectedMatchTime =
-    matchScouting[selectedMatch]?.match?.tba.predicted_time || 0;
+const updateMatchScouting = async (e: FIRSTEvent) => {
+    loading = true; // Set loading to true when fetching starts
 
-onMount(async () => {
-    const fn = async (e: FIRSTEvent) => {
-        const [statusRes, matchesRes] = await Promise.all([
-            e.getStatus(),
-            e.getMatches()
-        ]);
-        if (statusRes.isErr()) return console.error(statusRes.error);
-        if (matchesRes.isErr()) return console.error(matchesRes.error);
-
-        const { matches } = statusRes.value;
-
-        matchScouting = await Promise.all(
-            matchesRes.value.map(async m => {
-                const match = matches.find(
-                    _m => _m.match === m.number && _m.compLevel === m.compLevel
-                );
-                if (!match) {
-                    return {
-                        teams: []
-                    };
-                }
-                const unScouted = match.teams;
-                const teams = await m.getTeams();
-
-                if (teams.isErr()) {
-                    return {
-                        teams: []
-                    };
-                }
-
-                return {
-                    teams: teams.value.filter(Boolean).map(t => ({
-                        team: t.number,
-                        scouted: !unScouted.includes(t.number)
-                    })),
-                    match: m
-                };
-            })
+    const [statusRes, matchesRes] = await Promise.all([
+        e.getStatus(),
+        e.getMatches()
+    ]);
+    if (statusRes.isErr() || matchesRes.isErr()) {
+        console.error(
+            (statusRes as Ok<any>).value.error ||
+                (matchesRes as Ok<any>).value.error
         );
-    };
+        return;
+    }
 
-    FIRSTEvent.on('select', fn);
+    const { matches } = statusRes.value;
+    matchScouting = await Promise.all(
+        matchesRes.value.map(async m => {
+            const match = matches.find(
+                _m => _m.match === m.number && _m.compLevel === m.compLevel
+            );
+            if (!match) return { teams: [] };
+
+            const unScouted = match.teams;
+            const teamsResult = await m.getTeams();
+            if (teamsResult.isErr()) return { teams: [] };
+
+            return {
+                teams: teamsResult.value.filter(Boolean).map(t => ({
+                    team: t.number,
+                    scouted: !unScouted.includes(t.number)
+                })),
+                match: m
+            };
+        })
+    );
+
+    loading = false; // Set loading to false when fetching ends
+};
+
+onMount(() => {
+    FIRSTEvent.on('select', updateMatchScouting);
 
     if (FIRSTEvent.current) {
-        fn(FIRSTEvent.current);
+        updateMatchScouting(FIRSTEvent.current);
     }
 
     return () => {
-        FIRSTEvent.off('select', fn);
+        FIRSTEvent.off('select', updateMatchScouting);
     };
 });
 
-function findClosestMatch(time: number) {
-    let closestMatch: FIRSTMatch | undefined;
-    let closestDiff = Infinity;
-
-    matchScouting.forEach(({ match }) => {
-        if (!match) return;
-
-        const matchTime = match.tba.predicted_time;
-        const diff = Math.abs(matchTime - time);
-
-        if (diff < closestDiff) {
-            closestDiff = diff;
-            closestMatch = match;
+const findClosestMatch = (time: number) => {
+    return matchScouting.reduce(
+        (closest, { match }) => {
+            if (!match) return closest;
+            const matchTime = match.tba.predicted_time;
+            const diff = Math.abs(matchTime - time);
+            return diff < (closest?.diff || Infinity)
+                ? { match, diff }
+                : closest;
+        },
+        { match: undefined, diff: Infinity } as {
+            match?: FIRSTMatch;
+            diff: number;
         }
-    });
+    ).match;
+};
 
-    return closestMatch;
-}
-
-async function fetchTeamsData(match: FIRSTMatch) {
+const fetchTeamsData = async (match: FIRSTMatch) => {
     const teamsResult = await match.getTeams();
     if (teamsResult.isErr()) {
         console.error(teamsResult.error);
         return [];
     }
-    return teamsResult.value.filter(Boolean).map(team => team.tba.team_number);
-}
+    return teamsResult.value.filter(Boolean).map(team => team);
+};
 
-$: (async () => {
-    let teams: FIRSTTeam[] = [];
-    const match = matchScouting[selectedMatch]?.match;
-    if (match) {
-        const teamsResult = await match.getTeams();
-        if (teamsResult.isErr()) {
-            console.error(teamsResult.error);
-        } else {
-            teams = teamsResult.value.filter(Boolean) as FIRSTTeam[];
+$: {
+    (async () => {
+        const match = matchScouting[selectedMatch]?.match;
+        if (match) {
+            const teams = await fetchTeamsData(match);
+            redTeams = teams.slice(0, 3);
+            blueTeams = teams.slice(3, 6);
         }
-    }
-    for (let i = 0; i < teams.length; i++) {
-        if (i % 2 === 0) {
-            redTeams[i / 2] = teams[i].tba.team_number;
-        } else {
-            blueTeams[Math.floor(i / 2)] = teams[i].tba.team_number;
-        }
-    }
-})();
+    })();
+}
 
 $: {
     if (closestMatch) {
         fetchTeamsData(closestMatch).then(teams => {
-            for (let i = 0; i < teams.length; i++) {
-                if (i < 3) {
-                    redTeams[i] = teams[i];
-                } else {
-                    blueTeams[i - 3] = teams[i];
-                }
-            }
+            redTeams = teams.slice(0, 3);
+            blueTeams = teams.slice(3, 6);
         });
     }
 }
 
+$: selectedMatchTime =
+    matchScouting[selectedMatch]?.match?.tba.predicted_time || 0;
 $: closestMatch = findClosestMatch(selectedMatchTime);
 $: minutes = Math.floor((selectedMatchTime * 1000 - Date.now()) / 60000);
-$: console.log(selectedMatchTime * 1000, dateTime(selectedMatchTime * 1000));
 $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 </script>
 
@@ -153,42 +135,41 @@ $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
             <div
                 class="d-flex flex-column h-100 justify-content-between align-items-start p-3"
             >
-                <RobotCard
-                    alignment="end"
-                    robot="{redTeams[0]}"
-                    {selectedMatch}
-                />
-                <RobotCard
-                    alignment="end"
-                    robot="{redTeams[1]}"
-                    {selectedMatch}
-                />
-                <RobotCard
-                    alignment="end"
-                    robot="{redTeams[2]}"
-                    {selectedMatch}
-                />
+                {#if loading}
+                    <div class="loading" transition:fade>
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Loading teams</p>
+                        </div>
+                    </div>
+                {:else}
+                    {#each redTeams as team}
+                        <RobotCard
+                            alignment="end"
+                            {team}
+                            match="{selectedMatch}"
+                        />
+                    {/each}
+                {/if}
             </div>
         </div>
         <div class="col-md-6 bg-primary">
             <div
                 class="d-flex flex-column h-100 justify-content-between align-items-end p-3"
             >
-                <RobotCard
-                    alignment="start"
-                    robot="{blueTeams[0]}"
-                    {selectedMatch}
-                />
-                <RobotCard
-                    alignment="start"
-                    robot="{blueTeams[1]}"
-                    {selectedMatch}
-                />
-                <RobotCard
-                    alignment="start"
-                    robot="{blueTeams[2]}"
-                    {selectedMatch}
-                />
+                {#if loading}
+                    <div class="text-center text-white">Loading...</div>
+                {:else}
+                    {#each blueTeams as team}
+                        <RobotCard
+                            alignment="start"
+                            {team}
+                            match="{selectedMatch}"
+                        />
+                    {/each}
+                {/if}
             </div>
         </div>
     </div>
@@ -210,11 +191,9 @@ $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
             <div class="d-flex w-100">
                 <button
                     class="btn btn-primary me-2"
-                    on:click="{() => {
-                        if (selectedMatch > 0) {
-                            selectedMatch -= 1;
-                        }
-                    }}">-</button
+                    on:click="{() =>
+                        (selectedMatch = Math.max(0, selectedMatch - 1))}"
+                    >-</button
                 >
                 <select bind:value="{selectedMatch}" class="form-select">
                     {#each matchScouting as { match }, index}
@@ -228,11 +207,11 @@ $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
                 </select>
                 <button
                     class="btn btn-primary ms-2"
-                    on:click="{() => {
-                        if (matchScouting.length - 1 !== selectedMatch) {
-                            selectedMatch += 1;
-                        }
-                    }}">+</button
+                    on:click="{() =>
+                        (selectedMatch = Math.min(
+                            matchScouting.length - 1,
+                            selectedMatch + 1
+                        ))}">+</button
                 >
             </div>
         </div>
@@ -243,8 +222,20 @@ $: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 .vh-display {
     height: calc(100vh - var(--topNavbarHeight)) !important;
 }
-
 .bg-gray-light {
     background-color: rgba(200, 200, 200, 0.7);
+}
+.loading {
+    position: fixed;
+    top: var(--topNavbarHeight);
+    left: 0;
+    width: 100%;
+    height: calc(100vh - var(--topNavbarHeight)) !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(33, 37, 41, 1);
+    color: #fff;
+    z-index: 9999;
 }
 </style>
