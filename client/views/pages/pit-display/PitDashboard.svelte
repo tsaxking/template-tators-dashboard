@@ -7,7 +7,7 @@ import RobotCard from './RobotCard.svelte';
 import { Color } from '../../../submodules/colors/color';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Ok } from '../../../../shared/check';
-import { fade } from 'svelte/transition'; // Import fade transition
+import { fade } from 'svelte/transition';
 
 interface MatchScouting {
     teams: { team: number; scouted: boolean }[];
@@ -20,20 +20,22 @@ let redTeams: FIRSTTeam[] = [];
 let blueTeams: FIRSTTeam[] = [];
 let minutes = 0;
 let closestMatch: FIRSTMatch | undefined;
-let loading = true; // New state for loading
+let loading = true;
+let matchtime: string;
 
 const updateMatchScouting = async (e: FIRSTEvent) => {
-    loading = true; // Set loading to true when fetching starts
-
+    loading = true;
     const [statusRes, matchesRes] = await Promise.all([
         e.getStatus(),
         e.getMatches()
     ]);
+
     if (statusRes.isErr() || matchesRes.isErr()) {
         console.error(
             (statusRes as Ok<any>).value.error ||
                 (matchesRes as Ok<any>).value.error
         );
+        loading = false;
         return;
     }
 
@@ -59,27 +61,45 @@ const updateMatchScouting = async (e: FIRSTEvent) => {
         })
     );
 
-    loading = false; // Set loading to false when fetching ends
+    loading = false;
 };
 
 onMount(() => {
     FIRSTEvent.on('select', updateMatchScouting);
-
-    if (FIRSTEvent.current) {
-        updateMatchScouting(FIRSTEvent.current);
-    }
+    if (FIRSTEvent.current) updateMatchScouting(FIRSTEvent.current);
 
     return () => {
         FIRSTEvent.off('select', updateMatchScouting);
     };
 });
 
-const findClosestMatch = (time: number) => {
-    return matchScouting.reduce(
+const fetchTeamsData = async (match: FIRSTMatch) => {
+    const teamsResult = await match.getTeams();
+    if (teamsResult.isErr()) {
+        console.error(teamsResult.error);
+        return [];
+    }
+    return teamsResult.value.filter(Boolean);
+};
+
+$: {
+    const match = matchScouting[selectedMatch]?.match;
+    if (match) {
+        const updateTeams = async () => {
+            const teams = await fetchTeamsData(match);
+            redTeams = teams.slice(0, 3);
+            blueTeams = teams.slice(3, 6);
+        };
+        updateTeams();
+    }
+
+    const selectedMatchTime =
+        matchScouting[selectedMatch]?.match?.tba.predicted_time || 0;
+    closestMatch = matchScouting.reduce(
         (closest, { match }) => {
             if (!match) return closest;
             const matchTime = match.tba.predicted_time;
-            const diff = Math.abs(matchTime - time);
+            const diff = Math.abs(matchTime - selectedMatchTime);
             return diff < (closest?.diff || Infinity)
                 ? { match, diff }
                 : closest;
@@ -89,42 +109,9 @@ const findClosestMatch = (time: number) => {
             diff: number;
         }
     ).match;
-};
-
-const fetchTeamsData = async (match: FIRSTMatch) => {
-    const teamsResult = await match.getTeams();
-    if (teamsResult.isErr()) {
-        console.error(teamsResult.error);
-        return [];
-    }
-    return teamsResult.value.filter(Boolean).map(team => team);
-};
-
-$: {
-    (async () => {
-        const match = matchScouting[selectedMatch]?.match;
-        if (match) {
-            const teams = await fetchTeamsData(match);
-            redTeams = teams.slice(0, 3);
-            blueTeams = teams.slice(3, 6);
-        }
-    })();
+    minutes = Math.floor((selectedMatchTime * 1000 - Date.now()) / 60000);
+    matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 }
-
-$: {
-    if (closestMatch) {
-        fetchTeamsData(closestMatch).then(teams => {
-            redTeams = teams.slice(0, 3);
-            blueTeams = teams.slice(3, 6);
-        });
-    }
-}
-
-$: selectedMatchTime =
-    matchScouting[selectedMatch]?.match?.tba.predicted_time || 0;
-$: closestMatch = findClosestMatch(selectedMatchTime);
-$: minutes = Math.floor((selectedMatchTime * 1000 - Date.now()) / 60000);
-$: matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 </script>
 
 <div
