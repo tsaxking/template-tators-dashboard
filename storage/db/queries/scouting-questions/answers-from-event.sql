@@ -4,4 +4,4 @@ FROM ScoutingAnswers
 INNER JOIN ScoutingQuestions ON ScoutingQuestions.id = ScoutingAnswers.questionId
 INNER JOIN ScoutingQuestionGroups ON ScoutingQuestionGroups.id = ScoutingQuestions.groupId
 WHERE ScoutingQuestionGroups.eventKey = :eventKey
-    AND ScoutingAnswers.archived = 0;
+    AND ScoutingAnswers.archived = false;

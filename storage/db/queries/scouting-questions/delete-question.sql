@@ -1,1 +1,1 @@
-UPDATE ScoutingQuestions SET archived = 1 WHERE id = :id;
+UPDATE ScoutingQuestions SET archived = true WHERE id = :id;

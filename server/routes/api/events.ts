@@ -98,7 +98,7 @@ router.post<{
             const teams = teamsFromMatch(m);
 
             return {
-                match: m.match_number,
+                match: m.comp_level === 'sf' ? m.set_number : m.match_number,
                 compLevel: m.comp_level,
                 teams: [
                     ...teams.slice(0, 3).map(find).filter(Boolean),

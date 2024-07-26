@@ -21,4 +21,4 @@ FROM ScoutingAnswers
     ON ScoutingQuestions.groupId = ScoutingQuestionGroups.id
 WHERE ScoutingAnswers.teamNumber = :teamNumber
     AND ScoutingQuestionGroups.eventKey = :eventKey
-    AND ScoutingAnswers.archived = 0;
+    AND ScoutingAnswers.archived = false;
