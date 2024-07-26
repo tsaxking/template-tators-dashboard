@@ -360,12 +360,10 @@ export type CustomMatches = {
 
 export type Whiteboards = {
     id: string;
-    eventKey: string;
     name: string;
-    matchId: string | undefined;
-    customMatchId: string | undefined;
     board: string;
     archive: 0 | 1;
+    strategyId: string;
 };
 
 export type MatchScouting = {
@@ -484,7 +482,6 @@ export type Strategy = {
     name: string;
     time: number;
     createdBy: string;
-    whiteboardId: string | undefined;
     matchId: string | undefined;
     customMatchId: string | undefined;
     comment: string;
@@ -916,15 +913,10 @@ export type Delete_strategy_delete = {
     id: string;
 };
 
-export type Select_strategy_from_whiteboard = {
-    whiteboardId: string | undefined;
-};
-
 export type Update_strategy_update = {
     name: string;
     time: number;
     createdBy: string;
-    whiteboardId: string | undefined;
     matchId: string | undefined;
     customMatchId: string | undefined;
     comment: string;
@@ -936,7 +928,6 @@ export type Insert_strategy_new = {
     name: string;
     time: number;
     createdBy: string;
-    whiteboardId: string | undefined;
     matchId: string | undefined;
     customMatchId: string | undefined;
     comment: string;
@@ -946,52 +937,29 @@ export type Select_strategy_from_id = {
     id: string;
 };
 
-export type Update_whiteboards_change_custom_match = {
-    customMatchId: string | undefined;
-    id: string;
-};
-
-export type Select_whiteboards_from_custom_match = {
-    customMatchId: string | undefined;
-};
 
 export type Delete_whiteboards_delete = {
     id: string;
 };
 
-export type Select_whiteboards_from_event = {
-    eventKey: string;
-};
-
-export type Update_whiteboards_change_match = {
-    matchId: string | undefined;
-    id: string;
-};
-
-export type Update_whiteboards_update_board = {
-    board: string;
-    id: string;
-};
-
-export type Update_whiteboards_update_name = {
-    name: string;
-    id: string;
-};
-
 export type Insert_whiteboards_new = {
     id: string;
-    eventKey: string;
     name: string;
-    matchId: string | undefined;
-    customMatchId: string | undefined;
     board: string;
-};
-
-export type Select_whiteboards_from_match = {
-    matchId: string | undefined;
+    strategyId: string;
 };
 
 export type Select_whiteboards_from_id = {
+    id: string;
+};
+
+export type Select_whiteboards_from_strategy = {
+    strategyId: string;
+}
+
+export type Update_whiteboards_update = {
+    name: string;
+    board: string;
     id: string;
 };
 

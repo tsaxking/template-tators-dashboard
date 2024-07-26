@@ -1,4 +1,4 @@
 SELECT * FROM TeamComments
 WHERE team = :team
     AND eventKey = :eventKey
-    AND archived = 0;
+    AND archived = false;
