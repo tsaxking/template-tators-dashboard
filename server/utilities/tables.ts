@@ -397,7 +397,7 @@ export type ScoutingQuestionSections = {
     dateAdded: number;
     accountId: string;
     id: string;
-    archive: 0 | 1;
+    archived: 0 | 1;
 };
 
 export type ScoutingQuestionGroups = {
@@ -407,7 +407,7 @@ export type ScoutingQuestionGroups = {
     name: string;
     dateAdded: number;
     accountId: string;
-    archive: 0 | 1;
+    archived: 0 | 1;
 };
 
 export type ScoutingQuestions = {
@@ -420,7 +420,7 @@ export type ScoutingQuestions = {
     dateAdded: number;
     accountId: string;
     options: string;
-    archive: 0 | 1;
+    archived: 0 | 1;
 };
 
 export type ScoutingAnswers = {
@@ -430,7 +430,7 @@ export type ScoutingAnswers = {
     teamNumber: number;
     date: number;
     accountId: string;
-    archive: 0 | 1;
+    archived: 0 | 1;
 };
 
 export type TBARequests = {

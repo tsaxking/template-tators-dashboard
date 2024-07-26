@@ -10,5 +10,5 @@ INNER JOIN CustomMatches ON CustomMatches.id = MatchScouting.matchId
 
 WHERE MatchScouting.team = :team
     AND CustomMatches.eventKey = :eventKey
-    AND MatchScouting.preScouting = 1
-    AND MatchScouting.archived = 0;
+    AND MatchScouting.preScouting = true
+    AND MatchScouting.archived = false;

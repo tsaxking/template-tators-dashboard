@@ -362,8 +362,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             }[];
         }>
     > {
-        return attemptAsync(async () => {
-            const res = await ServerRequest.post<{
+        return ServerRequest.post<{
                 pictures: number[];
                 matches: {
                     match: number;
@@ -377,10 +376,6 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             }>('/api/events/status', {
                 eventKey: this.key
             });
-
-            if (res.isOk()) return res.value;
-            throw res.error;
-        });
     }
 
     async getEventSummary(): Promise<
