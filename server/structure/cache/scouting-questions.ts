@@ -68,7 +68,7 @@ export class Question extends Cache {
                 ...data,
                 id,
                 dateAdded,
-                archive: 0
+                archived: 0
             });
         });
     }
@@ -83,7 +83,7 @@ export class Question extends Cache {
     accountId: string;
     options: string;
     eventKey: string;
-    archive: 0 | 1;
+    archived: 0 | 1;
 
     constructor(data: Q & { eventKey: string }) {
         super();
@@ -97,7 +97,7 @@ export class Question extends Cache {
         this.accountId = data.accountId;
         this.options = data.options;
         this.eventKey = data.eventKey;
-        this.archive = data.archive;
+        this.archived = data.archived;
     }
 
     delete() {
@@ -189,7 +189,7 @@ export class Group extends Cache {
                 ...data,
                 id,
                 dateAdded,
-                archive: 0
+                archived: 0
             });
         });
     }
@@ -210,7 +210,7 @@ export class Group extends Cache {
         this.name = data.name;
         this.dateAdded = data.dateAdded;
         this.accountId = data.accountId;
-        this.archive = data.archive;
+        this.archive = data.archived;
     }
 
     delete() {
@@ -260,7 +260,7 @@ export class Section extends Cache {
                 ...data,
                 id,
                 dateAdded,
-                archive: 0
+                archived: 0
             });
         });
     }
@@ -280,7 +280,7 @@ export class Section extends Cache {
     dateAdded: number;
     accountId: string;
     id: string;
-    archive: 0 | 1;
+    archived: 0 | 1;
 
     constructor(data: S) {
         super();
@@ -289,7 +289,7 @@ export class Section extends Cache {
         this.dateAdded = data.dateAdded;
         this.accountId = data.accountId;
         this.id = data.id;
-        this.archive = data.archive;
+        this.archived = data.archived;
     }
 
     delete() {
@@ -365,7 +365,7 @@ export class Answer extends Cache {
                 ...data,
                 date,
                 id,
-                archive: 0
+                archived: 0
             });
         });
     }
@@ -376,7 +376,7 @@ export class Answer extends Cache {
     teamNumber: number;
     date: number;
     accountId: string;
-    archive: 0 | 1;
+    archived: 0 | 1;
 
     constructor(data: A) {
         super();
@@ -386,7 +386,7 @@ export class Answer extends Cache {
         this.teamNumber = data.teamNumber;
         this.date = data.date;
         this.accountId = data.accountId;
-        this.archive = data.archive;
+        this.archived = data.archived;
     }
 
     delete() {

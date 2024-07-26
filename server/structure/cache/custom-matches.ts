@@ -2,6 +2,7 @@ import { attemptAsync } from '../../../shared/check';
 import { DB } from '../../utilities/databases';
 import { CustomMatches as CM } from '../../utilities/tables';
 import { uuid } from '../../utilities/uuid';
+import { Cache } from './cache';
 
 export class CustomMatch extends Cache {
     public static fromEvent(eventKey: string) {
@@ -86,4 +87,8 @@ export class CustomMatch extends Cache {
         this.name = data.name;
         this.archive = data.archive;
     }
+
+    // update(data: Partial<Omit<CM, 'id' | 'created'>>) {
+    //     return DB.run('custom-matches/update', { id: this.id, ...data });
+    // }
 }

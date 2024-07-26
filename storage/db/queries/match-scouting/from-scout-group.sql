@@ -9,4 +9,4 @@ INNER JOIN ON Matches
     WHERE Matches.eventKey = :eventKey
     AND MatchScouting.scoutGroup = :scoutGroup
     AND MatchScouting.preScouting = 0
-    AND MatchScouting.archived = 0;
+    AND MatchScouting.archived = false;

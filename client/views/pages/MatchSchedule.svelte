@@ -23,7 +23,9 @@ onMount(() => {
 
         const { matches } = statusRes.value;
 
-        matchScouting = await Promise.all(
+        const levels = ['qm', 'qf', 'sf', 'f'];
+
+        matchScouting = (await Promise.all(
             matchesRes.value.map(async m => {
                 const match = matches.find(
                     _m => _m.match === m.number && _m.compLevel === m.compLevel
@@ -50,7 +52,17 @@ onMount(() => {
                     match: m
                 };
             })
-        );
+        )).sort((a, b) => {
+            if (!a.match || !b.match) return 0;
+            if (a.match.compLevel === b.match.compLevel) {
+                return a.match.number - b.match.number;
+            } else {
+                return (
+                    levels.indexOf(a.match.compLevel) -
+                    levels.indexOf(b.match.compLevel)
+                );
+            }
+        })
     };
 
     FIRSTEvent.on('select', fn);

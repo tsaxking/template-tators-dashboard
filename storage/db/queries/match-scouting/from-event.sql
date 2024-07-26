@@ -8,4 +8,4 @@ FROM MatchScouting
 INNER JOIN Matches ON Matches.id = MatchScouting.matchId
 
 WHERE Matches.eventKey = :eventKey
-    AND MatchScouting.archived = 0;
+    AND MatchScouting.archived = false;
