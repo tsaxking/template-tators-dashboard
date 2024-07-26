@@ -1,1 +1,0 @@
-SELECT * FROM Whiteboards WHERE eventKey = :eventKey AND archived = 0;
