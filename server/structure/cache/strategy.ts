@@ -44,7 +44,6 @@ export class Strategy extends Cache {
     public name: string;
     public time: number;
     public createdBy: string;
-    public whiteboardId: string | undefined;
     public matchId: string | undefined;
     public customMatchId: string | undefined;
     public comment: string;
@@ -56,7 +55,6 @@ export class Strategy extends Cache {
         this.name = data.name;
         this.time = data.time;
         this.createdBy = data.createdBy;
-        this.whiteboardId = data.whiteboardId;
         this.matchId = data.matchId;
         this.customMatchId = data.customMatchId;
         this.comment = data.comment;
