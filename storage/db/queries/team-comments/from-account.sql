@@ -1,3 +1,3 @@
 SELECT * FROM TeamComments
 WHERE accountId = :accountId
-AND archived = 0;
+AND archived = false;
