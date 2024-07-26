@@ -4,4 +4,4 @@ SELECT
 FROM ScoutingQuestionGroups
 INNER JOIN ScoutingQuestions ON ScoutingQuestionGroups.id = ScoutingQuestions.groupId
 WHERE ScoutingQuestionGroups.eventKey = :eventKey
-    AND ScoutingQuestions.archived = 0;
+    AND ScoutingQuestions.archived = false;
