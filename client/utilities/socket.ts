@@ -5,6 +5,7 @@ import { ServerRequest } from './requests';
 import { sleep } from '../../shared/sleep';
 import { alert } from './notifications';
 import { attemptAsync } from '../../shared/check';
+import { uptime } from '../../shared/clock';
 
 type SocketOptions = {
     type: 'adaptive' | 'constant';
@@ -38,7 +39,12 @@ class Socket {
     //     timeLimit: 1000 * 60 * 5 // 5 minutes
     // };
 
-    private readonly em = new EventEmitter();
+    // private readonly em = new EventEmitter();
+
+    private readonly listeners = new Map<
+        string,
+        ((data: unknown) => unknown)[]
+    >();
 
     /**
      * Socket.io client
@@ -48,7 +54,7 @@ class Socket {
      * @readonly
      * @type {*}
      */
-    public readonly socket = io();
+    public socket = io();
 
     // private async ping() {
     //     return attemptAsync(async () => {
@@ -97,6 +103,8 @@ class Socket {
     on(event: string, callback: (data: any) => void) {
         // this.em.on(event, callback);
         this.socket.on(event, callback);
+        if (!this.listeners.has(event)) this.listeners.set(event, []);
+        this.listeners.get(event)?.push(callback);
     }
 
     /**
@@ -110,6 +118,8 @@ class Socket {
     off(event: string, callback: (data: any) => void) {
         // this.em.off(event, callback);
         this.socket.off(event, callback);
+        if (!this.listeners.has(event)) return;
+        const index = this.listeners.get(event)?.indexOf(callback);
     }
 
     // private newEvent(event: string, data: any) {
@@ -178,6 +188,13 @@ class Socket {
         // on('touchleave', reset);
 
         this.socket.connect();
+        const events = this.listeners.entries();
+        for (let i = 0; i < this.listeners.size; i++) {
+            const [event, listeners] = events.next().value;
+            for (const listener of listeners) {
+                this.socket.on(event, listener);
+            }
+        }
 
         // const init = (id: string) => {
         //     console.log('init', id);
@@ -207,6 +224,12 @@ class Socket {
     }
 
     public onInit() {}
+
+    reconnect() {
+        this.socket.disconnect();
+        this.socket = io();
+        this.connect();
+    }
 }
 
 /**
@@ -217,16 +240,27 @@ class Socket {
  */
 export const socket = new Socket();
 
+socket.on('reload', () => {
+    if (uptime() < 1000) return;
+    location.reload();
+});
+
 socket.on('init', (id: string) => {
-    // socket.off('init', init);
+    console.log('initializing...');
     if (typeof id !== 'string')
         return console.error('Did not recieve typeof string on socket init');
     ServerRequest.metadata.set('socket-id', id);
     socket.onInit();
 });
 
-socket.on('disconnect', () => {
-    socket.socket.io.connect();
+socket.on('disconnect', async () => {
+    console.log('reconnecting...');
+    for (let i = 0; i < 10; i++) {
+        if (socket.socket.connected) return console.log('connected!');
+        console.log('Attempting to reconnect...');
+        socket.reconnect();
+        await sleep(1000);
+    }
 });
 
 Object.assign(window, { socket });

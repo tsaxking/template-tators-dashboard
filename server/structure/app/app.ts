@@ -372,7 +372,11 @@ export class App<sessionInfo = unknown> {
 
         this.io = new SocketWrapper(
             this as App<unknown>,
-            new Server(this.httpServer)
+            new Server(this.httpServer, {
+                connectionStateRecovery: {
+                    maxDisconnectionDuration: 1000 * 60 * 5
+                }
+            })
         );
 
         this.server.use(async (req, res, next) => {

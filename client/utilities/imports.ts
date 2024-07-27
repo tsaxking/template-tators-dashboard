@@ -9,6 +9,7 @@ import './deps';
 
 // settings
 import './settings';
+import './socket';
 
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
