@@ -1,5 +1,7 @@
 <script lang="ts">
+import { Random } from '../../../../shared/math';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
+import Footer from './Footer.svelte';
 export let title: string;
 let year: number = new Date().getFullYear();
 export let domain: string;
