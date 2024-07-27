@@ -348,16 +348,14 @@ var requirejs, require, define;
                     (function (e) {
                         var t, i;
                         for (t = 0; t < e.length; t++) {
-                            if ('.' === (i = e[t])) {
-                                e.splice(t, 1), (t -= 1);
-                            } else if ('..' === i) {
+                            if ('.' === (i = e[t])) e.splice(t, 1), (t -= 1);
+                            else if ('..' === i) {
                                 if (
                                     0 === t ||
                                     (1 === t && '..' === e[2]) ||
                                     '..' === e[t - 1]
-                                ) {
+                                )
                                     continue;
-                                }
                                 0 < t && (e.splice(t - 1, 2), (t -= 2));
                             }
                         }
@@ -390,9 +388,8 @@ var requirejs, require, define;
                     if (
                         e.getAttribute('data-requiremodule') === t &&
                         e.getAttribute('data-requirecontext') === l.contextName
-                    ) {
+                    )
                         return e.parentNode.removeChild(e), !0;
-                    }
                 });
         }
         function w(e) {
@@ -520,9 +517,8 @@ var requirejs, require, define;
                                 e.fetched &&
                                 t.isDefine &&
                                 ((s = !0), !t.prefix)
-                            ) {
+                            )
                                 return (u = !1);
-                            }
                         }
                     }),
                     n && o.length)
@@ -669,9 +665,7 @@ var requirejs, require, define;
                         if (!this.shim) {
                             return e.prefix ? this.callPlugin() : this.load();
                         }
-                        l.makeRequire(this.map, {
-                            enableBuildCallback: !0
-                        })(
+                        l.makeRequire(this.map, { enableBuildCallback: !0 })(
                             this.shim.deps || [],
                             bind(this, function () {
                                 return e.prefix
@@ -1077,9 +1071,7 @@ var requirejs, require, define;
                                       T(),
                                           ((n = k(S(null, o))).skipMap =
                                               a.skipMap),
-                                          n.init(e, t, i, {
-                                              enabled: !0
-                                          }),
+                                          n.init(e, t, i, { enabled: !0 }),
                                           R();
                                   }),
                                   s)
@@ -1234,9 +1226,7 @@ var requirejs, require, define;
                             eachProp(p, function (e, t) {
                                 0 !== t.indexOf('_@r') &&
                                     each(e.depMaps, function (e) {
-                                        if (e.id === i.id) {
-                                            return r.push(t), !0;
-                                        }
+                                        if (e.id === i.id) return r.push(t), !0;
                                     });
                             }),
                             O(
