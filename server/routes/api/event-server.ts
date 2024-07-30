@@ -4,21 +4,20 @@ import { validate } from '../../middleware/data-type';
 import { TBA } from '../../utilities/tba/tba';
 import {
     TBAMatch,
-    TBATeam,
-    teamsFromMatch
+    TBATeam
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { generateScoutGroups } from '../../../shared/submodules/tatorscout-calculations/scout-groups';
 import { attemptAsync } from '../../../shared/check';
 import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba';
 import Account from '../../structure/accounts';
 import {
-    Match,
+    Match as MatchObject,
     validateObj
 } from '../../../shared/submodules/tatorscout-calculations/trace';
-import { uuid } from '../../utilities/uuid';
-import { DB } from '../../utilities/databases';
-import { bigIntEncode } from '../../../shared/objects';
-import Filter from 'bad-words';
+import { CustomMatch } from '../../structure/cache/custom-matches';
+import { MatchScouting } from '../../structure/cache/match-scouting';
+import { Match } from '../../structure/cache/matches';
+import { TeamComment } from '../../structure/cache/team-comments';
 
 export const router = new Route();
 
@@ -26,7 +25,7 @@ if (!env.EVENT_API_KEY) env.EVENT_API_KEY = 'test';
 
 const auth = App.headerAuth('x-auth-key', env.EVENT_API_KEY);
 
-router.post<Match>(
+router.post<MatchObject>(
     '/submit-match',
     auth,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,124 +40,39 @@ router.post<Match>(
             compLevel,
             group,
             scout,
-            date,
             trace,
             preScouting
         } = req.body;
+        const { stringify } = JSON;
 
-        const matchScoutingId = uuid();
-        const traceStr = JSON.stringify(trace);
+        const addComments = (ms: MatchScouting) =>
+            attemptAsync(async () => {
+                const allComments = Object.entries(comments);
+                for (let i = 0; i < allComments.length; i++) {
+                    const [type, comment] = allComments[i];
+                    (
+                        await TeamComment.new({
+                            team: teamNumber,
+                            comment,
+                            type,
+                            matchScoutingId: ms.id,
+                            accountId: ms.scoutId,
+                            eventKey
+                        })
+                    ).unwrap();
+                }
+            });
+
+        const account = await Account.fromUsername(scout);
+        const scoutId = account ? account.id : scout;
+
 
         if (preScouting) {
-            const matches = await TBA.get<TBAMatch[]>(
-                `/event/${eventKey}/matches`
-            );
-            if (matches.isErr() || !matches.value)
-                return res
-                    .status(500)
-                    .json({ error: 'Error fetching matches' });
-
-            const m = matches.value.find(
-                m =>
-                    m.match_number === matchNumber && m.comp_level === compLevel
-            );
-
-            if (!m) return res.status(500).json({ error: 'Match not found' });
-
-            const [r1, r2, r3, rn, b1, b2, b3, bn] = teamsFromMatch(m);
-
-            const customMatchId = uuid();
-
-            DB.run('custom-matches/new', {
-                id: customMatchId,
+            // build a custom match
+            const cm = await CustomMatch.new({
                 eventKey,
                 matchNumber,
                 compLevel,
-                created: Date.now(),
-                name: `Prscouting match ${eventKey} ${matchNumber} for ${teamNumber}`,
-                red1: r1,
-                red2: r2,
-                red3: r3,
-                red4: rn || undefined,
-                blue1: b1,
-                blue2: b2,
-                blue3: b3,
-                blue4: bn || undefined
-            });
-
-            DB.run('match-scouting/new', {
-                id: matchScoutingId,
-                matchId: customMatchId,
-                team: teamNumber,
-                scoutId: scout,
-                scoutGroup: group === null ? -1 : group,
-                trace: traceStr,
-                preScouting: +preScouting,
-                time: date,
-                checks: JSON.stringify(checks),
-                scoutName: scout
-            });
-
-            return res.json({
-                success: true
-            });
-        }
-
-        const matchesRes = await DB.all('matches/from-event', {
-            eventKey
-        });
-
-        if (matchesRes.isErr()) return res.status(500).json({ error: 'Error' });
-        const matches = matchesRes.value;
-
-        const m = matches.find(
-            m => m.matchNumber === matchNumber && m.compLevel === compLevel
-        );
-
-        // if official match and match is not found in the tba database
-        if (!m && compLevel !== 'pr') {
-            return res.json({
-                success: false,
-                error: 'Match not found'
-            });
-        }
-
-        let matchId = '';
-        if (m) {
-            // this is a real match
-            matchId = m.id;
-            // check if duplicate
-            const existingRes = await DB.get('match-scouting/from-match', {
-                matchId: m.id
-            });
-
-            if (existingRes.isErr())
-                return res.status(500).json({ error: 'Error' });
-
-            if (existingRes.value) {
-                DB.run('match-scouting/archive', {
-                    content: JSON.stringify(bigIntEncode(req.body)),
-                    created: Date.now(),
-                    compLevel,
-                    eventKey,
-                    matchNumber,
-                    teamNumber
-                });
-                return res.json({
-                    success: false,
-                    error: 'Match already scouted'
-                });
-            }
-        } else {
-            // this is a practice match
-            matchId = uuid();
-            DB.run('custom-matches/new', {
-                id: matchId,
-                eventKey,
-                matchNumber,
-                compLevel,
-                created: Date.now(),
-                name: `Practice match ${eventKey} ${matchNumber} for ${teamNumber}`,
                 red1: teamNumber,
                 red2: 0,
                 red3: 0,
@@ -166,77 +80,147 @@ router.post<Match>(
                 blue1: 0,
                 blue2: 0,
                 blue3: 0,
-                blue4: 0
+                blue4: 0,
+                name: `Prescouting for ${teamNumber} in ${compLevel} ${matchNumber} at ${eventKey}`
+            });
+
+            if (cm.isErr()) return res.status(500).json({ error: cm.error });
+
+            const ms = await MatchScouting.new({
+                matchId: cm.value.id,
+                team: teamNumber,
+                scoutId,
+                scoutGroup: group || 0,
+                trace: stringify(trace),
+                checks: stringify(checks),
+                preScouting: 1,
+                eventKey,
+                matchNumber,
+                compLevel
+            });
+
+            if (ms.isErr()) return res.status(500).json({ error: ms.error });
+
+            const c = await addComments(ms.value);
+            if (c.isErr()) return res.status(500).json({ error: c.error });
+
+            return res.json({
+                success: true
             });
         }
 
-        let scoutId = scout;
-        const s = await Account.fromUsername(scout);
-        if (s) scoutId = s.id;
+        if (compLevel === 'pr') {
+            // practice match
+            const cm = await CustomMatch.new({
+                eventKey,
+                matchNumber,
+                compLevel,
+                red1: teamNumber,
+                red2: 0,
+                red3: 0,
+                red4: 0,
+                blue1: 0,
+                blue2: 0,
+                blue3: 0,
+                blue4: 0,
+                name: `Practice Match ${matchNumber} for ${teamNumber} at ${eventKey}`
+            });
 
-        DB.run('match-scouting/new', {
-            id: matchScoutingId,
-            matchId,
+            if (cm.isErr()) return res.status(500).json({ error: cm.error });
+
+            const ms = await MatchScouting.new({
+                matchId: cm.value.id,
+                team: teamNumber,
+                scoutId,
+                scoutGroup: group || 0,
+                trace: stringify(trace),
+                checks: stringify(checks),
+                preScouting: 0,
+                eventKey,
+                matchNumber,
+                compLevel
+            });
+
+            if (ms.isErr()) return res.status(500).json({ error: ms.error });
+            const c = await addComments(ms.value);
+            if (c.isErr()) return res.status(500).json({ error: c.error });
+
+            return res.json({
+                success: true
+            });
+        }
+
+        // official match
+
+        const matches = await Match.fromEvent(eventKey);
+        if (matches.isErr())
+            return res.status(500).json({ error: matches.error });
+
+        const match = matches.value.find(
+            m => m.matchNumber === matchNumber && m.compLevel === compLevel
+        );
+
+        if (!match) {
+            return res.status(404).json({
+                error: 'Match not found'
+            });
+        }
+
+        const exists = await MatchScouting.fromMatch(match.id);
+        if (exists.isErr())
+            return res.status(500).json({ error: exists.error });
+
+        const found = exists.value.find(m => m.team === teamNumber);
+
+        if (found) {
+            // assume rescouting, overwrite old data
+            const ms = await MatchScouting.new(
+                {
+                    matchId: match.id,
+                    team: teamNumber,
+                    scoutId,
+                    scoutGroup: group || 0,
+                    trace: stringify(trace),
+                    checks: stringify(checks),
+                    preScouting: 0,
+                    eventKey,
+                    matchNumber,
+                    compLevel
+                },
+                true
+            );
+            if (ms.isErr()) return res.status(500).json({ error: ms.error });
+            const c = await addComments(ms.value);
+            if (c.isErr()) return res.status(500).json({ error: c.error });
+
+            return res.json({
+                success: true,
+                overwrite: true
+            });
+        }
+
+        const ms = await MatchScouting.new({
+            matchId: match.id,
             team: teamNumber,
             scoutId,
-            scoutGroup: group === null ? -1 : group,
-            trace: traceStr,
+            scoutGroup: group || 0,
+            trace: stringify(trace),
+            checks: stringify(checks),
             preScouting: 0,
-            time: date,
-            checks: JSON.stringify(checks),
-            scoutName: scout // in case there is no scout id
+            eventKey,
+            matchNumber,
+            compLevel
         });
 
-        for (const [key, value] of Object.entries(comments)) {
-            if (value === '') continue; // ignore empty comments
-            const commentId = uuid();
-            const filter = new Filter();
-
-            const filtered = filter.clean(value);
-
-            DB.run('team-comments/new', {
-                id: commentId,
-                accountId: scoutId,
-                matchScoutingId,
-                comment: filtered.trim(),
-                type: key,
-                eventKey,
-                team: teamNumber,
-                time: date
-            });
-
-            // socket for each comment
-            // req.io.emit('team-comments:new', {
-            //     id: matchId,
-            //     accountId: scoutId,
-            //     matchScoutingId,
-            //     comment: value,
-            //     type: key,
-            //     eventKey,
-            //     team: teamNumber,
-            //     time: date,
-            // });
-        }
+        if (ms.isErr()) return res.status(500).json({ error: ms.error });
+        const c = await addComments(ms.value);
+        if (c.isErr()) return res.status(500).json({ error: c.error });
 
         res.json({
             success: true
         });
 
-        req.io.emit('match-scouting:new', {
-            id: matchScoutingId,
-            matchId: matchId,
-            team: teamNumber,
-            scoutId,
-            scoutGroup: group === null ? -1 : group,
-            trace: traceStr,
-            preScouting: undefined,
-            time: date,
-            checks: JSON.stringify(checks),
-            scoutName: scout,
-            eventKey,
-            matchNumber,
-            compLevel
-        });
+        req.io.emit('match-scouting:new', ms);
     }
 );
 

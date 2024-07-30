@@ -39,8 +39,10 @@ const getMatchScouting = async (teamNumber: number, eventKey: string) => {
             .reverse()
             .filter((s, i, a) => {
                 return (
-                    a.findIndex(s2 => s2.matchNumber === s.matchNumber
-                        && s.compLevel === s2.compLevel
+                    a.findIndex(
+                        s2 =>
+                            s2.matchNumber === s.matchNumber &&
+                            s.compLevel === s2.compLevel
                     ) === i
                 );
             });
@@ -136,7 +138,7 @@ export class Table {
                             'Team Number',
                             'Team Name',
                             'Rank',
-                            'Rank Points',
+                            'Rank Points'
                         ];
 
                         const [team, event] = await Promise.all([
@@ -218,7 +220,11 @@ export class Table {
                             )?.answer || '[]';
 
                         const checks = matches.reduce((acc, cur) => {
-                            return acc + ' ' + (JSON.parse(cur.checks) as string[]).join(' ');
+                            return (
+                                acc +
+                                ' ' +
+                                (JSON.parse(cur.checks) as string[]).join(' ')
+                            );
                         }, '');
 
                         return {
@@ -539,7 +545,7 @@ export class Table {
                             ]
                         };
                     });
-                },
+                }
                 // checks: async (teamNumber: number, eventKey: string) => {
                 //     return attemptAsync(async () => {
                 //         const scouting = await getMatchScouting(teamNumber, eventKey);

@@ -1,2 +1,1 @@
-DELETE FROM Checklists
-WHERE id = :id;
+UPDATE Checklists SET archived = 1 WHERE id = :id;

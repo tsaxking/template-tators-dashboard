@@ -1,1 +1,0 @@
-SELECT * FROM Whiteboards WHERE matchId = :matchId;

@@ -1,5 +1,6 @@
 import { validate } from '../../middleware/data-type';
 import { Route } from '../../structure/app/app';
+import { MatchScouting } from '../../structure/cache/match-scouting';
 import { DB } from '../../utilities/databases';
 
 export const router = new Route();
@@ -136,12 +137,8 @@ router.post<{
     async (req, res) => {
         const { eventKey, teamNumber } = req.body;
         const [preScoutingResult, teamScouting] = await Promise.all([
-            DB.all('match-scouting/teams-pre-scouting', {
-                team: teamNumber
-            }),
-            DB.all('match-scouting/from-team-only', {
-                team: teamNumber
-            })
+            MatchScouting.teamsPreScouting(teamNumber, eventKey),
+            MatchScouting.fromTeam(teamNumber, eventKey)
         ]);
 
         if (preScoutingResult.isErr()) {

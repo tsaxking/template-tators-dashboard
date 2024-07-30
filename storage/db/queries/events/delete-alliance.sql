@@ -1,1 +1,1 @@
-DELETE FROM Alliances WHERE id = :id;
+UPDATE Alliances SET archived = 1 WHERE id = :id;

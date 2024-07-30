@@ -3,4 +3,5 @@ SELECT ScoutingQuestions.*,
 FROM ScoutingQuestionGroups
 INNER JOIN ScoutingQuestions
     ON ScoutingQuestionGroups.id = ScoutingQuestions.groupId
-WHERE ScoutingQuestions.groupId = :groupId;
+WHERE ScoutingQuestions.groupId = :groupId
+    AND ScoutingQuestions.archived = false;

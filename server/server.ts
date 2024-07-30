@@ -11,8 +11,6 @@ import { router as role } from './routes/roles';
 import { FileUpload } from './middleware/stream';
 import { ReqBody } from './structure/app/req';
 import { parseCookie } from '../shared/cookie';
-import { stdin } from './utilities/stdin';
-import { emitter } from './middleware/data-type';
 import path from 'path';
 import { DB } from './utilities/databases';
 import { Session } from './structure/sessions';
@@ -35,15 +33,6 @@ export const app = new App<{
 }>(port, env.DOMAIN || `http://localhost:${port}`);
 
 Session.setDeleteInterval(1000 * 60 * 10); // delete unused sessions every 10 minutes
-
-if (env.ENVIRONMENT === 'dev') {
-    stdin.on('rb', () => {
-        console.log('Reloading clients...');
-        app.io.emit('reload');
-    });
-
-    emitter.on('fail', console.log);
-}
 
 app.post('/env', (req, res) => {
     res.json({
@@ -71,9 +60,9 @@ app.static('/public', path.resolve(__root, './public'));
 app.static('/dist', path.resolve(__root, './dist'));
 app.static('/uploads', path.resolve(__root, './storage/uploads'));
 
-app.post('/socket-url', (req, res) => {
+app.post('/test/get-socket', (req, res) => {
     res.json({
-        url: env.SOCKET_DOMAIN
+        id: req.socket?.id || 'Not found!'
     });
 });
 
@@ -173,7 +162,7 @@ app.get('/*', async (req, res, next) => {
 });
 
 app.get('/test/:page', (req, res, next) => {
-    if (env.ENVIRONMENT !== 'dev') return next();
+    if (!['dev', 'test'].includes(env.ENVIRONMENT as string)) return next();
     const s = res.sendTemplate('entries/test/' + req.params.page);
     if (s.isErr()) {
         res.sendStatus('page:not-found', { page: req.params.page });
@@ -191,8 +180,8 @@ app.route('/roles', role);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
+    if (env.ENVIRONMENT === 'test') return next();
     // return next(); // TODO: THIS IS TEMPORARY FOR 3-1-2024
-    console.log('Testing if user is logged in: ', req.session);
     if (!req.session.accountId) {
         if (
             ![
