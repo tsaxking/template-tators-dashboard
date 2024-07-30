@@ -1,25 +1,41 @@
-import { validate } from '../../middleware/data-type';
 import { Route } from '../../structure/app/app';
-import { DB } from '../../utilities/databases';
+import { validate } from '../../middleware/data-type';
+import { Strategy } from '../../structure/cache/strategy';
 
 export const router = new Route();
 
+
 router.post<{
-    whiteboardId: string;
-}>(
-    '/whiteboards',
-    validate({
-        whiteboardId: 'string'
-    }),
-    async (req, res) => {
-        const { whiteboardId } = req.body;
+    name: string;
+    time: number;
+    matchId: string | undefined;
+    customMatchId: string | undefined;
+    comment: string;
+    checks: string[];
+}>('/new', validate({
+    name: 'string',
+    time: 'number',
+    matchId: ['string', 'undefined'],
+    customMatchId: ['string', 'undefined'],
+    comment: 'string',
+    checks: (v: unknown) => Array.isArray(v) && v.every(val => typeof val === 'string'),
+}), async (req, res) => {
+    const { name, time, matchId, customMatchId, comment, checks } = req.body;
+    const { accountId } = req.session;
+    if (!accountId) return res.sendStatus('account:not-logged-in');
 
-        const whiteboards = await DB.all('whiteboards/from-id', {
-            id: whiteboardId
-        });
 
-        if (whiteboards.isErr()) return res.sendStatus('unknown:error');
+    const s = (await Strategy.new({
+        name, 
+        time, 
+        matchId, 
+        customMatchId,
+        comment,
+        checks: JSON.stringify(checks),
+        createdBy: accountId
+    })).unwrap();
 
-        res.stream(whiteboards.value.map(s => JSON.stringify(s)));
-    }
-);
+    res.sendStatus('strategy:new');
+
+    req.io.emit('strategy:new', s);
+});
