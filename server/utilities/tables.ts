@@ -486,6 +486,7 @@ export type Strategy = {
     customMatchId: string | undefined;
     comment: string;
     archive: 0 | 1;
+    checks: string;
 };
 
 export type TeamComments = {
@@ -921,6 +922,7 @@ export type Update_strategy_update = {
     customMatchId: string | undefined;
     comment: string;
     id: string;
+    checks: string;
 };
 
 export type Insert_strategy_new = {
@@ -931,6 +933,7 @@ export type Insert_strategy_new = {
     matchId: string | undefined;
     customMatchId: string | undefined;
     comment: string;
+    checks: string;
 };
 
 export type Select_strategy_from_id = {
