@@ -7,11 +7,9 @@ import '../styles/global.css';
 import '../styles/style.css';
 import './deps';
 
-// socket
-import './socket';
-
 // settings
 import './settings';
+import './socket';
 
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);

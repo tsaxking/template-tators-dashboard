@@ -98,17 +98,7 @@ router.post<{
         questionId: 'string'
     }),
     async (req, res) => {
-        const { questionId } = req.body;
-
-        const history = await DB.all('scouting-questions/get-answer-history', {
-            questionId
-        });
-
-        if (history.isErr()) {
-            return res.sendStatus('server:unknown-server-error');
-        }
-
-        res.json(history.value);
+        // TODO: Implement history editing
     }
 );
 

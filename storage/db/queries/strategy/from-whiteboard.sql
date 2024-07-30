@@ -1,1 +1,0 @@
-SELECT * FROM Strategy WHERE whiteboardId = :whiteboardId;
