@@ -1,1 +1,0 @@
-SELECT * FROM Whiteboards WHERE customMatchId = :customMatchId AND archived = 0;
