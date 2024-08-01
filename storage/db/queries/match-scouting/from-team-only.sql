@@ -9,4 +9,4 @@ INNER JOIN Matches ON Matches.id = MatchScouting.matchId
 
 WHERE MatchScouting.team = :team
     AND MatchScouting.preScouting = 0
-    AND MatchScouting.archived = 0;
+    AND MatchScouting.archived = false;
