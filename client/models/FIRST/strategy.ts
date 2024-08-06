@@ -1,4 +1,5 @@
 import { Strategy as S } from '../../../server/utilities/tables';
+import { attemptAsync } from '../../../shared/check';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
@@ -68,7 +69,10 @@ export class Strategy extends Cache<StrategyUpdateData> {
 
 
     public static fromId(id: string) {
-        return ServerRequest.post<Strategy>('/api/strategy/from-id', { id });
+        return attemptAsync(async () => {
+            const s = (await ServerRequest.post<S>('/api/strategy/from-id', { id })).unwrap();
+            return Strategy.retrieve(s);
+        });
     }
 
     public static new(data: Omit<S, 'id' | 'createdBy' | 'archive'>) {
@@ -91,7 +95,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
     public customMatchId: string | undefined;
     public comment: string;
     public archive: 0 | 1;
-    public checks: string;
+    public checks: string[];
 
     constructor(data: S) {
         super();
@@ -103,7 +107,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
         this.customMatchId = data.customMatchId;
         this.comment = data.comment;
         this.archive = data.archive;
-        this.checks = data.checks;
+        this.checks = JSON.parse(data.checks);
 
         if (Strategy.cache.has(this.id)) {
             throw new Error('Strategy already exists');
@@ -111,9 +115,16 @@ export class Strategy extends Cache<StrategyUpdateData> {
             Strategy.cache.set(this.id, this);
         }
     }
+
+    update(data: Omit<S, 'id' | 'createdBy'>) {
+        return ServerRequest.post('/api/strategy/update', {
+            id: this.id,
+            ...data,
+        });
+    }
 }
 
 socket.on('strategy:new', (data: S) => {
-    const s = new Strategy(data);
+    const s = Strategy.retrieve(data);
     Strategy.emit('new', s);
 });

@@ -53,3 +53,46 @@ router.post<{
 
     return res.json(s);
 });
+
+router.post<{
+    id: string;
+    name: string;
+    time: number;
+    matchId: string | undefined;
+    customMatchId: string | undefined;
+    comment: string;
+    checks: string[];
+}>('/update', validate({
+    id: 'string', 
+    name: 'string',
+    time: 'number',
+    matchId: ['string', 'undefined'],
+    customMatchId: ['string', 'undefined'],
+    comment: 'string',
+    checks: (v: unknown) => Array.isArray(v) && v.every(val => typeof val === 'string'),
+}), async (req, res) => {
+    const { 
+        id,
+        name,
+        time,
+        matchId,
+        customMatchId,
+        comment,
+        checks,
+     } = req.body;
+    const s = (await Strategy.fromId(id)).unwrap();
+    if (!s) return res.sendStatus('strategy:not-found');
+
+    (await s.update({
+        name,
+        time,
+        matchId,
+        customMatchId,
+        comment,
+        checks: JSON.stringify(checks),
+    }));
+
+    res.sendStatus('strategy:updated');
+
+    req.io.emit('strategy:update', s);
+});
