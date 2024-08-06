@@ -43,7 +43,7 @@ export class Strategy extends Cache {
     public readonly id: string;
     public name: string;
     public time: number;
-    public createdBy: string;
+    public readonly createdBy: string;
     public matchId: string | undefined;
     public customMatchId: string | undefined;
     public comment: string;
@@ -63,9 +63,9 @@ export class Strategy extends Cache {
         this.checks = data.checks;
     }
 
-    update(data: Partial<Omit<S, 'id'>>) {
+    update(data: Partial<Omit<S, 'id' | 'createdBy'>>) {
         return attemptAsync(async () => {
-            await DB.run('strategy/update', { ...this, ...data });
+            (await DB.run('strategy/update', { ...this, ...data })).unwrap();
             Object.assign(this, data);
         });
     }
