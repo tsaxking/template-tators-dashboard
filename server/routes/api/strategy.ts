@@ -39,3 +39,17 @@ router.post<{
 
     req.io.emit('strategy:new', s);
 });
+
+router.post<{
+    id: string;
+}>('/from-id', validate({
+    id: 'string'
+}), async (req, res) => {
+    const { id } = req.body;
+
+    const s = (await Strategy.fromId(id)).unwrap();
+
+    if (!s) return res.sendStatus('strategy:not-found');
+
+    return res.json(s);
+});

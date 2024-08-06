@@ -60,7 +60,7 @@ FIRSTEvent.on('select', e => {
     <BorderlessPage {active} {domain} title="pit-dashboard">
         <PitDashboard />
     </BorderlessPage>
-    <BorderlessPage {active} {domain} title="pit-strategy">
+    <Page {active} {domain} title="pit-strategy">
         <PitStrategy />
-    </BorderlessPage>
+    </Page>
 </Main>

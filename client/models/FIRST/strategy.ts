@@ -67,7 +67,9 @@ export class Strategy extends Cache<StrategyUpdateData> {
     >();
 
 
-
+    public static fromId(id: string) {
+        return ServerRequest.post<Strategy>('/api/strategy/from-id', { id });
+    }
 
     public static new(data: Omit<S, 'id' | 'createdBy' | 'archive'>) {
         return ServerRequest.post('/api/strategy/new', data);
