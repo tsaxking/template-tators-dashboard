@@ -57,7 +57,7 @@ $: {
 
 <div class="mb-3 bg-gray-light flex-fill p-3 rounded w-75 position-relative">
     <div class="d-flex flex-column justify-content-between align-items-center">
-        <h4 class="text-black">Robot {team?.tba.team_number}</h4>
+        <h4 class="text-black">Team {team?.tba.team_number}</h4>
     </div>
     <div
         class="d-flex flex-column justify-content-center align-items-center h-100 position-relative"
