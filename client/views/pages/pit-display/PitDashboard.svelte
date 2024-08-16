@@ -186,7 +186,13 @@ $: {
                     {#each matchScouting as { match }, index}
                         {#if match}
                             <option value="{index}">
-                                {match.compLevel}
+                                {#if match.compLevel === 'qm'}
+                                    Qualifier
+                                {:else if match.compLevel === 'sf'}
+                                    Semifinal
+                                {:else if match.compLevel === 'f'}
+                                    Final
+                                {/if}
                                 {match.number}
                             </option>
                         {/if}
