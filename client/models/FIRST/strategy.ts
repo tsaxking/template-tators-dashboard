@@ -1,5 +1,5 @@
 import { Strategy as S } from '../../../server/utilities/tables';
-import { attemptAsync } from '../../../shared/check';
+import { attempt, attemptAsync, Result } from '../../../shared/check';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
@@ -121,6 +121,20 @@ export class Strategy extends Cache<StrategyUpdateData> {
             id: this.id,
             ...data,
         });
+    }
+}
+
+
+export class Check {
+    public static from(data: string[], teams: [number, number, number, number, number, number]): Result<[Check,Check,Check,Check,Check,Check]> {
+        return attempt(() => {
+            throw new Error('test');
+        });
+    }
+
+    constructor(public readonly team: number, checks: string[]) {
+    }
+    serialize(): string[] { // ['2122:check']
     }
 }
 
