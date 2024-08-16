@@ -197,7 +197,10 @@ $: {
         <div class="row mb-3 mx-1">
             <div class="col-md-12 border rounded border-light-subtle p-3">
                 <h1>Checks</h1>
-                <p>Placeholder for checks. Details to be added.</p>
+                <p>
+                    I don't actually remember why this is here, but it is on my
+                    whiteboard for design. Same as above.
+                </p>
             </div>
         </div>
 
@@ -243,14 +246,14 @@ $: {
 
 .loading {
     position: fixed;
-    top: 0;
+    top: var(--topNavbarHeight);
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - var(--topNavbarHeight)) !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(33, 37, 41, 0.8);
+    background-color: rgba(33, 37, 41, 1);
     color: #fff;
     z-index: 9999;
 }
