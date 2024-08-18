@@ -8,14 +8,14 @@ const wb = new Whiteboard({
     name: 'Test',
     strategyId: '1',
     archived: false,
-    board: '[]',
+    board: '[]'
 });
 
 new App({
     target: document.body,
     props: {
         whiteboard: wb,
-        year: 2024,
+        year: 2024
     }
 });
 

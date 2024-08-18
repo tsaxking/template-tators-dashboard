@@ -101,7 +101,7 @@ export class BoardState {
                     const path = new Path(p);
                     path.properties.line.color = 'black';
                     return path;
-                }),
+                })
             };
 
             const positions = data.positions.map(p => {
@@ -126,8 +126,7 @@ export class BoardState {
         public readonly pens: Pens,
         public readonly positions: Positions,
         public readonly board: Board
-    ) {
-    }
+    ) {}
 
     draw(ctx: CanvasRenderingContext2D) {
         const draw = (pen: Path[]) => {
@@ -170,8 +169,14 @@ export class BoardState {
         return attempt(() => {
             const canvas = this.board.$canvas;
             if (!canvas) throw new Error('Canvas not found');
-            type E = (data: DrawableEvent<unknown> | CanvasEvent<unknown>) => void;
-            type E_FN = (e: DrawableEvent<MouseEvent | TouchEvent> | CanvasEvent<MouseEvent | TouchEvent>) => void;
+            type E = (
+                data: DrawableEvent<unknown> | CanvasEvent<unknown>
+            ) => void;
+            type E_FN = (
+                e:
+                    | DrawableEvent<MouseEvent | TouchEvent>
+                    | CanvasEvent<MouseEvent | TouchEvent>
+            ) => void;
             let dragging: Position | undefined;
 
             for (let i = 0; i < this.positions.length; i++) {
@@ -213,7 +218,7 @@ export class BoardState {
 
             let currentPath: Path | undefined;
 
-            const start: E_FN = (e) => {
+            const start: E_FN = e => {
                 if (dragging) return;
                 const [[x, y]] = canvas.getXY(e.event);
                 currentPath = new Path([[x, y]]);
@@ -222,9 +227,8 @@ export class BoardState {
                 currentPath.properties.line.color = color;
 
                 this.pens[color].push(currentPath);
-
             };
-            const draw: E_FN = (e) => {
+            const draw: E_FN = e => {
                 if (dragging) return;
                 const canvas = this.board.$canvas;
                 if (!canvas) return;

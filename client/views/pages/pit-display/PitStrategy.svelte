@@ -123,8 +123,6 @@ $: {
     matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 }
 
-
-
 const createWhiteboard = async () => {
     const name = await prompt('Enter whiteboard name');
     if (!name) return;
@@ -141,7 +139,8 @@ const createWhiteboard = async () => {
                 <span class="visually-hidden">Loading...</span>
             </div>
             <p>Loading teams</p>
-        </div>new
+        </div>
+        new
     </div>
 {:else}
     <div class="container-fluid vh-100">
@@ -250,9 +249,7 @@ const createWhiteboard = async () => {
         </div>
     </div>
 
-
-
-    <button class="btn btn-primary" on:click={createWhiteboard}>
+    <button class="btn btn-primary" on:click="{createWhiteboard}">
         Create Whiteboard
     </button>
 {/if}
