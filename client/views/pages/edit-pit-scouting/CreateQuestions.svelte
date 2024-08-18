@@ -28,7 +28,7 @@ let open: Section;
 let tabs: string[] = [],
     active: string = '';
 $: {
-    fns.setSections(sections, active);
+    setSections(sections, active);
 }
 
 Section.on('new', async s => {
@@ -50,46 +50,44 @@ FIRSTEvent.on('select', async e => {
     if (s) active = s.name;
 });
 
-const fns = {
-    setSections: (sections: Section[], active: string) => {
-        tabs = sections.map(s => s.name);
-        const s = sections.find(s => s.name === active);
-        if (s) open = s;
-    },
-    migrateQuestions: async () => {
-        if (!event) return console.error('No event selected');
-        const events = await FIRSTYear.current?.getEvents();
-        console.log({ events });
-        if (!events) return alert('No events found');
-        if (events.isErr()) return console.error(events.error);
+const setSections = (sections: Section[], active: string) => {
+    tabs = sections.map(s => s.name);
+    const s = sections.find(s => s.name === active);
+    if (s) open = s;
+};
+const migrateQuestions = async () => {
+    if (!event) return console.error('No event selected');
+    const events = await FIRSTYear.current?.getEvents();
+    console.log({ events });
+    if (!events) return alert('No events found');
+    if (events.isErr()) return console.error(events.error);
 
-        const allowedEvents = events.value.filter(e => e.key !== event.key);
+    const allowedEvents = events.value.filter(e => e.key !== event.key);
 
-        console.log({ allowedEvents });
+    console.log({ allowedEvents });
 
-        const selected = await select(
-            'What event would you like to migrate the questions to?',
-            allowedEvents.map(e => e.name)
-        );
-        const e = allowedEvents[selected];
-        if (!e) return;
+    const selected = await select(
+        'What event would you like to migrate the questions to?',
+        allowedEvents.map(e => e.name)
+    );
+    const e = allowedEvents[selected];
+    if (!e) return;
 
-        console.log({ e });
+    console.log({ e });
 
-        const res = await event.copyQuestionsFromEvent(e.key);
+    const res = await event.copyQuestionsFromEvent(e.key);
 
-        console.log({ res });
+    console.log({ res });
 
-        if (res.isErr()) {
-            if (res.error.message === 'Cannot copy from self') {
-                // this should never happen because we filter out the current event
-                // but just in case
-                alert('You cannot copy questions from the same event');
-            } else {
-                console.error(res.error);
-            }
-            return;
+    if (res.isErr()) {
+        if (res.error.message === 'Cannot copy from self') {
+            // this should never happen because we filter out the current event
+            // but just in case
+            alert('You cannot copy questions from the same event');
+        } else {
+            console.error(res.error);
         }
+        return;
     }
 };
 </script>
@@ -134,10 +132,7 @@ const fns = {
             </NavTabs>
         </div>
         <div class="col-md-4 col-sm-12 mb-2">
-            <button
-                class="btn btn-primary w-100"
-                on:click="{fns.migrateQuestions}"
-            >
+            <button class="btn btn-primary w-100" on:click="{migrateQuestions}">
                 Migrate from another event
             </button>
         </div>

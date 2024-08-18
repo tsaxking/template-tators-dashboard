@@ -23,7 +23,7 @@ let open: Section | undefined = undefined;
 let tabs: string[] = [],
     active: string = '';
 $: {
-    fns.setSections(sections, active);
+    setSections(sections, active);
 }
 
 Section.on('new', async s => {
@@ -42,35 +42,33 @@ FIRSTEvent.on('select', async () => {
 
 FIRSTTeam.on('select', t => {
     team = t;
-    fns.setSections(sections, active);
+    setSections(sections, active);
 });
 
-const fns = {
-    setSections(sections: Section[], active: string) {
-        tabs = sections.map(s => s.name);
-        open = sections.find(s => s.name === active);
-    }
-    // save: async () => {
-    //     if (!team) return alert('Please select a team');
-    //     if (!open) return alert('Please select a section');
-
-    //     const groups = await open.getGroups(FIRSTEvent.current);
-    //     if (groups.isOk()) {
-    //         const results = await Promise.all(
-    //             groups.value.map(async g => {
-    //                 const questions = await g.getQuestions();
-    //                 if (questions.isOk()) {
-    //                     return Promise.all(
-    //                         questions.value.map(q => {
-    //                             return q.saveAnswer(team);
-    //                         })
-    //                     );
-    //                 }
-    //             })
-    //         )
-    //     }
-    // }
+const setSections = (sections: Section[], active: string) => {
+    tabs = sections.map(s => s.name);
+    open = sections.find(s => s.name === active);
 };
+// const save = async () => {
+//     if (!team) return alert('Please select a team');
+//     if (!open) return alert('Please select a section');
+
+//     const groups = await open.getGroups(FIRSTEvent.current);
+//     if (groups.isOk()) {
+//         const results = await Promise.all(
+//             groups.value.map(async g => {
+//                 const questions = await g.getQuestions();
+//                 if (questions.isOk()) {
+//                     return Promise.all(
+//                         questions.value.map(q => {
+//                             return q.saveAnswer(team);
+//                         })
+//                     );
+//                 }
+//             })
+//         )
+//     }
+// }
 </script>
 
 <div class="container">
@@ -96,7 +94,7 @@ const fns = {
                 {/if}
             </div>
             <!-- <div class="col-lg-4 col-md-6">
-                <button class="btn btn-success" on:click={fns.save}>
+                <button class="btn btn-success" on:click={save}>
                     Save <i class="material-icons">save</i>
                 </button>
             </div> -->

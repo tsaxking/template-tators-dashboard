@@ -8,17 +8,20 @@ export let team: FIRSTTeam | undefined = undefined;
 
 let comments: TeamComment[] = [];
 
-const fns = {
-    get: async (team?: FIRSTTeam) => {
-        if (!team) return;
-        comments = [];
-        comments = await team.getComments();
-    }
+const doGet = async (team?: FIRSTTeam) => {
+    if (!team) return;
+    comments = [];
+    comments = await team.getComments();
 };
 
-$: fns.get(team);
+$: doGet(team);
 
-onMount(() => fns.get(team));
+onMount(() => () => {
+    doGet();
+    return () => {
+        comments = [];
+    };
+});
 </script>
 
 <CommentViewer {team} {comments} />

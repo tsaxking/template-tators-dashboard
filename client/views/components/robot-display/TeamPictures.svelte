@@ -14,26 +14,24 @@ export let team: FIRSTTeam | undefined = undefined;
 export let upload = false;
 export let pictures: P[] = [];
 
-const fns = {
-    setPictures: async (team?: FIRSTTeam) => {
-        if (!team) return (pictures = []);
-        pictures = [];
-        await team.event.cacheTeamPictures();
-        // after the cache is updated, we know the pictures are up to date
-        const pics = await team.getPictures();
-        if (pics.isErr()) return console.error(pics.error);
-        pictures = pics.value.map(p => ({
-            url: '/uploads/' + p.picture
-        }));
-    }
+const setPictures = async (team?: FIRSTTeam) => {
+    if (!team) return (pictures = []);
+    pictures = [];
+    await team.event.cacheTeamPictures();
+    // after the cache is updated, we know the pictures are up to date
+    const pics = await team.getPictures();
+    if (pics.isErr()) return console.error(pics.error);
+    pictures = pics.value.map(p => ({
+        url: '/uploads/' + p.picture
+    }));
 };
 
 $: {
     if (team) {
-        fns.setPictures(team);
+        setPictures(team);
 
         team.on('new-picture', () => {
-            fns.setPictures(team);
+            setPictures(team);
         });
     }
 }

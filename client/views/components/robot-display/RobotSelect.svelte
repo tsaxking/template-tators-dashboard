@@ -1,4 +1,5 @@
 <script lang="ts">
+import { onMount } from 'svelte';
 import { FIRSTEvent } from '../../../models/FIRST/event';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import Select from '../bootstrap/Select.svelte';
@@ -6,16 +7,16 @@ import Select from '../bootstrap/Select.svelte';
 let value = '';
 let options: string[] = [];
 
-FIRSTTeam.on('select', team => {
+const teamSelect = (team: FIRSTTeam | undefined) => {
     if (!team) return;
     value = team.tba.team_number.toString();
-});
+};
 
 const update = async (teams: FIRSTTeam[]) => {
     options = teams.map(t => t.tba.team_number.toString());
 };
 
-FIRSTEvent.on('select', async (event: FIRSTEvent) => {
+const eventSelect = async (event: FIRSTEvent) => {
     const teams = await event.getTeams();
     if (teams.isOk()) {
         update(teams.value);
@@ -24,7 +25,7 @@ FIRSTEvent.on('select', async (event: FIRSTEvent) => {
     }
 
     event.on('update-teams', update);
-});
+};
 
 const handleChange = async (e: any) => {
     const { detail: teamNumber } = e;
@@ -41,6 +42,15 @@ const handleChange = async (e: any) => {
         console.error(`Teams not found`);
     }
 };
+
+onMount(() => {
+    FIRSTTeam.on('select', teamSelect);
+    FIRSTEvent.on('select', eventSelect);
+    return () => {
+        FIRSTTeam.off('select', teamSelect);
+        FIRSTEvent.off('select', eventSelect);
+    };
+});
 </script>
 
 <Select bind:options bind:value on:change="{handleChange}"></Select>

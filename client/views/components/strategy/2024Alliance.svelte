@@ -37,122 +37,116 @@ type DataArr = {
     total: number[];
 };
 
-const fns = {
-    getMatchData: async (
-        team: FIRSTTeam | undefined
-    ): Promise<Result<DataArr>> => {
-        return attemptAsync(async () => {
-            if (!team) return fns.buildDefaultArr();
+const getMatchData = async (
+    team: FIRSTTeam | undefined
+): Promise<Result<DataArr>> => {
+    return attemptAsync(async () => {
+        if (!team) return buildDefaultArr();
 
-            const matchScouting = await team.getMatchScouting();
-            if (matchScouting.isErr()) throw matchScouting.error;
-            const matchData = matchScouting.value;
-            const event = FIRSTEvent.current;
-            const myTeam = FIRSTTeam.current;
-            if (!event) throw new Error('Event is undefined');
-            if (!myTeam) throw new Error('My team is undefined');
+        const matchScouting = await team.getMatchScouting();
+        if (matchScouting.isErr()) throw matchScouting.error;
+        const matchData = matchScouting.value;
+        const event = FIRSTEvent.current;
+        const myTeam = FIRSTTeam.current;
+        if (!event) throw new Error('Event is undefined');
+        if (!myTeam) throw new Error('My team is undefined');
 
-            const res = await event.getMatches();
-            if (res.isErr()) throw res.error;
+        const res = await event.getMatches();
+        if (res.isErr()) throw res.error;
 
-            const matches = res.value;
-            const data = await Promise.all(
-                matches.map(async m => {
-                    const teams = await m.getTeams();
-                    if (teams.isErr()) throw teams.error;
-                    const [r1, r2, r3] = teams.value;
+        const matches = res.value;
+        const data = await Promise.all(
+            matches.map(async m => {
+                const teams = await m.getTeams();
+                if (teams.isErr()) throw teams.error;
+                const [r1, r2, r3] = teams.value;
 
-                    let alliance: 'red' | 'blue';
-                    if ([r1, r2, r3].includes(myTeam)) {
-                        alliance = 'red';
-                    } else {
-                        alliance = 'blue';
-                    }
+                let alliance: 'red' | 'blue';
+                if ([r1, r2, r3].includes(myTeam)) {
+                    alliance = 'red';
+                } else {
+                    alliance = 'blue';
+                }
 
-                    return {
-                        match: m,
-                        alliance,
-                        trace:
-                            matchData.find(
-                                s =>
-                                    s.matchNumber === m.number &&
-                                    s.compLevel === m.compLevel
-                            )?.trace || []
-                    };
-                })
-            );
+                return {
+                    match: m,
+                    alliance,
+                    trace:
+                        matchData.find(
+                            s =>
+                                s.matchNumber === m.number &&
+                                s.compLevel === m.compLevel
+                        )?.trace || []
+                };
+            })
+        );
 
-            return data
-                .map(d => Trace.score.parse2024(d.trace, d.alliance))
-                .reduce((acc, data) => {
-                    acc.auto.spk.push(data.auto.spk);
-                    acc.auto.amp.push(data.auto.amp);
-                    acc.auto.mobility.push(data.auto.mobility);
-                    acc.auto.total.push(data.auto.total);
+        return data
+            .map(d => Trace.score.parse2024(d.trace, d.alliance))
+            .reduce((acc, data) => {
+                acc.auto.spk.push(data.auto.spk);
+                acc.auto.amp.push(data.auto.amp);
+                acc.auto.mobility.push(data.auto.mobility);
+                acc.auto.total.push(data.auto.total);
 
-                    acc.teleop.spk.push(data.teleop.spk);
-                    acc.teleop.amp.push(data.teleop.amp);
-                    acc.teleop.trp.push(data.teleop.trp);
-                    acc.teleop.total.push(data.teleop.total);
+                acc.teleop.spk.push(data.teleop.spk);
+                acc.teleop.amp.push(data.teleop.amp);
+                acc.teleop.trp.push(data.teleop.trp);
+                acc.teleop.total.push(data.teleop.total);
 
-                    acc.endgame.clb.push(data.endgame.clb);
-                    acc.endgame.park.push(data.endgame.park);
-                    acc.endgame.total.push(data.endgame.total);
+                acc.endgame.clb.push(data.endgame.clb);
+                acc.endgame.park.push(data.endgame.park);
+                acc.endgame.total.push(data.endgame.total);
 
-                    acc.total.push(data.total);
+                acc.total.push(data.total);
 
-                    return acc;
-                }, fns.buildDefaultArr()) as DataArr;
-        });
-    },
-    getAllianceData: async (...teams: (FIRSTTeam | undefined)[]) => {
-        fns.reset();
-        const data = resolveAll(await Promise.all(teams.map(fns.getMatchData)));
-        if (data.isErr()) {
-            return console.error(data.error);
-        }
-
-        allianceInfo = data.value as [DataArr, DataArr, DataArr];
-    },
-    reset: () => {
-        allianceInfo = [
-            fns.buildDefaultArr(),
-            fns.buildDefaultArr(),
-            fns.buildDefaultArr()
-        ];
-    },
-    buildDefaultArr: (): DataArr => {
-        return {
-            auto: {
-                spk: [],
-                amp: [],
-                mobility: [],
-                total: []
-            },
-            teleop: {
-                spk: [],
-                amp: [],
-                trp: [],
-                total: []
-            },
-            endgame: {
-                clb: [],
-                park: [],
-                total: []
-            },
-            total: []
-        };
+                return acc;
+            }, buildDefaultArr()) as DataArr;
+    });
+};
+const getAllianceData = async (...teams: (FIRSTTeam | undefined)[]) => {
+    reset();
+    const data = resolveAll(await Promise.all(teams.map(getMatchData)));
+    if (data.isErr()) {
+        return console.error(data.error);
     }
+
+    allianceInfo = data.value as [DataArr, DataArr, DataArr];
+};
+const reset = () => {
+    allianceInfo = [buildDefaultArr(), buildDefaultArr(), buildDefaultArr()];
+};
+const buildDefaultArr = (): DataArr => {
+    return {
+        auto: {
+            spk: [],
+            amp: [],
+            mobility: [],
+            total: []
+        },
+        teleop: {
+            spk: [],
+            amp: [],
+            trp: [],
+            total: []
+        },
+        endgame: {
+            clb: [],
+            park: [],
+            total: []
+        },
+        total: []
+    };
 };
 
 // team, team, team
 let allianceInfo: [DataArr, DataArr, DataArr] = [
-    fns.buildDefaultArr(),
-    fns.buildDefaultArr(),
-    fns.buildDefaultArr()
+    buildDefaultArr(),
+    buildDefaultArr(),
+    buildDefaultArr()
 ];
 
-$: fns.getAllianceData(team1, team2, team3);
+$: getAllianceData(team1, team2, team3);
 //pull matches, match# + comp level, pull alliance
 </script>
 

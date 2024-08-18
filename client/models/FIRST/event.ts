@@ -363,19 +363,19 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         }>
     > {
         return ServerRequest.post<{
-                pictures: number[];
-                matches: {
-                    match: number;
-                    compLevel: 'qm' | 'qf' | 'sf' | 'f';
-                    teams: number[];
-                }[];
-                questions: {
-                    team: number;
-                    questions: string[];
-                }[];
-            }>('/api/events/status', {
-                eventKey: this.key
-            });
+            pictures: number[];
+            matches: {
+                match: number;
+                compLevel: 'qm' | 'qf' | 'sf' | 'f';
+                teams: number[];
+            }[];
+            questions: {
+                team: number;
+                questions: string[];
+            }[];
+        }>('/api/events/status', {
+            eventKey: this.key
+        });
     }
 
     async getEventSummary(): Promise<

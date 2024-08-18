@@ -9,12 +9,12 @@ const quotes = [
     'The best way to predict the future is to create it.',
     'Just as the prophecy foretold...',
     'if (itWorks) { celebrate(); }',
+    "The best way to get the right answer on the internet is not to ask a question; it's to post the wrong answer.",
     'Good enough is good enough',
     'Expectations lead to misery',
     "The c in code stands for carbs because it's spaghetti code",
     "It's a valley not just because there's a steep ascent on one side, but because a rise follows. Hang in there.",
     'Octopi > Squid',
-    // 'Fun fact: the word "fun" is in "funeral"',
     'Beauty fades. That is why it is beautiful.',
     "Taylor wrote 98% of this code so it's probably his fault",
     'You keep getting signed out because of cosmic rays',
@@ -25,11 +25,10 @@ const quotes = [
     'The word "bed" looks like a bed.',
     'The word "bookkeeper" is the only unhyphenated English word with three consecutive double letters.',
     'The Japanese word for "origami" is "origami".',
+    'The word "alphabet" comes from the first two letters of the Greek alphabet: alpha and beta.',
     "If anyone wants to talk to Keyton about linguistics, he's very lonely.",
-    // "Report issues you see, but don't forget, there will always be issues with this website, me, you, and everything, fixing things and going for perfection will only lead to hopeless misery... Have a Nice Day!",
-    // 'If you see something, say something . . . or else',
     '"Maintain a healthy fear of what can go wrong" - Detrich R.',
-    '"Not all who wander are lost, but this robot is awfully close" - '
+    '"Not all who wander are lost, but this robot is awfully close"'
 ];
 
 const quote = Random.choose(quotes);

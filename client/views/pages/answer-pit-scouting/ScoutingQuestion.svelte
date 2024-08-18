@@ -18,43 +18,41 @@ let changed = true,
 
 // TODO: Restructure all of these functions to make more sense
 
-const fns = {
-    // submits the answer to the server
-    saveValue: async () => {
-        if (!team) return;
-        const result = await question.saveAnswer(team, value);
-        if (result.isOk()) changed = false;
-    },
-    // sets the changed variable to true
-    change: () => {
-        changed = true;
-    },
-    // gets the value of the question, if it exists
-    getValue: async (team: FIRSTTeam | undefined, question: Question) => {
-        if (!team) return;
-        const answer = await question.getAnswer(team, team.event);
-        if (answer.isOk()) {
-            if (answer.value) {
-                value = answer.value.answer;
-                changed = false;
-            } else {
-                value = [];
-                changed = true;
-            }
+// submits the answer to the server
+const saveValue = async () => {
+    if (!team) return;
+    const result = await question.saveAnswer(team, value);
+    if (result.isOk()) changed = false;
+};
+// sets the changed variable to true
+const change = () => {
+    changed = true;
+};
+// gets the value of the question, if it exists
+const getValue = async (team: FIRSTTeam | undefined, question: Question) => {
+    if (!team) return;
+    const answer = await question.getAnswer(team, team.event);
+    if (answer.isOk()) {
+        if (answer.value) {
+            value = answer.value.answer;
+            changed = false;
+        } else {
+            value = [];
+            changed = true;
         }
-    },
-    // sets the disabled variable to true if the team is undefined
-    setDisable: (team: FIRSTTeam | undefined) => {
-        disabled = !team;
     }
+};
+// sets the disabled variable to true if the team is undefined
+const setDisable = (team: FIRSTTeam | undefined) => {
+    disabled = !team;
 };
 
 FIRSTTeam.on('select', t => {
     team = t;
 });
 
-$: fns.getValue(team, question);
-$: fns.setDisable(team);
+$: getValue(team, question);
+$: setDisable(team);
 
 // const dispatch = createEventDispatcher();
 </script>
@@ -74,10 +72,10 @@ $: fns.setDisable(team);
                         class="form-control"
                         on:change="{event => {
                             value = [event.currentTarget.value];
-                            fns.saveValue();
+                            saveValue();
                         }}"
                         {disabled}
-                        on:input="{fns.change}"
+                        on:input="{change}"
                         value="{value[0] || ''}"
                     />
                 {:else if question.type === 'textarea'}
@@ -86,10 +84,10 @@ $: fns.setDisable(team);
                         class="form-control"
                         on:change="{event => {
                             value = [event.currentTarget.value];
-                            fns.saveValue();
+                            saveValue();
                         }}"
                         {disabled}
-                        on:input="{fns.change}"
+                        on:input="{change}"
                         value="{value[0] || ''}"
                     ></textarea>
                 {:else if question.type === 'number'}
@@ -99,10 +97,10 @@ $: fns.setDisable(team);
                         class="form-control"
                         on:change="{event => {
                             value = [event.currentTarget.value];
-                            fns.saveValue();
+                            saveValue();
                         }}"
                         {disabled}
-                        on:input="{fns.change}"
+                        on:input="{change}"
                         value="{value[0] || ''}"
                     />
                 {:else if question.type === 'checkbox'}
@@ -119,10 +117,10 @@ $: fns.setDisable(team);
                                     } else {
                                         value = value.filter(v => v !== option);
                                     }
-                                    fns.saveValue();
+                                    saveValue();
                                 }}"
                                 {disabled}
-                                on:input="{fns.change}"
+                                on:input="{change}"
                                 checked="{value.includes(option)}"
                             />
                             <label
@@ -146,10 +144,10 @@ $: fns.setDisable(team);
                                 value="{option}"
                                 on:change="{event => {
                                     value = [option];
-                                    fns.saveValue();
+                                    saveValue();
                                 }}"
                                 {disabled}
-                                on:input="{fns.change}"
+                                on:input="{change}"
                                 checked="{value[0] === option}"
                             />
                             <label
@@ -166,10 +164,10 @@ $: fns.setDisable(team);
                         class="form-control"
                         on:change="{event => {
                             value = [event.currentTarget.value];
-                            fns.saveValue();
+                            saveValue();
                         }}"
                         {disabled}
-                        on:input="{fns.change}"
+                        on:input="{change}"
                         value="{value[0] || ''}"
                     >
                         {#each question.options.select || [] as option}
@@ -188,10 +186,10 @@ $: fns.setDisable(team);
                             value="true"
                             on:change="{event => {
                                 value = ['true'];
-                                fns.saveValue();
+                                saveValue();
                             }}"
                             {disabled}
-                            on:input="{fns.change}"
+                            on:input="{change}"
                             checked="{value[0] === 'true'}"
                         />
                         <label
@@ -209,10 +207,10 @@ $: fns.setDisable(team);
                             value="false"
                             on:change="{event => {
                                 value = ['false'];
-                                fns.saveValue();
+                                saveValue();
                             }}"
                             {disabled}
-                            on:input="{fns.change}"
+                            on:input="{change}"
                             checked="{value[0] === 'false'}"
                         />
                         <label
@@ -269,9 +267,9 @@ $: fns.setDisable(team);
             {question.description}
         </small>
     {/if}
-    {#if answer}
+    <!-- {#if answer}
         <small>
             Previously answered on {dateTime(answer.date)}
         </small>
-    {/if}
+    {/if} -->
 </div>

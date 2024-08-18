@@ -3,12 +3,13 @@ import { FIRSTYear } from '../../../models/FIRST/year';
 import { FIRSTEvent } from '../../../models/FIRST/event';
 import Select from '../bootstrap/Select.svelte';
 import { abbreviate } from '../../../../shared/text';
+import { onMount } from 'svelte';
 
 let options: string[] = [];
 let values: string[] = [];
 let value: string = '';
 
-FIRSTYear.on('select', async (year: FIRSTYear) => {
+const yearSelect = async (year: FIRSTYear) => {
     const res = await year.getEvents();
 
     if (res.isOk()) {
@@ -58,10 +59,19 @@ FIRSTYear.on('select', async (year: FIRSTYear) => {
         if (e) new FIRSTEvent(e).select();
         else new FIRSTEvent(events[0]).select();
     }
-});
+};
 
-FIRSTEvent.on('select', (event: FIRSTEvent) => {
+const eventSelect = (event: FIRSTEvent) => {
     value = event.tba.key;
+};
+
+onMount(() => {
+    FIRSTYear.on('select', yearSelect);
+    FIRSTEvent.on('select', eventSelect);
+    return () => {
+        FIRSTYear.off('select', yearSelect);
+        FIRSTEvent.off('select', eventSelect);
+    };
 });
 
 const handleChange = async (e: any) => {

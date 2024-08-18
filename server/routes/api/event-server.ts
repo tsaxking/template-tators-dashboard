@@ -66,7 +66,6 @@ router.post<MatchObject>(
         const account = await Account.fromUsername(scout);
         const scoutId = account ? account.id : scout;
 
-
         if (preScouting) {
             // build a custom match
             const cm = await CustomMatch.new({

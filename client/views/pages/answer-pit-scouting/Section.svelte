@@ -9,10 +9,7 @@ export let section: Section | undefined = undefined;
 export let team: FIRSTTeam | undefined = undefined;
 let groups: Group[] = [];
 
-const getGroups = async (
-    s: Section | undefined,
-    event: FIRSTEvent | undefined
-) => {
+const getGroups = async (s: Section | undefined, event: FIRSTEvent | null) => {
     if (!s) return;
     if (!event) return;
     const res = await s.getGroups(event);

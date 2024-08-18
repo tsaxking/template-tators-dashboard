@@ -17,103 +17,100 @@ let secondsNotMoving: number = 0;
 let drivebase: string = '';
 let weight: number = 0;
 
-const fns = {
-    getData: async (t?: FIRSTTeam) => {
-        if (!t) return fns.reset();
+const getData = async (t?: FIRSTTeam) => {
+    if (!t) return reset();
 
-        fns.reset();
+    reset();
 
-        const [matches, pitScouting, velocityData, stats, psQuestions] =
-            await Promise.all([
-                t.event.getMatches(),
-                t.getPitScouting(),
-                t.getVelocityData(),
-                TBA.get<TBATeamEventStatus>(
-                    `/team/${t.tba.key}/event/${t.event.key}/status`
-                ),
-                t.event.getPitScouting()
-            ]);
-        if (matches.isErr()) return fns.reset() || console.error(matches.error);
-        if (pitScouting.isErr())
-            return fns.reset() || console.error(pitScouting.error);
-        if (velocityData.isErr())
-            return fns.reset() || console.error(velocityData.error);
-        if (stats.isErr()) return fns.reset() || console.error(stats.error);
-        if (psQuestions.isErr()) return fns.reset() || console.error();
+    const [matches, pitScouting, velocityData, stats, psQuestions] =
+        await Promise.all([
+            t.event.getMatches(),
+            t.getPitScouting(),
+            t.getVelocityData(),
+            TBA.get<TBATeamEventStatus>(
+                `/team/${t.tba.key}/event/${t.event.key}/status`
+            ),
+            t.event.getPitScouting()
+        ]);
+    if (matches.isErr()) return reset() || console.error(matches.error);
+    if (pitScouting.isErr()) return reset() || console.error(pitScouting.error);
+    if (velocityData.isErr())
+        return reset() || console.error(velocityData.error);
+    if (stats.isErr()) return reset() || console.error(stats.error);
+    if (psQuestions.isErr()) return reset() || console.error();
 
-        const teamMatches: {
-            match: FIRSTMatch;
-            teams: (FIRSTTeam | null)[];
-            played: boolean;
-        }[] = (
-            await Promise.all(
-                matches.value.map(async m => {
-                    const teams = await m.getTeams();
-                    if (teams.isErr()) {
-                        return {
-                            match: m,
-                            teams: [] as (FIRSTTeam | null)[],
-                            played: m.played
-                        };
-                    } else {
-                        return {
-                            match: m,
-                            teams: teams.value as (FIRSTTeam | null)[],
-                            played: m.played
-                        };
-                    }
-                })
-            )
-        ).filter(m => t && m.teams.includes(t));
-        const playedMatches = teamMatches.filter(m => m.played);
+    const teamMatches: {
+        match: FIRSTMatch;
+        teams: (FIRSTTeam | null)[];
+        played: boolean;
+    }[] = (
+        await Promise.all(
+            matches.value.map(async m => {
+                const teams = await m.getTeams();
+                if (teams.isErr()) {
+                    return {
+                        match: m,
+                        teams: [] as (FIRSTTeam | null)[],
+                        played: m.played
+                    };
+                } else {
+                    return {
+                        match: m,
+                        teams: teams.value as (FIRSTTeam | null)[],
+                        played: m.played
+                    };
+                }
+            })
+        )
+    ).filter(m => t && m.teams.includes(t));
+    const playedMatches = teamMatches.filter(m => m.played);
 
-        played = playedMatches.length;
+    played = playedMatches.length;
 
-        rank = stats.value.data.qual.ranking.rank;
-        record = [
-            stats.value.data.qual.ranking.record.wins,
-            stats.value.data.qual.ranking.record.losses,
-            stats.value.data.qual.ranking.record.ties
-        ];
+    rank = stats.value.data.qual.ranking.rank;
+    record = [
+        stats.value.data.qual.ranking.record.wins,
+        stats.value.data.qual.ranking.record.losses,
+        stats.value.data.qual.ranking.record.ties
+    ];
 
-        velocity = velocityData.value.average;
-        secondsNotMoving = velocityData.value.averageSecondsNotMoving;
-        const weightRegex = /weight/i;
-        const weightQuestion = psQuestions.value.questions.find(q =>
-            weightRegex.test(q.key + q.question)
-        );
-        const drivebaseRegex = /drivebase|drivetrain|drive|chassis/i;
-        const drivebaseQuestion = psQuestions.value.questions.find(q =>
-            drivebaseRegex.test(q.key + q.question)
-        );
+    velocity = velocityData.value.average;
+    secondsNotMoving = velocityData.value.averageSecondsNotMoving;
+    const weightRegex = /weight/i;
+    const weightQuestion = psQuestions.value.questions.find(q =>
+        weightRegex.test(q.key + q.question)
+    );
+    const drivebaseRegex = /drivebase|drivetrain|drive|chassis/i;
+    const drivebaseQuestion = psQuestions.value.questions.find(q =>
+        drivebaseRegex.test(q.key + q.question)
+    );
 
-        const weightAnswer = pitScouting.value.find(
-            p => p.questionId === weightQuestion?.id
-        );
-        const drivebaseAnswer = pitScouting.value.find(
-            p => p.questionId === drivebaseQuestion?.id
-        );
+    const weightAnswer = pitScouting.value.find(
+        p => p.questionId === weightQuestion?.id
+    );
+    const drivebaseAnswer = pitScouting.value.find(
+        p => p.questionId === drivebaseQuestion?.id
+    );
 
-        if (weightAnswer) weight = +weightAnswer.answer[0];
-        else weight = 0;
-        if (drivebaseAnswer) drivebase = drivebaseAnswer.answer[0];
-        else drivebase = '';
-    },
-    reset: () => {
-        rank = 0;
-        record = [0, 0, 0];
-        played = 0;
-        velocity = 0;
-        secondsNotMoving = 0;
-        drivebase = '';
-        weight = 0;
+    if (weightAnswer) weight = +weightAnswer.answer[0];
+    else weight = 0;
+    if (drivebaseAnswer) drivebase = drivebaseAnswer.answer[0];
+    else drivebase = '';
+};
+const reset = () => {
+    rank = 0;
+    record = [0, 0, 0];
+    played = 0;
+    velocity = 0;
+    secondsNotMoving = 0;
+    drivebase = '';
+    weight = 0;
 
-        return false;
-    }
+    return false;
 };
 
 $: {
-    fns.getData(team);
+    getData(team);
 }
 </script>
 

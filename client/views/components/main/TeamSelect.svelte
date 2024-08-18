@@ -2,14 +2,14 @@
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { FIRSTEvent } from '../../../models/FIRST/event';
 import Select from '../bootstrap/Select.svelte';
-import { createEventDispatcher } from 'svelte';
+import { createEventDispatcher, onMount } from 'svelte';
 
 let options: string[] = [];
 let values: string[] = [];
 let value: string | undefined;
 export let selected: FIRSTTeam | undefined = undefined;
 
-FIRSTEvent.on('select', async (event: FIRSTEvent) => {
+const eventSelect = async (event: FIRSTEvent) => {
     const result = await event.getTeams();
     if (result.isOk()) {
         const teams = result.value;
@@ -19,9 +19,9 @@ FIRSTEvent.on('select', async (event: FIRSTEvent) => {
         options = [];
         values = [];
     }
-});
+};
 
-const dispatch = createEventDispatcher();
+const d = createEventDispatcher();
 
 const handleChange = async (e: any) => {
     const { detail: teamNumber } = e;
@@ -30,10 +30,17 @@ const handleChange = async (e: any) => {
     const teams = result.value;
     const team = teams.find(t => t.tba.team_number === +teamNumber);
     if (team) {
-        dispatch('change', team);
+        d('change', team);
         selected = team;
     }
 };
+
+onMount(() => {
+    FIRSTEvent.on('select', eventSelect);
+    return () => {
+        FIRSTEvent.off('select', eventSelect);
+    };
+});
 </script>
 
 <Select bind:options bind:value bind:values on:change="{handleChange}" />

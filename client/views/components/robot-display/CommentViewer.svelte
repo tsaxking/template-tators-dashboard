@@ -26,79 +26,77 @@ export let canAdd: boolean = true;
 
 let search = '';
 
-const fns = {
-    parse: async (c: TeamComment[]) => {
-        const accounts = await Account.get(c.map(c => c.accountId));
+const parse = async (c: TeamComment[]) => {
+    const accounts = await Account.get(c.map(c => c.accountId));
 
-        parsed = (
-            await Promise.all(
-                c.map(async (c, i) => {
-                    const match = await c.getMatchScouting();
-                    const obj: C = {
-                        comment: c.comment,
-                        type: c.type,
-                        time: c.time,
-                        account: accounts[i]?.name || c.accountId
-                    };
-                    if (match.isErr()) return obj;
+    parsed = (
+        await Promise.all(
+            c.map(async (c, i) => {
+                const match = await c.getMatchScouting();
+                const obj: C = {
+                    comment: c.comment,
+                    type: c.type,
+                    time: c.time,
+                    account: accounts[i]?.name || c.accountId
+                };
+                if (match.isErr()) return obj;
 
-                    if (match.value) {
-                        obj.matchNumber = match.value.matchNumber;
-                        obj.compLevel = match.value.compLevel;
-                        return obj;
-                    } else {
-                        return obj;
-                    }
-                })
-            )
+                if (match.value) {
+                    obj.matchNumber = match.value.matchNumber;
+                    obj.compLevel = match.value.compLevel;
+                    return obj;
+                } else {
+                    return obj;
+                }
+            })
         )
-            .sort((a, b) => +b.time - +a.time)
-            .filter(
-                (c, i, a) =>
-                    a.findIndex(
-                        _c => _c.comment === c.comment && c.time === _c.time
-                    ) === i
-            );
-    },
-    addComment: async () => {
-        if (!team) return alert('No team selected');
-        const types = [
-            'General',
-            'Defensive',
-            'Offensive',
-            'Auto',
-            'Teleop',
-            'Endgame'
-        ];
-        const type = await select('Select Comment Type', types);
-
-        if (type === -1) return;
-
-        const comment = await prompt(`Enter your ${types[type]} comment`);
-
-        if (comment === null) return;
-
-        team.addComment(types[type], comment);
-    },
-    filterComments: (search: string, comments: C[]) => {
-        if (search === '') return comments;
-        const s = search.toLowerCase();
-        const filtered = fuzzySearch(
-            s,
-            comments.map(c => c.comment + ' ' + c.type + ' ' + c.account)
+    )
+        .sort((a, b) => +b.time - +a.time)
+        .filter(
+            (c, i, a) =>
+                a.findIndex(
+                    _c => _c.comment === c.comment && c.time === _c.time
+                ) === i
         );
-        return comments.filter((_, i) => filtered.includes(i));
-    },
-    onSet(comments: C[]) {
-        jQuery(() => {
-            jQuery('[data-bs-toggle="tooltip"]').tooltip();
-        });
-    }
+};
+const addComment = async () => {
+    if (!team) return alert('No team selected');
+    const types = [
+        'General',
+        'Defensive',
+        'Offensive',
+        'Auto',
+        'Teleop',
+        'Endgame'
+    ];
+    const type = await select('Select Comment Type', types);
+
+    if (type === -1) return;
+
+    const comment = await prompt(`Enter your ${types[type]} comment`);
+
+    if (comment === null) return;
+
+    team.addComment(types[type], comment);
+};
+const filterComments = (search: string, comments: C[]) => {
+    if (search === '') return comments;
+    const s = search.toLowerCase();
+    const filtered = fuzzySearch(
+        s,
+        comments.map(c => c.comment + ' ' + c.type + ' ' + c.account)
+    );
+    return comments.filter((_, i) => filtered.includes(i));
+};
+const onSet = (comments: C[]) => {
+    jQuery(() => {
+        jQuery('[data-bs-toggle="tooltip"]').tooltip();
+    });
 };
 
-$: filteredComments = fns.filterComments(search, parsed);
-$: fns.onSet(filteredComments);
-$: fns.parse(comments);
+$: filteredComments = filterComments(search, parsed);
+$: onSet(filteredComments);
+$: parse(comments);
 </script>
 
 <div class="container">
@@ -114,10 +112,7 @@ $: fns.parse(comments);
         </div>
         <div class="col-lg-4 col-sm-6 mb-2">
             {#if canAdd}
-                <button
-                    class="btn btn-primary w-100"
-                    on:click="{fns.addComment}"
-                >
+                <button class="btn btn-primary w-100" on:click="{addComment}">
                     <i class="material-icons">add</i>
                 </button>
             {/if}
