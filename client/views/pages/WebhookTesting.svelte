@@ -6,28 +6,27 @@ import { capitalize, fromCamelCase } from '../../../shared/text';
 let key: string = window.localStorage.getItem('webhook-key') || '';
 let code: string | undefined;
 
-const fns = {
-    runWebhook: async (path: string) => {
-        const paramRegex = /:([a-zA-Z0-9]+)/g;
-        const params = path.match(paramRegex);
+const runWebhook = async (path: string) => {
+    const paramRegex = /:([a-zA-Z0-9]+)/g;
+    const params = path.match(paramRegex);
+    if (!params) return;
 
-        for (const param of params) {
-            const data = await prompt(
-                'Enter value for ' + capitalize(fromCamelCase(param.slice(1)))
-            );
-            if (!data) return;
-            path = path.replace(param, data);
-        }
-
-        const res = await ServerRequest.post('/api/webhooks' + path, null, {
-            headers: {
-                'x-auth-key': key || ''
-            }
-        });
-
-        if (res.isOk()) code = JSON.stringify(res.value, null, 4);
-        else code = res.error.message;
+    for (const param of params) {
+        const data = await prompt(
+            'Enter value for ' + capitalize(fromCamelCase(param.slice(1)))
+        );
+        if (!data) return;
+        path = path.replace(param, data);
     }
+
+    const res = await ServerRequest.post('/api/webhooks' + path, null, {
+        headers: {
+            'x-auth-key': key || ''
+        }
+    });
+
+    if (res.isOk()) code = JSON.stringify(res.value, null, 4);
+    else code = res.error.message;
 };
 
 $: window.localStorage.setItem('webhook-key', key);
@@ -50,43 +49,39 @@ $: window.localStorage.setItem('webhook-key', key);
         <div class="btn-group">
             <button
                 class="btn btn-primary"
-                on:click="{() => fns.runWebhook('/event/:eventKey/summary')}"
+                on:click="{() => runWebhook('/event/:eventKey/summary')}"
             >
                 Summary
             </button>
             <button
                 class="btn btn-warning"
-                on:click="{() =>
-                    fns.runWebhook('/event/:eventKey/scout-groups')}"
+                on:click="{() => runWebhook('/event/:eventKey/scout-groups')}"
             >
                 Scout Groups
             </button>
             <button
                 class="btn btn-danger"
-                on:click="{() => fns.runWebhook('/event/:eventKey/comments')}"
+                on:click="{() => runWebhook('/event/:eventKey/comments')}"
             >
                 All Comments
             </button>
             <button
                 class="btn btn-success"
                 on:click="{() =>
-                    fns.runWebhook(
-                        '/event/:eventKey/team/:teamNumber/comments'
-                    )}"
+                    runWebhook('/event/:eventKey/team/:teamNumber/comments')}"
             >
                 Comments from team
             </button>
             <button
                 class="btn btn-info"
-                on:click="{() =>
-                    fns.runWebhook('/event/:eventKey/match-scouting')}"
+                on:click="{() => runWebhook('/event/:eventKey/match-scouting')}"
             >
                 All Match Scouting
             </button>
             <button
                 class="btn btn-secondary"
                 on:click="{() =>
-                    fns.runWebhook(
+                    runWebhook(
                         '/event/:eventKey/team/:teamNumber/match-scouting'
                     )}"
             >
@@ -94,8 +89,7 @@ $: window.localStorage.setItem('webhook-key', key);
             </button>
             <button
                 class="btn btn-light"
-                on:click="{() =>
-                    fns.runWebhook('/event/:eventKey/teams/traces')}"
+                on:click="{() => runWebhook('/event/:eventKey/teams/traces')}"
             >
                 Traces
             </button>

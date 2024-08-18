@@ -45,115 +45,108 @@ const img = new Img('/public/pictures/2024field.png', {
     height: 1
 });
 
-const fns = {
-    generate: async (team?: FIRSTTeam) => {
-        if (!team) return;
+const generate = async (team?: FIRSTTeam) => {
+    if (!team) return;
 
-        checks = [];
-        traceArray = [];
+    checks = [];
+    traceArray = [];
 
-        const allChecks = Object.keys(actions)
-            // .keys(actions[2024]) // for development
-            .map((k, i) => ({
-                key: k,
-                action: actions[k as keyof typeof actions],
-                enabled: true,
-                color: colors[i % colors.length] // loop through the colors
-            }));
+    const allChecks = Object.keys(actions)
+        // .keys(actions[2024]) // for development
+        .map((k, i) => ({
+            key: k,
+            action: actions[k as keyof typeof actions],
+            enabled: true,
+            color: colors[i % colors.length] // loop through the colors
+        }));
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        const scouting = await team.getMatchScouting();
-        if (!c) {
-            c = new Canvas(ctx);
-            c.adaptable = true;
-            c.ratio = 2;
-        }
-        c.clearDrawables();
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const scouting = await team.getMatchScouting();
+    if (!c) {
+        c = new Canvas(ctx);
+        c.adaptable = true;
+        c.ratio = 2;
+    }
+    c.clearDrawables();
 
-        if (scouting.isOk()) {
-            // traceArray = generateTrace(10).filter((p => !!p[3])); // used only for development
+    if (scouting.isOk()) {
+        // traceArray = generateTrace(10).filter((p => !!p[3])); // used only for development
 
-            const matchesRes = await team.event.getMatches();
-            if (matchesRes.isErr()) return console.error(matchesRes.error);
-            const matches = matchesRes.value;
+        const matchesRes = await team.event.getMatches();
+        if (matchesRes.isErr()) return console.error(matchesRes.error);
+        const matches = matchesRes.value;
 
-            traceArray = (
-                await Promise.all(
-                    scouting.value.map(async m => {
-                        const match = matches.find(
-                            match =>
-                                match.number === m.matchNumber &&
-                                match.compLevel === m.compLevel
-                        );
-                        // if on red alliance, do x = 1 - x
+        traceArray = (
+            await Promise.all(
+                scouting.value.map(async m => {
+                    const match = matches.find(
+                        match =>
+                            match.number === m.matchNumber &&
+                            match.compLevel === m.compLevel
+                    );
+                    // if on red alliance, do x = 1 - x
 
-                        // not doing .indexOf because I don't know if the caches are the same, they likely are but I don't want to assume
-                        let trace = m.trace.slice();
+                    // not doing .indexOf because I don't know if the caches are the same, they likely are but I don't want to assume
+                    let trace = m.trace.slice();
 
-                        const teams = await match?.getTeams();
-                        if (!teams || teams.isErr())
-                            return {
-                                ...m,
-                                trace
-                            };
-                        if (
-                            match &&
-                            teams.value.findIndex(
-                                t => t && t.number === team.number
-                            ) > 2
-                        ) {
-                            // we don't want to modify the original trace, so we make a copy
-                            trace = m.trace.map(p => [
-                                p[0],
-                                1 - p[1],
-                                p[2],
-                                p[3]
-                            ]);
-                        }
+                    const teams = await match?.getTeams();
+                    if (!teams || teams.isErr())
                         return {
                             ...m,
                             trace
                         };
-                    })
-                )
+                    if (
+                        match &&
+                        teams.value.findIndex(
+                            t => t && t.number === team.number
+                        ) > 2
+                    ) {
+                        // we don't want to modify the original trace, so we make a copy
+                        trace = m.trace.map(p => [p[0], 1 - p[1], p[2], p[3]]);
+                    }
+                    return {
+                        ...m,
+                        trace
+                    };
+                })
             )
-                .map(m => m.trace)
-                .flat()
-                .filter(p => !!p[3]);
+        )
+            .map(m => m.trace)
+            .flat()
+            .filter(p => !!p[3]);
 
-            container.children = traceArray.map(t => {
-                const c = new Circle([t[1], t[2]], 0.02);
-                const action = t[3] as Action;
-                const found = allChecks.find(c => c.key === action);
-                checks = [...checks, found].filter(
-                    (c, i, a) => a.indexOf(c) === i
-                ) as typeof checks;
-                c.properties.fill.color = Color.fromBootstrap(
-                    found?.color || 'dark'
-                ).toString('rgb');
-                c.properties.line.color = 'transparent';
-                return c;
-            });
+        container.children = traceArray.map(t => {
+            const c = new Circle([t[1], t[2]], 0.02);
+            const action = t[3] as Action;
+            const found = allChecks.find(c => c.key === action);
+            checks = [...checks, found].filter(
+                (c, i, a) => a.indexOf(c) === i
+            ) as typeof checks;
+            c.properties.fill.color = Color.fromBootstrap(
+                found?.color || 'dark'
+            ).toString('rgb');
+            c.properties.line.color = 'transparent';
+            return c;
+        });
 
-            c.add(img, container);
+        c.add(img, container);
 
-            c.animate();
-        } else {
-            return console.error(scouting.error);
-        }
-    },
-    filter: (trace: TraceArray) => {
-        container.filter(
-            (c, i) =>
-                checks.filter(Boolean).find(c => c.key === trace[i][3])
-                    ?.enabled ?? true
-        );
+        c.animate();
+    } else {
+        return console.error(scouting.error);
     }
 };
+const filter = (trace: TraceArray) => {
+    container.filter(
+        (c, i) =>
+            checks.filter(Boolean).find(c => c.key === trace[i][3])?.enabled ??
+            true
+    );
+};
 
-$: fns.generate(team);
-$: fns.filter(traceArray);
+$: generate(team);
+$: filter(traceArray);
 </script>
 
 <div class="container-fluid">
@@ -173,7 +166,7 @@ $: fns.filter(traceArray);
                                 ? { ...c, enabled: e.currentTarget.checked }
                                 : c
                         );
-                        fns.filter(traceArray);
+                        filter(traceArray);
                     }}"
                 />
                 <label

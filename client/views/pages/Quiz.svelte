@@ -14,61 +14,59 @@ let event: FIRSTEvent | undefined = undefined;
 let teams: FIRSTTeam[] = [];
 let isPlaying = false;
 
-const fns = {
-    getTeams: async (event: FIRSTEvent | undefined) => {
-        if (!event) return (teams = []);
+const getTeams = async (event: FIRSTEvent | undefined) => {
+    if (!event) return (teams = []);
 
-        const res = await event.getTeams();
-        if (res.isErr()) return console.error(res.error);
+    const res = await event.getTeams();
+    if (res.isErr()) return console.error(res.error);
 
-        teams = Random.shuffle(res.value);
-    },
-    play: () => {
-        isPlaying = true;
-        fns.chooseTeam();
-    },
-    chooseTeam: async () => {
-        const availableTeams = teams.filter(t => !chosen.includes(t));
+    teams = Random.shuffle(res.value);
+};
+const play = () => {
+    isPlaying = true;
+    chooseTeam();
+};
+const chooseTeam = async () => {
+    const availableTeams = teams.filter(t => !chosen.includes(t));
 
-        if (availableTeams.length === 0) {
-            // handle end here
-            const numTeams = teams.length;
-
-            await alert(
-                `Finished! You missed only ${numIncorrect} out of ${numTeams} teams!`
-            );
-
-            numIncorrect = 0;
-            chosen = [];
-            fns.getTeams(event);
-            currentTeam = undefined;
-            return (isPlaying = false);
-        }
-
-        number = undefined;
-        number = undefined;
-        teams = availableTeams;
-        type = Random.choose(['number', 'name']);
-        currentTeam = Random.choose(teams);
-    },
-    next: async (success: boolean) => {
-        if (!currentTeam) return;
-        if (success) chosen.push(currentTeam);
+    if (availableTeams.length === 0) {
+        // handle end here
+        const numTeams = teams.length;
 
         await alert(
-            success
-                ? 'Correct!'
-                : 'Incorrect! The correct answer was ' +
-                      currentTeam.name +
-                      ' | ' +
-                      currentTeam.number
+            `Finished! You missed only ${numIncorrect} out of ${numTeams} teams!`
         );
 
-        fns.chooseTeam();
+        numIncorrect = 0;
+        chosen = [];
+        getTeams(event);
+        currentTeam = undefined;
+        return (isPlaying = false);
     }
+
+    number = undefined;
+    number = undefined;
+    teams = availableTeams;
+    type = Random.choose(['number', 'name']);
+    currentTeam = Random.choose(teams);
+};
+const next = async (success: boolean) => {
+    if (!currentTeam) return;
+    if (success) chosen.push(currentTeam);
+
+    await alert(
+        success
+            ? 'Correct!'
+            : 'Incorrect! The correct answer was ' +
+                  currentTeam.name +
+                  ' | ' +
+                  currentTeam.number
+    );
+
+    chooseTeam();
 };
 
-$: fns.getTeams(event);
+$: getTeams(event);
 
 let chosen: FIRSTTeam[] = [];
 let currentTeam: FIRSTTeam | undefined;
@@ -107,7 +105,7 @@ let number: string | undefined;
                     <button
                         class="btn btn-success"
                         on:click="{e => {
-                            fns.next(Number(number) === currentTeam?.number);
+                            next(Number(number) === currentTeam?.number);
                         }}">Submit</button
                     >
                 </div>
@@ -140,7 +138,7 @@ let number: string | undefined;
                     <button
                         class="btn btn-success"
                         on:click="{e => {
-                            fns.next(name === currentTeam?.name);
+                            next(name === currentTeam?.name);
                         }}">Submit</button
                     >
                 </div>
@@ -154,7 +152,7 @@ let number: string | undefined;
                 <div class="d-flex justify-content-middle">
                     <button
                         class="btn btn-success"
-                        on:click="{fns.play}"
+                        on:click="{play}"
                         disabled="{!teams.length}">Play!</button
                     >
                 </div>

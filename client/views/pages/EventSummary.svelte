@@ -22,23 +22,21 @@ let data: {
 let filteredTeams: number[] = [];
 let teams: FIRSTTeam[] = [];
 
-const fns = {
-    pullData: async (e?: FIRSTEvent) => {
-        if (!e) return;
-        const [eventSummary, teamsRes] = await Promise.all([
-            e.getEventSummary(),
-            e.getTeams()
-        ]);
-        if (eventSummary.isErr()) return console.error(eventSummary.error);
-        if (teamsRes.isErr()) return console.error(teamsRes.error);
-        data = eventSummary.value;
-        teams = teamsRes.value;
-        filteredTeams = teams.map(t => t.number);
-    }
+const pullData = async (e?: FIRSTEvent) => {
+    if (!e) return;
+    const [eventSummary, teamsRes] = await Promise.all([
+        e.getEventSummary(),
+        e.getTeams()
+    ]);
+    if (eventSummary.isErr()) return console.error(eventSummary.error);
+    if (teamsRes.isErr()) return console.error(teamsRes.error);
+    data = eventSummary.value;
+    teams = teamsRes.value;
+    filteredTeams = teams.map(t => t.number);
 };
 
 onMount(() => {
-    fns.pullData(event);
+    pullData(event);
     return () => {
         data = [];
         teams = [];
@@ -47,7 +45,7 @@ onMount(() => {
 });
 
 FIRSTEvent.on('select', (e: FIRSTEvent) => {
-    fns.pullData(e);
+    pullData(e);
 });
 </script>
 

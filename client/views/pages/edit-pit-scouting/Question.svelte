@@ -7,7 +7,7 @@ import type {
 import { alert, confirm } from '../../../utilities/notifications';
 import O from './Option.svelte';
 
-export let question: Question;
+export let question: Question | undefined;
 
 let type: QuestionType,
     options: QuestionOptions,
@@ -17,7 +17,7 @@ let type: QuestionType,
     optionsData: string[] = []; //,
 // isEdited = false
 $: {
-    fns.setQuestion(question);
+    setQuestion(question);
     // isEdited = question?.type === type &&
     //     question?.description === description &&
     //     question?.key === key &&
@@ -26,97 +26,95 @@ $: {
 }
 
 // to not have svelte complain about too many variables
-const fns = {
-    update: async () => {
-        console.log('updating...');
-        question.type = type;
-        question.description = description.trim();
-        question.options.checkbox = options.checkbox;
-        question.options.radio = options.radio;
-        question.options.select = options.select;
-        question.key = key.trim();
-        question.question = questionText.trim();
+const update = async () => {
+    if (!question) return;
+    question.type = type;
+    question.description = description.trim();
+    question.options.checkbox = options.checkbox;
+    question.options.radio = options.radio;
+    question.options.select = options.select;
+    question.key = key.trim();
+    question.question = questionText.trim();
 
-        const res = await question.update();
-        if (res.isErr()) console.error(res.error);
-    },
-    addOption: () => {
-        if (type === 'select') {
-            options.select = [...(options.select || []), ''];
-            optionsData = options.select;
-        }
+    const res = await question.update();
+    if (res.isErr()) console.error(res.error);
+};
+const addOption = () => {
+    if (type === 'select') {
+        options.select = [...(options.select || []), ''];
+        optionsData = options.select;
+    }
 
-        if (type === 'checkbox') {
-            options.checkbox = [...(options.checkbox || []), ''];
-            optionsData = options.checkbox;
-        }
+    if (type === 'checkbox') {
+        options.checkbox = [...(options.checkbox || []), ''];
+        optionsData = options.checkbox;
+    }
 
-        if (type === 'radio') {
-            options.radio = [...(options.radio || []), ''];
-            optionsData = options.radio;
-        }
+    if (type === 'radio') {
+        options.radio = [...(options.radio || []), ''];
+        optionsData = options.radio;
+    }
 
-        // reassign to trigger svelte reactivity
-        options = options;
-    },
-    deleteOption: () => {
-        if (type === 'select') {
-            options.select = options.select.slice(0, options.select.length - 1);
-        }
+    // reassign to trigger svelte reactivity
+    options = options;
+};
+const deleteOption = () => {
+    if (type === 'select') {
+        options.select = options.select?.slice(0, options.select.length - 1);
+    }
 
-        if (type === 'checkbox') {
-            options.checkbox = options.checkbox.slice(
-                0,
-                options.checkbox.length - 1
-            );
-        }
-
-        if (type === 'radio') {
-            options.radio = options.radio.slice(0, options.radio.length - 1);
-        }
-
-        // reassign to trigger svelte reactivity
-        options = options;
-    },
-    delete: async () => {
-        if (!question) return alert('Cannot delete undefined question');
-
-        const doDelete = await confirm(
-            'Are you sure you want to delete this question?'
+    if (type === 'checkbox') {
+        options.checkbox = options.checkbox?.slice(
+            0,
+            options.checkbox.length - 1
         );
-        if (!doDelete) return;
+    }
 
-        const res = await question.delete();
-        if (res.isOk()) {
-            question = undefined;
+    if (type === 'radio') {
+        options.radio = options.radio?.slice(0, options.radio.length - 1);
+    }
+
+    // reassign to trigger svelte reactivity
+    options = options;
+};
+const doDelete = async () => {
+    if (!question) return alert('Cannot delete undefined question');
+
+    const doDelete = await confirm(
+        'Are you sure you want to delete this question?'
+    );
+    if (!doDelete) return;
+
+    const res = await question.delete();
+    if (res.isOk()) {
+        question = undefined;
+    }
+
+    if (res.isErr()) {
+        alert(res.error.message);
+    }
+};
+const setQuestion = (q: Question | undefined) => {
+    if (q && question) {
+        type = question.type;
+        options = question.options;
+        description = question.description.trim();
+        key = question.key.trim();
+        questionText = question.question.trim();
+
+        if (type === 'select') {
+            optionsData = options.select?.map(o => o.trim()) || [];
         }
 
-        if (res.isErr()) {
-            alert(res.error.message);
+        if (type === 'checkbox') {
+            optionsData = options.checkbox?.map(o => o.trim()) || [];
         }
-    },
-    setQuestion: (q: Question | undefined) => {
-        if (q) {
-            type = question.type;
-            options = question.options;
-            description = question.description.trim();
-            key = question.key.trim();
-            questionText = question.question.trim();
 
-            if (type === 'select') {
-                optionsData = options.select?.map(o => o.trim()) || [];
-            }
-
-            if (type === 'checkbox') {
-                optionsData = options.checkbox?.map(o => o.trim()) || [];
-            }
-
-            if (type === 'radio') {
-                optionsData = options.radio?.map(o => o.trim()) || [];
-            }
-
-            // q.on('update', () => {})
+        if (type === 'radio') {
+            optionsData = options.radio?.map(o => o.trim()) || [];
         }
+
+        // q.on('update', () => {})
     }
 };
 </script>
@@ -125,7 +123,7 @@ const fns = {
     <div class="card-body">
         <div class="container">
             <div class="row mb-3">
-                <label for="{question.id}-text">Question Text</label>
+                <label for="{question?.id}-text">Question Text</label>
                 <small class="mb-2">
                     This is the question that will be displayed to the scout for
                     them to ask.
@@ -133,13 +131,13 @@ const fns = {
                 <input
                     type="text"
                     class="form-control"
-                    id="{question.id}-text"
+                    id="{question?.id}-text"
                     bind:value="{questionText}"
-                    on:change="{fns.update}"
+                    on:change="{update}"
                 />
             </div>
             <div class="row mb-3">
-                <label for="{question.id}-key">Question Key</label>
+                <label for="{question?.id}-key">Question Key</label>
                 <small class="mb-2">
                     This is just a unique identifier to summarize the question
                     to make reading summaries easier. (e.g. How heavy is the
@@ -151,13 +149,13 @@ const fns = {
                 <input
                     type="text"
                     class="form-control"
-                    id="{question.id}-key"
+                    id="{question?.id}-key"
                     bind:value="{key}"
-                    on:change="{fns.update}"
+                    on:change="{update}"
                 />
             </div>
             <div class="row mb-3">
-                <label for="{question.id}-description"
+                <label for="{question?.id}-description"
                     >Question Description</label
                 >
                 <small class="mb-2">
@@ -167,13 +165,13 @@ const fns = {
                 </small>
                 <textarea
                     class="form-control"
-                    id="{question.id}-description"
+                    id="{question?.id}-description"
                     bind:value="{description}"
-                    on:change="{fns.update}"
+                    on:change="{update}"
                 ></textarea>
             </div>
             <div class="row mb-3">
-                <label for="{question.id}-type">Question Type</label>
+                <label for="{question?.id}-type">Question Type</label>
                 <small class="mb-2">
                     This is the type of question, if it's a text input, a number
                     input, a boolean input, a select input, a checkbox input, or
@@ -181,9 +179,9 @@ const fns = {
                 </small>
                 <select
                     class="form-control"
-                    id="{question.id}-type"
+                    id="{question?.id}-type"
                     bind:value="{type}"
-                    on:change="{fns.update}"
+                    on:change="{update}"
                 >
                     <option value="text">Text</option>
                     <option value="number">Number</option>
@@ -208,23 +206,23 @@ const fns = {
                             if (type === 'checkbox')
                                 options.checkbox = optionsData;
                             if (type === 'radio') options.radio = optionsData;
-                            fns.update();
+                            update();
                         }}"
                     />
                 {/each}
                 <div class="row mb-3">
-                    <button class="btn btn-primary" on:click="{fns.addOption}">
+                    <button class="btn btn-primary" on:click="{addOption}">
                         Add Option
                     </button>
                 </div>
             {/if}
             <div class="btn-group">
                 <!-- {#if isEdited} -->
-                <button class="btn btn-success" on:click="{fns.update}">
+                <button class="btn btn-success" on:click="{update}">
                     Save <i class="material-icons"> save </i>
                 </button>
                 <!-- {/if} -->
-                <button class="btn btn-danger" on:click="{fns.delete}">
+                <button class="btn btn-danger" on:click="{doDelete}">
                     Delete Question <i class="material-icons"> delete </i>
                 </button>
             </div>

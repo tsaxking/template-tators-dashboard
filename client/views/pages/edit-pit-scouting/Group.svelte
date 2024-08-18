@@ -9,72 +9,70 @@ export let index: number;
 
 let questions: Question[] = [];
 
-const fns = {
-    update: (name: string) => {
-        if (!group) return;
-        group.name = name;
-        group.update();
-    },
-    addQuestion: async () => {
-        if (!group) return alert('Cannot add question to undefined group');
-        const res = await group.addQuestion({
-            question: 'New Question',
-            type: 'text',
-            key: 'key-' + Math.random().toString(36).substring(2, 15),
-            options: {},
-            description: ''
-        });
+const update = (name: string) => {
+    if (!group) return;
+    group.name = name;
+    group.update();
+};
+const addQuestion = async () => {
+    if (!group) return alert('Cannot add question to undefined group');
+    const res = await group.addQuestion({
+        question: 'New Question',
+        type: 'text',
+        key: 'key-' + Math.random().toString(36).substring(2, 15),
+        options: {},
+        description: ''
+    });
 
-        if (res.isOk()) {
-            questions = [...questions, res.value];
-        }
-    },
-    getQuestions: async (g: Group | undefined) => {
-        if (!g) return;
-        const res = await g.getQuestions();
-        if (res.isOk()) {
-            questions = res.value;
-        } else {
-            console.error(res.error);
-        }
-
-        console.log(questions);
-
-        const update = () => {
-            group = g;
-            g.off('new-question', update);
-            g.off('delete-question', update);
-            g.off('update', update);
-        };
-
-        g.on('new-question', update);
-        g.on('delete-question', update);
-        g.on('update', update);
-    },
-    delete: async () => {
-        if (!group) return;
-
-        const doDelete = await confirm(
-            'Are you sure you want to delete this group?'
-        );
-        if (doDelete) group.delete();
+    if (res.isOk()) {
+        questions = [...questions, res.value];
     }
+};
+const getQuestions = async (g: Group | undefined) => {
+    if (!g) return;
+    const res = await g.getQuestions();
+    if (res.isOk()) {
+        questions = res.value;
+    } else {
+        console.error(res.error);
+    }
+
+    console.log(questions);
+
+    const update = () => {
+        group = g;
+        g.off('new-question', update);
+        g.off('delete-question', update);
+        g.off('update', update);
+    };
+
+    g.on('new-question', update);
+    g.on('delete-question', update);
+    g.on('update', update);
+};
+const doDelete = async () => {
+    if (!group) return;
+
+    const doDelete = await confirm(
+        'Are you sure you want to delete this group?'
+    );
+    if (doDelete) group.delete();
 };
 
 Question.on('delete', () => {
-    fns.getQuestions(group);
+    getQuestions(group);
 });
 
 Question.on('new', () => {
-    fns.getQuestions(group);
+    getQuestions(group);
 });
 
 Question.on('update', () => {
-    fns.getQuestions(group);
+    getQuestions(group);
 });
 
 $: {
-    fns.getQuestions(group);
+    getQuestions(group);
 }
 </script>
 
@@ -90,14 +88,11 @@ $: {
                             id="name-{group.id}"
                             class="form-control"
                             value="{group.name}"
-                            on:change="{e => fns.update(e.currentTarget.value)}"
+                            on:change="{e => update(e.currentTarget.value)}"
                         />
                         <label for="name-{group.id}">Group Name</label>
                     </div>
-                    <button
-                        class="btn btn-outline-light"
-                        on:click="{fns.delete}"
-                    >
+                    <button class="btn btn-outline-light" on:click="{doDelete}">
                         <i class="material-icons">delete</i>
                     </button>
                 </div>
@@ -113,7 +108,7 @@ $: {
             </div>
         </div>
         <div class="card-footer">
-            <button class="btn btn-outline-light" on:click="{fns.addQuestion}">
+            <button class="btn btn-outline-light" on:click="{addQuestion}">
                 <i class="material-icons">add</i> Question
             </button>
         </div>

@@ -26,19 +26,17 @@ FIRSTTeam.on('select', t => (team = t));
 
 let traces: TraceArray[] = [];
 
-const fns = {
-    getTeam: async (t?: FIRSTTeam) => {
-        console.log('Loading: ', t);
-        if (!t) return (traces = []);
-        traces = [];
-        const scouting = await t.getMatchScouting();
-        if (scouting.isOk()) {
-            traces = scouting.value.map(s => s.trace);
-        }
+const getTeam = async (t?: FIRSTTeam) => {
+    console.log('Loading: ', t);
+    if (!t) return (traces = []);
+    traces = [];
+    const scouting = await t.getMatchScouting();
+    if (scouting.isOk()) {
+        traces = scouting.value.map(s => s.trace);
     }
 };
 
-$: fns.getTeam(team);
+$: getTeam(team);
 onMount(() => (team = team));
 
 MatchScouting.on('new', m => {

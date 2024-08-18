@@ -17,91 +17,88 @@ let matches: {
     scouting?: MatchScouting;
 }[] = [];
 
-const fns = {
-    getMatches: async (t?: FIRSTTeam) => {
-        if (!t) return (matches = []);
+const getMatches = async (t?: FIRSTTeam) => {
+    if (!t) return (matches = []);
 
-        matches = [];
+    matches = [];
 
-        const [matchesRes, matchScoutingRes] = await Promise.all([
-            t.event.getMatches(),
-            MatchScouting.fromTeam(t.event.key, t.number)
-        ]);
+    const [matchesRes, matchScoutingRes] = await Promise.all([
+        t.event.getMatches(),
+        MatchScouting.fromTeam(t.event.key, t.number)
+    ]);
 
-        if (matchesRes.isErr()) return console.error(matchesRes.error);
-        if (matchScoutingRes.isErr())
-            return console.error(matchScoutingRes.error);
+    if (matchesRes.isErr()) return console.error(matchesRes.error);
+    if (matchScoutingRes.isErr()) return console.error(matchScoutingRes.error);
 
-        matches = (
-            await Promise.all(
-                matchesRes.value.map(async m => {
-                    const teams = await m.getTeams();
-                    if (teams.isOk())
-                        return {
-                            match: m,
-                            teams: teams.value
-                        };
-
+    matches = (
+        await Promise.all(
+            matchesRes.value.map(async m => {
+                const teams = await m.getTeams();
+                if (teams.isOk())
                     return {
                         match: m,
-                        teams: []
+                        teams: teams.value
                     };
-                })
-            )
+
+                return {
+                    match: m,
+                    teams: []
+                };
+            })
         )
-            .filter(m => m.teams.find(_t => _t && _t.number === t.number))
-            .map(m => ({
-                match: m.match,
-                scouting: matchScoutingRes.value.find(
-                    s =>
-                        s.matchNumber === m.match.number &&
-                        s.compLevel === m.match.compLevel
-                )
-            }));
+    )
+        .filter(m => m.teams.find(_t => _t && _t.number === t.number))
+        .map(m => ({
+            match: m.match,
+            scouting: matchScoutingRes.value.find(
+                s =>
+                    s.matchNumber === m.match.number &&
+                    s.compLevel === m.match.compLevel
+            )
+        }));
 
-        const newComment = () => {
-            fns.getMatches(t);
-            t.off('new-comment', newComment);
-        };
+    const newComment = () => {
+        getMatches(t);
+        t.off('new-comment', newComment);
+    };
 
-        t.on('new-comment', newComment);
+    t.on('new-comment', newComment);
 
-        setTimeout(() => {
-            jQuery('[data-bs-toggle="tooltip"]').tooltip();
-        }, 20);
-    },
-    viewMatch: async (m: FIRSTMatch) => {
-        if (!team) return alert('No team selected');
-        const modal = new Modal(Math.random().toString().substring(2));
-        modal.setTitle('Match viewer');
-        modal.size = 'lg';
+    setTimeout(() => {
+        jQuery('[data-bs-toggle="tooltip"]').tooltip();
+    }, 20);
+};
+const viewMatch = async (m: FIRSTMatch) => {
+    if (!team) return alert('No team selected');
+    const modal = new Modal(Math.random().toString().substring(2));
+    modal.setTitle('Match viewer');
+    modal.size = 'lg';
 
-        const res = await team.getMatchScouting();
-        if (res.isErr()) return console.error(res.error);
+    const res = await team.getMatchScouting();
+    if (res.isErr()) return console.error(res.error);
 
-        const match = res.value.find(
-            s => s.matchNumber === m.number && s.compLevel === m.compLevel
-        );
+    const match = res.value.find(
+        s => s.matchNumber === m.number && s.compLevel === m.compLevel
+    );
 
-        if (!match) return alert('No match scouting found :(');
+    if (!match) return alert('No match scouting found :(');
 
-        const viewer = new MatchViewer({
-            target: modal.target.querySelector('.modal-body') as HTMLElement,
-            props: {
-                team: team,
-                match: match
-            }
-        });
-        modal.show();
+    const viewer = new MatchViewer({
+        target: modal.target.querySelector('.modal-body') as HTMLElement,
+        props: {
+            team: team,
+            match: match
+        }
+    });
+    modal.show();
 
-        modal.on('hide', () => {
-            modal.destroy();
-            viewer.$destroy();
-        });
-    }
+    modal.on('hide', () => {
+        modal.destroy();
+        viewer.$destroy();
+    });
 };
 
-$: fns.getMatches(team);
+$: getMatches(team);
 </script>
 
 <p>
@@ -128,7 +125,7 @@ $: fns.getMatches(team);
                     'blue'
                         ? 'fw-bold'
                         : ''} {m.match.played ? '' : 'fst-italics'}"
-                    on:click="{() => fns.viewMatch(m.match)}"
+                    on:click="{() => viewMatch(m.match)}"
                 >
                     {#if m.match.tba.alliances.red.team_keys.includes(team?.tba.key || '')}
                         <td class="text-danger">{m.match.tba.match_number}</td>

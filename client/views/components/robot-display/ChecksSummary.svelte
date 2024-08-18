@@ -11,30 +11,28 @@ let checks: {
     };
 } = {};
 
-const fns = {
-    get: async (team?: FIRSTTeam) => {
-        checks = {};
-        if (!team) return;
-        const scouting = await team.getMatchScouting();
+const doGet = async (team?: FIRSTTeam) => {
+    checks = {};
+    if (!team) return;
+    const scouting = await team.getMatchScouting();
 
-        if (scouting.isOk()) {
-            const allChecks = scouting.value.map(s => s.checks).flat();
+    if (scouting.isOk()) {
+        const allChecks = scouting.value.map(s => s.checks).flat();
 
-            for (const str of allChecks) {
-                if (checks[str]) {
-                    checks[str].number++;
-                } else {
-                    checks[str] = {
-                        color: rankColor[checkRanks[str]].toString('rgb'),
-                        number: 1
-                    };
-                }
+        for (const str of allChecks) {
+            if (checks[str]) {
+                checks[str].number++;
+            } else {
+                checks[str] = {
+                    color: rankColor[checkRanks[str]].toString('rgb'),
+                    number: 1
+                };
             }
         }
     }
 };
 
-$: fns.get(team);
+$: doGet(team);
 </script>
 
 <ul class="list-group">
