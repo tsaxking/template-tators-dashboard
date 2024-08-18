@@ -25,11 +25,13 @@ export class Whiteboard {
     public static new(name: string, strategy: Strategy) {
         return attemptAsync(async () => {
             const board = new Board('[]'); // empty
-            (await ServerRequest.post('/api/whiteboards/new', {
-                name,
-                board: board.serialize(),
-                strategyId: strategy.id,
-            })).unwrap();
+            (
+                await ServerRequest.post('/api/whiteboards/new', {
+                    name,
+                    board: board.serialize(),
+                    strategyId: strategy.id
+                })
+            ).unwrap();
         });
     }
 
@@ -61,7 +63,7 @@ export class Whiteboard {
                 'touchmove',
                 'touchend',
                 'touchcancel',
-                'click',
+                'click'
             ]
         });
         c.add(img, this.board);
