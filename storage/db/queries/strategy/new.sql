@@ -6,7 +6,8 @@ INSERT INTO Strategy (
     whiteboardId,
     matchId,
     customMatchId,
-    comment
+    comment,
+    checks
 ) VALUES (
     :id,
     :name,
@@ -15,5 +16,6 @@ INSERT INTO Strategy (
     :whiteboardId,
     :matchId,
     :customMatchId,
-    :comment
+    :comment,
+    :checks
 );
