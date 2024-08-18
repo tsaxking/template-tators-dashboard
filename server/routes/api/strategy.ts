@@ -4,7 +4,6 @@ import { Strategy } from '../../structure/cache/strategy';
 
 export const router = new Route();
 
-
 router.post<{
     name: string;
     time: number;
@@ -12,47 +11,58 @@ router.post<{
     customMatchId: string | undefined;
     comment: string;
     checks: string[];
-}>('/new', validate({
-    name: 'string',
-    time: 'number',
-    matchId: ['string', 'undefined'],
-    customMatchId: ['string', 'undefined'],
-    comment: 'string',
-    checks: (v: unknown) => Array.isArray(v) && v.every(val => typeof val === 'string'),
-}), async (req, res) => {
-    const { name, time, matchId, customMatchId, comment, checks } = req.body;
-    const { accountId } = req.session;
-    if (!accountId) return res.sendStatus('account:not-logged-in');
+}>(
+    '/new',
+    validate({
+        name: 'string',
+        time: 'number',
+        matchId: ['string', 'undefined'],
+        customMatchId: ['string', 'undefined'],
+        comment: 'string',
+        checks: (v: unknown) =>
+            Array.isArray(v) && v.every(val => typeof val === 'string')
+    }),
+    async (req, res) => {
+        const { name, time, matchId, customMatchId, comment, checks } =
+            req.body;
+        const { accountId } = req.session;
+        if (!accountId) return res.sendStatus('account:not-logged-in');
 
+        const s = (
+            await Strategy.new({
+                name,
+                time,
+                matchId,
+                customMatchId,
+                comment,
+                checks: JSON.stringify(checks),
+                createdBy: accountId
+            })
+        ).unwrap();
 
-    const s = (await Strategy.new({
-        name, 
-        time, 
-        matchId, 
-        customMatchId,
-        comment,
-        checks: JSON.stringify(checks),
-        createdBy: accountId
-    })).unwrap();
+        res.sendStatus('strategy:new');
 
-    res.sendStatus('strategy:new');
-
-    req.io.emit('strategy:new', s);
-});
+        req.io.emit('strategy:new', s);
+    }
+);
 
 router.post<{
     id: string;
-}>('/from-id', validate({
-    id: 'string'
-}), async (req, res) => {
-    const { id } = req.body;
+}>(
+    '/from-id',
+    validate({
+        id: 'string'
+    }),
+    async (req, res) => {
+        const { id } = req.body;
 
-    const s = (await Strategy.fromId(id)).unwrap();
+        const s = (await Strategy.fromId(id)).unwrap();
 
-    if (!s) return res.sendStatus('strategy:not-found');
+        if (!s) return res.sendStatus('strategy:not-found');
 
-    return res.json(s);
-});
+        return res.json(s);
+    }
+);
 
 router.post<{
     id: string;
@@ -62,37 +72,35 @@ router.post<{
     customMatchId: string | undefined;
     comment: string;
     checks: string[];
-}>('/update', validate({
-    id: 'string', 
-    name: 'string',
-    time: 'number',
-    matchId: ['string', 'undefined'],
-    customMatchId: ['string', 'undefined'],
-    comment: 'string',
-    checks: (v: unknown) => Array.isArray(v) && v.every(val => typeof val === 'string'),
-}), async (req, res) => {
-    const { 
-        id,
-        name,
-        time,
-        matchId,
-        customMatchId,
-        comment,
-        checks,
-     } = req.body;
-    const s = (await Strategy.fromId(id)).unwrap();
-    if (!s) return res.sendStatus('strategy:not-found');
+}>(
+    '/update',
+    validate({
+        id: 'string',
+        name: 'string',
+        time: 'number',
+        matchId: ['string', 'undefined'],
+        customMatchId: ['string', 'undefined'],
+        comment: 'string',
+        checks: (v: unknown) =>
+            Array.isArray(v) && v.every(val => typeof val === 'string')
+    }),
+    async (req, res) => {
+        const { id, name, time, matchId, customMatchId, comment, checks } =
+            req.body;
+        const s = (await Strategy.fromId(id)).unwrap();
+        if (!s) return res.sendStatus('strategy:not-found');
 
-    (await s.update({
-        name,
-        time,
-        matchId,
-        customMatchId,
-        comment,
-        checks: JSON.stringify(checks),
-    }));
+        await s.update({
+            name,
+            time,
+            matchId,
+            customMatchId,
+            comment,
+            checks: JSON.stringify(checks)
+        });
 
-    res.sendStatus('strategy:updated');
+        res.sendStatus('strategy:updated');
 
-    req.io.emit('strategy:update', s);
-});
+        req.io.emit('strategy:update', s);
+    }
+);

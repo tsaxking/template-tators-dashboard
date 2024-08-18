@@ -607,7 +607,10 @@ export type Queries = {
     'whiteboards/from-strategy': [
         [Select_whiteboards_from_strategy],
         Whiteboards
-    ]
+    ];
+    'whiteboards/restore': [[Delete_whiteboards_delete], unknown];
+    'whiteboards/all': [[], Whiteboards];
+    'whiteboards/archived': [[], Whiteboards];
     'team-comments/from-match-scouting': [
         [Select_team_comments_from_match_scouting],
         TeamComments

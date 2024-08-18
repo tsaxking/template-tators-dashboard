@@ -25,34 +25,38 @@ onMount(() => {
 
         const levels = ['qm', 'qf', 'sf', 'f'];
 
-        matchScouting = (await Promise.all(
-            matchesRes.value.map(async m => {
-                const match = matches.find(
-                    _m => _m.match === m.number && _m.compLevel === m.compLevel
-                );
-                if (!match) {
-                    return {
-                        teams: []
-                    };
-                }
-                const unScouted = match.teams;
-                const teams = await m.getTeams();
+        matchScouting = (
+            await Promise.all(
+                matchesRes.value.map(async m => {
+                    const match = matches.find(
+                        _m =>
+                            _m.match === m.number &&
+                            _m.compLevel === m.compLevel
+                    );
+                    if (!match) {
+                        return {
+                            teams: []
+                        };
+                    }
+                    const unScouted = match.teams;
+                    const teams = await m.getTeams();
 
-                if (teams.isErr()) {
-                    return {
-                        teams: []
-                    };
-                }
+                    if (teams.isErr()) {
+                        return {
+                            teams: []
+                        };
+                    }
 
-                return {
-                    teams: teams.value.filter(Boolean).map(t => ({
-                        team: t.number,
-                        scouted: !unScouted.includes(t.number)
-                    })),
-                    match: m
-                };
-            })
-        )).sort((a, b) => {
+                    return {
+                        teams: teams.value.filter(Boolean).map(t => ({
+                            team: t.number,
+                            scouted: !unScouted.includes(t.number)
+                        })),
+                        match: m
+                    };
+                })
+            )
+        ).sort((a, b) => {
             if (!a.match || !b.match) return 0;
             if (a.match.compLevel === b.match.compLevel) {
                 return a.match.number - b.match.number;
@@ -62,7 +66,7 @@ onMount(() => {
                     levels.indexOf(b.match.compLevel)
                 );
             }
-        })
+        });
     };
 
     FIRSTEvent.on('select', fn);

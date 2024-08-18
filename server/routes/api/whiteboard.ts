@@ -1,45 +1,56 @@
 import { validate } from '../../middleware/data-type';
 import { Route } from '../../structure/app/app';
-import { DB } from '../../utilities/databases';
+import { Whiteboard } from '../../structure/cache/whiteboards';
 
 const router = new Route();
 
 router.post<{
-    eventKey: string;
-    matchNumber: number;
-    compLevel: string;
+    name: string;
+    board: string;
+    strategyId: string;
+}>('/new', async (req, res) => {
+    const { name, board, strategyId } = req.body;
+    const wb = (await Whiteboard.new({ name, board, strategyId })).unwrap();
+    res.sendStatus('whiteboard:created');
+    req.io.emit('whiteboard:created', wb);
+});
+
+router.post<{
+    strategyId: string;
+}>('/from-strategy', validate({ strategyId: 'string' }), async (req, res) => {
+    const { strategyId } = req.body;
+    const boards = (await Whiteboard.fromStrategy(strategyId)).unwrap();
+    res.json(boards);
+});
+
+router.post<{
+    id: string;
+    name: string;
+    board: string;
+    strategyId: string;
 }>(
-    '/from-match',
+    '/update',
     validate({
-        eventKey: 'string',
-        matchNumber: 'number',
-        compLevel: 'string'
+        id: 'string',
+        name: 'string',
+        board: 'string'
     }),
     async (req, res) => {
-        const { eventKey, matchNumber, compLevel } = req.body;
+        const { id, name, board, strategyId } = req.body;
+        const wb = (await Whiteboard.fromId(id)).unwrap();
+        if (!wb) return res.sendStatus('whiteboard:not-found');
 
-        const matches = await DB.all('matches/from-event', {
-            eventKey
-        });
+        (
+            await wb.update({
+                name,
+                board,
+                strategyId
+            })
+        ).unwrap();
 
-        if (matches.isErr()) return res.sendStatus('unknown:error');
-
-        const match = matches.value.find(
-            m => m.matchNumber === matchNumber && m.compLevel === compLevel
-        );
-
-        if (!match) return res.sendStatus('whiteboard:match-not-found');
-
-        const whiteboard = DB.get('whiteboards/from-match', {
-            matchId: match.id
-        });
-
-        if (!whiteboard) return res.sendStatus('whiteboard:not-found');
-
-        res.json(whiteboard);
+        res.sendStatus('whiteboard:update');
+        req.io.emit('whiteboard:update', wb);
     }
 );
-
-router.post('/create', validate({}), (req, res, next) => {});
 
 export default router;

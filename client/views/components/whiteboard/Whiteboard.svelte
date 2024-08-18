@@ -1,22 +1,88 @@
 <script lang="ts">
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import { WhiteboardCache } from '../../../models/FIRST/whiteboard';
-import ButtonGroup from '../bootstrap/ButtonGroup.svelte';
-import Button from '../bootstrap/Button.svelte';
-import { FIRSTMatch } from '../../../models/FIRST/match';
+import { onMount } from 'svelte';
+import { Whiteboard } from '../../../models/FIRST/whiteboard';
+import { type Pens } from '../../../models/whiteboard/board-state';
 
-let board: WhiteboardCache;
-const ctx = document
-    .querySelector('canvas')
-    .getContext('2d') as CanvasRenderingContext2D;
+export let whiteboard: Whiteboard;
+export let year: number;
 
-FIRSTMatch.on('select', async (m: FIRSTMatch) => {
-    const wb = await m.getWhiteboard();
-    board = new WhiteboardCache(wb, ctx);
+let name = whiteboard.name;
+
+let currentPen: keyof Pens = 'black';
+
+let canvasEl: HTMLCanvasElement;
+
+const changePen = (pen: keyof Pens) => {
+    whiteboard.board.currentProperties.color = pen;
+    currentPen = pen;
+};
+
+onMount(() => {
+    const ctx = canvasEl.getContext('2d');
+    if (!ctx) throw new Error('Could not get 2d context');
+    const canvas = whiteboard.buildCanvas(ctx, year);
+    if (whiteboard.board.states.length === 0) {
+        whiteboard.board.clear();
+    } else {
+        whiteboard.board.getState()?.setListeners();
+    }
+    canvas.adaptable = true;
+    canvas.animate();
 });
-
-board.on('update', state => {});
 </script>
 
-<ButtonGroup></ButtonGroup>
-<canvas id="whiteboard" width="1000" height="500"></canvas>
+<button class="btn btn-dark" on:click="{() => changePen('black')}">
+    <i class="material-icons"> brush </i>
+</button>
+<button class="btn btn-danger" on:click="{() => changePen('red')}">
+    <i class="material-icons"> brush </i>
+</button>
+<button class="btn btn-primary" on:click="{() => changePen('blue')}">
+    <i class="material-icons"> brush </i>
+</button>
+
+<button class="btn btn-warning" on:click="{() => whiteboard.board.prev()}">
+    <i class="material-icons"> undo </i>
+</button>
+<button class="btn btn-warning" on:click="{() => whiteboard.board.next()}">
+    <i class="material-icons"> redo </i>
+</button>
+
+<button
+    class="btn btn-success"
+    on:click="{() =>
+        whiteboard.update({
+            name
+        })}"
+>
+    <i class="material-icons"> save </i>
+</button>
+
+<button class="btn btn-danger" on:click="{() => whiteboard.board.clear()}">
+    Clear
+</button>
+
+<div style="
+    width: 100vw;
+    height: 100vh;
+">
+<canvas bind:this="{canvasEl}"
+    on:click|preventDefault
+    on:mousedown|preventDefault
+    on:mouseup|preventDefault
+    on:mousemove|preventDefault
+    on:touchstart|preventDefault
+    on:touchmove|preventDefault
+    on:contextmenu|preventDefault
+    on:wheel|preventDefault
+    on:keydown|preventDefault
+    on:keyup|preventDefault
+    on:keypress|preventDefault
+    on:blur|preventDefault
+    on:focus|preventDefault
+    on:resize|preventDefault
+    on:scroll|preventDefault
+    on:select|preventDefault
+    on:selectstart|preventDefault
+></canvas>
+</div>

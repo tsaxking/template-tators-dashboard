@@ -4,6 +4,7 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
 import { Cache } from '../cache';
+import { Whiteboard } from './whiteboard';
 
 /**
  * Events that are emitted by a {@link Strategy} object
@@ -20,7 +21,6 @@ type Updates = {
     new: Strategy;
     update: Strategy;
 };
-
 
 /**
  * Represents the strategy for a match or a custom match. Can be paired with a whiteboard
@@ -49,7 +49,10 @@ export class Strategy extends Cache<StrategyUpdateData> {
         Strategy.$emitter.off(event, callback);
     }
 
-    public static emit<K extends keyof Updates>(event: K, data: Updates[K]): void {
+    public static emit<K extends keyof Updates>(
+        event: K,
+        data: Updates[K]
+    ): void {
         Strategy.$emitter.emit(event, data);
     }
 
@@ -67,10 +70,11 @@ export class Strategy extends Cache<StrategyUpdateData> {
         Strategy
     >();
 
-
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const s = (await ServerRequest.post<S>('/api/strategy/from-id', { id })).unwrap();
+            const s = (
+                await ServerRequest.post<S>('/api/strategy/from-id', { id })
+            ).unwrap();
             return Strategy.retrieve(s);
         });
     }
@@ -119,22 +123,32 @@ export class Strategy extends Cache<StrategyUpdateData> {
     update(data: Omit<S, 'id' | 'createdBy'>) {
         return ServerRequest.post('/api/strategy/update', {
             id: this.id,
-            ...data,
+            ...data
         });
+    }
+
+    getWhiteboards() {
+        return Whiteboard.fromStrategy(this.id);
     }
 }
 
-
 export class Check {
-    public static from(data: string[], teams: [number, number, number, number, number, number]): Result<[Check,Check,Check,Check,Check,Check]> {
+    public static from(
+        data: string[],
+        teams: [number, number, number, number, number, number]
+    ): Result<[Check, Check, Check, Check, Check, Check]> {
         return attempt(() => {
             throw new Error('test');
         });
     }
 
-    constructor(public readonly team: number, checks: string[]) {
-    }
-    serialize(): string[] { // ['2122:check']
+    constructor(
+        public readonly team: number,
+        checks: string[]
+    ) {}
+    serialize(): string[] {
+        // ['2122:check']
+        throw new Error('Not implemented');
     }
 }
 
