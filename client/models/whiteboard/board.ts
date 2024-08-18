@@ -2,7 +2,7 @@ import { attempt } from '../../../shared/check';
 import { Drawable } from '../canvas/drawable';
 import { BoardState, JSONState, Pens } from './board-state';
 
-// handles the state of the whole board
+// this class manages all of the states of the board
 
 export class Board extends Drawable {
     public readonly states: BoardState[];
