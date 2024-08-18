@@ -133,7 +133,9 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     }
 
     get number() {
-        return this.compLevel === 'sf' ? this.tba.set_number : this.tba.match_number;
+        return this.compLevel === 'sf'
+            ? this.tba.set_number
+            : this.tba.match_number;
         // return this.tba.match_number;
     }
 
@@ -153,36 +155,10 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         return this.tba.actual_time !== -1;
     }
 
-    /**
-     * Streams the strategy for this match
-     * Returns an emitter that emits chunks of the strategy
-     * @date 10/9/2023 - 6:39:41 PM
-     *
-     * @public
-     * @returns {RetrieveStreamEventEmitter<Strategy>}
-     */
-    public getStrategy(): RetrieveStreamEventEmitter<Strategy> {
-        if (this.$cache.has('strategy')) {
-            const res = this.$cache.get('strategy') as Strategy[];
-
-            const em = new RetrieveStreamEventEmitter<Strategy>();
-
-            res.forEach(s => em.emit('chunk', s));
-
-            return em;
-        }
-
-        const em = Strategy.from('match', {
-            eventKey: this.event.tba.key,
-            matchNumber: this.tba.match_number,
-            compLevel: this.tba.comp_level
+    public getStrategies() {
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
         });
-
-        em.on('complete', data => {
-            this.$cache.set('strategy', data);
-        });
-
-        return em;
     }
 
     public async getInfo(): Promise<Result<MatchObj>> {

@@ -1,111 +1,91 @@
-import { Whiteboard as WhiteboardObj } from '../../../shared/db-types-extended';
-import { Cache } from '../cache';
-import { Whiteboard as WB, WhiteboardState } from '../whiteboard/whiteboard';
-import { socket } from '../../utilities/socket';
-import { EventEmitter } from '../../../shared/event-emitter';
+import { attemptAsync } from '../../../shared/check';
+import { ServerRequest } from '../../utilities/requests';
+import { Whiteboards as W } from '../../../server/utilities/tables';
+import { Board } from '../whiteboard/board';
+import { Canvas } from '../canvas/canvas';
+import { Img } from '../canvas/image';
+import { Strategy } from './strategy';
 
-/**
- * Events that are emitted by a {@link WhiteboardCache} object
- * @date 10/9/2023 - 6:58:43 PM
- *
- * @typedef {WhiteboardUpdateData}
- */
-type WhiteboardUpdateData = {
-    update: WhiteboardState[];
-};
+export class Whiteboard {
+    public static fromStrategy(strategyId: string) {
+        return attemptAsync(async () => {
+            const boards = (
+                await ServerRequest.post<W[]>(
+                    '/api/whiteboards/from-strategy',
+                    {
+                        strategyId
+                    }
+                )
+            ).unwrap();
 
-type Updates = {
-    select: WhiteboardCache;
-};
-
-/**
- * Represents a FIRST whiteboard
- * @date 10/9/2023 - 6:58:43 PM
- *
- * @export
- * @class Whiteboard
- * @typedef {WhiteboardCache}
- * @implements {FIRST}
- */
-export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
-    private static readonly $emitter: EventEmitter<keyof Updates> =
-        new EventEmitter<keyof Updates>();
-
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        WhiteboardCache.$emitter.on(event, callback);
+            return boards.map(b => new Whiteboard(b));
+        });
     }
 
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: any) => void
-    ): void {
-        WhiteboardCache.$emitter.off(event, callback);
+    public static new(name: string, strategy: Strategy) {
+        return attemptAsync(async () => {
+            const board = new Board('[]'); // empty
+            (await ServerRequest.post('/api/whiteboards/new', {
+                name,
+                board: board.serialize(),
+                strategyId: strategy.id,
+            })).unwrap();
+        });
     }
 
-    public static emit<K extends keyof Updates>(event: K, data: any): void {
-        WhiteboardCache.$emitter.emit(event, data);
+    public readonly id: string;
+    public name: string;
+    public strategyId: string;
+    public archived: boolean;
+    public readonly board: Board;
+
+    constructor(data: W) {
+        // super();
+        this.id = data.id;
+        this.name = data.name;
+        this.strategyId = data.strategyId;
+        this.archived = data.archived;
+        this.board = new Board(data.board);
     }
 
-    public static current?: WhiteboardCache = undefined;
-
-    /**
-     * Cache for all {@link WhiteboardCache} objects
-     * @date 10/9/2023 - 6:58:43 PM
-     *
-     * @public
-     * @static
-     * @readonly
-     * @type {Map<string, WhiteboardCache>}
-     */
-    public static readonly cache: Map<string, WhiteboardCache> = new Map<
-        string,
-        WhiteboardCache
-    >();
-
-    public readonly board: WB;
-
-    /**
-     * Creates an instance of Whiteboard.
-     * @date 10/9/2023 - 6:58:43 PM
-     *
-     * @constructor
-     * @param {WhiteboardObj} data
-     */
-    constructor(
-        public readonly data: WhiteboardObj,
-        ctx: CanvasRenderingContext2D
-    ) {
-        super();
-        if (!WhiteboardCache.cache.has(data.id)) {
-            WhiteboardCache.cache.set(data.id, this);
-        }
-
-        const b = JSON.parse(data.board) as WhiteboardState[];
-        this.board = WB.build(b, ctx);
+    buildCanvas(ctx: CanvasRenderingContext2D, year: number) {
+        const img = new Img(`/public/pictures/${year}field.png`);
+        img.width = 1;
+        img.height = 1;
+        const c = new Canvas(ctx, {
+            events: [
+                'mousedown',
+                'mousemove',
+                'mouseup',
+                'touchstart',
+                'touchmove',
+                'touchend',
+                'touchcancel',
+                'click',
+            ]
+        });
+        c.add(img, this.board);
+        c.on('touchend', console.log);
+        return c;
     }
 
-    /**
-     * Destroys this object, including all event listeners and cache
-     * @date 10/9/2023 - 6:58:43 PM
-     *
-     * @public
-     */
-    public destroy() {
-        WhiteboardCache.cache.delete(this.data.id);
-        super.destroy();
+    update(data: Partial<Omit<W, 'id' | 'board' | 'archived'>>) {
+        return ServerRequest.post('/api/whiteboards/update', {
+            ...this,
+            ...data,
+            board: this.board.serialize()
+        });
     }
 
-    public select(): void {
-        WhiteboardCache.current = this;
-        WhiteboardCache.emit('select', this);
+    archive() {
+        return ServerRequest.post('/api/whiteboards/archive', {
+            id: this.id
+        });
+    }
+
+    restore() {
+        return ServerRequest.post('/api/whiteboards/restore', {
+            id: this.id
+        });
     }
 }
-
-socket.on('whiteboard:update', (data: WhiteboardObj) => {});
-
-socket.on('whiteboard:created', (data: WhiteboardObj) => {});
-
-socket.on('whiteboard:deleted', (id: string) => {});

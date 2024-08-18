@@ -6,6 +6,8 @@ import { onMount } from 'svelte';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Ok } from '../../../../shared/check';
 import { fade } from 'svelte/transition';
+import { Whiteboard } from '../../../models/FIRST/whiteboard';
+import { prompt } from '../../../utilities/notifications';
 
 interface MatchScouting {
     teams: { team: number; scouted: boolean }[];
@@ -120,6 +122,16 @@ $: {
     minutes = Math.floor((selectedMatchTime * 1000 - Date.now()) / 60000);
     matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
 }
+
+
+
+const createWhiteboard = async () => {
+    const name = await prompt('Enter whiteboard name');
+    if (!name) return;
+    // will need this to change
+    const wb = await Whiteboard.new(name, strategy);
+    if (wb.isErr()) return console.error(wb.error);
+};
 </script>
 
 {#if loading}
@@ -129,7 +141,7 @@ $: {
                 <span class="visually-hidden">Loading...</span>
             </div>
             <p>Loading teams</p>
-        </div>
+        </div>new
     </div>
 {:else}
     <div class="container-fluid vh-100">
@@ -237,6 +249,12 @@ $: {
             </div>
         </div>
     </div>
+
+
+
+    <button class="btn btn-primary" on:click={createWhiteboard}>
+        Create Whiteboard
+    </button>
 {/if}
 
 <style>
