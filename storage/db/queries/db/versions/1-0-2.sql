@@ -1,0 +1,2 @@
+ALTER TABLE TeamPictures DROP COLUMN time;
+ALTER TABLE TeamPictures ADD COLUMN time BIGINT;
