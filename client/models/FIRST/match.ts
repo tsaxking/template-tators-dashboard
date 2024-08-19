@@ -133,7 +133,9 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     }
 
     get number() {
-        return this.compLevel === 'sf' ? this.tba.set_number : this.tba.match_number;
+        return this.compLevel === 'sf'
+            ? this.tba.set_number
+            : this.tba.match_number;
         // return this.tba.match_number;
     }
 
