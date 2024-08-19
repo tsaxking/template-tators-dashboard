@@ -1,0 +1,1 @@
+UPDATE ScoutingAnswers SET archived = true WHERE id = :id;
