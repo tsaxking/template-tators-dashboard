@@ -44,9 +44,6 @@ jobs:
                     exit 0
                   fi
 
-                  echo "Removing http.extraheader configuration"
-                  git config --global --unset http.extraheader
-
                   echo "Rename package.json and package-lock.json to .package.json and .package-lock.json so that they are not picked up by npm install"
                   cp package.json .package.json
                   cp package-lock.json .package-lock.json

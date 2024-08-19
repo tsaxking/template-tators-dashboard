@@ -607,7 +607,7 @@ export type Queries = {
     'whiteboards/from-strategy': [
         [Select_whiteboards_from_strategy],
         Whiteboards
-    ]
+    ];
     'team-comments/from-match-scouting': [
         [Select_team_comments_from_match_scouting],
         TeamComments
