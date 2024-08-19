@@ -23,49 +23,45 @@ let accountObjs: {
     permissions: P[];
 }[] = [];
 
-const fns = {
-    setAccounts: async (newAccounts: Account[]) => {
-        console.log(newAccounts);
+const setAccounts = async (newAccounts: Account[]) => {
+    accountObjs = (
+        await Promise.all(
+            newAccounts.map(async a => {
+                const [roles, permissions] = await Promise.all([
+                    a.getRoles(true).then(r => {
+                        if (r.isOk()) {
+                            return r.value;
+                        } else {
+                            // console.error('Failed to get roles: ', r.error);
+                            return [];
+                        }
+                    }),
+                    a.getPermissions(true).then(p => {
+                        if (p.isOk()) {
+                            return p.value;
+                        } else {
+                            // console.error('Failed to get permissions: ', p.error);
+                            return [];
+                        }
+                    })
+                ]);
 
-        accountObjs = (
-            await Promise.all(
-                newAccounts.map(async a => {
-                    const [roles, permissions] = await Promise.all([
-                        a.getRoles(true).then(r => {
-                            if (r.isOk()) {
-                                return r.value;
-                            } else {
-                                // console.error('Failed to get roles: ', r.error);
-                                return [];
-                            }
-                        }),
-                        a.getPermissions(true).then(p => {
-                            if (p.isOk()) {
-                                return p.value;
-                            } else {
-                                // console.error('Failed to get permissions: ', p.error);
-                                return [];
-                            }
-                        })
-                    ]);
-
-                    return {
-                        id: a.id,
-                        username: a.username,
-                        firstName: a.firstName,
-                        lastName: a.lastName,
-                        email: a.email,
-                        verified: a.verified,
-                        created: a.created,
-                        phoneNumber: a.phoneNumber,
-                        picture: a.picture,
-                        roles,
-                        permissions: permissions.map(p => p.permission) as P[]
-                    };
-                })
-            )
-        ).filter(a => a.username !== 'guest');
-    }
+                return {
+                    id: a.id,
+                    username: a.username,
+                    firstName: a.firstName,
+                    lastName: a.lastName,
+                    email: a.email,
+                    verified: a.verified,
+                    created: a.created,
+                    phoneNumber: a.phoneNumber,
+                    picture: a.picture,
+                    roles,
+                    permissions: permissions.map(p => p.permission) as P[]
+                };
+            })
+        )
+    ).filter(a => a.username !== 'guest');
 };
 
 const set = async () => {
@@ -89,7 +85,7 @@ let div: HTMLDivElement;
 
 onMount(set);
 
-$: fns.setAccounts(accounts);
+$: setAccounts(accounts);
 $: console.log(accountObjs);
 
 Account.on('new', set);
@@ -199,7 +195,7 @@ Account.on('delete', set);
                                                                 a.id ===
                                                                 account.id
                                                         );
-                                                        a.addRole(r.value);
+                                                        a?.addRole(r.value);
                                                     } else {
                                                         return console.error(
                                                             'Failed to create role: ',
@@ -224,7 +220,7 @@ Account.on('delete', set);
                                             const a = accounts.find(
                                                 a => a.id === account.id
                                             );
-                                            a.addRole(role);
+                                            a?.addRole(role);
                                         }
                                     }
                                 }}"
@@ -246,7 +242,7 @@ Account.on('delete', set);
                                             const a = accounts.find(
                                                 a => a.id === account.id
                                             );
-                                            a.unverify();
+                                            a?.unverify();
                                         }
                                     }}"
                                 >
@@ -267,7 +263,7 @@ Account.on('delete', set);
                                             const a = accounts.find(
                                                 a => a.id === account.id
                                             );
-                                            a.verify();
+                                            a?.verify();
                                         }
                                     }}"
                                 >
@@ -288,7 +284,7 @@ Account.on('delete', set);
                                         const a = accounts.find(
                                             a => a.id === account.id
                                         );
-                                        a.delete();
+                                        a?.delete();
                                     }
                                 }}"
                             >

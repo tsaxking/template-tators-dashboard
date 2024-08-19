@@ -134,6 +134,7 @@ type Test = {
     url: string;
     method: 'GET' | 'POST' | 'PUT' | 'DELETE';
     body: unknown;
+    expect?: (response: unknown) => boolean | Promise<boolean>;
 };
 
 const tests: Test[] = [];
@@ -196,7 +197,7 @@ const main = async () => {
 
     // run tests
     for (let i = 0; i < tests.length; i++) {
-        const { url, method, body } = tests[i];
+        const { url, method, body, expect } = tests[i];
         const str = `${Colors.BgGreen}Test ${i + 1}: ${method} ${url}${Colors.Reset}`;
 
         try {
@@ -205,6 +206,12 @@ const main = async () => {
                 url: env.DOMAIN + url,
                 data: body
             });
+
+            if (expect) {
+                if (!(await expect(res.data))) {
+                    throw new Error('Test failed, expected value not returned');
+                }
+            }
 
             log(str, res.status, res.statusText);
         } catch (e) {

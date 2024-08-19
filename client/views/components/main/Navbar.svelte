@@ -19,21 +19,19 @@ Account.getAccount().then(a => {
     if (a) account = a;
 });
 
-const fns = {
-    openSettings: () => {
-        const m = new Modal();
-        const body = document.createElement('div');
-        new Settings({
-            target: body,
-            props: {
-                settings: []
-            }
-        });
+const openSettings = () => {
+    const m = new Modal();
+    const body = document.createElement('div');
+    new Settings({
+        target: body,
+        props: {
+            settings: []
+        }
+    });
 
-        m.setTitle('Settings');
-        m.setBody(body);
-        m.show();
-    }
+    m.setTitle('Settings');
+    m.setBody(body);
+    m.show();
 };
 
 onMount(() => {
@@ -110,7 +108,7 @@ onMount(() => {
                     <a
                         href="javascript:void(0);"
                         class="dropdown-item"
-                        on:click="{fns.openSettings}"
+                        on:click="{openSettings}"
                     >
                         <i class="material-icons">settings</i>&nbsp;Settings
                     </a>

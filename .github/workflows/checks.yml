@@ -61,7 +61,7 @@ jobs:
                   echo "Importing all submodules"
                   git submodule init
                   git pull --recurse-submodules
-                  # git submodule update --recursive --remote
+                  git submodule update --recursive --remote
 
                   echo "Running tests"
                   sh ./scripts/fmt-lint-check.sh
