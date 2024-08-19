@@ -508,7 +508,7 @@ export class ServerRequest<T = unknown> {
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+        // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
         xhr.setRequestHeader('X-File-Count', files.length.toString());
 
         if (options?.headers) {
