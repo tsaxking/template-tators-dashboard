@@ -1,10 +1,17 @@
 {
     "plugins": ["prettier-plugin-svelte"],
-    "overrides": [{ "files": "*.svelte", "options": { "parser": "svelte" } }],
+    "overrides": [
+        { "files": "*.svelte", "options": { "parser": "svelte" } },
+        {
+            "files": ["*.yaml", "*.yml"],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ],
     "tabWidth": 4,
     "arrowParens": "avoid",
     "trailingComma": "none",
-    // "semi": false,
     "singleQuote": true,
     "svelteAllowShorthand": true,
     "svelteSortOrder": "scripts-markup-options-styles",

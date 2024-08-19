@@ -43,9 +43,7 @@ const translateMatrix = [0.25, 0.25, 0.25] as Point3D;
 
 const circles = cubePoints.map(p => {
     const c = new Circle(p, 0.01);
-    c.properties.fill.color = `rgb(${p[0] * 255}, ${p[1] * 255}, ${
-        p[2] * 255
-    })`;
+    c.properties.fill.color = `rgb(${p[0] * 255}, ${p[1] * 255}, ${p[2] * 255})`;
     c.properties.line.color = 'rgba(0, 0, 0, 0)';
     c.center = scale(c.center as Point3D, scaleMatrix);
     c.center = translate(c.center as Point3D, translateMatrix);
