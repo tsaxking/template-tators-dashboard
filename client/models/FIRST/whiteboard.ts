@@ -67,7 +67,6 @@ export class Whiteboard {
             ]
         });
         c.add(img, this.board);
-        c.on('touchend', console.log);
         return c;
     }
 
