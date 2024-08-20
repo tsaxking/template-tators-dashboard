@@ -8,6 +8,7 @@ import { prompt } from "../../../utilities/notifications";
 // Use that Strategy.svelte in pit and main dashboard, so you don't have to write the code twice
 // Move RobotCard into view/components/strategy
 // Utilize the components folder and separate the components into their own files
+// Build a countdown timer component in /view/components/bootstrap then gimme the code
 
     let matches: FIRSTMatch[] = [];
     let strategies: Strategy[] = [];
