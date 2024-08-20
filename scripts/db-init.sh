@@ -46,20 +46,12 @@ fi
 echo "Starting postgresql service."
 sudo systemctl start postgresql
 
-# Run psql as the postgres user
 echo "Creating user and database."
-sudo -u postgres psql <<EOF
+sudo su - postgres -c "psql -c \"CREATE ROLE admin WITH NOLOGIN;\""
+sudo su - postgres -c "psql -c \"CREATE ROLE $DATABASE_USER WITH LOGIN;\""
+sudo su - postgres -c "psql -c \"ALTER ROLE $DATABASE_USER WITH PASSWORD '$DATABASE_PASSWORD';\""
+sudo su - postgres -c "psql -c \"GRANT admin TO $DATABASE_USER;\""
+sudo su - postgres -c "psql -c \"CREATE DATABASE $DATABASE_NAME with OWNER $DATABASE_USER;\""
 
-CREATE ROLE "admin" WITH NOLOGIN;
-
--- Create role with the provided username from environment variable
-CREATE ROLE $DATABASE_USER WITH LOGIN; 
-ALTER ROLE $DATABASE_USER WITH PASSWORD '$DATABASE_PASSWORD';
-
--- Grant admin privileges to the user
-GRANT admin TO $DATABASE_USER;
-
--- Create the database with the provided name from environment variable
-CREATE DATABASE $DATABASE_NAME with OWNER $DATABASE_USER;
-
-EOF
+sudo service postgresql restart
+exit 0

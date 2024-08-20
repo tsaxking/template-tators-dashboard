@@ -10,70 +10,64 @@ let permissions: RolePermission[] = [];
 
 let table: HTMLTableElement;
 
-const fns = {
-    getRoles: async () => {
-        const res = await Role.all(true);
-        if (res.isOk()) {
-            // console.log('Roles', res.value);
-            roles = res.value;
-        }
+const getRoles = async () => {
+    const res = await Role.all(true);
+    if (res.isOk()) {
+        // console.log('Roles', res.value);
+        roles = res.value;
+    }
 
-        fns.set();
-    },
-    set: () => {
-        // if (table) {
-        //     table.querySelectorAll('.tt').forEach(el=> {
-        //         jQuery(el).tooltip();
-        //     });
-        // }
-    },
-    addPermission: async (role: Role) => {
-        const current = role.permissions.map(p => p.permission);
-        const addable = permissions.filter(
-            p => !current.includes(p.permission)
-        );
-        if (!addable.length) {
-            return alert('No permissions to add');
-        }
+    set();
+};
+const set = () => {
+    // if (table) {
+    //     table.querySelectorAll('.tt').forEach(el=> {
+    //         jQuery(el).tooltip();
+    //     });
+    // }
+};
+const addPermission = async (role: Role) => {
+    const current = role.permissions.map(p => p.permission);
+    const addable = permissions.filter(p => !current.includes(p.permission));
+    if (!addable.length) {
+        return alert('No permissions to add');
+    }
 
-        console.log('Add permission to role', role, addable);
+    console.log('Add permission to role', role, addable);
 
-        const p = await select(
-            'Add permission',
-            addable.map(p => p.permission)
-        );
+    const p = await select(
+        'Add permission',
+        addable.map(p => p.permission)
+    );
 
-        console.log(p);
+    console.log(p);
 
-        if (p >= 0) {
-            role.addPermission(addable[p]);
-        }
-    },
-    deleteRole: async (role: Role) => {
-        const good = await confirm(
-            'Are you sure you want to delete this role?'
-        );
-        if (good) {
-            await role.delete();
-        }
-    },
-    getPermissions: async () => {
-        const perms = await Role.getAllPermissions();
-        if (perms.isOk()) {
-            permissions = perms.value;
-        }
-    },
-    init: () => {
-        fns.getRoles();
-        fns.getPermissions();
+    if (p >= 0) {
+        role.addPermission(addable[p]);
     }
 };
+const deleteRole = async (role: Role) => {
+    const good = await confirm('Are you sure you want to delete this role?');
+    if (good) {
+        await role.delete();
+    }
+};
+const getPermissions = async () => {
+    const perms = await Role.getAllPermissions();
+    if (perms.isOk()) {
+        permissions = perms.value;
+    }
+};
+const init = () => {
+    getRoles();
+    getPermissions();
+};
 
-Role.on('new', fns.getRoles);
-Role.on('update', fns.getRoles);
-Role.on('delete', fns.getRoles);
+Role.on('new', getRoles);
+Role.on('update', getRoles);
+Role.on('delete', getRoles);
 
-onMount(fns.init);
+onMount(init);
 </script>
 
 <div class="table-responsive">
@@ -94,7 +88,7 @@ onMount(fns.init);
                         {#each role.permissions as permission}
                             <RemovableBadge
                                 text="{permission.permission}"
-                                description="{permission.description}"
+                                description="{permission.description || ''}"
                                 color="secondary"
                                 deletable="{true}"
                                 on:remove="{async () => {
@@ -114,7 +108,7 @@ onMount(fns.init);
                                 data-toggle="tooltip"
                                 title="Add permissions to {role.name}"
                                 data-placement="top"
-                                on:click="{() => fns.addPermission(role)}"
+                                on:click="{() => addPermission(role)}"
                             >
                                 <i class="material-icons">add</i>
                             </button>
@@ -123,7 +117,7 @@ onMount(fns.init);
                                 data-toggle="tooltip"
                                 title="Delete role {role.name}"
                                 data-placement="top"
-                                on:click="{() => fns.deleteRole(role)}"
+                                on:click="{() => deleteRole(role)}"
                             >
                                 <i class="material-icons">delete</i>
                             </button>

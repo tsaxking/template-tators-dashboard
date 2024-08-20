@@ -6,7 +6,7 @@ import { log } from '../../server/utilities/terminal-logging';
 import { validate } from '../../server/middleware/data-type';
 import { Req } from '../../server/structure/app/req';
 import { Res } from '../../server/structure/app/res';
-import test from 'test';
+import { deepEqual } from 'assert';
 import assert from 'assert';
 import { getJSONSync } from '../../server/utilities/files';
 import {
@@ -19,10 +19,30 @@ import {
 } from '../../shared/submodules/tatorscout-calculations/scout-groups';
 
 const assertEquals = (a: unknown, b: unknown) => {
-    assert.deepEqual(a, b);
-};
+    try {
+        deepEqual(a, b);
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
+}
 
-export const runTests = async () => {
+
+const test = async (name: string, fn: () => void | Promise<void>) => {
+    const ok = '✅';
+    const fail = '❌';
+    try {
+        await fn();
+        console.log(ok, name);
+        return 0;
+    } catch (e) {
+        console.log(fail, name);
+        console.error(e);
+        return 1;
+    }
+}
+
+export const runTests = async () => Promise.all([
     test('Run async task functionality', async () => {
         const asyncTest = await runFile<string[]>(
             './scripts/tests/run-task-test.ts',
@@ -34,7 +54,7 @@ export const runTests = async () => {
         log('Async test result:', asyncTest);
         if (asyncTest.isErr()) throw asyncTest.error;
         else assertEquals(asyncTest.value, ['a', 'b', 'c']);
-    });
+    }),
 
     test('Run sync task functionality', async () => {
         const syncTest = await runFile<string[]>(
@@ -47,14 +67,14 @@ export const runTests = async () => {
         log('Sync test result:', syncTest);
         if (syncTest.isErr()) throw syncTest.error;
         else assertEquals(syncTest.value, ['a', 'b', 'c']);
-    });
+    }),
 
     test('Run command', async () => {
         const result = await runTask('echo', ['"test"']);
         log('Command result:', result);
         if (result.isOk()) return assertEquals(true, true);
         throw result.error;
-    });
+    }),
 
     test('Data validation', async () => {
         const fail = () => {
@@ -147,7 +167,7 @@ export const runTests = async () => {
             } as unknown as Res,
             fail
         );
-    });
+    }),
 
     test('Scout groups', async () => {
         const eventKey = '2023cabl';
@@ -168,7 +188,12 @@ export const runTests = async () => {
         } else {
             throw data.error;
         }
-    });
-};
+    }),
+    // if (!process.argv.includes('lite')) {
+    //     test('Database tests', async () => {
+    //         const { DB } = await import('../../server/utilities/databases');
+    //     });
+    // }
+]);
 
-if (require.main) runTests();
+if (require.main === module) runTests().then((val) => process.exit(val.some(v => v === 1) ? 1 : 0));

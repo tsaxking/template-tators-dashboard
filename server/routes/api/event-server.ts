@@ -296,3 +296,8 @@ router.post<{
 router.post('/ping', auth, (_req, res) => {
     res.json(true);
 });
+
+router.post('/get-accounts', auth, async (req, res) => {
+    const accounts = await Account.getVerifiedAccounts();
+    res.json(accounts.map(a => a.username));
+});
