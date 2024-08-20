@@ -32,7 +32,7 @@ export type JSONState = {
         black: Point2D[][];
     };
     positions: (
-        | {
+        {
               position: Point2D;
               color: 'red' | 'blue';
               number: number;
@@ -134,9 +134,9 @@ export class BoardState {
                 pen[i].draw(ctx);
             }
         };
-        draw(this.pens.red);
-        draw(this.pens.blue);
-        draw(this.pens.black);
+        for (const pen in this.pens) {
+            draw(this.pens[pen as keyof Pens]);
+        }
 
         for (let i = 0; i < this.positions.length; i++) {
             this.positions[i]?.draw(ctx);
