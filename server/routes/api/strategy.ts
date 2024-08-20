@@ -7,27 +7,25 @@ export const router = new Route();
 
 router.post<{
     name: string;
-    time: number;
     matchId: string | undefined;
     customMatchId: string | undefined;
     comment: string;
     checks: string[];
 }>('/new', validate({
     name: 'string',
-    time: 'number',
     matchId: ['string', 'undefined'],
     customMatchId: ['string', 'undefined'],
     comment: 'string',
     checks: (v: unknown) => Array.isArray(v) && v.every(val => typeof val === 'string'),
 }), async (req, res) => {
-    const { name, time, matchId, customMatchId, comment, checks } = req.body;
+    const { name, matchId, customMatchId, comment, checks } = req.body;
     const { accountId } = req.session;
     if (!accountId) return res.sendStatus('account:not-logged-in');
 
 
     const s = (await Strategy.new({
         name, 
-        time, 
+        time: Date.now(), 
         matchId, 
         customMatchId,
         comment,

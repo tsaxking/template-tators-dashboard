@@ -75,13 +75,13 @@ export class Strategy extends Cache<StrategyUpdateData> {
         });
     }
 
-    public static new(data: Omit<S, 'id' | 'createdBy' | 'archive'>) {
+    public static new(data: Omit<S, 'id' | 'createdBy' | 'archive' | 'time' | 'createdBy'>) {
         return ServerRequest.post('/api/strategy/new', data);
     }
 
     public static retrieve(strategy: S): Strategy {
         if (Strategy.cache.has(strategy.id)) {
-            return Strategy.cache.get(strategy.id) as Strategy;
+            return Strategy.cache.get(strategy.id) as Strategy; 
         } else {
             return new Strategy(strategy);
         }
