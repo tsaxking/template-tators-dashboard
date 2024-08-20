@@ -4,8 +4,10 @@
         "manager": "ts-node -P tsconfig.json ./scripts/manager.ts",
         "build:watch": "nodemon ./scripts/esbuild.ts",
         "build": "ts-node ./scripts/esbuild.ts",
-        "test": "ts-node ./scripts/tests/all-tests.ts",
-        "test:full": "ts-node ./scripts/tests/full.ts",
+        "test:backend": "ts-node ./scripts/tests/all-tests.ts",
+        "test:e2e": "ts-node ./scripts/tests/e2e.ts",
+        "lint": "eslint **/*.ts --fix",
+        "fmt": "prettier . --write",
         "init": "ts-node ./scripts/init.ts",
         "dev": "concurrently --kill-others \"npm run start\" \"npm run build:watch\"",
         "fix-gal-issue": "ts-node ./scripts/fix-gal-issue.ts"
@@ -47,7 +49,7 @@
         "svelte-preprocess-esbuild": "^3.0.1",
         "svelte-recaptcha-v2": "^0.0.2",
         "tslib": "^2.6.2",
-        "typescript": "^5.3.3"
+        "typescript": "^5.5.4"
     },
     "dependencies": {
         "@beyowi/svelte-recaptcha-v2": "^0.0.4",

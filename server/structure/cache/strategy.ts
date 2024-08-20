@@ -1,10 +1,9 @@
 import { Cache } from './cache';
 import { DB } from '../../utilities/databases';
 import { Strategy as S } from '../../utilities/tables';
-import { attemptAsync } from '../../../shared/check';
-import { CompLevel } from '../../../shared/db-types-extended';
-import { uuid } from '../../utilities/uuid';
-import { Whiteboard } from './whiteboards';
+import { attemptAsync } from "../../../shared/check";
+import { CompLevel } from "../../../shared/db-types-extended";
+import { uuid } from "../../utilities/uuid";
 
 export class Strategy extends Cache {
     public static fromId(id: string) {

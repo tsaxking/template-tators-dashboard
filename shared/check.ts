@@ -324,3 +324,22 @@ export const resolveAll = <T>(results: Result<T>[]): Result<T[]> => {
         })
     );
 };
+
+export const build = <T extends Primitive | O | A>(
+    data: unknown,
+    type: T
+): Result<T> => {
+    return attempt(() => {
+        if (check(data, type)) {
+            return data as T;
+        }
+        throw new Error('Data does not match type');
+    });
+};
+
+export const parseJSON = <T extends Primitive | O | A>(
+    data: string,
+    obj: T
+): Result<T> => {
+    return build(JSON.parse(data), obj);
+};
