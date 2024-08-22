@@ -5,6 +5,7 @@ import { Board } from '../whiteboard/board';
 import { Canvas } from '../canvas/canvas';
 import { Img } from '../canvas/image';
 import { Strategy } from './strategy';
+import { socket } from '../../utilities/socket';
 
 export class Whiteboard {
     public static fromStrategy(strategyId: string) {
@@ -90,3 +91,8 @@ export class Whiteboard {
         });
     }
 }
+
+
+socket.on('whiteboard:update', (data: W) => {
+    
+});
