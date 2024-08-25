@@ -12,33 +12,58 @@ let pictures: Picture[] = [];
 
 const dispatch = createEventDispatcher();
 
-$: dispatch('change', pictures);
+const fns = {
+    onInput: async (e: Event) => {
+        const { files } = input;
+        if (files) {
+            fns.change([
+                ...(multiple ? pictures : []),
+                ...(await Promise.all(
+                    Array.from(files).map(
+                        f =>
+                            new Promise<Picture>((res, rej) => {
+                                const reader = new FileReader();
+                                reader.onload = async () =>
+                                    res({
+                                        url: reader.result as string,
+                                        file: f
+                                    });
+                                reader.onerror = rej;
+                                reader.readAsDataURL(f);
+                            })
+                    )
+                ))
+            ]);
+        }
+    },
+    remove: (p: Picture) => {
+        fns.change(pictures.filter(p2 => p2 !== p));
+    },
+    change: (_pictures: Picture[]) => {
+        // if (fns.compareLists(pictures, _pictures)) return; // no change
+        pictures = _pictures;
+        input.files = null;
+        // update input.files
+        const dataTransfer = new DataTransfer();
+        for (const f of pictures) dataTransfer.items.add(f.file);
 
-const onInput = async (e: Event) => {
-    const { files } = input;
-    if (files) {
-        pictures = [
-            ...(multiple ? pictures : []),
-            ...(await Promise.all(
-                Array.from(files).map(
-                    f =>
-                        new Promise<Picture>((res, rej) => {
-                            const reader = new FileReader();
-                            reader.onload = async () =>
-                                res({
-                                    url: reader.result as string,
-                                    file: f
-                                });
-                            reader.onerror = rej;
-                            reader.readAsDataURL(f);
-                        })
-                )
-            ))
-        ];
+        input.files = dataTransfer.files;
+
+        dispatch('change', {
+            fileList: dataTransfer.files,
+            pictures
+        });
+    },
+
+    // returns true if the lists are the same
+    compareLists: (a: Picture[], b: Picture[]) => {
+        if (a.length !== b.length) return false;
+        for (const aFile of a) {
+            const s = b.some(bFile => bFile.file.name === aFile.file.name);
+            if (!s) return false;
+        }
+        return true;
     }
-};
-const remove = (p: Picture) => {
-    pictures = pictures.filter(p2 => p2 !== p);
 };
 </script>
 
@@ -51,7 +76,7 @@ const remove = (p: Picture) => {
             class="form-control"
             {multiple}
             bind:this="{input}"
-            on:change="{onInput}"
+            on:change="{fns.onInput}"
             accept=".png,.PNG,.jpg,.JPG,.jpeg,.JPEG"
         />
     </div>
@@ -66,7 +91,7 @@ const remove = (p: Picture) => {
                     </p>
                     <i
                         class="material-icons text-danger cursor-pointer p-0 m-0"
-                        on:click="{() => remove(picture)}"
+                        on:click="{() => fns.remove(picture)}"
                     >
                         close
                     </i>

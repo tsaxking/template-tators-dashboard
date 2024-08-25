@@ -54,13 +54,7 @@ export class Random {
      * @returns {T[]}
      */
     static shuffle<T = never>(array: T[]): T[] {
-        const result: T[] = [];
-        for (let i = 0; i < array.length; i++) {
-            const index = Math.floor(Math.random() * array.length);
-            result.push(array[index]);
-            array.splice(index, 1);
-        }
-        return result;
+        return array.slice().sort(() => Math.random() - 0.5);
     }
 
     /**
@@ -129,6 +123,10 @@ export class $Math {
      * @returns {number}
      */
     static average(array: number[]): number {
-        return array.reduce((a, b) => a + b) / array.length;
+        return $Math.sum(array) / array.length;
+    }
+
+    static sum(array: number[]) {
+        return array.reduce((a, c) => a + c, 0);
     }
 }
