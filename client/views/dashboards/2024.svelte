@@ -11,7 +11,7 @@ import Quiz from '../pages/Quiz.svelte';
 import EventSummary from '../pages/EventSummary.svelte';
 import { FIRSTEvent } from '../../models/FIRST/event';
 import MatchSchedule from '../pages/MatchSchedule.svelte';
-import Strategy from '../pages/Strategy.svelte';
+import Strategy from '../pages/pit-display/Strategy.svelte';
 
 const groups: PageGroup[] = [
     {

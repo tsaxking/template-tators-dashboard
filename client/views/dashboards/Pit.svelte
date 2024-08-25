@@ -1,4 +1,5 @@
 <script lang="ts">
+import TaylorPitStrategy from './../pages/pit-display/TaylorPitStrategy.svelte';
 import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
 import BorderlessPage from '../components/main/BorderlessPage.svelte';
@@ -19,6 +20,11 @@ const groups: PageGroup[] = [
             },
             {
                 name: 'pit-strategy',
+                icon: 'list',
+                iconType: 'material'
+            },
+            {
+                name: 'taylor-pit-strategy',
                 icon: 'list',
                 iconType: 'material'
             }
@@ -62,5 +68,8 @@ FIRSTEvent.on('select', e => {
     </BorderlessPage>
     <Page {active} {domain} title="pit-strategy">
         <PitStrategy />
+    </Page>
+    <Page {active} {domain} title="taylor-pit-strategy">
+        <TaylorPitStrategy />
     </Page>
 </Main>

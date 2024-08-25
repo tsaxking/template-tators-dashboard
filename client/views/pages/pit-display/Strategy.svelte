@@ -1,5 +1,5 @@
 <script lang="ts">
-import AllianceComparison from '../components/strategy/2024Alliance.svelte';
+import AllianceComparison from '../../components/strategy/2024Alliance.svelte';
 </script>
 
 <div class="container-fluid">

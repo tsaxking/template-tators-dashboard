@@ -3,7 +3,7 @@ import { dateTime } from './../../../../shared/clock';
 import { FIRSTEvent } from './../../../models/FIRST/event';
 import { FIRSTMatch } from './../../../models/FIRST/match';
 import { onMount } from 'svelte';
-import RobotCard from './RobotCard.svelte';
+import RobotCard from '../../components/strategy/RobotCard.svelte';
 import { Color } from '../../../submodules/colors/color';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Ok } from '../../../../shared/check';
