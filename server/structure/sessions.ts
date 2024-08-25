@@ -35,7 +35,10 @@ export type SessionObj = {
  * @class Session
  * @typedef {Session}
  */
-export class Session<T = unknown> {
+export class Session<
+    SessionCustomData extends Record<string, unknown> = Record<string, unknown>,
+    AccountCustomData extends Record<string, unknown> = Record<string, unknown>
+> {
     /**
      * Delete all unused sessions (not signed in)
      *
@@ -95,23 +98,37 @@ export class Session<T = unknown> {
      * @param {express.Response} res
      * @returns {Promise<Session>}
      */
-    public static async from<sessionInfo = unknown>(
-        app: App<unknown>,
+    public static async from<
+        SessionCustomData extends Record<string, unknown>,
+        AccountCustomData extends Record<string, unknown>
+    >(
+        app: App,
         req: express.Request,
         res: express.Response
-    ): Promise<Session<sessionInfo>> {
+    ): Promise<Session<SessionCustomData, AccountCustomData>> {
         const id = req.headers.cookie
             ?.split(';')
             .find(c => c.includes('ssid'))
             ?.split('=')[1];
         // console.log(id);
         if (id) {
-            const s = await Session.get<sessionInfo>(app, id);
+            const s = await Session.get<SessionCustomData, AccountCustomData>(
+                app,
+                id
+            );
             if (s) return s;
 
-            return Session.newSession<sessionInfo>(app, req, res);
+            return Session.newSession<SessionCustomData, AccountCustomData>(
+                app,
+                req,
+                res
+            );
         } else {
-            return Session.newSession<sessionInfo>(app, req, res);
+            return Session.newSession<SessionCustomData, AccountCustomData>(
+                app,
+                req,
+                res
+            );
         }
     }
 
@@ -174,16 +191,22 @@ export class Session<T = unknown> {
      * @param {string} id
      * @returns {(Session | undefined)}
      */
-    static async get<sessionInfo = unknown>(
+    static async get<
+        SessionCustomData extends Record<string, unknown>,
+        AccountCustomData extends Record<string, unknown>
+    >(
         app: App,
         id: string
-    ): Promise<Session<sessionInfo> | undefined> {
+    ): Promise<Session<SessionCustomData, AccountCustomData> | undefined> {
         // if (Session.cache.has(id)) {
         //     return Session.cache.get(id);
         // }
         const res = await DB.get('sessions/get', { id });
         if (res.isOk() && res.value) {
-            return Session.fromSessObj<sessionInfo>(app, res.value);
+            return Session.fromSessObj<SessionCustomData, AccountCustomData>(
+                app,
+                res.value
+            );
         }
 
         if (res.isErr()) {
@@ -201,13 +224,13 @@ export class Session<T = unknown> {
      * @param {SessionObj} s
      * @returns {Session}
      */
-    static fromSessObj<sessionInfo = unknown>(
-        app: App,
-        s: SessionObj
-    ): Session<sessionInfo> {
+    static fromSessObj<
+        SessionCustomData extends Record<string, unknown>,
+        AccountCustomData extends Record<string, unknown>
+    >(app: App, s: SessionObj): Session<SessionCustomData, AccountCustomData> {
         // log('Building from:', s);
 
-        const session = new Session<sessionInfo>(app);
+        const session = new Session<SessionCustomData, AccountCustomData>(app);
         session.ip = s.ip;
         session.id = s.id;
         session.latestActivity = s.latestActivity;
@@ -216,7 +239,9 @@ export class Session<T = unknown> {
         session.accountId = s.accountId;
         session.created = s.created;
         session.requests = s.requests;
-        session.customData = JSON.parse(s.customData || '{}') as sessionInfo;
+        session.customData = JSON.parse(
+            s.customData || '{}'
+        ) as SessionCustomData;
 
         // log('Built:', session);
         return session;
@@ -231,12 +256,15 @@ export class Session<T = unknown> {
      * @param {Res} res
      * @returns {(Session|undefined)}
      */
-    static newSession<sessionInfo = unknown>(
+    static newSession<
+        SessionCustomData extends Record<string, unknown>,
+        AccountCustomData extends Record<string, unknown>
+    >(
         app: App,
         req: express.Request,
         res: express.Response
-    ): Session<sessionInfo> {
-        const s = new Session<sessionInfo>(app, req);
+    ): Session<SessionCustomData, AccountCustomData> {
+        const s = new Session<SessionCustomData, AccountCustomData>(app, req);
         // res.cookie(Session.sessionName, s.id, {
         //     maxAge: Session.cookieOptions.maxAge,
         //     httpOnly: Session.cookieOptions.httpOnly,
@@ -320,7 +348,7 @@ export class Session<T = unknown> {
      * @type {?string}
      */
     public userAgent?: string;
-    public customData: T = {} as T;
+    public customData: SessionCustomData = {} as SessionCustomData;
 
     /**
      * Creates an instance of Session.
@@ -444,7 +472,7 @@ export class Session<T = unknown> {
      * @private
      * @type {?Account}
      */
-    private $account?: Account;
+    private $account?: Account<AccountCustomData>;
 
     /**
      * Checks if the session is blacklisted
@@ -496,10 +524,10 @@ export class Session<T = unknown> {
      * @readonly
      * @type {(Account | null)}
      */
-    async getAccount(): Promise<Account | undefined> {
+    async getAccount(): Promise<Account<AccountCustomData> | undefined> {
         if (this.$account) return this.$account;
         if (!this.accountId) return;
-        const a = await Account.fromId(this.accountId);
+        const a = await Account.fromId<AccountCustomData>(this.accountId);
         this.$account = a;
         return a;
     }
@@ -510,7 +538,7 @@ export class Session<T = unknown> {
      *
      * @param {Account} account
      */
-    async signIn(account: Account) {
+    async signIn(account: Account<AccountCustomData>) {
         this.accountId = account.id;
         this.$account = account;
         const res = await this.save();

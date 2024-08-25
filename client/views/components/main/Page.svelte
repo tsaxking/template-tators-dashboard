@@ -20,7 +20,8 @@ export let loading: boolean = false;
                 <p>Loading teams</p>
             </div>
         </div>
-    {:else}
+    {/if}
+    <div style:opacity="{loading ? 0 : 1}">
         <div class="container-fluid p-3">
             {#if !title.startsWith('--$')}
                 <h1 class="no-select p-5">
@@ -34,5 +35,5 @@ export let loading: boolean = false;
                 {domain} | All Rights Reserved
             </p>
         </div>
-    {/if}
+    </div>
 {/if}

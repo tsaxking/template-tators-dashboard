@@ -9,8 +9,6 @@ on:
   push:
     branches:
       - '*'
-      - '!main'
-      - '!master'
       - '!deploy'
       - '!gh-pages'
 
@@ -34,9 +32,9 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.3
         with:
-          node-version: v20.4
+          node-version: v20.16
 
       - name: Build .env
         run: |
@@ -62,5 +60,5 @@ jobs:
           exit 0
           echo "Installing dependencies..."
           npm i
-          echo "Running backend tests..."
+          echo "Running e2e tests..."
           npm run test:e2e

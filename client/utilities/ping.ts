@@ -57,7 +57,7 @@ type PingEventData = {
  * @class Ping
  * @typedef {Ping}
  */
-class Ping {
+class Ping extends EventEmitter<PingEventData> {
     /**
      * Ping interval
      * @date 3/8/2024 - 7:19:39 AM
@@ -90,16 +90,6 @@ class Ping {
      * @type {?NodeJS.Timeout}
      */
     private timeout?: NodeJS.Timeout;
-    /**
-     * Event emitter for the ping
-     * @date 3/8/2024 - 7:19:39 AM
-     *
-     * @private
-     * @readonly
-     * @type {EventEmitter<keyof PingEventData>}
-     */
-    private readonly $emitter: EventEmitter<keyof PingEventData> =
-        new EventEmitter<keyof PingEventData>();
 
     /**
      * Creates an instance of Ping.
@@ -108,6 +98,7 @@ class Ping {
      * @constructor
      */
     constructor() {
+        super();
         this.start();
     }
 
@@ -198,55 +189,11 @@ class Ping {
     }
 
     /**
-     * Add an event listener
-     * @date 3/8/2024 - 7:19:39 AM
-     *
-     * @template {keyof PingEventData} K
-     * @param {K} event
-     * @param {(data: PingEventData[K]) => void} callback
-     * @returns {void) => void}
-     */
-    on<K extends keyof PingEventData>(
-        event: K,
-        callback: (data: PingEventData[K]) => void
-    ) {
-        this.$emitter.on(event, callback);
-    }
-
-    /**
-     * Remove an event listener
-     * @date 3/8/2024 - 7:19:39 AM
-     *
-     * @template {keyof PingEventData} K
-     * @param {K} event
-     * @param {?(data: PingEventData[K]) => void} [callback]
-     * @returns {void) => void}
-     */
-    off<K extends keyof PingEventData>(
-        event: K,
-        callback?: (data: PingEventData[K]) => void
-    ) {
-        this.$emitter.off(event, callback);
-    }
-
-    /**
-     * Emit an event
-     * @date 3/8/2024 - 7:19:39 AM
-     *
-     * @template {keyof PingEventData} K
-     * @param {K} event
-     * @param {PingEventData[K]} data
-     */
-    emit<K extends keyof PingEventData>(event: K, data: PingEventData[K]) {
-        this.$emitter.emit(event, data);
-    }
-
-    /**
      * Destroy the pinger
      * @date 3/8/2024 - 7:19:39 AM
      */
     destroy() {
-        this.$emitter.destroy();
+        this.destroyEvents();
         this.stop();
         this.pings.length = 0;
     }

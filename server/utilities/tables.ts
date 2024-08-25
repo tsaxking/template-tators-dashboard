@@ -16,6 +16,7 @@ export type Accounts = {
     passwordChangeDate: number | undefined;
     phoneNumber: string | undefined;
     created: number;
+    customData: string;
     discordId: string | undefined;
 };
 
@@ -261,6 +262,24 @@ export type Insert_account_new = {
     verification: string | undefined;
     created: number;
     phoneNumber: string | undefined;
+    customData: string;
+};
+
+export type Update_account_update = {
+    id: string;
+    username: string;
+    key: string;
+    salt: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    passwordChange: string | undefined;
+    picture: string | undefined;
+    verified: number;
+    verification: string | undefined;
+    passwordChangeDate: number | undefined;
+    phoneNumber: string | undefined;
+    customData: string;
 };
 
 export type Update_account_request_password_change = {

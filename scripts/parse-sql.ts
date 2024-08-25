@@ -32,12 +32,7 @@ MEDIUMINT => number
 */
 
 import { confirm, select } from './prompt';
-import {
-    exists,
-    readFile,
-    readFileSync,
-    saveFile
-} from '../server/utilities/files';
+import { readFile } from '../server/utilities/files';
 import { relative, resolve } from 'path';
 
 type Primitive =
@@ -716,7 +711,7 @@ export const addQuery = async (
 
         if (!q) throw new Error('Invalid query');
 
-        const [exec, ret, execName, retName] = q;
+        const [exec, ret, _execName, retName] = q;
 
         queries.push({
             name,
@@ -754,7 +749,7 @@ const saveQueries = async (
         let queryTs = '';
 
         for (const query of queries) {
-            const [exec, ret, execName, retName] = query;
+            const [_exec, ret, execName, retName] = query;
             if (retName) {
                 importTs += `import { ${execName}, ${retName} } from '${rel}';\n`;
             } else {
@@ -800,7 +795,7 @@ const saveQueries = async (
     });
 };
 
-const saveTypes = async (
+const _saveTypes = async (
     tablesFile: string,
     types: string[]
 ): Promise<Result<void>> => {

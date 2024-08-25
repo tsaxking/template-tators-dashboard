@@ -18,7 +18,7 @@ import { runTask } from './run-task';
 import { removeFile } from './files';
 import fs from 'fs';
 import path from 'path';
-import { EventEmitter } from '../../shared/event-emitter';
+import { SimpleEventEmitter } from '../../shared/event-emitter';
 
 /**
  * The name of the main database
@@ -147,7 +147,7 @@ export class DB {
      * @readonly
      * @type {*}
      */
-    static readonly em = new EventEmitter<'connect' | 'disconnect'>();
+    static readonly em = new SimpleEventEmitter<'connect' | 'disconnect'>();
 
     /**
      * Timeout for the database connection

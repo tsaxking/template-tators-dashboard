@@ -12,10 +12,10 @@ jobs:
     uses: ./.github/workflows/backend.yml
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  # e2e:
-  #   uses: ./.github/workflows/e2e.yml
-  #   secrets:
-  #       GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  e2e:
+    uses: ./.github/workflows/e2e.yml
+    secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
   linter:
     uses: ./.github/workflows/linter.yml
     secrets:
@@ -24,18 +24,16 @@ jobs:
     uses: ./.github/workflows/formatter.yml
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  tsc:
+    uses: ./.github/workflows/tsc.yml
+    secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
   deploy:
     runs-on: ubuntu-latest
     # if branch is main
     if: github.ref == 'refs/heads/main'
-    needs: [
-        build,
-        # e2e,
-        backend,
-        linter,
-        formatter
-      ]
+    needs: [build, e2e, backend, linter, formatter, tsc]
     steps:
       - name: Retrieve git dependencies
         uses: actions/checkout@v3
@@ -89,6 +87,7 @@ jobs:
   #     backend,
   #     linter,
   #     formatter,
+  #     tsc
   #   ]
   #   steps:
   #     - name: Don't do anything

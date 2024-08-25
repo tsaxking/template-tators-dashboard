@@ -10,7 +10,6 @@ import { capitalize, fromSnakeCase, toCamelCase } from '../shared/text';
 import Filter from 'bad-words';
 import { repeatPrompt, prompt } from './prompt';
 import fs from 'fs';
-import path from 'path';
 
 /**
  * Adds a new socket event to the shared/socket.ts file
