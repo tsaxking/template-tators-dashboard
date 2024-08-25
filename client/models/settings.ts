@@ -47,7 +47,7 @@ export class Settings {
      * @readonly
      * @type {*}
      */
-    static readonly $emitter = new EventEmitter<keyof SettingsEvents>();
+    static readonly emitter = new EventEmitter<SettingsEvents>();
 
     /**
      * All settings in the system
@@ -57,7 +57,7 @@ export class Settings {
      * @readonly
      * @type {*}
      */
-    static readonly $settings = new Map<string, unknown>();
+    static readonly settings = new Map<string, unknown>();
 
     /**
      * Set a setting
@@ -69,7 +69,7 @@ export class Settings {
      * @param {T} value
      */
     static set<T>(key: string, value: T) {
-        this.$settings.set(key, value);
+        this.settings.set(key, value);
         this.change();
     }
 
@@ -83,7 +83,7 @@ export class Settings {
      * @returns {(T | undefined)}
      */
     static get<T>(key: string): T | undefined {
-        return this.$settings.get(key) as T | undefined;
+        return this.settings.get(key) as T | undefined;
     }
 
     /**
@@ -95,7 +95,7 @@ export class Settings {
      * @returns {*}
      */
     static has(key: string) {
-        return this.$settings.has(key);
+        return this.settings.has(key);
     }
 
     /**
@@ -106,7 +106,7 @@ export class Settings {
      * @param {string} key
      */
     static delete(key: string) {
-        this.$settings.delete(key);
+        this.settings.delete(key);
         this.change();
     }
 
@@ -117,7 +117,7 @@ export class Settings {
      * @static
      */
     static clear() {
-        this.$settings.clear();
+        this.settings.clear();
         this.change();
     }
 
@@ -130,7 +130,7 @@ export class Settings {
      * @type {*}
      */
     static get size() {
-        return this.$settings.size;
+        return this.settings.size;
     }
 
     /**
@@ -142,7 +142,7 @@ export class Settings {
      * @type {*}
      */
     static get keys() {
-        return this.$settings.keys();
+        return this.settings.keys();
     }
 
     /**
@@ -154,7 +154,7 @@ export class Settings {
      * @type {*}
      */
     static get values() {
-        return this.$settings.values();
+        return this.settings.values();
     }
 
     /**
@@ -166,7 +166,7 @@ export class Settings {
      * @type {*}
      */
     static get entries() {
-        return this.$settings.entries();
+        return this.settings.entries();
     }
 
     /**
@@ -190,7 +190,7 @@ export class Settings {
         ) => void,
         thisArg?: unknown
     ) {
-        this.$settings.forEach(callbackfn, thisArg);
+        this.settings.forEach(callbackfn, thisArg);
     }
 
     /**
@@ -204,7 +204,7 @@ export class Settings {
     static async change() {
         if (!Account.current) return; // local changes only
         await ServerRequest.post('/account/set-settings', {
-            settings: JSON.stringify([...this.$settings])
+            settings: JSON.stringify([...this.settings])
         });
     }
 
@@ -222,7 +222,7 @@ export class Settings {
         event: K,
         listener: (value: SettingsEvents[K]) => void
     ) {
-        Settings.$emitter.on(event, listener);
+        Settings.emitter.on(event, listener);
     }
 
     /**
@@ -239,7 +239,7 @@ export class Settings {
         event: K,
         listener: (value: SettingsEvents[K]) => void
     ) {
-        Settings.$emitter.once(event, listener);
+        Settings.emitter.once(event, listener);
     }
 
     /**
@@ -256,7 +256,7 @@ export class Settings {
         event: K,
         listener: (value: SettingsEvents[K]) => void
     ) {
-        Settings.$emitter.off(event, listener);
+        Settings.emitter.off(event, listener);
     }
 
     /**
@@ -272,7 +272,7 @@ export class Settings {
         event: K,
         value: SettingsEvents[K]
     ) {
-        Settings.$emitter.emit(event, value);
+        Settings.emitter.emit(event, value);
     }
 
     /**
@@ -290,15 +290,15 @@ export class Settings {
             >('/account/get-settings');
             if (res.isOk()) {
                 const settings = res.value;
-                Settings.$settings.clear();
+                Settings.settings.clear();
 
                 if (!settings) throw new Error('No settings found');
                 if (!Array.isArray(settings)) return; // data is corrupted
 
                 for (const [key, value] of settings) {
                     // set without loop
-                    if (Settings.$settings.get(key) === value) continue; // no change
-                    Settings.$settings.set(key, value);
+                    if (Settings.settings.get(key) === value) continue; // no change
+                    Settings.settings.set(key, value);
                     Settings.emit('set', [key, value]);
                 }
             }
@@ -307,13 +307,13 @@ export class Settings {
 }
 
 socket.on('account:settings-set', (settings: string) => {
-    Settings.$settings.clear();
+    Settings.settings.clear();
 
     const parsed = JSON.parse(settings) as [string, unknown][];
     for (const [key, value] of parsed) {
         // set without loop
-        if (Settings.$settings.get(key) === value) continue; // no change
-        Settings.$settings.set(key, value);
+        if (Settings.settings.get(key) === value) continue; // no change
+        Settings.settings.set(key, value);
         Settings.emit('set', [key, value]);
     }
 });

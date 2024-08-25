@@ -47,35 +47,12 @@ export const rankColor: {
 };
 
 export class MatchScouting extends Cache<MatchScoutingEvents> {
-    private static readonly $emitter = new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        MatchScouting.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        MatchScouting.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        MatchScouting.$emitter.emit(event, data);
-    }
-
-    public static once<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        MatchScouting.$emitter.once(event, callback);
-    }
+    public static on = MatchScouting.emitter.on.bind(MatchScouting.emitter);
+    public static off = MatchScouting.emitter.off.bind(MatchScouting.emitter);
+    public static emit = MatchScouting.emitter.emit.bind(MatchScouting.emitter);
+    public static once = MatchScouting.emitter.once.bind(MatchScouting.emitter);
 
     public static fromId(id: string) {
         return attemptAsync(async () => {

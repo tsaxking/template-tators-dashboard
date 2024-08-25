@@ -214,10 +214,10 @@ export class Res {
      */
     stream<T = unknown>(
         content: T[]
-    ): Result<EventEmitter<keyof StreamEventData<T>>> {
+    ): Result<EventEmitter<StreamEventData<T>>> {
         return attempt(() => {
             this.isFulfilled();
-            const em = new EventEmitter<keyof StreamEventData<T>>();
+            const em = new EventEmitter<StreamEventData<T>>();
 
             const stream = new ReadableStream({
                 start: controller => {
@@ -231,7 +231,7 @@ export class Res {
                             em.emit('chunk', content[i]);
                         } else {
                             controller.close();
-                            em.emit('end');
+                            em.emit('end', undefined);
                         }
                     };
 
@@ -239,7 +239,7 @@ export class Res {
                 },
 
                 cancel() {
-                    em.emit('cancel');
+                    em.emit('cancel', undefined);
                 },
 
                 type: 'bytes'
