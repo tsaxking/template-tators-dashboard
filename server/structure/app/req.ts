@@ -42,7 +42,11 @@ export type ReqBody = B | FileBody;
  * @typedef {Req}
  * @template [T=unknown]
  */
-export class Req<T = unknown, s = unknown> {
+export class Req<
+    T = unknown,
+    S extends Record<string, unknown> = Record<string, unknown>,
+    A extends Record<string, unknown> = Record<string, unknown>
+> {
     /**
      * Start time
      * @date 3/8/2024 - 6:16:47 AM
@@ -71,9 +75,9 @@ export class Req<T = unknown, s = unknown> {
      * @param {Session} session
      */
     constructor(
-        public readonly app: App<unknown>,
+        public readonly app: App,
         public readonly req: express.Request,
-        public readonly session: Session<s>,
+        public readonly session: Session<S, A>,
         public readonly socket?: Socket
     ) {}
 

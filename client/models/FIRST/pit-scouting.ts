@@ -10,26 +10,13 @@ type Updates = {
 };
 
 export class PitScouting extends Cache<PitScoutingEvents> {
-    private static readonly $emitter: EventEmitter<keyof Updates> =
-        new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        PitScouting.$emitter.on(event, callback);
-    }
+    public static on = PitScouting.emitter.on.bind(PitScouting.emitter);
+    public static off = PitScouting.emitter.off.bind(PitScouting.emitter);
+    public static emit = PitScouting.emitter.emit.bind(PitScouting.emitter);
+    public static once = PitScouting.emitter.once.bind(PitScouting.emitter);
 
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: any) => void
-    ): void {
-        PitScouting.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(event: K, data: any): void {
-        PitScouting.$emitter.emit(event, data);
-    }
     /**
      * Cache for all {@link FIRSTYear} objects
      * @date 10/9/2023 - 6:59:50 PM

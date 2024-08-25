@@ -1,6 +1,5 @@
 import dirTree from 'directory-tree';
 import fs from 'fs';
-import path from 'path';
 
 /**
  * Creates a tree structure of the current directory

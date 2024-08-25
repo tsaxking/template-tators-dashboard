@@ -51,7 +51,7 @@ const buildDatabase = () =>
                 1000 * 60 * 5
             );
 
-            const pcs = spawn('sh', ['./db-init.sh'], {
+            const pcs = spawn('sh', ['./db-init.sh', '--force-reset'], {
                 stdio: 'inherit',
                 cwd: path.resolve(__dirname, '../')
             });
@@ -66,22 +66,6 @@ const buildDatabase = () =>
         });
     });
 
-const resetDB = (env: Env) => {
-    const emitter = new EventEmitter<'error' | 'stop' | 'done'>();
-
-    const pcs = spawn('ts-node', ['./scripts/reset-db.ts'], {
-        stdio: 'inherit',
-        cwd: path.resolve(__dirname, '../..'),
-        env
-    });
-
-    pcs.on('exit', () => emitter.emit('done'));
-    pcs.on('error', e => emitter.emit('error', e));
-    emitter.on('stop', () => pcs.kill());
-
-    return emitter;
-};
-
 class Server {
     public status: 'on' | 'off' = 'off';
     public process: ChildProcess | null = null;
@@ -89,9 +73,12 @@ class Server {
     start() {
         return new Promise<void>((res, rej) => {
             if (this.status === 'on') return rej('Server is already running');
-            setTimeout(() => {
-                rej('Server took too long to start');
-            }, 10000);
+            setTimeout(
+                () => {
+                    rej('Server took too long to start');
+                },
+                1000 * 60 * 5
+            );
 
             const log = (...data: unknown[]) =>
                 console.log(Colors.FgYellow, '[Server]', Colors.Reset, ...data);
@@ -179,7 +166,6 @@ const main = async () => {
         );
         fs.unlinkSync(path.resolve(__dirname, '../../._env'));
         server.stop();
-        em.emit('stop');
     });
 
     log('Reading env');
@@ -208,11 +194,6 @@ const main = async () => {
         process.exit(1);
     }
     log('Database built successfully');
-
-    const em = resetDB(env);
-    em.on('error', () => {
-        process.exit(1);
-    });
 
     log('Building client');
     const res = await bundle();

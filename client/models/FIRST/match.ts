@@ -43,33 +43,12 @@ type Updates = {
  * @typedef {FIRSTMatch}
  */
 export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
-    private static readonly $emitter: EventEmitter<keyof Updates> =
-        new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        FIRSTMatch.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: any) => void
-    ): void {
-        FIRSTMatch.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(event: K, data: any): void {
-        FIRSTMatch.$emitter.emit(event, data);
-    }
-
-    public static once<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        FIRSTMatch.$emitter.once(event, callback);
-    }
+    public static on = FIRSTMatch.emitter.on.bind(FIRSTMatch.emitter);
+    public static off = FIRSTMatch.emitter.off.bind(FIRSTMatch.emitter);
+    public static emit = FIRSTMatch.emitter.emit.bind(FIRSTMatch.emitter);
+    public static once = FIRSTMatch.emitter.once.bind(FIRSTMatch.emitter);
 
     public static sorter(a: FIRSTMatch, b: FIRSTMatch): number {
         const levels = ['qm', 'qf', 'sf', 'f'];
@@ -122,7 +101,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
                     t.on('match-scouting', async () => {
                         const scouting = await this.getMatchScouting();
                         if (scouting.isOk() && scouting.value[t.number])
-                            this.$emitter.emit(
+                            this.emit(
                                 'match-scouting',
                                 scouting.value[t.number]
                             );
@@ -164,8 +143,8 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
      * @returns {RetrieveStreamEventEmitter<Strategy>}
      */
     public getStrategy(): RetrieveStreamEventEmitter<Strategy> {
-        if (this.$cache.has('strategy')) {
-            const res = this.$cache.get('strategy') as Strategy[];
+        if (this.cache.has('strategy')) {
+            const res = this.cache.get('strategy') as Strategy[];
 
             const em = new RetrieveStreamEventEmitter<Strategy>();
 
@@ -181,7 +160,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         });
 
         em.on('complete', data => {
-            this.$cache.set('strategy', data);
+            this.cache.set('strategy', data);
         });
 
         return em;
@@ -189,7 +168,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
 
     public async getInfo(): Promise<Result<MatchObj>> {
         return attemptAsync(async () => {
-            const info = this.$cache.get('info') as MatchObj;
+            const info = this.cache.get('info') as MatchObj;
             if (info) return info;
 
             const res = await ServerRequest.post<MatchObj>(
@@ -205,7 +184,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
             );
 
             if (res.isOk()) {
-                this.$cache.set('info', res.value);
+                this.cache.set('info', res.value);
 
                 return res.value;
             }
