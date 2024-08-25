@@ -7,30 +7,15 @@ type LoopEvents = {
 };
 
 export class Loop<
-    T = {
+    T extends Record<string, unknown> = {
         [key: string]: unknown;
     }
-> {
-    private readonly emitter = new EventEmitter<keyof (T & LoopEvents)>();
-
-    public on<K extends keyof (T & LoopEvents)>(
-        event: K,
-        fn: (data: (T & LoopEvents)[K]) => void
-    ) {
-        this.emitter.on(event, fn);
-    }
-
-    public off<K extends keyof (T & LoopEvents)>(
-        event: K,
-        fn: (data: (T & LoopEvents)[K]) => void
-    ) {
-        this.emitter.off(event, fn);
-    }
-
+> extends EventEmitter<LoopEvents & Omit<T, 'stop' | 'start'>> {
     private _running = false;
     public stop = () => {
         this._running = false;
-        this.emitter.emit('stop');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.emit('stop', undefined as any);
     };
 
     get active() {
@@ -40,12 +25,15 @@ export class Loop<
     constructor(
         public readonly fn: (tick: number) => void,
         public interval: number
-    ) {}
+    ) {
+        super();
+    }
 
     public start() {
         if (this._running) return this.stop;
         this._running = true;
-        this.emitter.emit('start');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.emit('start', undefined as any);
 
         const globalStart = Date.now();
         let i = 0;

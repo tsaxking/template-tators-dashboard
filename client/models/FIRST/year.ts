@@ -30,28 +30,12 @@ type Updates = {
  * @implements {FIRST}
  */
 export class FIRSTYear extends Cache<YearUpdateData> {
-    private static readonly $emitter = new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        FIRSTYear.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        FIRSTYear.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        FIRSTYear.$emitter.emit(event, data);
-    }
+    public static on = FIRSTYear.emitter.on.bind(FIRSTYear.emitter);
+    public static off = FIRSTYear.emitter.off.bind(FIRSTYear.emitter);
+    public static emit = FIRSTYear.emitter.emit.bind(FIRSTYear.emitter);
+    public static once = FIRSTYear.emitter.once.bind(FIRSTYear.emitter);
 
     /**
      * The currently selected year
@@ -110,8 +94,8 @@ export class FIRSTYear extends Cache<YearUpdateData> {
      */
     async getEvents(): Promise<Result<TBAEvent[]>> {
         return attemptAsync(async () => {
-            // if (this.$cache.has('events')) {
-            //     return this.$cache.get('events') as TBAEvent[];
+            // if (this.cache.has('events')) {
+            //     return this.cache.get('events') as TBAEvent[];
             // }
             const res = await TBA.get<TBAEvent[]>(
                 `/team/frc2122/events/${this.year}`
@@ -133,8 +117,8 @@ export class FIRSTYear extends Cache<YearUpdateData> {
 
                 res.value.onUpdate(
                     data => {
-                        this.$cache.set('events', data);
-                        this.$emitter.emit('update-events', data);
+                        this.cache.set('events', data);
+                        this.emit('update-events', data);
                     },
                     1000 * 60 * 60 * 24 * 7
                 ); // 1 week

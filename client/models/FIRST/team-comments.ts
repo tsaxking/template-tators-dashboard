@@ -19,27 +19,14 @@ type Updates = {
 };
 
 export class TeamComment extends Cache<TeamCommentUpdates> {
-    public static readonly emitter = new EventEmitter<keyof Updates>();
+    public static readonly emitter = new EventEmitter<Updates>();
+
+    public static on = TeamComment.emitter.on.bind(TeamComment.emitter);
+    public static off = TeamComment.emitter.off.bind(TeamComment.emitter);
+    public static emit = TeamComment.emitter.emit.bind(TeamComment.emitter);
+    public static once = TeamComment.emitter.once.bind(TeamComment.emitter);
 
     public static readonly cache = new Map<string, TeamComment>();
-
-    public static on<T extends keyof Updates>(
-        event: T,
-        listener: (data: Updates[T]) => void
-    ) {
-        TeamComment.emitter.on(event, listener);
-    }
-
-    public static off<T extends keyof Updates>(
-        event: T,
-        listener: (data: Updates[T]) => void
-    ) {
-        TeamComment.emitter.off(event, listener);
-    }
-
-    public static emit<T extends keyof Updates>(event: T, data: Updates[T]) {
-        TeamComment.emitter.emit(event, data);
-    }
 
     public static get(id: string) {
         return TeamComment.cache.get(id);
@@ -114,7 +101,7 @@ export class TeamComment extends Cache<TeamCommentUpdates> {
 }
 
 socket.on('team-comment:new', (data: TCObject) => {
-    const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
+    const team = FIRSTTeam.cache.get(data.team + ':' + data.eventKey);
     if (!team) return;
 
     const comment = new TeamComment(data);

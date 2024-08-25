@@ -9,7 +9,8 @@ INSERT INTO Accounts (
     verified,
     verification,
     created,
-    phoneNumber
+    phoneNumber,
+    customData
 ) VALUES (
     :id,
     :username,
@@ -21,5 +22,6 @@ INSERT INTO Accounts (
     :verified,
     :verification,
     :created,
-    :phoneNumber
+    :phoneNumber,
+    :customData
 )

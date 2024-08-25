@@ -1,4 +1,4 @@
-name: Build
+name: Tsc
 
 on:
   workflow_call:
@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  tsc:
     runs-on: ubuntu-latest
     steps:
       - name: Retrieve git dependencies
@@ -34,5 +34,5 @@ jobs:
         run: |
           echo "Installing dependencies..."
           npm i
-          echo "Building client..."
-          npm run build
+          echo "Testing..."
+          tsc

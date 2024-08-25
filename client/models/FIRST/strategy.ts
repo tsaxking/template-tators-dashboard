@@ -32,29 +32,12 @@ type Updates = {
  * @implements {FIRST}
  */
 export class Strategy extends Cache<StrategyUpdateData> {
-    private static readonly $emitter: EventEmitter<keyof Updates> =
-        new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        Strategy.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        Strategy.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        Strategy.$emitter.emit(event, data);
-    }
+    public static on = Strategy.emitter.on.bind(Strategy.emitter);
+    public static off = Strategy.emitter.off.bind(Strategy.emitter);
+    public static emit = Strategy.emitter.emit.bind(Strategy.emitter);
+    public static once = Strategy.emitter.once.bind(Strategy.emitter);
 
     /**
      * Map of all Strategy objects

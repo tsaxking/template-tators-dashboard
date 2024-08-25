@@ -28,9 +28,8 @@ if (process.argv.includes('--stats')) {
 
 const port = +(env.PORT || 3000);
 
-export const app = new App<{
-    test: string;
-}>(port, env.DOMAIN || `http://localhost:${port}`);
+// add 2 generics to the App class to specify session.customData and account.customData types
+export const app = new App(port, env.DOMAIN || `http://localhost:${port}`);
 
 Session.setDeleteInterval(1000 * 60 * 10); // delete unused sessions every 10 minutes
 

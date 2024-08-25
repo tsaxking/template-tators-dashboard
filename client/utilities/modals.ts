@@ -38,64 +38,7 @@ type EventTypes = {
  * @class Modal
  * @typedef {Modal}
  */
-export class Modal {
-    /**
-     * Event emitter
-     * @date 3/8/2024 - 7:09:49 AM
-     *
-     * @private
-     * @readonly
-     * @type {*}
-     */
-    private readonly em = new EventEmitter<keyof EventTypes>();
-
-    /**
-     * Adds an event listener to the modal
-     * @date 3/8/2024 - 7:09:49 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {(args: EventTypes[K]) => void} listener
-     * @returns {void) => void}
-     */
-    public on<K extends keyof EventTypes>(
-        event: K,
-        listener: (args: EventTypes[K]) => void
-    ) {
-        this.em.on(event, listener);
-    }
-
-    /**
-     * Removes an event listener from the modal
-     * @date 3/8/2024 - 7:09:49 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {(args: EventTypes[K]) => void} listener
-     * @returns {void) => void}
-     */
-    public off<K extends keyof EventTypes>(
-        event: K,
-        listener: (args: EventTypes[K]) => void
-    ) {
-        this.em.off(event, listener);
-    }
-
-    /**
-     * Emits an event from the modal
-     * @date 3/8/2024 - 7:09:49 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {?EventTypes[K]} [args]
-     */
-    public emit<K extends keyof EventTypes>(event: K, args?: EventTypes[K]) {
-        this.em.emit(event, args);
-    }
-
+export class Modal extends EventEmitter<EventTypes> {
     /**
      * Target element
      * @date 3/8/2024 - 7:09:49 AM
@@ -130,6 +73,7 @@ export class Modal {
      * @param {?string} [id]
      */
     constructor(id?: string) {
+        super();
         this.id = id || `modal-${Math.random().toString(36).substr(2, 9)}`;
         this.render();
 
@@ -301,7 +245,7 @@ export class Modal {
      * @public
      */
     public show() {
-        this.emit('show');
+        this.emit('show', undefined);
     }
 
     /**
@@ -311,7 +255,7 @@ export class Modal {
      * @public
      */
     public hide() {
-        this.emit('hide');
+        this.emit('hide', undefined);
     }
 
     /**
@@ -321,7 +265,7 @@ export class Modal {
      * @public
      */
     public destroy() {
-        this.emit('destroy');
+        this.emit('destroy', undefined);
         $(`#${this.id}`).remove();
         $('.modal-backdrop').remove();
     }
@@ -388,7 +332,7 @@ export type Color =
  * @class Toast
  * @typedef {Toast}
  */
-export class Toast {
+export class Toast extends EventEmitter<EventTypes> {
     /**
      * Target element
      * @date 3/8/2024 - 7:09:49 AM
@@ -399,70 +343,13 @@ export class Toast {
     readonly target = document.createElement('div');
 
     /**
-     * Event emitter
-     * @date 3/8/2024 - 7:09:49 AM
-     *
-     * @private
-     * @readonly
-     * @type {*}
-     */
-    private readonly em = new EventEmitter<keyof EventTypes>();
-
-    /**
-     * Adds an event listener to the toast
-     * @date 3/8/2024 - 7:09:49 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {(args: EventTypes[K]) => void} listener
-     * @returns {void) => void}
-     */
-    public on<K extends keyof EventTypes>(
-        event: K,
-        listener: (args: EventTypes[K]) => void
-    ) {
-        this.em.on(event, listener);
-    }
-
-    /**
-     * Removes an event listener from the toast
-     * @date 3/8/2024 - 7:09:49 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {(args: EventTypes[K]) => void} listener
-     * @returns {void) => void}
-     */
-    public off<K extends keyof EventTypes>(
-        event: K,
-        listener: (args: EventTypes[K]) => void
-    ) {
-        this.em.off(event, listener);
-    }
-
-    /**
-     * Emits an event from the toast
-     * @date 3/8/2024 - 7:09:49 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {?EventTypes[K]} [args]
-     */
-    public emit<K extends keyof EventTypes>(event: K, args?: EventTypes[K]) {
-        this.em.emit(event, args);
-    }
-
-    /**
      * Toast title
      * @date 3/8/2024 - 7:09:49 AM
      *
      * @private
      * @type {string}
      */
-    private $title: string;
+    private __title: string;
     /**
      * Toast body
      * @date 3/8/2024 - 7:09:49 AM
@@ -470,7 +357,7 @@ export class Toast {
      * @private
      * @type {string}
      */
-    private $body: string;
+    private __body: string;
     /**
      * Toast color
      * @date 3/8/2024 - 7:09:49 AM
@@ -478,7 +365,7 @@ export class Toast {
      * @private
      * @type {Color}
      */
-    private $color: Color;
+    private __color: Color;
 
     /**
      * Creates an instance of Toast.
@@ -490,6 +377,7 @@ export class Toast {
      * @param {Color} [color='success']
      */
     constructor(title: string, body: string, color: Color = 'success') {
+        super();
         this.on('show', () => {
             $(this.target).toast('show');
         });
@@ -497,9 +385,9 @@ export class Toast {
         this.target.classList.add('notification');
 
         container.appendChild(this.target);
-        this.$title = title;
-        this.$body = body;
-        this.$color = color;
+        this.__title = title;
+        this.__body = body;
+        this.__color = color;
         this.render();
     }
 
@@ -510,7 +398,7 @@ export class Toast {
      * @type {string}
      */
     set title(title: string) {
-        this.$title = title;
+        this.__title = title;
         this.target.querySelector('strong')!.textContent = title;
     }
 
@@ -521,7 +409,7 @@ export class Toast {
      * @type {string}
      */
     get title() {
-        return this.$title;
+        return this.__title;
     }
 
     /**
@@ -531,7 +419,7 @@ export class Toast {
      * @type {string}
      */
     set body(body: string) {
-        this.$body = body;
+        this.__body = body;
         this.target.querySelector('toast-body')!.textContent = body;
     }
 
@@ -542,7 +430,7 @@ export class Toast {
      * @type {string}
      */
     get body() {
-        return this.$body;
+        return this.__body;
     }
 
     /**
@@ -565,7 +453,7 @@ export class Toast {
         this.target
             .querySelector('toast-body')
             ?.classList.remove(`text-${this.textColor}`);
-        this.$color = color;
+        this.__color = color;
         this.target
             .querySelector('toast-body')
             ?.classList.add(`text-${this.textColor}`);
@@ -578,7 +466,7 @@ export class Toast {
      * @type {Color}
      */
     get color() {
-        return this.$color;
+        return this.__color;
     }
 
     /**
@@ -589,7 +477,7 @@ export class Toast {
      * @type {('light' | 'dark')}
      */
     get textColor(): 'light' | 'dark' {
-        switch (this.$color) {
+        switch (this.__color) {
             case 'danger':
             case 'primary':
             case 'success':
@@ -630,7 +518,7 @@ export class Toast {
 
         const strong = document.createElement('strong');
         strong.classList.add('me-auto');
-        strong.textContent = this.$title;
+        strong.textContent = this.__title;
 
         const time = document.createElement('small');
         time.textContent = 'Just now';
@@ -664,10 +552,10 @@ export class Toast {
         const body = document.createElement('div');
         body.classList.add(
             'toast-body',
-            `bg-${this.$color}`,
+            `bg-${this.__color}`,
             `text-${this.textColor}`
         );
-        body.textContent = this.$body;
+        body.textContent = this.__body;
 
         header.appendChild(strong);
         header.appendChild(time);
@@ -685,7 +573,7 @@ export class Toast {
      * @date 3/8/2024 - 7:09:49 AM
      */
     show() {
-        this.emit('show');
+        this.emit('show', undefined);
     }
 
     /**
@@ -693,7 +581,7 @@ export class Toast {
      * @date 3/8/2024 - 7:09:49 AM
      */
     hide() {
-        this.emit('hide');
+        this.emit('hide', undefined);
     }
 
     /**
@@ -701,7 +589,7 @@ export class Toast {
      * @date 3/8/2024 - 7:09:49 AM
      */
     destroy() {
-        this.emit('destroy');
+        this.emit('destroy', undefined);
     }
 }
 
@@ -713,7 +601,7 @@ export class Toast {
  * @class Alert
  * @typedef {Alert}
  */
-export class Alert {
+export class Alert extends EventEmitter<EventTypes> {
     /**
      * Target element
      * @date 3/8/2024 - 7:09:48 AM
@@ -722,63 +610,6 @@ export class Alert {
      * @type {*}
      */
     readonly target = document.createElement('div');
-
-    /**
-     * Event emitter
-     * @date 3/8/2024 - 7:09:48 AM
-     *
-     * @private
-     * @readonly
-     * @type {*}
-     */
-    private readonly em = new EventEmitter<keyof EventTypes>();
-
-    /**
-     * Adds an event listener to the alert
-     * @date 3/8/2024 - 7:09:48 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {(args: EventTypes[K]) => void} listener
-     * @returns {void) => void}
-     */
-    public on<K extends keyof EventTypes>(
-        event: K,
-        listener: (args: EventTypes[K]) => void
-    ) {
-        this.em.on(event, listener);
-    }
-
-    /**
-     * Removes an event listener from the alert
-     * @date 3/8/2024 - 7:09:48 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {(args: EventTypes[K]) => void} listener
-     * @returns {void) => void}
-     */
-    public off<K extends keyof EventTypes>(
-        event: K,
-        listener: (args: EventTypes[K]) => void
-    ) {
-        this.em.off(event, listener);
-    }
-
-    /**
-     * Emits an event from the alert
-     * @date 3/8/2024 - 7:09:48 AM
-     *
-     * @public
-     * @template {keyof EventTypes} K
-     * @param {K} event
-     * @param {?EventTypes[K]} [args]
-     */
-    public emit<K extends keyof EventTypes>(event: K, args?: EventTypes[K]) {
-        this.em.emit(event, args);
-    }
 
     /**
      * Alert title
@@ -815,6 +646,7 @@ export class Alert {
      * @param {Color} [color='success']
      */
     constructor(title: string, message: string, color: Color = 'success') {
+        super();
         this.on('show', () => {
             $(this.target).alert();
         });
@@ -873,7 +705,7 @@ export class Alert {
      * @date 3/8/2024 - 7:09:48 AM
      */
     show() {
-        this.emit('show');
+        this.emit('show', undefined);
     }
 
     /**
@@ -881,6 +713,6 @@ export class Alert {
      * @date 3/8/2024 - 7:09:48 AM
      */
     hide() {
-        this.emit('hide');
+        this.emit('hide', undefined);
     }
 }
