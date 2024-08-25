@@ -1,119 +1,75 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/**
- * Callback for event listeners
- * @date 10/12/2023 - 1:46:22 PM
- *
- * @typedef {ListenerCallback}
- */
-type ListenerCallback = (...args: any[]) => void;
+type Listener<T = unknown> = (data: T) => void;
 
-/**
- * Event emitter object, this is used to emit events and listen for events
- * To typesafe the events, use the generic parameter
- * To typesafe callback parameters, it is recommended to either use inheritance of composition
- * @date 10/12/2023 - 1:46:22 PM
- *
- * @export
- * @class EventEmitter
- * @typedef {EventEmitter}
- * @template [allowedEvents=(string | number | '*')]
- */
-export class EventEmitter<allowedEvents = string | number | '*'> {
-    /**
-     * All events and their listeners as a map
-     * @date 10/12/2023 - 1:46:22 PM
-     *
-     * @public
-     * @readonly
-     * @type {Map<allowedEvents, ListenerCallback[]>}
-     */
-    public readonly events = new Map<allowedEvents, ListenerCallback[]>();
+class EM {
+    public readonly events = new Map<string, Listener<unknown>[]>();
 
-    /**
-     * Adds a listener for the given event
-     * @date 10/12/2023 - 1:46:22 PM
-     *
-     * @param {allowedEvents} event
-     * @param {ListenerCallback} callback
-     */
-    on(event: allowedEvents, callback: ListenerCallback) {
-        if (typeof event !== 'string' && typeof event !== 'number') {
-            throw new Error('Event must be a string');
-        }
-        if (!this.events.has(event)) {
-            this.events.set(event, []);
-        }
+    destroyEvents() {
+        this.events.clear();
+    }
+}
 
-        this.events.get(event)?.push(callback);
+export class SimpleEventEmitter<E extends string> extends EM {
+    constructor() {
+        super();
     }
 
-    /**
-     * Emits an event with the given arguments
-     * @date 10/12/2023 - 1:46:22 PM
-     *
-     * @param {allowedEvents} event
-     * @param {...unknown[]} args
-     */
-    emit(event: allowedEvents, ...args: unknown[]) {
-        if (typeof event !== 'string' && typeof event !== 'number') {
-            throw new Error('Event must be a string');
-        }
-        if (!this.events.has(event)) {
-            return;
-        }
-
-        this.events.get(event)?.forEach(callback => callback(...args));
-        this.events
-            .get('*' as allowedEvents)
-            ?.forEach(callback => callback(...args));
+    on(event: E, listener: (...data: unknown[]) => void): void {
+        const listeners = this.events.get(event) || [];
+        listeners.push(listener);
+        this.events.set(event, listeners);
     }
 
-    /**
-     * Removes a listener for the given event
-     * @date 10/12/2023 - 1:46:22 PM
-     *
-     * @param {allowedEvents} event
-     * @param {?ListenerCallback} [callback]
-     */
-    off(event: allowedEvents, callback?: ListenerCallback) {
-        if (typeof event !== 'string' && typeof event !== 'number') {
-            throw new Error('Event must be a string');
-        }
-        if (!this.events.has(event)) {
-            return;
-        }
-
-        if (callback) {
-            this.events.set(
-                event,
-                this.events.get(event)?.filter(cb => cb !== callback) ?? []
-            );
-        } else {
-            this.events.set(event, []);
+    off(event: E, listener: (...data: unknown[]) => void): void {
+        const listeners = this.events.get(event) || [];
+        const index = listeners.indexOf(listener);
+        if (index !== -1) {
+            listeners.splice(index, 1);
         }
     }
 
-    /**
-     * Adds a listener for the given event, but removes it after it has been called once
-     * @param event
-     * @param callback
-     */
-    once(event: allowedEvents, callback: ListenerCallback) {
-        const onceCallback = (...args: unknown[]) => {
-            callback(...args);
-            this.off(event, onceCallback);
+    emit(event: E, ...data: unknown[]): void {
+        const listeners = this.events.get(event) || [];
+        listeners.forEach(listener => listener(data));
+    }
+
+    once(event: E, listener: (...data: unknown[]) => void): void {
+        const onceListener = (...data: unknown[]) => {
+            listener(...data);
+            this.off(event, onceListener);
         };
+        this.on(event, onceListener);
+    }
+}
 
-        this.on(event, onceCallback);
+export class EventEmitter<E extends Record<string, unknown>> extends EM {
+    constructor() {
+        super();
     }
 
-    /**
-     * Removes all listeners for all events
-     * @date 10/12/2023 - 1:46:22 PM
-     */
-    destroy() {
-        for (const event of Object.keys(this.events)) {
-            this.off(event as allowedEvents);
+    on<K extends keyof E>(event: K, listener: Listener<E[K]>): void {
+        const listeners = this.events.get(event as string) || [];
+        listeners.push(listener as Listener<unknown>);
+        this.events.set(event as string, listeners);
+    }
+
+    off<K extends keyof E>(event: K, listener: Listener<E[K]>): void {
+        const listeners = this.events.get(event as string) || [];
+        const index = listeners.indexOf(listener as Listener<unknown>);
+        if (index !== -1) {
+            listeners.splice(index, 1);
         }
+    }
+
+    emit<K extends keyof E>(event: K, data: E[K]): void {
+        const listeners = this.events.get(event as string) || [];
+        listeners.forEach(listener => listener(data));
+    }
+
+    once<K extends keyof E>(event: K, listener: (data: E[K]) => void): void {
+        const onceListener = (data: E[K]) => {
+            listener(data);
+            this.off(event, onceListener);
+        };
+        this.on(event, onceListener);
     }
 }

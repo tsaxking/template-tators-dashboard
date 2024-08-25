@@ -24,7 +24,7 @@ router.post<{
         type: 'string'
     }),
     (req, res) => {
-        const time = Date.now();
+        const time = Date.now().toString();
         const id = uuid();
         const { accountId } = req.session;
         const { teamNumber, eventKey, comment, type } = req.body;

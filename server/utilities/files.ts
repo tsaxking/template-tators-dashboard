@@ -33,7 +33,7 @@ export type FileError = 'NoFile' | 'FileExists' | 'NoAccess' | 'Unknown';
  * @returns {JSONError}
  */
 const matchJSONError = (e: Error): JSONError => {
-    console.log(e);
+    // console.log(e);
     return (
         matchInstance<Error, JSONError>(
             e,
@@ -51,7 +51,7 @@ const matchJSONError = (e: Error): JSONError => {
  * @returns {FileError}
  */
 const matchFileError = (e: Error): FileError => {
-    console.log(e);
+    // console.log(e);
     return (
         matchInstance<Error, FileError>(
             e,

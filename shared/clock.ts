@@ -99,7 +99,6 @@ type D = Date | number | string;
  */
 export const dateString = (format: string) => {
     return (date: D = new Date()) => {
-        const input = date;
         if (typeof date === 'string') {
             if (isNaN(Number(date))) {
                 date = new Date(date);

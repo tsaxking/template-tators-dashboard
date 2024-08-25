@@ -57,10 +57,6 @@ type IsValid =
  * @type {EM}
  */
 export const emitter = (() => {
-    type Updates = {
-        fail: [string, unknown, IsValid]; // key, value, desired
-    };
-
     type Reason =
         | 'invalid-primitive-array'
         | 'invalid-normal-array'
@@ -68,36 +64,24 @@ export const emitter = (() => {
         | 'invalid-primitive'
         | 'missing-key';
 
-    class DataValidationFaliure<T extends keyof Updates> {
+    class DataValidationFaliure<T> {
         constructor(
             public readonly type: T,
-            public readonly data: Updates[T],
+            public readonly data: [string, unknown, IsValid],
             public readonly url: string,
             public readonly method: string,
             public readonly reason: Reason
         ) {}
     }
 
-    class EM {
-        private readonly emitter = new EventEmitter<keyof Updates>();
+    type Events = {
+        fail: DataValidationFaliure<'fail'>;
+    };
 
-        on<K extends keyof Updates>(
+    class EM extends EventEmitter<Events> {
+        throw<K extends keyof Events>(
             event: K,
-            callback: (data: DataValidationFaliure<K>) => void
-        ): void {
-            this.emitter.on(event, callback);
-        }
-
-        off<K extends keyof Updates>(
-            event: K,
-            callback?: (data: DataValidationFaliure<K>) => void
-        ): void {
-            this.emitter.off(event, callback);
-        }
-
-        emit<K extends keyof Updates>(
-            event: K,
-            data: Updates[K],
+            data: Events[K]['data'],
             req: Req,
             reason: Reason
         ): void {
@@ -108,7 +92,7 @@ export const emitter = (() => {
                 req.method,
                 reason
             );
-            this.emitter.emit(event, e);
+            super.emit(event, e);
         }
     }
 
@@ -146,7 +130,7 @@ export const validate = <type = unknown>(
             if (!body || (body as any)[key] === undefined) {
                 passed = false;
                 missing.push(key);
-                emitter.emit(
+                emitter.throw(
                     'fail',
                     [key, (body as any)[key], isValid as IsValid],
                     req,
@@ -177,7 +161,7 @@ export const validate = <type = unknown>(
                         // invalid, not a primitive
                         passed = false;
                         failed.push(key);
-                        emitter.emit(
+                        emitter.throw(
                             'fail',
                             [key, (body as any)[key], isValid as IsValid],
                             req,
@@ -196,7 +180,7 @@ export const validate = <type = unknown>(
                         // invalid
                         passed = false;
                         failed.push(key);
-                        emitter.emit(
+                        emitter.throw(
                             'fail',
                             [key, (body as any)[key], isValid as IsValid],
                             req,
@@ -219,7 +203,7 @@ export const validate = <type = unknown>(
                         // invalid, not a primitive
                         passed = false;
                         failed.push(key);
-                        emitter.emit(
+                        emitter.throw(
                             'fail',
                             [key, (body as any)[key], isValid as IsValid],
                             req,
@@ -239,7 +223,7 @@ export const validate = <type = unknown>(
                         log('invalid non-primitive');
                         passed = false;
                         failed.push(key);
-                        emitter.emit(
+                        emitter.throw(
                             'fail',
                             [key, (body as any)[key], isValid as IsValid],
                             req,

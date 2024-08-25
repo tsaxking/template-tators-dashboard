@@ -1,5 +1,5 @@
-import { runTest } from './full';
+import { runTest } from './e2e';
 
 // put your tests here
 
-runTest('/test/spline-viewer', 'GET', null);
+runTest('/test/spline-viewer', 'GET', undefined);

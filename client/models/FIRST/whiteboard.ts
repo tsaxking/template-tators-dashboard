@@ -28,26 +28,18 @@ type Updates = {
  * @implements {FIRST}
  */
 export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
-    private static readonly $emitter: EventEmitter<keyof Updates> =
-        new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        WhiteboardCache.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: any) => void
-    ): void {
-        WhiteboardCache.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(event: K, data: any): void {
-        WhiteboardCache.$emitter.emit(event, data);
-    }
+    public static on = WhiteboardCache.emitter.on.bind(WhiteboardCache.emitter);
+    public static off = WhiteboardCache.emitter.off.bind(
+        WhiteboardCache.emitter
+    );
+    public static emit = WhiteboardCache.emitter.emit.bind(
+        WhiteboardCache.emitter
+    );
+    public static once = WhiteboardCache.emitter.once.bind(
+        WhiteboardCache.emitter
+    );
 
     public static current?: WhiteboardCache = undefined;
 

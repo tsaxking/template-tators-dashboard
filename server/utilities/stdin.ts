@@ -1,4 +1,4 @@
-import { EventEmitter } from '../../shared/event-emitter';
+import { SimpleEventEmitter } from '../../shared/event-emitter';
 
 /**
  * Emits data from the stdin (on enter)
@@ -6,7 +6,7 @@ import { EventEmitter } from '../../shared/event-emitter';
  *
  * @type {*}
  */
-export const stdin = new EventEmitter();
+export const stdin = new SimpleEventEmitter();
 
 // {
 // in its own scope to avoid polluting the global scope

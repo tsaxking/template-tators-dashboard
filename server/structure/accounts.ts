@@ -5,10 +5,8 @@ import { Status } from '../utilities/status';
 import { Email, EmailOptions, EmailType } from '../utilities/email';
 import Filter from 'bad-words';
 import { Member } from './member';
-import {
-    Account as AccountObject,
-    AccountSettings
-} from '../../shared/db-types';
+import { AccountSettings } from '../../shared/db-types';
+import { Accounts as AccountObject } from '../utilities/tables';
 import env from '../utilities/env';
 import { removeUpload } from '../utilities/files';
 import { Next, ServerFunction } from './app/app';
@@ -56,7 +54,9 @@ type DiscordLink = {
  * @class Account
  * @typedef {Account}
  */
-export default class Account {
+export default class Account<
+    CustomData extends Record<string, unknown> = Record<string, unknown>
+> {
     /**
      * Creates a middleware function ensuring that id or username is in the req.body
      * @date 1/9/2024 - 12:53:20 PM
@@ -150,12 +150,14 @@ export default class Account {
      * @param {string} id
      * @returns {(Account|null)}
      */
-    static async fromId(id: string): Promise<Account | undefined> {
+    static async fromId<AccountCustomData extends Record<string, unknown>>(
+        id: string
+    ): Promise<Account<AccountCustomData> | undefined> {
         const res = await DB.get('account/from-id', {
             id
         });
         if (res.isOk()) {
-            if (res.value) return new Account(res.value);
+            if (res.value) return new Account<AccountCustomData>(res.value);
             else return undefined;
         }
         return undefined;
@@ -169,7 +171,9 @@ export default class Account {
      * @param {string} username
      * @returns {(Account|null)}
      */
-    static async fromUsername(username: string): Promise<Account | undefined> {
+    static async fromUsername<
+        AccountCustomData extends Record<string, unknown>
+    >(username: string): Promise<Account<AccountCustomData> | undefined> {
         const res = await DB.get('account/from-username', {
             username: username.toLowerCase()
         });
@@ -187,7 +191,9 @@ export default class Account {
      * @param {string} email
      * @returns {(Account|null)}
      */
-    static async fromEmail(email: string): Promise<Account | undefined> {
+    static async fromEmail<AccountCustomData extends Record<string, unknown>>(
+        email: string
+    ): Promise<Account<AccountCustomData> | undefined> {
         const res = await DB.get('account/from-email', {
             email: email.toLowerCase()
         });
@@ -204,14 +210,14 @@ export default class Account {
      * @param {string} key
      * @returns {(Account|null)}
      */
-    static async fromVerificationKey(
-        key: string
-    ): Promise<Account | undefined> {
+    static async fromVerificationKey<
+        AccountCustomData extends Record<string, unknown>
+    >(key: string): Promise<Account<AccountCustomData> | undefined> {
         const res = await DB.get('account/from-verification-key', {
             verification: key
         });
         if (res.isOk()) {
-            if (res.value) return new Account(res.value);
+            if (res.value) return new Account<AccountCustomData>(res.value);
         }
     }
 
@@ -223,9 +229,9 @@ export default class Account {
      * @param {string} key
      * @returns {(Account|null)}
      */
-    static async fromPasswordChangeKey(
-        key: string
-    ): Promise<Account | undefined> {
+    static async fromPasswordChangeKey<
+        AccountCustomData extends Record<string, unknown>
+    >(key: string): Promise<Account<AccountCustomData> | undefined> {
         const res = await DB.get('account/from-password-change', {
             passwordChange: key
         });
@@ -315,7 +321,9 @@ export default class Account {
      * @static
      * @returns {Account[]}
      */
-    static async getAll(): Promise<Account[]> {
+    static async getAll<
+        AccountCustomData extends Record<string, unknown>
+    >(): Promise<Account<AccountCustomData>[]> {
         const res = await DB.all('account/all');
         if (res.isOk()) {
             return res.value.map((a: AccountObject) => new Account(a));
@@ -568,7 +576,8 @@ export default class Account {
             verified: 0,
             verification,
             created,
-            phoneNumber: ''
+            phoneNumber: '',
+            customData: '{}'
         });
 
         const a = new Account({
@@ -582,7 +591,13 @@ export default class Account {
             verified: 0,
             verification,
             created,
-            phoneNumber: ''
+            phoneNumber: '',
+            customData: '{}',
+            passwordChange: undefined,
+            picture: undefined,
+            passwordChangeDate: undefined,
+            emailChange: undefined,
+            discordId: undefined
         });
 
         // We don't want to send verification with these
@@ -617,6 +632,7 @@ export default class Account {
      * @type {string}
      */
     readonly id: string;
+    readonly created: number;
     /**
      * Username of the account
      * @date 1/9/2024 - 12:53:19 PM
@@ -665,7 +681,7 @@ export default class Account {
      *
      * @type {?(string|null)}
      */
-    passwordChange?: string | null;
+    passwordChange?: string | undefined;
     /**
      * Discord link of the account
      * @date 1/9/2024 - 12:53:19 PM
@@ -709,6 +725,16 @@ export default class Account {
     } | null;
 
     /**
+     * Custom data of the account
+     * @date 1/9/2024 - 12:53:19 PM
+     *
+     * @type {CustomData}
+     */
+    customData: CustomData;
+    phoneNumber: string | undefined;
+    passwordChangeDate: number | undefined;
+
+    /**
      * Creates an instance of Account.
      * @date 1/9/2024 - 12:53:19 PM
      *
@@ -724,9 +750,13 @@ export default class Account {
         this.lastName = obj.lastName;
         this.email = obj.email;
         this.passwordChange = obj.passwordChange;
+        this.passwordChangeDate = obj.passwordChangeDate;
         this.picture = obj.picture;
         this.verified = obj.verified;
         this.verification = obj.verification;
+        this.customData = JSON.parse(obj.customData) as CustomData;
+        this.created = obj.created;
+        this.phoneNumber = obj.phoneNumber;
 
         if (obj.emailChange) {
             this.emailChange = JSON.parse(obj.emailChange) as {
@@ -1167,7 +1197,7 @@ export default class Account {
         });
         this.key = newKey;
         this.salt = salt;
-        this.passwordChange = null;
+        this.passwordChange = undefined;
 
         return 'password-reset-success';
     }
@@ -1234,6 +1264,30 @@ export default class Account {
                 accountId: this.id,
                 settings: str
             });
+        });
+    }
+
+    public update(
+        data: Partial<Omit<AccountObject, 'id' | 'created'>> & {
+            customData?: CustomData;
+        }
+    ) {
+        return DB.run('account/update', {
+            id: this.id,
+            username: data.username || this.username,
+            key: data.key || this.key,
+            salt: data.salt || this.salt,
+            firstName: data.firstName || this.firstName,
+            lastName: data.lastName || this.lastName,
+            email: data.email || this.email,
+            passwordChange: data.passwordChange || this.passwordChange,
+            picture: data.picture || this.picture,
+            verified: data.verified || this.verified,
+            verification: data.verification || this.verification,
+            passwordChangeDate:
+                data.passwordChangeDate || this.passwordChangeDate,
+            phoneNumber: data.phoneNumber || this.phoneNumber,
+            customData: JSON.stringify(data.customData || this.customData)
         });
     }
 }

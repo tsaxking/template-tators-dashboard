@@ -25,31 +25,15 @@ type SectionUpdates = {
 
 // pitscouting/prescouting/mechanical/programming/electrical/strategical etc.
 export class Section extends Cache<SectionUpdates> {
-    private static readonly $emitter = new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        Section.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        Section.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        Section.$emitter.emit(event, data);
-    }
+    public static on = Section.emitter.on.bind(Section.emitter);
+    public static off = Section.emitter.off.bind(Section.emitter);
+    public static emit = Section.emitter.emit.bind(Section.emitter);
+    public static once = Section.emitter.once.bind(Section.emitter);
 
     static async all(): Promise<Section[]> {
-        const cache = Array.from(Section.$cache.values());
+        const cache = Array.from(Section.cache.values());
         if (cache.length) return cache;
 
         const res = await ServerRequest.post<ScoutingSection[]>(
@@ -63,7 +47,7 @@ export class Section extends Cache<SectionUpdates> {
         return [];
     }
 
-    public static readonly $cache = new Map<string, Section>();
+    public static readonly cache = new Map<string, Section>();
 
     public static async new(data: {
         name: string;
@@ -86,8 +70,8 @@ export class Section extends Cache<SectionUpdates> {
         id: string
     ): Promise<Result<Section | undefined>> {
         return attemptAsync(async () => {
-            if (Section.$cache.has(id)) {
-                return Section.$cache.get(id) as Section;
+            if (Section.cache.has(id)) {
+                return Section.cache.get(id) as Section;
             }
 
             const res = await ServerRequest.post<ScoutingSection | undefined>(
@@ -120,17 +104,17 @@ export class Section extends Cache<SectionUpdates> {
         this.dateAdded = data.dateAdded;
         this.accountId = data.accountId;
 
-        if (Section.$cache.has(data.id)) {
-            Section.$cache.get(data.id)?.destroy();
+        if (Section.cache.has(data.id)) {
+            Section.cache.get(data.id)?.destroy();
         }
 
-        Section.$cache.set(data.id, this);
+        Section.cache.set(data.id, this);
     }
 
     public async getGroups(event: FIRSTEvent): Promise<Result<Group[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has(`${event.tba.key}-groups`)) {
-                const groups = this.$cache.get(
+            if (this.cache.has(`${event.tba.key}-groups`)) {
+                const groups = this.cache.get(
                     `${event.tba.key}-groups`
                 ) as Group[];
                 if (groups.length) return groups;
@@ -152,7 +136,7 @@ export class Section extends Cache<SectionUpdates> {
                     });
                     return group;
                 });
-                this.$cache.set('groups', groups);
+                this.cache.set('groups', groups);
                 return groups;
             }
 
@@ -195,11 +179,11 @@ export class Section extends Cache<SectionUpdates> {
 
     removeGroup(id: string) {
         return attemptAsync(async () => {
-            const group = Group.$cache.get(id);
+            const group = Group.cache.get(id);
             if (!group) throw new Error('Group not found');
             const res = await group.delete();
             if (res.isOk()) {
-                Group.$cache.delete(id);
+                Group.cache.delete(id);
                 group.destroy();
                 return;
             } else throw res.error;
@@ -226,7 +210,7 @@ socket.on('scouting-question:new-section', (data: ScoutingSection) => {
 });
 
 socket.on('scouting-question:update-section', (data: ScoutingSection) => {
-    const s = Section.$cache.get(data.id);
+    const s = Section.cache.get(data.id);
     if (!s) return;
 
     s.$name = data.name;
@@ -238,21 +222,21 @@ socket.on('scouting-question:update-section', (data: ScoutingSection) => {
 
 socket.on('scouting-question:new-group', (data: ScoutingQuestionGroup) => {
     const g = new Group(data);
-    const s = Section.$cache.get(data.section);
+    const s = Section.cache.get(data.section);
     if (!s) return;
     s.emit('new-group', g);
 
-    const groups = s.$cache.get('groups') as Group[] | undefined;
-    if (!groups) return s.$cache.set('groups', [g]);
+    const groups = s.cache.get('groups') as Group[] | undefined;
+    if (!groups) return s.cache.set('groups', [g]);
 
     groups.push(g);
 });
 
 socket.on('scouting-question:section-deleted', (id: string) => {
-    const s = Section.$cache.get(id);
+    const s = Section.cache.get(id);
     if (!s) return;
 
-    Section.$cache.delete(id);
+    Section.cache.delete(id);
     s.destroy();
     Section.emit('delete', id);
 });

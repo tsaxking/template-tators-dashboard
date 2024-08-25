@@ -129,6 +129,6 @@ export class FieldBoard extends Whiteboard {
             }
         };
 
-        this.canvas.$ctx.canvas.addEventListener('click', click);
+        this.canvas.ctx.canvas.addEventListener('click', click);
     }
 }
