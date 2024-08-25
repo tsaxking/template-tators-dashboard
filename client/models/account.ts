@@ -109,8 +109,8 @@ export class Account extends Cache<AccountEvents> {
         for (let i = 0; i < ids.length; i++) {
             const id = ids[i];
             if (!id) continue;
-            if (Account.$cache.has(id) || Account.requested.includes(id)) {
-                output[i] = Account.$cache.get(id);
+            if (Account.cache.has(id) || Account.requested.includes(id)) {
+                output[i] = Account.cache.get(id);
             } else {
                 toRequest.add(id);
             }

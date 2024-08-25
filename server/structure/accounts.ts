@@ -596,7 +596,8 @@ export default class Account<
             passwordChange: undefined,
             picture: undefined,
             passwordChangeDate: undefined,
-            emailChange: undefined
+            emailChange: undefined,
+            discordId: undefined
         });
 
         // We don't want to send verification with these
