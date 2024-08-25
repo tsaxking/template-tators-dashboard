@@ -40,6 +40,8 @@ const accountLinks: string[] = [
     // 'contact',
     // null
 ];
+
+let loading = false;
 </script>
 
 <Main
@@ -50,7 +52,11 @@ const accountLinks: string[] = [
     {navItems}
     {accountLinks}
 >
-    <Page {active} {domain} title="dashboard"><Dashboard></Dashboard></Page>
-    <Page {active} {domain} title="accounts"><Accounts></Accounts></Page>
-    <Page {active} {domain} title="roles"><Roles></Roles></Page>
+    <Page {active} {domain} bind:loading title="dashboard"
+        ><Dashboard></Dashboard></Page
+    >
+    <Page {active} {domain} bind:loading title="accounts"
+        ><Accounts></Accounts></Page
+    >
+    <Page {active} {domain} bind:loading title="roles"><Roles></Roles></Page>
 </Main>

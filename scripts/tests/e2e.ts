@@ -41,26 +41,30 @@ const saveEnv = (envPath: string, env: Env) => {
     fs.writeFileSync(envPath, envStr);
 };
 
-const buildDatabase = () => {
-    return new Promise<void>((res, rej) => {
-        setTimeout(() => {
-            rej('Database took too long to build');
-        }, 10000);
+const buildDatabase = () =>
+    attemptAsync(() => {
+        return new Promise<void>((res, rej) => {
+            setTimeout(
+                () => {
+                    rej('Database took too long to build');
+                },
+                1000 * 60 * 5
+            );
 
-        const pcs = spawn('sh', ['./db-init.sh'], {
-            stdio: 'inherit',
-            cwd: path.resolve(__dirname, '..')
-        });
+            const pcs = spawn('sh', ['./db-init.sh'], {
+                stdio: 'inherit',
+                cwd: path.resolve(__dirname, '../')
+            });
 
-        pcs.on('exit', code => {
-            if (code === 0) {
-                res();
-            } else {
-                rej(code);
-            }
+            pcs.on('exit', code => {
+                if (code === 0) {
+                    res();
+                } else {
+                    rej(code);
+                }
+            });
         });
     });
-};
 
 const resetDB = (env: Env) => {
     const emitter = new EventEmitter<'error' | 'stop' | 'done'>();
@@ -132,21 +136,37 @@ class Server {
 
 type Test = {
     url: string;
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+    method: Method;
     body: unknown;
+    expect?: (response: unknown) => boolean | Promise<boolean>;
 };
 
 const tests: Test[] = [];
 
-export const runTest = (
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+export const runTest = <T extends Method>(
     url: string,
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-    body: unknown
+    method: Method,
+    body?: unknown
 ) => {
     tests.push({ url, method, body });
 };
 
 import './server-tests';
+import { attemptAsync } from '../../shared/check';
+
+const request = async (url: string, method: Method, body: unknown) => {
+    return attemptAsync(async () => {
+        const res = await axios<unknown>({
+            method,
+            url,
+            data: body
+        });
+
+        return res;
+    });
+};
 
 const main = async () => {
     const server = new Server();
@@ -181,7 +201,13 @@ const main = async () => {
 
     saveEnv(path.resolve(__dirname, '../../.env'), env);
 
-    await buildDatabase();
+    log('Building database...');
+    const dbRes = await buildDatabase();
+    if (dbRes.isErr()) {
+        err(dbRes.error);
+        process.exit(1);
+    }
+    log('Database built successfully');
 
     const em = resetDB(env);
     em.on('error', () => {
@@ -189,28 +215,42 @@ const main = async () => {
     });
 
     log('Building client');
-    await bundle(false);
+    const res = await bundle();
+    if (res.isErr()) {
+        err(res.error);
+        process.exit(1);
+    }
+
+    log('Client built successfully');
 
     log('Starting server');
     await server.start();
 
-    // run tests
-    for (let i = 0; i < tests.length; i++) {
-        const { url, method, body } = tests[i];
-        const str = `${Colors.BgGreen}Test ${i + 1}: ${method} ${url}${Colors.Reset}`;
+    await Promise.all(
+        tests.map(async (t, i) => {
+            const { url, method, body, expect } = t;
+            const okStr = `${Colors.BgGreen}Test ${i + 1}: ${method} ${url}${Colors.Reset}`;
+            const errStr = `${Colors.BgRed}Test ${i + 1}: ${method} ${url}${Colors.Reset}`;
 
-        try {
-            const res = await axios({
-                method,
-                url: env.DOMAIN + url,
-                data: body
-            });
+            try {
+                const res = await (
+                    await request(env.DOMAIN + url, method, body)
+                ).unwrap();
 
-            log(str, res.status, res.statusText);
-        } catch (e) {
-            err(str, e);
-        }
-    }
+                if (expect) {
+                    if (!(await expect(res.data))) {
+                        throw new Error(
+                            'Test failed, expected value not returned'
+                        );
+                    }
+                }
+
+                log(okStr, res.status, res.statusText);
+            } catch (e) {
+                err(errStr, e);
+            }
+        })
+    );
 
     process.exit(0);
 };

@@ -50,15 +50,6 @@ export const addEntry = (name: string, importFile?: string) => {
     );
 
     const imports = `import '${unify(importsRelative)}';
-import { build } from '${unify(
-        relative(dir, resolve(__root, 'client', 'utilities', 'socket'))
-    )};
-
-build({
-    interval: 1000,
-    type: 'adaptive',
-    timeLimit: 1000 * 60 * 5, // 5 minutes
-});
 ${
     importFile
         ? `import App from '${unify(
