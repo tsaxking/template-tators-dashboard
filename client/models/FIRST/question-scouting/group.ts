@@ -26,7 +26,12 @@ type GroupUpdates = {
 
 // used to organize questions into separate groups
 export class Group extends Cache<GroupUpdates> {
-    private static readonly $emitter = new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
+
+    public static on = Group.emitter.on.bind(Group.emitter);
+    public static off = Group.emitter.off.bind(Group.emitter);
+    public static emit = Group.emitter.emit.bind(Group.emitter);
+    public static once = Group.emitter.once.bind(Group.emitter);
 
     static readonly colorOrder: BootstrapColor[] = [
         'primary',
@@ -37,29 +42,7 @@ export class Group extends Cache<GroupUpdates> {
         'grape',
         'cyan'
     ];
-
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        Group.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        Group.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        Group.$emitter.emit(event, data);
-    }
-
-    public static readonly $cache = new Map<string, Group>();
+    public static readonly cache = new Map<string, Group>();
 
     public static new(data: {
         name: string;
@@ -82,7 +65,7 @@ export class Group extends Cache<GroupUpdates> {
 
     public static async fromId(id: string): Promise<Result<Group | undefined>> {
         return attemptAsync(async () => {
-            if (Group.$cache.has(id)) return Group.$cache.get(id) as Group;
+            if (Group.cache.has(id)) return Group.cache.get(id) as Group;
 
             const res = await ServerRequest.post<
                 ScoutingQuestionGroup | undefined
@@ -100,7 +83,7 @@ export class Group extends Cache<GroupUpdates> {
 
     public static async fromEvent(eventKey: string): Promise<Result<Group[]>> {
         return attemptAsync(async () => {
-            const cached = Array.from(Group.$cache.values()).filter(
+            const cached = Array.from(Group.cache.values()).filter(
                 g => g.eventKey === eventKey
             );
             if (cached.length) return cached;
@@ -134,11 +117,11 @@ export class Group extends Cache<GroupUpdates> {
         this.$name = data.name;
         this.dateAdded = new Date(data.dateAdded);
 
-        if (Group.$cache.has(this.id)) {
-            Group.$cache.delete(this.id);
+        if (Group.cache.has(this.id)) {
+            Group.cache.delete(this.id);
         }
 
-        Group.$cache.set(this.id, this);
+        Group.cache.set(this.id, this);
     }
 
     get name() {
@@ -151,7 +134,7 @@ export class Group extends Cache<GroupUpdates> {
 
     public async getQuestions(): Promise<Result<Question[]>> {
         return attemptAsync(async () => {
-            const cached = Question.$cache.values();
+            const cached = Question.cache.values();
             const questions = Array.from(cached).filter(
                 q => q.groupId === this.id
             );
@@ -177,7 +160,7 @@ export class Group extends Cache<GroupUpdates> {
                     return question;
                 });
 
-                this.$cache.set('questions', questions);
+                this.cache.set('questions', questions);
 
                 return questions;
             } else throw res.error;
@@ -234,12 +217,12 @@ export class Group extends Cache<GroupUpdates> {
 
     public async removeQuestion(id: string): Promise<Result<void>> {
         return attemptAsync(async () => {
-            const q = Question.$cache.get(id);
+            const q = Question.cache.get(id);
             if (!q) throw new Error('Question not found');
 
             const res = await q.delete();
             if (res.isOk()) {
-                Question.$cache.delete(id);
+                Question.cache.delete(id);
             } else throw res.error;
         });
     }
@@ -273,20 +256,20 @@ export class Group extends Cache<GroupUpdates> {
 socket.on('scouting-question:new-question', (data: ScoutingQuestionObj) => {
     console.log('new question', data);
 
-    const g = Group.$cache.get(data.groupId);
+    const g = Group.cache.get(data.groupId);
     if (!g) return;
 
     const q = new Question(data);
-    (g.$cache.get('questions') as Question[]).push(q);
+    (g.cache.get('questions') as Question[]).push(q);
     g.emit('new-question', q);
     Question.emit('new', q);
 });
 
 socket.on('scouting-question:group-deleted', (id: string) => {
-    const g = Group.$cache.get(id);
+    const g = Group.cache.get(id);
     if (!g) return;
 
-    Group.$cache.delete(id);
+    Group.cache.delete(id);
     g.emit('delete', undefined);
     g.destroy();
 });

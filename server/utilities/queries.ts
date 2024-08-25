@@ -48,6 +48,7 @@ import { Delete_account_remove_role } from './tables';
 import { Insert_account_add_role } from './tables';
 import { Select_account_from_email } from './tables';
 import { Insert_account_new } from './tables';
+import { Update_account_update } from './tables';
 import { Update_account_request_password_change } from './tables';
 import { Select_account_from_password_change } from './tables';
 import { Select_account_from_id } from './tables';
@@ -239,6 +240,7 @@ export type Queries = {
     'account/add-role': [[Insert_account_add_role], unknown];
     'account/from-email': [[Select_account_from_email], Accounts];
     'account/new': [[Insert_account_new], unknown];
+    'account/update': [[Update_account_update], unknown];
     'account/request-password-change': [
         [Update_account_request_password_change],
         unknown
@@ -452,7 +454,7 @@ export type Queries = {
     'whiteboards/from-strategy': [
         [Select_whiteboards_from_strategy],
         Whiteboards
-    ]
+    ];
     'team-comments/from-match-scouting': [
         [Select_team_comments_from_match_scouting],
         TeamComments

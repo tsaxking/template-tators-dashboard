@@ -18,37 +18,14 @@ type AnswerEvents = {
 };
 
 export class Answer extends Cache<AnswerEvents> {
-    static readonly $cache = new Map<string, Answer>();
+    static readonly cache = new Map<string, Answer>();
 
-    private static readonly $emitter = new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        Answer.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        Answer.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        Answer.$emitter.emit(event, data);
-    }
-
-    public static once<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        Answer.$emitter.once(event, callback);
-    }
+    public static on = Answer.emitter.on.bind(Answer.emitter);
+    public static off = Answer.emitter.off.bind(Answer.emitter);
+    public static emit = Answer.emitter.emit.bind(Answer.emitter);
+    public static once = Answer.emitter.once.bind(Answer.emitter);
 
     static async fromTeam(
         team: number,
@@ -56,8 +33,8 @@ export class Answer extends Cache<AnswerEvents> {
         force = false
     ): Promise<Result<Answer[]>> {
         return attemptAsync(async () => {
-            if (!force && Answer.$cache.size) {
-                const current = this.$cache.values();
+            if (!force && Answer.cache.size) {
+                const current = this.cache.values();
 
                 const answers = Array.from(current).filter(a => {
                     return a.teamNumber === team && a.eventKey === event.key;
@@ -85,7 +62,7 @@ export class Answer extends Cache<AnswerEvents> {
         eventKey: string
     ): Promise<Result<Answer | undefined>> {
         return attemptAsync(async () => {
-            if (Answer.$cache.has(id)) return Answer.$cache.get(id) as Answer;
+            if (Answer.cache.has(id)) return Answer.cache.get(id) as Answer;
 
             const res = await ServerRequest.post<ScoutingAnswer | undefined>(
                 '/api/scouting-questions/get-answer',
@@ -122,11 +99,11 @@ export class Answer extends Cache<AnswerEvents> {
         this.date = data.date;
         this.accountId = data.accountId;
 
-        if (Answer.$cache.has(this.id)) {
-            Answer.$cache.delete(this.id);
+        if (Answer.cache.has(this.id)) {
+            Answer.cache.delete(this.id);
         }
 
-        Answer.$cache.set(this.id, this);
+        Answer.cache.set(this.id, this);
     }
 
     async delete(): Promise<Result<void>> {
@@ -166,7 +143,7 @@ socket.on(
 socket.on(
     'scouting-question:update-answer',
     ({ data, eventKey }: { data: ScoutingAnswer; eventKey: string }) => {
-        const answer = Answer.$cache.get(data.id);
+        const answer = Answer.cache.get(data.id);
 
         if (answer) {
             answer.answer = JSON.parse(data.answer) as string[];
@@ -182,9 +159,9 @@ socket.on(
 );
 
 socket.on('scouting-question:answer-deleted', (id: string) => {
-    const answer = Answer.$cache.get(id);
+    const answer = Answer.cache.get(id);
     if (answer) {
-        Answer.$cache.delete(id);
+        Answer.cache.delete(id);
         answer.emit('delete', undefined);
         answer.destroy();
     }

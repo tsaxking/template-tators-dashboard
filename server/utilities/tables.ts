@@ -16,6 +16,7 @@ export type Accounts = {
     passwordChangeDate: number | undefined;
     phoneNumber: string | undefined;
     created: number;
+    customData: string;
     discordId: string | undefined;
 };
 
@@ -262,6 +263,24 @@ export type Insert_account_new = {
     verification: string | undefined;
     created: number;
     phoneNumber: string | undefined;
+    customData: string;
+};
+
+export type Update_account_update = {
+    id: string;
+    username: string;
+    key: string;
+    salt: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    passwordChange: string | undefined;
+    picture: string | undefined;
+    verified: number;
+    verification: string | undefined;
+    passwordChangeDate: number | undefined;
+    phoneNumber: string | undefined;
+    customData: string;
 };
 
 export type Update_account_request_password_change = {
@@ -938,7 +957,6 @@ export type Select_strategy_from_id = {
     id: string;
 };
 
-
 export type Delete_whiteboards_delete = {
     id: string;
 };
@@ -956,7 +974,7 @@ export type Select_whiteboards_from_id = {
 
 export type Select_whiteboards_from_strategy = {
     strategyId: string;
-}
+};
 
 export type Update_whiteboards_update = {
     name: string;

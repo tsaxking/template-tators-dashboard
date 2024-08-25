@@ -123,17 +123,18 @@ export class TBA {
                 //     return d.value;
                 // }
 
-
-
                 try {
-                    return await fetch('https://www.thebluealliance.com/api/v3' + path, {
-                        headers: {
-                            'X-TBA-Auth-Key':
-                                'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
-                        },
-                        method: 'GET',
-                        mode: 'cors'
-                    }).then(data => data.json()) as Promise<T>;
+                    return (await fetch(
+                        'https://www.thebluealliance.com/api/v3' + path,
+                        {
+                            headers: {
+                                'X-TBA-Auth-Key':
+                                    'AhMI5PBuPWNgK2X1RI66OmhclOMy31VJkwwxKhlgMHSaX30hKPub2ZdMFHmUq2kQ'
+                            },
+                            method: 'GET',
+                            mode: 'cors'
+                        }
+                    ).then(data => data.json())) as Promise<T>;
                 } catch {
                     const d = await ServerRequest.get<T>(`/api/tba${path}`);
 

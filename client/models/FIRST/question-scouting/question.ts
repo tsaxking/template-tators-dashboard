@@ -24,30 +24,14 @@ type QuestionUpdates = {
 };
 
 export class Question extends Cache<QuestionUpdates> {
-    public static readonly $cache = new Map<string, Question>();
+    public static readonly cache = new Map<string, Question>();
 
-    private static readonly $emitter = new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        Question.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        Question.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        Question.$emitter.emit(event, data);
-    }
+    public static on = Question.emitter.on.bind(Question.emitter);
+    public static off = Question.emitter.off.bind(Question.emitter);
+    public static emit = Question.emitter.emit.bind(Question.emitter);
+    public static once = Question.emitter.once.bind(Question.emitter);
 
     public static new(data: {
         question: string;
@@ -72,8 +56,8 @@ export class Question extends Cache<QuestionUpdates> {
         id: string
     ): Promise<Result<Question | undefined>> {
         return attemptAsync(async () => {
-            if (Question.$cache.has(id)) {
-                return Question.$cache.get(id) as Question;
+            if (Question.cache.has(id)) {
+                return Question.cache.get(id) as Question;
             }
 
             const res = await ServerRequest.post<
@@ -92,7 +76,7 @@ export class Question extends Cache<QuestionUpdates> {
 
     public static async fromEvent(eventKey: string) {
         return attemptAsync(async () => {
-            const cached = Array.from(Question.$cache.values()).filter(
+            const cached = Array.from(Question.cache.values()).filter(
                 q => q.eventKey
             );
             if (cached.length) return cached;
@@ -132,11 +116,11 @@ export class Question extends Cache<QuestionUpdates> {
         this.options = JSON.parse(data.options) as QuestionOptions;
         this.eventKey = data.eventKey;
 
-        if (Question.$cache.has(this.id)) {
-            Question.$cache.delete(this.id);
+        if (Question.cache.has(this.id)) {
+            Question.cache.delete(this.id);
         }
 
-        Question.$cache.set(this.id, this);
+        Question.cache.set(this.id, this);
     }
 
     public get question(): string {
@@ -250,10 +234,10 @@ export class Question extends Cache<QuestionUpdates> {
 }
 
 socket.on('scouting-question:question-deleted', (id: string) => {
-    const q = Question.$cache.get(id);
+    const q = Question.cache.get(id);
     if (!q) return;
 
-    Question.$cache.delete(id);
+    Question.cache.delete(id);
     q.emit('delete', undefined);
     q.destroy();
 });

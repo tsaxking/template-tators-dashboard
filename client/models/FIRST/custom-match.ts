@@ -13,33 +13,12 @@ type Updates = {
 };
 
 export class CustomMatch extends Cache<CustomMatchEventData> {
-    private static readonly $emitter: EventEmitter<keyof Updates> =
-        new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        CustomMatch.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: any) => void
-    ): void {
-        CustomMatch.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(event: K, data: any): void {
-        CustomMatch.$emitter.emit(event, data);
-    }
-
-    public static once<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        CustomMatch.$emitter.once(event, callback);
-    }
+    public static on = CustomMatch.emitter.on.bind(CustomMatch.emitter);
+    public static off = CustomMatch.emitter.off.bind(CustomMatch.emitter);
+    public static emit = CustomMatch.emitter.emit.bind(CustomMatch.emitter);
+    public static once = CustomMatch.emitter.once.bind(CustomMatch.emitter);
 
     public static current?: CustomMatch = undefined;
     /**

@@ -1,9 +1,6 @@
-npx prettier . --write &&
-npx eslint **/*.ts --fix &&
+npm run fmt &&
+npm run lint &&
 tsc &&
 npm run build &&
-if $1 == "lite"; then
-    sh scripts/check-lite.sh
-else
-    sh scripts/check-full.sh
-fi
+npm run test:backend #&&
+# npm run test:e2e

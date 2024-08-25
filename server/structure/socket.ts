@@ -72,7 +72,7 @@ export class SocketWrapper {
      * @readonly
      * @type {*}
      */
-    private readonly em = new EventEmitter<keyof SocketEvent>();
+    private readonly em = new EventEmitter<SocketEvent>();
 
     // public cache: Cache[] = [];
 
