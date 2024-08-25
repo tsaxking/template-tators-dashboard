@@ -1,9 +1,9 @@
-import { Cache } from "./cache";
-import { DB } from "../../utilities/databases";
+import { Cache } from './cache';
+import { DB } from '../../utilities/databases';
 import { Strategy as S } from '../../utilities/tables';
-import { attemptAsync } from "../../../shared/check";
-import { CompLevel } from "../../../shared/db-types-extended";
-import { uuid } from "../../utilities/uuid";
+import { attemptAsync } from '../../../shared/check';
+import { CompLevel } from '../../../shared/db-types-extended';
+import { uuid } from '../../utilities/uuid';
 
 export class Strategy extends Cache {
     public static fromId(id: string) {
@@ -14,20 +14,28 @@ export class Strategy extends Cache {
         });
     }
 
-    public static fromMatch(eventKey: string, matchNumber: number, compLevel: CompLevel) {
+    public static fromMatch(
+        eventKey: string,
+        matchNumber: number,
+        compLevel: CompLevel
+    ) {
         return attemptAsync(async () => {
-            const s = (await DB.all('strategy/from-match', { 
-                eventKey,
-                matchNumber,
-                compLevel,
-            })).unwrap();
+            const s = (
+                await DB.all('strategy/from-match', {
+                    eventKey,
+                    matchNumber,
+                    compLevel
+                })
+            ).unwrap();
             return s.map(s => new Strategy(s));
         });
     }
 
     public static fromCustomMatch(customMatchId: string) {
         return attemptAsync(async () => {
-            const s = (await DB.all('strategy/from-custom-match', { customMatchId })).unwrap();
+            const s = (
+                await DB.all('strategy/from-custom-match', { customMatchId })
+            ).unwrap();
             return s.map(s => new Strategy(s));
         });
     }

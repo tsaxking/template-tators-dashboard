@@ -66,7 +66,6 @@ router.post<MatchObject>(
         const account = await Account.fromUsername(scout);
         const scoutId = account ? account.id : scout;
 
-
         if (preScouting) {
             // build a custom match
             const cm = await CustomMatch.new({
@@ -296,4 +295,9 @@ router.post<{
 
 router.post('/ping', auth, (_req, res) => {
     res.json(true);
+});
+
+router.post('/get-accounts', auth, async (req, res) => {
+    const accounts = await Account.getVerifiedAccounts();
+    res.json(accounts.map(a => a.username));
 });
