@@ -1,6 +1,8 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
+import ThemeSwitch from '../ThemeSwitch.svelte';
+import EventSelect from './GlobalEventSelect.svelte';
 export let title: string;
 export let navItems: string[] = [];
 import { Account } from '../../../models/account';
@@ -48,9 +50,9 @@ const initAccount = async () => {
 
 onMount(() => {
     initAccount();
+    jQuery('#report-issue').tooltip();
 });
 </script>
-
 <nav
     class="navbar navbar-expand-lg fixed-top shadow text-light bg-dark d-flex justify-content-between"
     id="top-navbar"
@@ -70,7 +72,9 @@ onMount(() => {
             class="ps-3 pt-2 navbar-brand fw-bold no-select h-100 align-middle text-light"
             >{title}</a
         >
+    </div>
 
+    <div class="d-inline-flex p-0">
         <div class="collapse navbar-collapse bg-dark rounded" id="nav-items">
             <ul class="navbar-nav mr-auto">
                 {#each navItems as item}
@@ -89,30 +93,27 @@ onMount(() => {
             <div class="form-inline my-2 my-lg-0">
                 <slot name="form" />
             </div>
-        </div>
-    </div>
-
-    <div class="d-inline-flex p-0 align-items-center">
-        <a
-            class="nav-link dropdown-toggle me-3"
-            href="#navbarDropdown"
-            id="navbarDropdown-link"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        >
-            Hello, {account.username}&nbsp;
-            {#if account.picture}
-                <img
-                    src="../uploads/${account.picture}"
-                    class="profile-pic mx-1"
-                    alt=""
-                />
-            {:else}
-                <span class="material-icons">person</span>
-            {/if}
-        </a>
-        <button
+            <EventSelect></EventSelect>
+            <a
+                class="nav-link dropdown-toggle mx-3 py-1"
+                href="#navbarDropdown"
+                id="navbarDropdown-link"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+                Hello, {account.username}&nbsp;
+                {#if account.picture}
+                    <img
+                        src="../uploads/${account.picture}"
+                        class="profile-pic mx-1"
+                        alt=""
+                    />
+                {:else}
+                    <span class="material-icons">person</span>
+                {/if}
+            </a>
+            <button
             type="button"
             class="btn btn-primary position-relative p-2 me-5"
             data-bs-toggle="offcanvas"
@@ -129,41 +130,44 @@ onMount(() => {
             </span>
             {/if}
         </button>
-        <ul
-            class="dropdown-menu dropdown-menu-end p-0"
-            aria-labelledby="navbarDropdown"
-            id="navbarDropdown"
-        >
-            <li>
-                <a
-                    href="javascript:void(0);"
-                    class="dropdown-item"
-                    on:click="{openSettings}"
-                >
-                    <i class="material-icons">settings</i>&nbsp;Settings
-                </a>
-            </li>
-            {#each accountLinks as link}
-                {#if link}
-                    <li>
-                        <a href="{link}" class="dropdown-item"
-                            >{capitalize(fromSnakeCase(link, '-'))}</a
-                        >
-                    </li>
-                {:else}
-                    <li><hr class="dropdown-divider" /></li>
-                {/if}
-            {/each}
+            <ul
+                class="dropdown-menu dropdown-menu-end p-0"
+                aria-labelledby="navbarDropdown"
+                id="navbarDropdown"
+            >
+                <li>
+                    <a
+                        href="javascript:void(0);"
+                        class="dropdown-item"
+                        on:click="{openSettings}"
+                    >
+                        <i class="material-icons">settings</i>&nbsp;Settings
+                    </a>
+                </li>
+                {#each accountLinks as link}
+                    {#if link}
+                        <li>
+                            <a href="{link}" class="dropdown-item"
+                                >{capitalize(fromSnakeCase(link, '-'))}</a
+                            >
+                        </li>
+                    {:else}
+                        <li><hr class="dropdown-divider" /></li>
+                    {/if}
+                {/each}
 
-            <!-- <li><a href="/institution/new" class="dropdown-item">Create Institution <span class="material-icons">home</span></a></li> -->
-            <!-- <li><a class="dropdown-item" href="/my-account">My Account</a></li> -->
-            <!-- <li>
-            <hr class="dropdown-divider">
-        </li> -->
-            <li class="p-1">
-                <a class="dropdown-item" href="/account/sign-out">Sign Out</a>
-            </li>
-        </ul>
+                <!-- <li><a href="/institution/new" class="dropdown-item">Create Institution <span class="material-icons">home</span></a></li> -->
+                <!-- <li><a class="dropdown-item" href="/my-account">My Account</a></li> -->
+                <!-- <li>
+                <hr class="dropdown-divider">
+            </li> -->
+                <li class="p-1">
+                    <a class="dropdown-item" href="/account/sign-out"
+                        >Sign Out</a
+                    >
+                </li>
+            </ul>
+        </div>
         <button
             class="btn btn-dark navbar-toggler border-0 h-100 text-light"
             type="button"

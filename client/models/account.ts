@@ -1,7 +1,6 @@
 import { EventEmitter } from '../../shared/event-emitter';
 import { Cache } from './cache';
 import { AccountSafe, Role as R, RolePermission } from '../../shared/db-types';
-import { Permission as P } from '../../shared/permissions';
 import { attemptAsync, Result } from '../../shared/check';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
@@ -104,6 +103,47 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 
+    private static requested: string[] = [];
+
+    public static async get(
+        ids: (string | undefined)[]
+    ): Promise<(Account | undefined)[]> {
+        const output = new Array<Account | undefined>(ids.length).fill(
+            undefined
+        );
+        const toRequest = new Set<string>();
+        for (let i = 0; i < ids.length; i++) {
+            const id = ids[i];
+            if (!id) continue;
+            if (Account.cache.has(id) || Account.requested.includes(id)) {
+                output[i] = Account.cache.get(id);
+            } else {
+                toRequest.add(id);
+            }
+        }
+
+        if (toRequest.size) {
+            Account.requested.push(...Array.from(toRequest));
+            const res = await ServerRequest.post<(AccountSafe | undefined)[]>(
+                '/account/account-info',
+                {
+                    ids: Array.from(toRequest)
+                }
+            );
+
+            if (res.isOk()) {
+                for (const i in res.value) {
+                    const account = res.value[i];
+                    if (!account) continue;
+                    const a = new Account(account);
+                    output[i] = a;
+                }
+            }
+        }
+
+        return output;
+    }
+
     /**
      * Account emitter
      * @date 2/1/2024 - 12:54:21 AM
@@ -114,6 +154,10 @@ export class Account extends Cache<AccountEvents> {
      * @type {*}
      */
     public static readonly emitter = new EventEmitter<Events>();
+
+    get name() {
+        return `${this.firstName} ${this.lastName}`;
+    }
 
     /**
      * adds a listener to the account emitter
@@ -525,6 +569,10 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 }
+
+Object.assign(window, {
+    Account
+});
 
 socket.on('account:removed', (accountId: string) => {
     const account = Account.cache.get(accountId);
