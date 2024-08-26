@@ -8,6 +8,7 @@ import { Req } from '../../server/structure/app/req';
 import { Res } from '../../server/structure/app/res';
 import { deepEqual } from 'assert';
 import { check, isValid, parseJSON } from '../../shared/check';
+import { match, matchInstance } from '../../shared/match';
 import assert from 'assert';
 import { getJSONSync } from '../../server/utilities/files';
 import {
@@ -254,6 +255,46 @@ export const runTests = async () =>
             }
 
             throw new Error('Failed');
+        }),
+
+        test('Match Case', async () => {
+            const value = 'test';
+
+            const a = match(value)
+                .case('test', () => {
+                    return 'test';
+                })
+                .case('test2', () => {
+                    return 'test2';
+                })
+                .default(() => {
+                    return 'default';
+                })
+                .exec()
+                .unwrap();
+
+            const b = match(value)
+                .case('test2', () => {
+                    return 'test2';
+                })
+                .default(() => {
+                    return 'default';
+                })
+                .exec()
+                .unwrap();
+
+            class Test {}
+
+            const c = matchInstance(new Test())
+                .case(Test, () => 'test')
+                .case(Array, () => 'array')
+                .default(() => 'default')
+                .exec()
+                .unwrap();
+
+            assertEquals(a, 'test');
+            assertEquals(b, 'default');
+            assertEquals(c, 'test');
         }),
         test('Scout groups', async () => {
             const eventKey = '2023cabl';

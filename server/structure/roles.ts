@@ -3,6 +3,7 @@ import { RolePermission } from '../../shared/db-types';
 import { Role as RoleObject } from '../../shared/db-types';
 import { ServerFunction } from './app/app';
 import { uuid } from '../utilities/uuid';
+import { attemptAsync, Result } from '../../shared/check';
 
 /**
  * Role object, contains permission information and role name
@@ -14,40 +15,6 @@ import { uuid } from '../utilities/uuid';
  */
 export default class Role {
     /**
-     * Creates a middleware function that checks if the user has the specified role
-     * @date 1/9/2024 - 12:48:41 PM
-     *
-     * @static
-     * @param {...RoleName[]} role
-     * @returns {ServerFunction<any>}
-     * @deprecated
-     */
-    static allowRoles(..._role: never[]): ServerFunction {
-        return async (_req, _res, _next) => {
-            throw new Error(
-                'This method is deprecated, use Account.allowPermissions() instead'
-            );
-        };
-    }
-
-    /**
-     * Prevents users with the specified role from accessing the path
-     * @date 1/9/2024 - 12:49:45 PM
-     *
-     * @static
-     * @param {...RoleName[]} role
-     * @returns {ServerFunction<any>}
-     * @deprecated
-     */
-    static preventRoles(..._role: never[]): ServerFunction {
-        return async (_req, _res, _next) => {
-            throw new Error(
-                'This method is deprecated, use Account.allowPermissions() instead'
-            );
-        };
-    }
-
-    /**
      * Retrieves all permissions from the database
      * @date 3/8/2024 - 6:07:41 AM
      *
@@ -55,12 +22,8 @@ export default class Role {
      * @async
      * @returns {Promise<RolePermission[]>}
      */
-    static async getAllPermissions(): Promise<RolePermission[]> {
-        const res = await DB.all('permissions/all');
-        if (res.isOk()) {
-            return res.value;
-        }
-        return [];
+    static async getAllPermissions(): Promise<Result<RolePermission[]>> {
+        return DB.all('permissions/all');
     }
 
     /**
@@ -71,12 +34,13 @@ export default class Role {
      * @param {string} id
      * @returns {(Role | undefined)}
      */
-    static async fromId(id: string): Promise<Role | undefined> {
-        const r = await DB.get('roles/from-id', {
-            id
+    static async fromId(id: string) {
+        return attemptAsync(async () => {
+            const r = await DB.get('roles/from-id', {
+                id
+            });
+            if (r.isOk() && r.value) return new Role(r.value);
         });
-        if (r.isOk() && r.value) return new Role(r.value);
-        return;
     }
 
     /**
@@ -87,12 +51,15 @@ export default class Role {
      * @param {string} name
      * @returns {(Role | undefined)}
      */
-    static async fromName(name: string): Promise<Role | undefined> {
-        const r = await DB.get('roles/from-name', {
-            name
+    static async fromName(name: string) {
+        return attemptAsync(async () => {
+            const r = (
+                await DB.get('roles/from-name', {
+                    name
+                })
+            ).unwrap();
+            if (r) new Role(r);
         });
-        if (r.isOk() && r.value) return new Role(r.value);
-        return;
     }
 
     /**
@@ -102,15 +69,17 @@ export default class Role {
      * @static
      * @returns {Role[]}
      */
-    static async all(): Promise<Role[]> {
-        const data = await DB.all('roles/all');
-        if (data.isOk()) {
-            return data.value
-                .map((d: RoleObject) => new Role(d))
-                .sort((a: Role, b: Role) => a.rank - b.rank);
-        }
+    static async all() {
+        return attemptAsync(async () => {
+            const data = await DB.all('roles/all');
+            if (data.isOk()) {
+                return data.value
+                    .map((d: RoleObject) => new Role(d))
+                    .sort((a: Role, b: Role) => a.rank - b.rank);
+            }
 
-        return [];
+            return [];
+        });
     }
 
     /**
@@ -188,16 +157,17 @@ export default class Role {
      *
      * @returns {Permission[]}
      */
-    async getPermissions(): Promise<RolePermission[]> {
-        const data = await DB.all('permissions/from-role', {
-            roleId: this.id
-        });
-        if (data.isOk()) {
-            return data.value.filter((p, i, a) => {
+    async getPermissions() {
+        return attemptAsync(async () => {
+            const data = (
+                await DB.all('permissions/from-role', {
+                    roleId: this.id
+                })
+            ).unwrap();
+            return data.filter((p, i, a) => {
                 return a.findIndex(pp => pp.permission === p.permission) === i;
             });
-        }
-        return [];
+        });
     }
 
     /**
@@ -237,7 +207,7 @@ export default class Role {
      */
     async delete() {
         // Remove all permissions
-        const permissions = await this.getPermissions();
+        const permissions = (await this.getPermissions()).unwrap();
         for (const permission of permissions) {
             this.removePermission(permission.permission);
         }

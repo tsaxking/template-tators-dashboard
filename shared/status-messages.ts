@@ -327,6 +327,36 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'account-notification:deleted': {
+        message: 'Notification deleted',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'account-notification:mark-read': {
+        message: 'Account notification was marked read',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'account-notification:mark-unread': {
+        message: 'Account notification was marked unread',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'account-notification:not-found': {
+        message: 'Did not find the requested account notification',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'account-notification:not-owner': {
+        message: 'You cannot alter this notification as you are not the owner',
+        color: 'danger',
+        code: 403,
+        instructions: ''
+    },
     'admin:invalid-key': {
         message: 'Invalid key',
         color: 'danger',
@@ -994,6 +1024,11 @@ export type StatusId =
     | 'account:username-changed'
     | 'account:username-taken'
     | 'account:verified'
+    | 'account-notification:deleted'
+    | 'account-notification:mark-read'
+    | 'account-notification:mark-unread'
+    | 'account-notification:not-found'
+    | 'account-notification:not-owner'
     | 'admin:invalid-key'
     | 'discord:account-linked'
     | 'discord:invalid-link'
@@ -1199,19 +1234,6 @@ export type PitScoutingStatusId = 'delete' | 'new';
 export type ProfanityStatusId = 'detected';
 
 export type RoleStatusId = 'not-found';
-
-export type RolesStatusId =
-    | 'added'
-    | 'added-permission'
-    | 'already-exists'
-    | 'cannot-edit-admin'
-    | 'deleted'
-    | 'invalid-role'
-    | 'new'
-    | 'not-found'
-    | 'removed'
-    | 'removed-permission'
-    | 'updated';
 
 export type ScoutingQuestionStatusId =
     | 'answer-deleted'
