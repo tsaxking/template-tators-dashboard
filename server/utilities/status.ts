@@ -177,6 +177,7 @@ export class Status {
         // Log the status message in the ./storage/logs/status.csv file
         setTimeout(async () => {
             const a = await req.session.getAccount();
+            if (a.isErr()) return console.error(a.error);
             log('status', {
                 title: String(this.title),
                 message: String(message.message),
@@ -186,7 +187,7 @@ export class Status {
                 redirect: String(message.redirect),
                 data: data ? JSON.stringify(data) : 'No data provided.',
                 ip: req.session.ip,
-                username: a?.username,
+                username: a.value?.username,
                 sessionId: req.session.id
             });
         });
