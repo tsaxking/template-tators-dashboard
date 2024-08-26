@@ -75,6 +75,13 @@ export class Strategy extends Cache<StrategyUpdateData> {
         });
     }
 
+    public static fromMatch(eventKey: string, matchNumber: number, compLevel: string) {
+        return attemptAsync(async () => {
+            const s = (await ServerRequest.post<S[]>('/api/strategy/from-match', { eventKey, matchNumber, compLevel })).unwrap();
+            return s.map(s => Strategy.retrieve(s));
+        });
+    }
+
     public static new(data: Omit<S, 'id' | 'createdBy' | 'archive' | 'time' | 'createdBy'>) {
         return ServerRequest.post('/api/strategy/new', data);
     }
@@ -134,6 +141,7 @@ export class Check {
 
     constructor(public readonly team: number, checks: string[]) {
     }
+    
     serialize(): string[] { // ['2122:check']
     }
 }
