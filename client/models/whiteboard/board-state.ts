@@ -167,7 +167,7 @@ export class BoardState {
 
     setListeners() {
         return attempt(() => {
-            const canvas = this.board.$canvas;
+            const canvas = this.board.canvas;
             if (!canvas) throw new Error('Canvas not found');
             type E = (
                 data: DrawableEvent<unknown> | CanvasEvent<unknown>
@@ -183,7 +183,7 @@ export class BoardState {
                 const p = this.positions[i];
                 if (!p) continue;
                 p.on('click', () => {
-                    p.$canvas?.remove(p);
+                    p.canvas?.remove(p);
                     this.positions[i] = undefined;
                 });
                 const start = () => {
@@ -191,7 +191,7 @@ export class BoardState {
                 };
                 const drag = (e: DrawableEvent<MouseEvent | TouchEvent>) => {
                     if (dragging) {
-                        const canvas = this.board.$canvas;
+                        const canvas = this.board.canvas;
                         if (!canvas) return;
                         const [[x, y]] = canvas.getXY(e.event);
                         p.position.x = x;
@@ -230,7 +230,7 @@ export class BoardState {
             };
             const draw: E_FN = e => {
                 if (dragging) return;
-                const canvas = this.board.$canvas;
+                const canvas = this.board.canvas;
                 if (!canvas) return;
                 const [[x, y]] = canvas.getXY(e.event);
                 if (currentPath) {
@@ -260,26 +260,26 @@ export class BoardState {
 
     removeListeners() {
         for (let i = 0; i < this.positions.length; i++) {
-            this.positions[i]?.$emitter.off('mousedown');
-            this.positions[i]?.$emitter.off('mousemove');
-            this.positions[i]?.$emitter.off('mouseup');
-            this.positions[i]?.$emitter.off('mouseleave');
-            this.positions[i]?.$emitter.off('touchstart');
-            this.positions[i]?.$emitter.off('touchmove');
-            this.positions[i]?.$emitter.off('touchend');
-            this.positions[i]?.$emitter.off('touchcancel');
+            this.positions[i]?.off('mousedown');
+            this.positions[i]?.off('mousemove');
+            this.positions[i]?.off('mouseup');
+            this.positions[i]?.off('mouseleave');
+            this.positions[i]?.off('touchstart');
+            this.positions[i]?.off('touchmove');
+            this.positions[i]?.off('touchend');
+            this.positions[i]?.off('touchcancel');
         }
 
-        this.board.$emitter.off('mousedown');
-        this.board.$emitter.off('mousemove');
-        this.board.$emitter.off('mouseup');
-        this.board.$emitter.off('mouseleave');
-        this.board.$emitter.off('touchstart');
-        this.board.$emitter.off('touchmove');
-        this.board.$emitter.off('touchend');
-        this.board.$emitter.off('touchcancel');
+        this.board.off('mousedown');
+        this.board.off('mousemove');
+        this.board.off('mouseup');
+        this.board.off('mouseleave');
+        this.board.off('touchstart');
+        this.board.off('touchmove');
+        this.board.off('touchend');
+        this.board.off('touchcancel');
 
-        this.board.$canvas?.$emitter.off('touchcancel');
-        this.board.$canvas?.$emitter.off('touchend');
+        this.board.canvas?.emitter.off('touchcancel');
+        this.board.canvas?.emitter.off('touchend');
     }
 }
