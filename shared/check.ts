@@ -311,6 +311,23 @@ export const check = (data: unknown, type: isValid): boolean => {
     return runCheck(data, type);
 };
 
+export const isSimilar = (a: unknown, b: unknown): boolean => {
+    if (typeof a !== typeof b) return false;
+    if (typeof a !== 'object') return a === b;
+    if (a === null || b === null) return a === b;
+    if (Array.isArray(a) && Array.isArray(b)) {
+        if (a.length !== b.length) return false;
+        return a.every((v, i) => isSimilar(v, b[i]));
+    }
+    if (typeof a === 'object' && typeof b === 'object') {
+        const aKeys = Object.keys(a) as (keyof typeof a)[];
+        const bKeys = Object.keys(b) as (keyof typeof b)[];
+        if (aKeys.length !== bKeys.length) return false;
+        return aKeys.every(k => isSimilar(a[k], b[k]));
+    }
+    return false;
+};
+
 /**
  * Converts an array of results to a single result
  * The return type of all results must be the same

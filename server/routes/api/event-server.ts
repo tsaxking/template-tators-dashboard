@@ -69,7 +69,7 @@ router.post<MatchObject>(
             return Potato.award(scout, tatorChips);
         };
 
-        const account = await Account.fromUsername(scout);
+        const account = (await Account.fromUsername(scout)).unwrap();
         const scoutId = account ? account.id : scout;
 
         if (preScouting) {
@@ -294,8 +294,8 @@ router.post<{
     }),
     async (req, res) => {
         const { username, password } = req.body;
-        let a = await Account.fromUsername(username);
-        if (!a) a = await Account.fromEmail(username);
+        let a = (await Account.fromUsername(username)).unwrap();
+        if (!a) a = (await Account.fromEmail(username)).unwrap();
 
         // account does not exist
         if (!a) return res.json(false);
@@ -309,6 +309,6 @@ router.post('/ping', auth, (_req, res) => {
 });
 
 router.post('/get-accounts', auth, async (req, res) => {
-    const accounts = await Account.getVerifiedAccounts();
+    const accounts = (await Account.getVerifiedAccounts()).unwrap();
     res.json(accounts.map(a => a.username));
 });
