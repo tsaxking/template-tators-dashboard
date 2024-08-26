@@ -53,7 +53,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     public static emit = FIRSTEvent.emitter.emit.bind(FIRSTEvent.emitter);
     public static once = FIRSTEvent.emitter.once.bind(FIRSTEvent.emitter);
 
-    public static current: FIRSTEvent | null = null;
+    public static current: FIRSTEvent | undefined = undefined;
 
     /**
      * Map of all FIRSTEvent objects
