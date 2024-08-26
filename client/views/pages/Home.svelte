@@ -66,11 +66,8 @@ const links: {
 
 Account.getAccount().then(async a => {
     if (!a) return;
-    const perms = await a.getPermissions();
-    console.log(perms);
-    if (perms.isOk())
-        permissions = perms.value.map(p => p.permission as Permission);
-    else console.error(perms.error);
+    const perms = (await (await a).unwrap()?.getPermissions())?.unwrap();
+    if (perms) permissions = perms.map(p => p.permission as Permission);
 });
 </script>
 
