@@ -10,6 +10,7 @@ const dispatch = createEventDispatcher();
 export let active: string;
 
 const openPage = (page: string) => {
+    console.log({ page });
     jQuery('#sidebar-nav').offcanvas('hide');
     dispatch('openPage', page);
 };
@@ -37,7 +38,17 @@ const openPage = (page: string) => {
                                 on:click|preventDefault="{() =>
                                     openPage(page.name)}"
                             >
-                                <i class="material-icons">{page.icon}</i>
+                                {#if page.iconType === 'material'}
+                                    <i class="material-icons">{page.icon}</i>
+                                {:else if page.iconType === 'symbols'}
+                                    <i class="material-symbols-outlined"
+                                        >{page.icon}</i
+                                    >
+                                {:else if page.iconType === 'fontawesome'}
+                                    <i class="fa fa-{page.icon}"></i>
+                                {:else}
+                                    <i class="bi bi-{page.icon}"></i>
+                                {/if}
                                 <span class="ms-2"
                                     >{capitalize(
                                         fromSnakeCase(page.name, '-')
