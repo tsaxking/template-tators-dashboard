@@ -1,0 +1,1 @@
+SELECT * FROM ScoutingQuestionGroups WHERE eventKey = :eventKey AND archived = false;

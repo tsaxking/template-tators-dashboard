@@ -1,0 +1,1 @@
+SELECT * FROM ChecklistAssignments WHERE checklistId = :checklistId;
