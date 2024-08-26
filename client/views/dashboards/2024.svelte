@@ -31,12 +31,12 @@ const groups: PageGroup[] = [
                 name: 'robot-display',
                 icon: 'home',
                 iconType: 'material'
-            },
-            {
-                name: 'alliance-builder',
-                icon: 'strategy',
-                iconType: 'symbols'
             }
+            // {
+            //     name: 'alliance-builder',
+            //     icon: 'strategy',
+            //     iconType: 'symbols'
+            // }
         ]
     },
     {
@@ -89,6 +89,8 @@ let currentEvent: FIRSTEvent | null = null;
 FIRSTEvent.on('select', e => {
     currentEvent = e;
 });
+
+let loading = true;
 </script>
 
 <Main
@@ -101,27 +103,27 @@ FIRSTEvent.on('select', e => {
     {navItems}
     {accountLinks}
 >
-    <Page {active} {domain} title="event-summary">
+    <Page {active} {domain} title="event-summary" bind:loading>
         {#if currentEvent}
-            <EventSummary event="{currentEvent}"></EventSummary>
+            <EventSummary event="{currentEvent}" bind:loading></EventSummary>
         {/if}
     </Page>
-    <Page {active} {domain} title="matches">
-        <MatchSchedule />
+    <Page {active} {domain} title="matches" bind:loading>
+        <MatchSchedule bind:loading />
     </Page>
-    <Page {active} {domain} title="robot-display">
-        <RobotDisplay></RobotDisplay>
+    <Page {active} {domain} title="robot-display" bind:loading>
+        <RobotDisplay bind:loading></RobotDisplay>
     </Page>
-    <Page {active} {domain} title="answer-scouting-questions">
-        <AnswerPitScouting />
+    <Page {active} {domain} title="answer-scouting-questions" bind:loading>
+        <AnswerPitScouting bind:loading />
     </Page>
-    <Page {active} {domain} title="scouting-checklist">
-        <Checklist />
+    <Page {active} {domain} title="scouting-checklist" bind:loading>
+        <Checklist bind:loading />
     </Page>
-    <Page {active} {domain} title="quiz">
-        <Quiz />
+    <Page {active} {domain} title="quiz" bind:loading>
+        <Quiz bind:loading />
     </Page>
-    <Page {active} {domain} title="alliance-builder">
-        <Strategy />
-    </Page>
+    <!-- <Page {active} {domain} title="alliance-builder" bind:loading> -->
+    <!-- <Strategy bind:loading /> -->
+    <!-- </Page> -->
 </Main>

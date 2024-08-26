@@ -3,6 +3,9 @@ import MatchScouting from '../components/checklist/MatchScouting.svelte';
 import TeamChecklist from '../components/checklist/TeamChecklist.svelte';
 import { FIRSTTeam } from '../../models/FIRST/team';
 import { FIRSTEvent } from '../../models/FIRST/event';
+import { onMount } from 'svelte';
+
+export let loading: boolean;
 
 let teams: {
     team: FIRSTTeam;
@@ -19,7 +22,8 @@ let matchScouting: {
     compLevel: string;
 }[] = [];
 
-FIRSTEvent.on('select', async e => {
+const select = async (e?: FIRSTEvent) => {
+    if (!e) return (loading = false);
     const [statusRes, teamsRes] = await Promise.all([
         e.getStatus(),
         e.getTeams()
@@ -35,6 +39,18 @@ FIRSTEvent.on('select', async e => {
         pit: questions.find(q => q.team === t.number)?.questions || [],
         pictures: pictures.find(p => p === t.number) ? true : false
     }));
+    loading = false;
+};
+
+FIRSTEvent.on('select', select);
+
+onMount(() => {
+    select(FIRSTEvent.current);
+    return () => {
+        teams = [];
+        matchScouting = [];
+        loading = true;
+    };
 });
 </script>
 
