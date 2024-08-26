@@ -1055,6 +1055,12 @@ export type Insert_db_change_version = {
 
 export type Delete_db_delete_version = undefined;
 
+export type RetrievedMatchScouting = MatchScouting & {
+    eventKey: string;
+    matchNumber: number;
+    compLevel: string;
+};
+
 export type MatchScoutingArchive = {
     id: string;
     content: string;
