@@ -983,6 +983,11 @@ export const messages: {
 };
 
 export type StatusId =
+    | 'account-notification:deleted'
+    | 'account-notification:mark-read'
+    | 'account-notification:mark-unread'
+    | 'account-notification:not-found'
+    | 'account-notification:not-owner'
     | 'account:already-logged-in'
     | 'account:cannot-edit-other-account'
     | 'account:cannot-edit-self'
@@ -1024,6 +1029,7 @@ export type StatusId =
     | 'account:username-changed'
     | 'account:username-taken'
     | 'account:verified'
+    | 'admin:invalid-key'
     | 'account-notification:deleted'
     | 'account-notification:mark-read'
     | 'account-notification:mark-unread'
@@ -1235,6 +1241,18 @@ export type ProfanityStatusId = 'detected';
 
 export type RoleStatusId = 'not-found';
 
+export type RolesStatusId =
+    | 'added'
+    | 'added-permission'
+    | 'already-exists'
+    | 'cannot-edit-admin'
+    | 'deleted'
+    | 'invalid-role'
+    | 'new'
+    | 'not-found'
+    | 'removed'
+    | 'removed-permission'
+    | 'updated';
 export type ScoutingQuestionStatusId =
     | 'answer-deleted'
     | 'answer-not-found'
