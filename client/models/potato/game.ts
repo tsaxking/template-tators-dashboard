@@ -7,6 +7,7 @@ import {
     ShadowAchievement
 } from '../../../shared/potato-types';
 import { Potato as P } from '../../../server/utilities/tables';
+import { Cache } from '../cache';
 
 type PotatoEvents = {
     achievement: Achievement;
@@ -19,7 +20,7 @@ type P_extended = P & {
     username: string;
 };
 
-export class Potato extends Cache {
+export class Potato extends Cache<PotatoEvents> {
     public static readonly phases: Phase[] = [
         'sprout',
         'plant',
@@ -98,26 +99,6 @@ export class Potato extends Cache {
 
     get nextPhaseChips() {
         return (this.phaseIndex + 1) * 1000;
-    }
-
-    public readonly emitter = new EventEmitter<keyof PotatoEvents>();
-
-    on<K extends keyof PotatoEvents>(
-        event: K,
-        fn: (data: PotatoEvents[K]) => void
-    ) {
-        this.emitter.on(event, fn);
-    }
-
-    off<K extends keyof PotatoEvents>(
-        event: K,
-        fn: (data: PotatoEvents[K]) => void
-    ) {
-        this.emitter.off(event, fn);
-    }
-
-    emit<K extends keyof PotatoEvents>(event: K, data: PotatoEvents[K]) {
-        this.emitter.emit(event, data);
     }
 
     update(data: Partial<P>) {
