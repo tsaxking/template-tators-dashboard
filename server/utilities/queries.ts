@@ -67,6 +67,11 @@ import { Update_account_change_username } from './tables';
 import { Select_db_get_version } from './tables';
 import { Update_db_change_version } from './tables';
 import { Insert_db_init } from './tables';
+import { Select_blacklist_all } from './tables';
+import { Update_sessions_sign_in } from './tables';
+import { Update_sessions_sign_out } from './tables';
+import { Insert_db_change_version } from './tables';
+import { Delete_db_delete_version } from './tables';
 import { DiscordAccount } from './tables';
 import { Events } from './tables';
 import { Teams } from './tables';
@@ -163,38 +168,7 @@ import { Insert_team_comments_update } from './tables';
 import { Select_team_comments_from_account } from './tables';
 import { Insert_permissions_add_to_role } from './tables';
 import { Delete_permissions_remove_from_role } from './tables';
-import { Select_blacklist_all } from './tables';
-import { Update_sessions_sign_in } from './tables';
-import { Update_sessions_sign_out } from './tables';
-import { Insert_db_change_version } from './tables';
-import { Delete_db_delete_version } from './tables';
-import { MatchScoutingArchive } from './tables';
-import { dbTransfer } from './tables';
-import { Potato } from './tables';
-import { Delete_blacklist_delete_by_account } from './tables';
-import { Delete_blacklist_delete_by_ip } from './tables';
-import { Delete_blacklist_delete } from './tables';
-import { Select_blacklist_from_account } from './tables';
-import { Select_blacklist_from_ip } from './tables';
-import { Insert_blacklist_new } from './tables';
-import { Insert_match_scouting_archive } from './tables';
-import { Select_potato_all } from './tables';
-import { Select_potato_from_account } from './tables';
-import { Insert_potato_new } from './tables';
-import { Update_potato_update } from './tables';
-import { Delete_scouting_questions_delete_answer } from './tables';
-import { Select_scouting_questions_group_from_id } from './tables';
-import { Select_scouting_questions_groups_from_section } from './tables';
-import { Insert_scouting_questions_migrate_answer } from './tables';
-import { Insert_scouting_questions_migrate_group } from './tables';
-import { Insert_scouting_questions_migrate_question } from './tables';
-import { Insert_scouting_questions_migrate_section } from './tables';
-import { Select_scouting_questions_section_from_id } from './tables';
-import { Update_scouting_questions_update_answer } from './tables';
-import { Update_scouting_questions_update_section } from './tables';
-import { Select_teams_get_pictures } from './tables';
-import { Insert_teams_new_picture } from './tables';
-import { Select_teams_pictures_from_event } from './tables';
+import { RetrievedMatchScouting } from './tables';
 
 export type Queries = {
     'permissions/all': [[Select_permissions_all], Permissions];
@@ -289,7 +263,18 @@ export type Queries = {
     'db/delete-version': [[Delete_db_delete_version], unknown];
     'db/init': [[Insert_db_init], unknown];
     'blacklist/all': [[Select_blacklist_all], Blacklist];
-    'blacklist/new': [[Insert_blacklist_new], unknown];
+    'blacklist/new': [
+        [
+            {
+                id: string;
+                ip: string;
+                created: number;
+                accountId: string | undefined;
+                reason: string;
+            }
+        ],
+        unknown
+    ];
     'checklists/checklists-from-event': [
         [Select_checklists_checklists_from_event],
         Checklists
@@ -309,7 +294,12 @@ export type Queries = {
         ChecklistQuestions
     ];
     'checklists/questions-from-account': [
-        [{ accountId: string; eventKey: string }],
+        [
+            {
+                accountId: string;
+                eventKey: string;
+            }
+        ],
         {
             checklistId: string;
             checklistName: string;
@@ -339,133 +329,294 @@ export type Queries = {
         ChecklistAssignments
     ];
     'checklists/new-question': [[Insert_checklists_new_question], unknown];
-    'checklists/answers-from-checklist': [[]];
-    '': [[]];
-    'account/from-discord-id': [[Select_account_from_discord_id], Accounts];
-    'account/set-discord-id': [[Update_account_set_discord_id], unknown];
-    'blacklist/delete-by-account': [
-        [Delete_blacklist_delete_by_account],
-        unknown
+    'checklists/answers-from-checklist': [
+        [
+            {
+                eventKey: string;
+                checklistId: string;
+            }
+        ],
+        ChecklistAnswers & {
+            checklistName: string;
+            eventkey: string;
+            checklistDescription: string;
+        }
     ];
-    'blacklist/delete-by-ip': [[Delete_blacklist_delete_by_ip], unknown];
-    'blacklist/delete': [[Delete_blacklist_delete], unknown];
-    'blacklist/from-account': [[Select_blacklist_from_account], Blacklist];
-    'blacklist/from-ip': [[Select_blacklist_from_ip], Blacklist];
     'custom-matches/from-event': [
         [Select_custom_matches_from_event],
         CustomMatches
     ];
-    'custom-matches/from-id': [[Select_custom_matches_from_id], CustomMatches];
     'custom-matches/new': [[Insert_custom_matches_new], unknown];
-    'discord/delete': [[Delete_discord_delete], unknown];
-    'discord/get': [[Select_discord_get], DiscordAccount];
-    'discord/insert': [[Insert_discord_insert], unknown];
-    'events/all-alliances': [[Select_events_all_alliances], Alliances];
-    'events/delete-alliance': [[Delete_events_delete_alliance], unknown];
-    'events/delete-event': [[Delete_events_delete_event], unknown];
-    'events/from-key': [[Select_events_from_key], Events];
-    'events/new-alliance': [[Insert_events_new_alliance], unknown];
-    'events/new-event': [[Insert_events_new_event], unknown];
-    'match-scouting/archive': [[Insert_match_scouting_archive], unknown];
-    'match-scouting/new': [[Insert_match_scouting_new], unknown];
-    'match-scouting/update': [[Update_match_scouting_update], unknown];
-    'match-scouting/from-id': [[{ id: string }], MatchScouting];
-    'matches/from-event': [[Select_matches_from_event], Matches];
-    'matches/from-id': [[Select_matches_from_id], Matches];
-    'matches/new': [[Insert_matches_new], unknown];
-    'potato/all': [[Select_potato_all], Potato];
-    'potato/from-account': [[Select_potato_from_account], Potato];
-    'potato/new': [[Insert_potato_new], unknown];
-    'potato/update': [[Update_potato_update], unknown];
-    'scouting-questions/all-sections': [
-        [Select_scouting_questions_all_sections],
-        ScoutingQuestionSections
-    ];
-    'scouting-questions/answer-from-id': [
-        [Select_scouting_questions_answer_from_id],
-        ScoutingAnswers
-    ];
-    'scouting-questions/delete-answer': [
-        [Delete_scouting_questions_delete_answer],
-        unknown
-    ];
-    'scouting-questions/delete-group': [
-        [Delete_scouting_questions_delete_group],
+    'custom-matches/from-id': [[Select_custom_matches_from_id], CustomMatches];
+    'scouting-questions/update-group': [
+        [Update_scouting_questions_update_group],
         unknown
     ];
     'scouting-questions/delete-question': [
         [Delete_scouting_questions_delete_question],
         unknown
     ];
-    'scouting-questions/delete-section': [
-        [Delete_scouting_questions_delete_section],
-        unknown
-    ];
-    'scouting-questions/group-from-id': [
-        [Select_scouting_questions_group_from_id],
-        ScoutingQuestionGroups
-    ];
-    'scouting-questions/groups-from-event': [
-        [Select_scouting_questions_groups_from_event],
-        ScoutingQuestionGroups
-    ];
-    'scouting-questions/groups-from-section': [
-        [Select_scouting_questions_groups_from_section],
-        ScoutingQuestionGroups
-    ];
-    'scouting-questions/migrate-answer': [
-        [Insert_scouting_questions_migrate_answer],
-        unknown
-    ];
-    'scouting-questions/migrate-group': [
-        [Insert_scouting_questions_migrate_group],
-        unknown
-    ];
-    'scouting-questions/migrate-question': [
-        [Insert_scouting_questions_migrate_question],
-        unknown
-    ];
-    'scouting-questions/migrate-section': [
-        [Insert_scouting_questions_migrate_section],
-        unknown
-    ];
-    'scouting-questions/new-answer': [
-        [Insert_scouting_questions_new_answer],
-        unknown
-    ];
     'scouting-questions/new-group': [
         [Insert_scouting_questions_new_group],
+        unknown
+    ];
+    'scouting-questions/all-sections': [
+        [Select_scouting_questions_all_sections],
+        ScoutingQuestionSections
+    ];
+    'scouting-questions/questions-from-group': [
+        [Select_scouting_questions_questions_from_group],
+        ScoutingQuestions & {
+            eventKey: string;
+        }
+    ];
+    'scouting-questions/question-from-id': [
+        [
+            {
+                id: string;
+            }
+        ],
+        ScoutingQuestions & {
+            eventKey: string;
+        }
+    ];
+    'scouting-questions/question-from-event': [
+        [
+            {
+                eventKey: string;
+            }
+        ],
+        ScoutingQuestions & {
+            eventKey: string;
+        }
+    ];
+    'blacklist/from-account': [
+        [
+            {
+                accountId: string;
+            }
+        ],
+        Blacklist
+    ];
+    'blacklist/from-ip': [
+        [
+            {
+                ip: string;
+            }
+        ],
+        Blacklist
+    ];
+    'blacklist/delete-by-ip': [
+        [
+            {
+                ip: string;
+            }
+        ],
+        unknown
+    ];
+    'blacklist/delete-by-account': [
+        [
+            {
+                accountId: string;
+            }
+        ],
+        unknown
+    ];
+    'blacklist/delete': [
+        [
+            {
+                id: string;
+            }
+        ],
         unknown
     ];
     'scouting-questions/new-question': [
         [Insert_scouting_questions_new_question],
         unknown
     ];
-    'scouting-questions/new-section': [
-        [Insert_scouting_questions_new_section],
+    'scouting-questions/delete-section': [
+        [Delete_scouting_questions_delete_section],
         unknown
     ];
-    'scouting-questions/section-from-id': [
-        [Select_scouting_questions_section_from_id],
-        ScoutingQuestionSections
-    ];
-    'scouting-questions/update-answer': [
-        [Update_scouting_questions_update_answer],
-        unknown
-    ];
-    'scouting-questions/update-group': [
-        [Update_scouting_questions_update_group],
-        unknown
+    'scouting-questions/answer-from-id': [
+        [Select_scouting_questions_answer_from_id],
+        ScoutingAnswers
     ];
     'scouting-questions/update-question': [
         [Update_scouting_questions_update_question],
         unknown
     ];
-    'scouting-questions/update-section': [
-        [Update_scouting_questions_update_section],
+    'scouting-questions/groups-from-event': [
+        [Select_scouting_questions_groups_from_event],
+        ScoutingQuestionGroups
+    ];
+    'scouting-questions/groups-from-section': [
+        [{ section: string; eventKey: string }],
+        ScoutingQuestionGroups
+    ];
+    'scouting-questions/update-answer': [
+        [Insert_scouting_questions_update_answer],
         unknown
     ];
-    'strategy/delete': [[Delete_strategy_delete], unknown];
+    'scouting-questions/new-answer': [
+        [Insert_scouting_questions_new_answer],
+        unknown
+    ];
+    'scouting-questions/delete-answer': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
+    ];
+    'scouting-questions/delete-group': [
+        [Delete_scouting_questions_delete_group],
+        unknown
+    ];
+    'scouting-questions/new-section': [
+        [Insert_scouting_questions_new_section],
+        unknown
+    ];
+    'scouting-questions/update-section': [
+        [
+            {
+                id: string;
+                name: string;
+                multiple: boolean;
+                accountId: string;
+                dateAdded: number;
+            }
+        ],
+        unknown
+    ];
+    'scouting-questions/answer-from-team': [
+        [{ teamNumber: number; eventKey: string }],
+        {
+            id: string;
+            teamNumber: number;
+            questionId: string;
+            answer: string; // json
+            date: number;
+            question: string;
+            questionKey: string;
+            questionDescription: string;
+            questionType: string;
+            groupId: string;
+            eventKey: string;
+            section: string;
+            groupName: string;
+        }
+    ];
+    'events/from-key': [[Select_events_from_key], Events];
+    'events/all-alliances': [[Select_events_all_alliances], Alliances];
+    'events/new-event': [[Insert_events_new_event], unknown];
+    'events/delete-event': [[Delete_events_delete_event], unknown];
+    'events/new-alliance': [[Insert_events_new_alliance], unknown];
+    'events/delete-alliance': [[Delete_events_delete_alliance], unknown];
+    'events/update': [[Events], unknown];
+    'match-scouting/update': [[Update_match_scouting_update], unknown];
+    'match-scouting/new': [[Insert_match_scouting_new], unknown];
+    'match-scouting/from-match': [
+        [{ matchId: string }],
+        RetrievedMatchScouting
+    ];
+    'match-scouting/from-team': [
+        [{ team: number; eventKey: string }],
+        RetrievedMatchScouting
+    ];
+    'match-scouting/from-team-only': [
+        [{ team: number }],
+        RetrievedMatchScouting
+    ];
+    'match-scouting/from-event': [
+        [{ eventKey: string }],
+        RetrievedMatchScouting
+    ];
+    'match-scouting/from-scout': [
+        [{ scoutId: string; eventKey: string }],
+        RetrievedMatchScouting
+    ];
+    'match-scouting/from-id': [[{ id: string }], RetrievedMatchScouting];
+    'match-scouting/from-scout-group': [
+        [{ eventKey: string; scoutGroup: string }],
+        RetrievedMatchScouting
+    ];
+    'match-scouting/archive': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
+    ];
+    'match-scouting/team-custom-match': [
+        [
+            {
+                team: number;
+                eventKey: string;
+            }
+        ],
+        RetrievedMatchScouting
+    ];
+    'match-scouting/teams-pre-scouting': [
+        [
+            {
+                team: number;
+                eventKey: string;
+            }
+        ],
+        RetrievedMatchScouting
+    ];
+    'tba/from-url': [[Select_tba_from_url], TBARequests];
+    'tba/new': [[Insert_tba_new], unknown];
+    'discord/insert': [[Insert_discord_insert], unknown];
+    'discord/delete': [[Delete_discord_delete], unknown];
+    'discord/get': [[Select_discord_get], DiscordAccount];
+    'team-comments/delete': [[Insert_team_comments_delete], unknown];
+    'team-comments/update': [[Insert_team_comments_update], unknown];
+    'team-comments/new': [[Insert_team_comments_new], unknown];
+    'team-comments/from-team': [[Select_team_comments_from_team], TeamComments];
+    'team-comments/from-event': [
+        [Select_team_comments_from_event],
+        TeamComments
+    ];
+    'teams/from-event': [[Select_teams_from_event], Teams];
+    'teams/new': [[Insert_teams_new], unknown];
+    'teams/new-picture': [
+        [
+            {
+                teamNumber: number;
+                eventKey: string;
+                picture: string;
+                time: number;
+                accountId: string;
+            }
+        ],
+        unknown
+    ];
+    'teams/get-pictures': [
+        [
+            {
+                teamNumber: number;
+                eventKey: string;
+            }
+        ],
+        TeamPictures
+    ];
+    'teams/pictures-from-event': [
+        [
+            {
+                eventKey: string;
+            }
+        ],
+        TeamPictures
+    ];
+    'account/from-discord-id': [[Select_account_from_discord_id], Accounts];
+    'account/set-discord-id': [[Update_account_set_discord_id], unknown];
+    'matches/from-event': [[Select_matches_from_event], Matches];
+    'matches/new': [[Insert_matches_new], unknown];
+    'matches/from-id': [[Select_matches_from_id], Matches];
     'strategy/from-custom-match': [
         [Select_strategy_from_custom_match],
         Strategy
@@ -474,9 +625,13 @@ export type Queries = {
         [{ eventKey: string; matchNumber: number; compLevel: string }],
         Strategy
     ];
+    'strategy/delete': [[Delete_strategy_delete], unknown];
     'strategy/update': [[Update_strategy_update], unknown];
     'strategy/new': [[Insert_strategy_new], unknown];
     'strategy/from-id': [[Select_strategy_from_id], Strategy];
+    'whiteboards/delete': [[Delete_whiteboards_delete], unknown];
+    'whiteboards/new': [[Insert_whiteboards_new], unknown];
+    'whiteboards/from-id': [[Select_whiteboards_from_id], Whiteboards];
     'whiteboards/update': [[Update_whiteboards_update], unknown];
     'whiteboards/from-strategy': [
         [Select_whiteboards_from_strategy],
@@ -490,22 +645,69 @@ export type Queries = {
         [Select_team_comments_from_account],
         TeamComments
     ];
-    'team-comments/from-event': [
-        [Select_team_comments_from_event],
-        TeamComments
+
+    'scouting-questions/migrate-answer': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
     ];
-    'team-comments/from-team': [[Select_team_comments_from_team], TeamComments];
-    'team-comments/new': [[Insert_team_comments_new], unknown];
-    'team-comments/update': [[Insert_team_comments_update], unknown];
-    'teams/from-event': [[Select_teams_from_event], Teams];
-    'teams/get-pictures': [[Select_teams_get_pictures], TeamPictures];
-    'teams/new-picture': [[Insert_teams_new_picture], unknown];
-    'teams/new': [[Insert_teams_new], unknown];
-    'teams/pictures-from-event': [
-        [Select_teams_pictures_from_event],
-        TeamPictures
+    'scouting-questions/migrate-question': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
     ];
-    'whiteboards/delete': [[Delete_whiteboards_delete], unknown];
-    'whiteboards/from-id': [[Select_whiteboards_from_id], Whiteboards];
-    'whiteboards/new': [[Insert_whiteboards_new], unknown];
+    'scouting-questions/migrate-group': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
+    ];
+    'scouting-questions/migrate-section': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
+    ];
+    'scouting-questions/group-from-id': [
+        [
+            {
+                id: string;
+            }
+        ],
+        ScoutingQuestionGroups
+    ];
+    'scouting-questions/section-from-id': [
+        [
+            {
+                id: string;
+            }
+        ],
+        ScoutingQuestionSections
+    ];
+    'scouting-questions/answers-from-event': [
+        [
+            {
+                eventKey: string;
+            }
+        ],
+        ScoutingAnswers
+    ];
+    'scouting-questions/questions-from-event': [
+        [
+            {
+                eventKey: string;
+            }
+        ],
+        ScoutingQuestions
+    ];
 };
