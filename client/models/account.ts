@@ -5,6 +5,8 @@ import { attemptAsync, Result } from '../../shared/check';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
 import { socket } from '../utilities/socket';
+import { AccountNotifications } from '../../server/utilities/tables';
+import { AccountNotification } from './account-notifications';
 
 /**
  * All account events
@@ -84,17 +86,21 @@ export class Account extends Cache<AccountEvents> {
      */
     public static current?: Account;
 
-    public static async getAccount(): Promise<Account | undefined> {
-        if (Account.current) return Account.current;
-        const res = await ServerRequest.post<AccountSafe>(
-            '/account/get-account'
-        );
-        if (res.isOk()) {
-            if (!res.value.id) return;
-            Account.current = new Account(res.value);
-            Account.emit('current', Account.current);
-            return Account.current;
-        }
+    public static async getAccount() {
+        return attemptAsync(async () => {
+            if (Account.current) return Account.current;
+            const res = await ServerRequest.post<AccountSafe>(
+                '/account/get-account'
+            );
+            if (res.isOk()) {
+                if (!res.value.id) return;
+                Account.current = new Account(res.value);
+                Account.emit('current', Account.current);
+                return Account.current;
+            } else {
+                throw res.error;
+            }
+        });
     }
 
     private static requested: string[] = [];
@@ -549,6 +555,17 @@ export class Account extends Cache<AccountEvents> {
             }
 
             throw res.error;
+        });
+    }
+
+    public async getNotifications() {
+        return attemptAsync(async () => {
+            const data = (
+                await ServerRequest.post<AccountNotifications[]>(
+                    '/account-notifications/get'
+                )
+            ).unwrap();
+            return data.map(AccountNotification.retrieve);
         });
     }
 }

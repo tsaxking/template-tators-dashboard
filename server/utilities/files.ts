@@ -34,13 +34,18 @@ export type FileError = 'NoFile' | 'FileExists' | 'NoAccess' | 'Unknown';
  */
 const matchJSONError = (e: Error): JSONError => {
     // console.log(e);
-    return (
-        matchInstance<Error, JSONError>(
-            e,
-            [SyntaxError, () => 'InvalidJSON'],
-            [Error, () => 'Unknown']
-        ) ?? 'Unknown'
-    );
+    // return (
+    //     matchInstance<Error, JSONError>(
+    //         e,
+    //         [SyntaxError, () => 'InvalidJSON'],
+    //         [Error, () => 'Unknown']
+    //     ) ?? 'Unknown'
+    // );
+    return matchInstance<Error, JSONError>(e)
+        .case(SyntaxError, () => 'InvalidJSON')
+        .default(() => 'Unknown')
+        .exec()
+        .unwrap();
 };
 
 /**
@@ -52,15 +57,21 @@ const matchJSONError = (e: Error): JSONError => {
  */
 const matchFileError = (e: Error): FileError => {
     // console.log(e);
-    return (
-        matchInstance<Error, FileError>(
-            e,
-            [Error, () => 'Unknown'],
-            [TypeError, () => 'NoFile'],
-            [Error, () => 'FileExists'],
-            [Error, () => 'NoAccess']
-        ) ?? 'Unknown'
-    );
+    // return (
+    //     matchInstance<Error, FileError>(
+    //         e,
+    //         [Error, () => 'Unknown'],
+    //         [TypeError, () => 'NoFile'],
+    //         [Error, () => 'FileExists'],
+    //         [Error, () => 'NoAccess']
+    //     ) ?? 'Unknown'
+    // );
+
+    return matchInstance<Error, FileError>(e)
+        .case(TypeError, () => 'NoFile')
+        .default(() => 'Unknown')
+        .exec()
+        .unwrap();
 };
 
 /**
