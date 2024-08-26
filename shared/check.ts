@@ -326,7 +326,7 @@ export const isSimilar = (a: unknown, b: unknown): boolean => {
         return aKeys.every(k => isSimilar(a[k], b[k]));
     }
     return false;
-}
+};
 
 /**
  * Converts an array of results to a single result

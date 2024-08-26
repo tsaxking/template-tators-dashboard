@@ -14,6 +14,7 @@ import { TeamComments } from '../../utilities/tables';
 import { RetrievedMatchScouting } from '../../utilities/tables';
 import { dateTime } from '../../../shared/clock';
 import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
+import { resolveAll } from '../../../shared/check';
 
 export const router = new Route();
 
@@ -179,7 +180,7 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
     const comments = await DB.all('team-comments/from-event', { eventKey });
-    const accounts = await Account.getAll();
+    const accounts = (await Account.getAll()).unwrap();
 
     if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
@@ -275,7 +276,9 @@ router.post('/event/:eventKey/summary', auth, async (req, res) => {
 });
 
 router.post('/accounts/all', auth, async (req, res) => {
-    const accounts = await Account.getAll();
+    const accounts = (await Account.getAll()).unwrap();
 
-    res.json(await Promise.all(accounts.map(a => a.safe())));
+    res.json(
+        resolveAll(await Promise.all(accounts.map(a => a.safe()))).unwrap()
+    );
 });

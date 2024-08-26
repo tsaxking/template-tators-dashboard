@@ -649,7 +649,7 @@ export default class Account<
                 passwordChange: undefined,
                 passwordChangeDate: undefined,
                 emailChange: undefined,
-                discordId: undefined,
+                discordId: undefined
             });
 
             a.sendVerification();

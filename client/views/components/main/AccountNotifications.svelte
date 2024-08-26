@@ -30,9 +30,13 @@ onMount(() => {
 });
 </script>
 
-<div class="offcanvas offcanvas-end" id="notifications-offcanvas" style="
+<div
+    class="offcanvas offcanvas-end"
+    id="notifications-offcanvas"
+    style="
     z-index: 1050;
-">
+"
+>
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Notifications</h5>
     </div>
@@ -42,9 +46,9 @@ onMount(() => {
         {:else}
             <div class="container-fluid">
                 {#each notifications as notification}
-                <div class="row mb-3">
-                    <Notification {notification} />
-                </div>
+                    <div class="row mb-3">
+                        <Notification {notification} />
+                    </div>
                 {/each}
             </div>
         {/if}

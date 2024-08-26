@@ -698,15 +698,15 @@
 }
 
 .hover.hover-slow {
-    transition: all 0.7s  ease-in-out;
+    transition: all 0.7s ease-in-out;
 }
 
 .hover.hover-grow-faster {
-    transition: transform 0.1s  ease-in-out;
+    transition: transform 0.1s ease-in-out;
 }
 
 .hover.hover-grow {
-    transition: transform 0.5s  ease-in-out;
+    transition: transform 0.5s ease-in-out;
 }
 
 .hover.hover-grow:hover {
