@@ -62,7 +62,7 @@ export class MatchScouting extends Cache {
                 const ms = new MatchScouting(matchScouting);
                 (await ms.remove()).unwrap();
             }
-            const account = await Account.fromId(data.scoutId || '');
+            const account = (await Account.fromId(data.scoutId || '')).unwrap();
             const id = uuid();
             const time = Date.now();
 

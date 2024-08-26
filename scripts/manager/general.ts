@@ -71,7 +71,7 @@ const blacklist = async () => {
     );
 
     if (accountOrIp === 'Account') {
-        const accounts = await Account.getAll();
+        const accounts = (await Account.getAll()).unwrap();
         const a = await select(
             'Select an account to blacklist',
             accounts.map(a => ({

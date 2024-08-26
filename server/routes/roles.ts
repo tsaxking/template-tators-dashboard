@@ -6,7 +6,7 @@ import { Permission } from '../../shared/permissions';
 export const router = new Route();
 
 router.post('/all', async (req, res) => {
-    const roles = await Role.all();
+    const roles = (await Role.all()).unwrap();
     res.json(
         await Promise.all(
             roles.map(async r => ({
@@ -37,7 +37,7 @@ router.post<{
     async (req, res) => {
         const { name, description, rank } = req.body;
 
-        const roles = await Role.all();
+        const roles = (await Role.all()).unwrap();
         if (roles.find(r => r.name === name)) {
             return res.sendStatus('roles:already-exists');
         }
@@ -65,7 +65,7 @@ router.post<{
     }),
     async (req, res) => {
         const { id, name, description, rank } = req.body;
-        const role = await Role.fromId(id);
+        const role = (await Role.fromId(id)).unwrap();
 
         if (!role) return res.sendStatus('role:not-found');
 
@@ -88,7 +88,7 @@ router.post<{
     }),
     async (req, res) => {
         const { id } = req.body;
-        const role = await Role.fromId(id);
+        const role = (await Role.fromId(id)).unwrap();
 
         if (!role) return res.sendStatus('role:not-found');
         if (role.name === 'admin') {
@@ -113,21 +113,21 @@ router.post<{
     }),
     async (req, res) => {
         const { id, permission } = req.body;
-        const role = await Role.fromId(id);
+        const role = (await Role.fromId(id)).unwrap();
 
         if (!role) return res.sendStatus('role:not-found');
         if (role.name === 'admin') {
             return res.sendStatus('roles:cannot-edit-admin');
         }
 
-        const perms = await role.getPermissions();
+        const perms = (await role.getPermissions()).unwrap();
 
         if (perms.find(p => p.permission === permission)) {
             // permission already exists on role
             return res.sendStatus('permissions:error');
         }
 
-        const p = await Role.getAllPermissions();
+        const p = (await Role.getAllPermissions()).unwrap();
 
         if (!p.find(p => p.permission === permission)) {
             return res.sendStatus('permissions:not-found');
@@ -159,14 +159,14 @@ router.post<{
     async (req, res) => {
         const { id, permission } = req.body;
 
-        const role = await Role.fromId(id);
+        const role = (await Role.fromId(id)).unwrap();
 
         if (!role) return res.sendStatus('role:not-found');
         if (role.name === 'admin') {
             return res.sendStatus('roles:cannot-edit-admin');
         }
 
-        const perms = await role.getPermissions();
+        const perms = (await role.getPermissions()).unwrap();
 
         if (!perms.find(p => p.permission === permission)) {
             return res.sendStatus('permissions:error');
