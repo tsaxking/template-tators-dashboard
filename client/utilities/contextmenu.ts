@@ -44,7 +44,7 @@ const rightClickContextMenu = (e: MouseEvent, el: HTMLDivElement) => {
  */
 export const contextmenu = (
     target: HTMLElement,
-    options: ContextMenuOptions,
+    options: ContextMenuOptions
 ) => {
     const el = create('div');
     el.classList.add('shadow', 'border-0', 'contextmenu', 'rounded');

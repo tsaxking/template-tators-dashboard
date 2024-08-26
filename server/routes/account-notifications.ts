@@ -22,14 +22,18 @@ router.post<{ id: string; read: boolean }>(
         const notif = (await AccountNotification.fromId(id)).unwrap();
         if (!notif) return res.sendStatus('account-notification:not-found');
 
-        if (notif.accountId !== req.session.accountId) return res.sendStatus('account-notification:not-owner');
+        if (notif.accountId !== req.session.accountId)
+            return res.sendStatus('account-notification:not-owner');
 
         await notif.markRead(read);
 
         if (read) res.sendStatus('account-notification:mark-read');
         else res.sendStatus('account-notification:mark-unread');
 
-        req.session.emitToAccount('account-notifications:mark-read', { id, read });
+        req.session.emitToAccount('account-notifications:mark-read', {
+            id,
+            read
+        });
     }
 );
 
@@ -41,7 +45,8 @@ router.post<{ id: string }>(
         const notif = (await AccountNotification.fromId(id)).unwrap();
         if (!notif) return res.sendStatus('account-notification:not-found');
 
-        if (notif.accountId !== req.session.accountId) return res.sendStatus('account-notification:not-owner');
+        if (notif.accountId !== req.session.accountId)
+            return res.sendStatus('account-notification:not-owner');
 
         await notif.delete();
 

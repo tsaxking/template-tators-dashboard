@@ -637,15 +637,19 @@ router.post<{
     async (req, res) => {
         const { ids } = req.body;
 
-        const accounts = resolveAll(await Promise.all(ids.map(id => Account.fromId(id)))).unwrap();
+        const accounts = resolveAll(
+            await Promise.all(ids.map(id => Account.fromId(id)))
+        ).unwrap();
 
         res.json(
             await Promise.all(
                 accounts.map(async a =>
                     a
-                        ? (await a.safe({
-                              id: true
-                          })).unwrap()
+                        ? (
+                              await a.safe({
+                                  id: true
+                              })
+                          ).unwrap()
                         : undefined
                 )
             )

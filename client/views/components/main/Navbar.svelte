@@ -53,6 +53,7 @@ onMount(() => {
     jQuery('#report-issue').tooltip();
 });
 </script>
+
 <nav
     class="navbar navbar-expand-lg fixed-top shadow text-light bg-dark d-flex justify-content-between"
     id="top-navbar"
@@ -114,22 +115,24 @@ onMount(() => {
                 {/if}
             </a>
             <button
-            type="button"
-            class="btn btn-primary position-relative p-2 me-5"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#notifications-offcanvas"
-            aria-controls="notifications-offcanvas"
-            on:click="{() => {
-                showNotifications = !showNotifications;
-            }}"
-        >
-            <i class="material-icons"> notifications </i>
-            {#if !!unread}
-            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">
-                {unread}
-            </span>
-            {/if}
-        </button>
+                type="button"
+                class="btn btn-primary position-relative p-2 me-5"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#notifications-offcanvas"
+                aria-controls="notifications-offcanvas"
+                on:click="{() => {
+                    showNotifications = !showNotifications;
+                }}"
+            >
+                <i class="material-icons"> notifications </i>
+                {#if !!unread}
+                    <span
+                        class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
+                    >
+                        {unread}
+                    </span>
+                {/if}
+            </button>
             <ul
                 class="dropdown-menu dropdown-menu-end p-0"
                 aria-labelledby="navbarDropdown"

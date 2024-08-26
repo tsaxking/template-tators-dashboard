@@ -1,5 +1,4 @@
-import { attempt, isSimilar } from "./check";
-
+import { attempt, isSimilar } from './check';
 
 type Case<T, R> = {
     match: T;
@@ -30,11 +29,11 @@ class MatchStatement<T, R> {
                     return fn(this.value);
                 }
             }
-    
+
             if (this.defaultCase) {
                 return this.defaultCase(this.value);
             } else {
-                throw new Error("No match found");
+                throw new Error('No match found');
             }
         });
     }
@@ -74,14 +73,15 @@ class MatchInstanceStatement<T, R> {
                     return fn(this.value);
                 }
             }
-    
+
             if (this.defaultCase) {
                 return this.defaultCase(this.value);
             } else {
-                throw new Error("No match found");
+                throw new Error('No match found');
             }
         });
     }
 }
 
-export const matchInstance = <T, R>(value: T) => new MatchInstanceStatement<T, R>(value);
+export const matchInstance = <T, R>(value: T) =>
+    new MatchInstanceStatement<T, R>(value);
