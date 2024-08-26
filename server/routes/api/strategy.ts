@@ -1,6 +1,7 @@
 import { Route } from '../../structure/app/app';
 import { validate } from '../../middleware/data-type';
 import { Strategy } from '../../structure/cache/strategy';
+import { CompLevel } from '../../../shared/db-types-extended';
 
 export const router = new Route();
 
@@ -48,6 +49,22 @@ router.post<{
     const s = (await Strategy.fromId(id)).unwrap();
 
     if (!s) return res.sendStatus('strategy:not-found');
+
+    return res.json(s);
+});
+
+router.post<{
+    eventKey: string;
+    matchNumber: number;
+    compLevel: CompLevel;
+}>('/from-match', validate({
+    eventKey: 'string',
+    matchNumber: 'number',
+    compLevel: 'string',
+}), async (req, res) => {
+    const { eventKey, matchNumber, compLevel } = req.body;
+
+    const s = (await Strategy.fromMatch(eventKey, matchNumber, compLevel)).unwrap();
 
     return res.json(s);
 });

@@ -1,125 +1,87 @@
 <script lang="ts">
-import { dateTime } from './../../../../shared/clock';
 import { FIRSTEvent } from './../../../models/FIRST/event';
 import { FIRSTMatch } from './../../../models/FIRST/match';
+import { Strategy } from '../../../models/FIRST/strategy';
 import { onMount } from 'svelte';
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import { Ok } from '../../../../shared/check';
 import { fade } from 'svelte/transition';
+import { prompt } from '../../../utilities/notifications';
+import { FIRSTTeam } from '../../../models/FIRST/team';
 
-interface MatchScouting {
-    teams: { team: number; scouted: boolean }[];
-    match?: FIRSTMatch;
-}
+let loading: boolean = true;
 
-const rbt = '../../../../public/pictures/icons/rbt.png';
-
-let matchScouting: MatchScouting[] = [];
-let selectedMatch = 0;
-let redTeams: FIRSTTeam[] = [];
+let matches: FIRSTMatch[] = [];
+let match: FIRSTMatch | undefined;
+let strategies: Strategy[] = [];
+let strategy: Strategy | undefined;
 let blueTeams: FIRSTTeam[] = [];
-let minutes = 0;
-let closestMatch: FIRSTMatch | undefined;
-let loading = true;
-let matchtime: string;
+let redTeams: FIRSTTeam[] = [];
 
-const strategyArr = [
-    { id: 0, name: 'Strategy 1' },
-    { id: 1, name: 'Strategy 2' },
-    { id: 2, name: 'Strategy 3' }
-];
-
-let selectedStrategy = 0;
-
-const updateMatchScouting = async (e: FIRSTEvent) => {
-    loading = true;
-    const [statusRes, matchesRes] = await Promise.all([
-        e.getStatus(),
-        e.getMatches()
-    ]);
-
-    if (statusRes.isErr() || matchesRes.isErr()) {
-        console.error(
-            (statusRes as Ok<any>).value.error ||
-                (matchesRes as Ok<any>).value.error
-        );
-        loading = false;
+const getMatches = async (event: FIRSTEvent) => {
+    const res = await event.getMatches();
+    if (res.isErr()) {
+        console.error(res.error);
         return;
     }
 
-    const { matches } = statusRes.value;
-    matchScouting = await Promise.all(
-        matchesRes.value.map(async m => {
-            const match = matches.find(
-                _m => _m.match === m.number && _m.compLevel === m.compLevel
-            );
-            if (!match) return { teams: [] };
-
-            const unScouted = match.teams;
-            const teamsResult = await m.getTeams();
-            if (teamsResult.isErr()) return { teams: [] };
-
-            return {
-                teams: teamsResult.value.filter(Boolean).map(t => ({
-                    team: t.number,
-                    scouted: !unScouted.includes(t.number)
-                })),
-                match: m
-            };
-        })
-    );
-
+    matches = res.value;
+    if (matches.length > 0) {
+        match = matches[0]; // Set the first match as the default selected
+        await updateTeams();
+        await getStrategies(match);
+    }
     loading = false;
 };
 
-const fetchTeamsData = async (match: FIRSTMatch) => {
+const updateTeams = async () => {
+    if (!match) return;
     const teamsResult = await match.getTeams();
     if (teamsResult.isErr()) {
         console.error(teamsResult.error);
-        return [];
+        return;
     }
-    return teamsResult.value.filter(Boolean);
+    const teams = teamsResult.value.filter(Boolean);
+    redTeams = teams.slice(0, 3);
+    blueTeams = teams.slice(3, 6);
+};
+
+const newStrategy = async () => {
+    let name = await prompt('Strategy Name');
+    if (!name) return;
+
+    const res = await Strategy.new({
+        name,
+        matchId: undefined,
+        customMatchId: undefined,
+        comment: '',
+        checks: ''
+    });
+};
+
+const getStrategies = async (match: FIRSTMatch) => {
+    const res = await match.getStrategies();
+    if (res.isErr()) {
+        console.error(res.error);
+        return;
+    }
+
+    strategies = res.value;
 };
 
 onMount(() => {
-    FIRSTEvent.on('select', updateMatchScouting);
-    if (FIRSTEvent.current) updateMatchScouting(FIRSTEvent.current);
-
-    return () => {
-        FIRSTEvent.off('select', updateMatchScouting);
+    const handleSelectEvent = async (event: FIRSTEvent) => {
+        await getMatches(event);
     };
-});
 
-$: {
-    const match = matchScouting[selectedMatch]?.match;
-    if (match) {
-        (async () => {
-            const teams = await fetchTeamsData(match);
-            redTeams = teams.slice(0, 3);
-            blueTeams = teams.slice(3, 6);
-        })();
+    FIRSTEvent.on('select', handleSelectEvent);
+
+    if (FIRSTEvent.current) {
+        getMatches(FIRSTEvent.current);
     }
 
-    const selectedMatchTime =
-        matchScouting[selectedMatch]?.match?.tba.predicted_time || 0;
-    closestMatch = matchScouting.reduce(
-        (closest, { match }) => {
-            if (!match) return closest;
-            const matchTime = match.tba.predicted_time;
-            const diff = Math.abs(matchTime - selectedMatchTime);
-            return diff < (closest?.diff || Infinity)
-                ? { match, diff }
-                : closest;
-        },
-        { match: undefined, diff: Infinity } as {
-            match?: FIRSTMatch;
-            diff: number;
-        }
-    ).match;
-
-    minutes = Math.floor((selectedMatchTime * 1000 - Date.now()) / 60000);
-    matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
-}
+    return () => {
+        FIRSTEvent.off('select', handleSelectEvent);
+    };
+});
 </script>
 
 {#if loading}
@@ -136,27 +98,34 @@ $: {
         <!-- Control bar -->
         <div class="row mb-3">
             <div class="col-md-3">
-                <select bind:value="{selectedMatch}" class="form-select">
-                    {#each matchScouting as { match }, index}
-                        {#if match}
-                            <option value="{index}">
-                                {match.compLevel === 'qm'
-                                    ? 'Qualifier'
-                                    : match.compLevel === 'sf'
-                                      ? 'Semifinal'
-                                      : 'Final'}
-                                {match.number}
-                            </option>
-                        {/if}
+                <select
+                    bind:value="{match}"
+                    class="form-select"
+                    on:change="{updateTeams}"
+                >
+                    {#each matches as match}
+                        <option value="{match}">
+                            {match.compLevel === 'qm'
+                                ? 'Qualifier'
+                                : match.compLevel === 'sf'
+                                  ? 'Semifinal'
+                                  : 'Final'}
+                            {match.number}
+                        </option>
                     {/each}
                 </select>
             </div>
             <div class="col-md-3">
-                <select bind:value="{selectedStrategy}" class="form-select">
-                    {#each strategyArr as { id, name }}
-                        <option value="{id}">{name}</option>
+                <select bind:value="{strategy}" class="form-select">
+                    {#each strategies as strat}
+                        <option value="{strat}">{strat.name}</option>
                     {/each}
                 </select>
+            </div>
+            <div class="col-md-3">
+                <button on:click="{newStrategy}" class="btn btn-primary"
+                    >New Strategy</button
+                >
             </div>
         </div>
 
@@ -211,7 +180,7 @@ $: {
                     {#each redTeams as team}
                         <div class="bg-gray-light rounded mb-2 p-3">
                             <h5 class="m-0">{team.number} {team.name}</h5>
-                            <ul class="">
+                            <ul>
                                 <li>Test</li>
                                 <li>Test</li>
                                 <li>Test</li>
@@ -226,7 +195,7 @@ $: {
                     {#each blueTeams as team}
                         <div class="bg-gray-light rounded mb-2 p-3">
                             <h5 class="m-0">{team.number} {team.name}</h5>
-                            <ul class="">
+                            <ul>
                                 <li>Test</li>
                                 <li>Test</li>
                                 <li>Test</li>
