@@ -9,7 +9,7 @@ export const selectAccount = async (
     filter: (a: Account) => boolean = () => true
 ): Promise<Result<Account | undefined>> => {
     return attemptAsync(async () => {
-        const accounts = (await Account.getAll()).filter(filter);
+        const accounts = (await Account.getAll()).unwrap().filter(filter);
         if (!accounts.length) {
             throw new Error('no-account');
         }
@@ -109,13 +109,9 @@ export const createAccount = async () => {
         false
     );
 
-    const a = await Account.create(
-        username,
-        password,
-        email,
-        firstName,
-        lastName
-    );
+    const a = (
+        await Account.create(username, password, email, firstName, lastName)
+    ).unwrap();
 
     if (a.status === 'created') {
         backToMain(`Account ${username} created`);

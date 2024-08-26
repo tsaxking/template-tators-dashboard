@@ -9,6 +9,7 @@ import { Req } from '../structure/app/req';
 import { Res } from '../structure/app/res';
 import { capitalize } from '../../shared/text';
 import { detect } from '../middleware/profanity-detection';
+import { resolveAll } from '../../shared/check';
 
 export const router = new Route();
 
@@ -25,17 +26,19 @@ const redirect = (req: Req, res: Res, next: Next) => {
 
 // gets the account from the session
 router.post('/get-account', async (req, res) => {
-    const account = await req.session.getAccount();
+    const account = (await req.session.getAccount()).unwrap();
     // const account = await Account.fromUsername('tsaxking');
 
     if (account) {
-        const safe = await account.safe({
-            roles: true,
-            email: true,
-            memberInfo: true,
-            permissions: true,
-            id: true
-        });
+        const safe = (
+            await account.safe({
+                roles: true,
+                email: true,
+                memberInfo: true,
+                permissions: true,
+                id: true
+            })
+        ).unwrap();
         res.json(safe);
     } else res.status(404).json({ error: 'Not logged in' });
 });
@@ -59,10 +62,10 @@ router.get('/sign-up', redirect, (req, res, next) => {
     });
 });
 
-router.get('/change-password/:key', (req, res, next) => {
+router.get('/change-password/:key', async (req, res, next) => {
     const { key } = req.params;
     if (!key) return next();
-    const a = Account.fromPasswordChangeKey(key);
+    const a = (await Account.fromPasswordChangeKey(key)).unwrap();
     if (!a) return res.sendStatus('account:invalid-password-reset-key');
     res.sendTemplate('entries/account/reset-password');
 });
@@ -87,7 +90,7 @@ router.post<{
             Account.fromEmail(username)
         ]);
 
-        const account = u || e;
+        const account = u.unwrap() || e.unwrap();
 
         // send the same error for both username and password to prevent username enumeration
         if (!account) {
@@ -115,11 +118,11 @@ router.post<{
             });
         }
 
-        await req.session.signIn(account);
-        const roles = await account.getRoles();
-        for (const role of roles) {
-            // req.socket
-        }
+        (await req.session.signIn(account)).unwrap();
+        // const roles = (await account.getRoles()).unwrap();
+        // for (const role of roles) {
+        // req.socket
+        // }
 
         // if (r.isErr()) return res.sendStatus('unknown:error');
         res.sendStatus(
@@ -127,6 +130,8 @@ router.post<{
             { username },
             req.session.prevUrl || '/home'
         );
+
+        req.socket?.join(account.id); // join the account's room
     }
 );
 
@@ -165,13 +170,9 @@ router.post<{
             return Status.from('account:password-mismatch', req).send(res);
         }
 
-        const { status, data } = await Account.create(
-            username,
-            password,
-            email,
-            firstName,
-            lastName
-        );
+        const { status, data } = (
+            await Account.create(username, password, email, firstName, lastName)
+        ).unwrap();
 
         switch (status) {
             case 'created':
@@ -238,9 +239,9 @@ router.post<{
             return res.sendStatus('account:cannot-edit-self');
         }
 
-        const a = await Account.fromId(id);
+        const a = (await Account.fromId(id)).unwrap();
         if (!a) return res.sendStatus('account:not-found');
-        const status = a.verify();
+        const status = (await a.verify()).unwrap();
         res.sendStatus(('account:' + status) as StatusId, { id });
 
         if (status === 'verified') {
@@ -264,14 +265,14 @@ router.post<{
             return res.sendStatus('account:cannot-edit-self');
         }
 
-        const account = await Account.fromId(id);
+        const account = (await Account.fromId(id)).unwrap();
         if (!account) return res.sendStatus('account:not-found', { id });
 
         if (account.verified) {
             return res.sendStatus('account:cannot-reject-verified');
         }
 
-        const status = await Account.delete(id);
+        const status = (await Account.delete(id)).unwrap();
         res.sendStatus(('account:' + status) as StatusId, { id });
 
         if (status === 'removed') {
@@ -284,15 +285,19 @@ router.post(
     '/get-pending-accounts',
     Account.allowPermissions('verify'),
     async (_req, res) => {
-        const accounts = await Account.getUnverifiedAccounts();
+        const accounts = (await Account.getUnverifiedAccounts()).unwrap();
         res.json(
-            accounts.map(a =>
-                a.safe({
-                    roles: true,
-                    memberInfo: true,
-                    permissions: true,
-                    email: true
-                })
+            await Promise.all(
+                accounts.map(async a =>
+                    (
+                        await a.safe({
+                            roles: true,
+                            memberInfo: true,
+                            permissions: true,
+                            email: true
+                        })
+                    ).unwrap()
+                )
             )
         );
     }
@@ -313,7 +318,7 @@ router.post<{
             return res.sendStatus('account:cannot-edit-self', { id });
         }
 
-        const status = await Account.delete(id);
+        const status = (await Account.delete(id)).unwrap();
         res.sendStatus(('account:' + status) as StatusId, { id });
 
         if (status === 'removed') {
@@ -337,7 +342,7 @@ router.post<{
             return res.sendStatus('account:cannot-edit-self', { id });
         }
 
-        const a = await Account.fromId(id);
+        const a = (await Account.fromId(id)).unwrap();
         if (!a) return res.sendStatus('account:not-found');
         Status.from(('account:' + a.unverify()) as StatusId, req, {
             id
@@ -364,16 +369,19 @@ router.post<{
             return res.sendStatus('account:cannot-edit-self', { accountId });
         }
 
-        const [account, role] = await Promise.all([
+        const [a, r] = await Promise.all([
             Account.fromId(accountId),
             Role.fromId(roleId)
         ]);
+
+        const account = a.unwrap();
+        const role = r.unwrap();
 
         if (!account) return res.sendStatus('account:not-found', { accountId });
 
         if (!role) return res.sendStatus('role:not-found', { roleId });
 
-        const status = await account.addRole(role);
+        const status = (await account.addRole(role)).unwrap();
         if (status === 'role-added') {
             req.io.emit('account:role-added', { accountId, roleId });
         }
@@ -404,16 +412,19 @@ router.post<{
             return res.sendStatus('account:cannot-edit-self', { accountId });
         }
 
-        const [account, role] = await Promise.all([
+        const [a, r] = await Promise.all([
             Account.fromId(accountId),
             Role.fromId(roleId)
         ]);
+
+        const account = a.unwrap();
+        const role = r.unwrap();
 
         if (!account) return res.sendStatus('account:not-found', { accountId });
 
         if (!role) return res.sendStatus('role:not-found', { roleId });
 
-        const status = await account.removeRole(role);
+        const status = (await account.removeRole(role)).unwrap();
         if (status === 'role-removed') {
             req.io.emit('account:role-removed', { accountId, roleId });
         }
@@ -438,11 +449,11 @@ router.post<{
     async (req, res) => {
         const { settings } = req.body;
 
-        const account = await req.session.getAccount();
+        const account = (await req.session.getAccount()).unwrap();
         if (!account) return res.status(404).json({ error: 'Not logged in' });
 
         try {
-            account.setSettings(JSON.parse(settings));
+            (await account.setSettings(JSON.parse(settings))).unwrap();
         } catch (e) {
             return res.sendStatus('account:invalid-settings');
         }
@@ -457,10 +468,10 @@ router.post<{
 );
 
 router.post('/get-settings', async (req, res) => {
-    const account = await req.session.getAccount();
+    const account = (await req.session.getAccount()).unwrap();
     if (!account) return res.status(404).json({ error: 'Not logged in' });
 
-    const settings = await account.getSettings();
+    const settings = (await account.getSettings()).unwrap();
 
     res.json(settings || []);
 });
@@ -475,13 +486,15 @@ router.post<{
     async (req, res) => {
         const { username } = req.body;
 
+        const [u, e] = await Promise.all([
+            Account.fromUsername(username),
+            Account.fromEmail(username)
+        ]);
+
+        const a = u.unwrap() || e.unwrap();
         if (username.toLocaleLowerCase() === 'tatorscoutguest') {
             return res.sendStatus('account:cannot-reset-guest');
         }
-
-        const a =
-            (await Account.fromUsername(username)) ||
-            (await Account.fromEmail(username));
 
         if (!a) return res.sendStatus('account:not-found');
 
@@ -506,7 +519,7 @@ router.post<{
     async (req, res) => {
         const { password, confirmPassword, key } = req.body;
 
-        const a = await Account.fromPasswordChangeKey(key);
+        const a = (await Account.fromPasswordChangeKey(key)).unwrap();
 
         if (!a) return res.sendStatus('account:invalid-password-reset-key');
 
@@ -530,12 +543,14 @@ router.post<{
     async (req, res) => {
         const { id } = req.body;
 
-        const account = await req.session.getAccount();
+        const account = (await req.session.getAccount()).unwrap();
         if (!account) return res.sendStatus('account:not-logged-in');
 
         if (account.id !== id) {
             if (await account.hasPermission('editRoles')) {
-                const roles = await (await Account.fromId(id))?.getRoles();
+                const roles = (
+                    await (await Account.fromId(id)).unwrap()?.getRoles()
+                )?.unwrap();
                 if (roles) {
                     return res.json(
                         await Promise.all(
@@ -567,14 +582,14 @@ router.post<{
     async (req, res) => {
         const { id } = req.body;
 
-        const account = await req.session.getAccount();
+        const account = (await req.session.getAccount()).unwrap();
         if (!account) return res.sendStatus('account:not-logged-in');
 
         if (account.id !== id) {
             if (await account.hasPermission('editRoles')) {
-                const permissions = await (
-                    await Account.fromId(id)
-                )?.getPermissions();
+                const permissions = await (await Account.fromId(id))
+                    .unwrap()
+                    ?.getPermissions();
                 if (permissions) {
                     return res.json(permissions);
                 } else {
@@ -590,13 +605,13 @@ router.post<{
 );
 
 router.post('/all', async (req, res) => {
-    const account = await req.session.getAccount();
+    const account = (await req.session.getAccount()).unwrap();
     if (!account) return res.sendStatus('account:not-logged-in');
 
     if (await account.hasPermission('editRoles')) {
         return res.json(
             await Promise.all(
-                (await Account.getAll()).map(a =>
+                (await Account.getAll()).unwrap().map(a =>
                     a.safe({
                         roles: true,
                         email: true,
@@ -622,15 +637,19 @@ router.post<{
     async (req, res) => {
         const { ids } = req.body;
 
-        const accounts = await Promise.all(ids.map(id => Account.fromId(id)));
+        const accounts = resolveAll(
+            await Promise.all(ids.map(id => Account.fromId(id)))
+        ).unwrap();
 
         res.json(
             await Promise.all(
-                accounts.map(a =>
+                accounts.map(async a =>
                     a
-                        ? a.safe({
-                              id: true
-                          })
+                        ? (
+                              await a.safe({
+                                  id: true
+                              })
+                          ).unwrap()
                         : undefined
                 )
             )

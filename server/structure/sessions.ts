@@ -524,12 +524,16 @@ export class Session<
      * @readonly
      * @type {(Account | null)}
      */
-    async getAccount(): Promise<Account<AccountCustomData> | undefined> {
-        if (this.$account) return this.$account;
-        if (!this.accountId) return;
-        const a = await Account.fromId<AccountCustomData>(this.accountId);
-        this.$account = a;
-        return a;
+    async getAccount() {
+        return attemptAsync(async () => {
+            if (this.$account) return this.$account;
+            if (!this.accountId) return;
+            const a = (
+                await Account.fromId<AccountCustomData>(this.accountId)
+            ).unwrap();
+            this.$account = a;
+            return a;
+        });
     }
 
     /**
@@ -609,5 +613,10 @@ export class Session<
      */
     emit(event: string, args: unknown) {
         this.app.io.to(this.id).emit(event, args);
+    }
+
+    emitToAccount(event: string, args: unknown) {
+        if (!this.accountId) return;
+        this.app.io.to(this.accountId).emit(event, args);
     }
 }

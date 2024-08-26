@@ -14,6 +14,7 @@ import { Next } from './app/app';
 import { Req } from './app/req';
 import { Res } from './app/res';
 import env from '../utilities/env';
+import { attemptAsync, Result } from '../../shared/check';
 
 /**
  * A member's status
@@ -63,15 +64,15 @@ export class Member {
         next: Next
     ) {
         const { username } = req.body;
-        const self = await req.session.getAccount();
+        const self = (await req.session.getAccount()).unwrap();
         if (!self) return res.sendStatus('account:not-logged-in');
         if (self.username === username) return next(); // can manage self
 
-        const account = await Account.fromUsername(username);
+        const account = (await Account.fromUsername(username)).unwrap();
         if (!account) return res.sendStatus('account:not-found');
 
-        const selfRank = self.getRank;
-        const rank = account.getRank;
+        const selfRank = (await self.getRank()).unwrap();
+        const rank = (await account.getRank()).unwrap();
 
         if (selfRank < rank) return next();
 
@@ -90,14 +91,14 @@ export class Member {
      * @returns {unknown}
      */
     static async isMember(req: Req, res: Res, next: Next) {
-        const account = await req.session.getAccount();
+        const account = (await req.session.getAccount()).unwrap();
 
         if (!account) {
             req.session.prevUrl = req.pathname;
             return res.sendStatus('account:not-logged-in');
         }
 
-        const member = await Member.get(account.username);
+        const member = (await Member.get(account.username)).unwrap();
         if (!member || member.status !== 'accepted') {
             return res.redirect('/member/become-member');
         }
@@ -114,56 +115,54 @@ export class Member {
      * @param {Account} account
      * @returns {Promise<MembershipStatus>}
      */
-    static async newMember(account: Account): Promise<MembershipStatus> {
-        // if the account was rejected, they can request again.
+    static async newMember(
+        account: Account
+    ): Promise<Result<MembershipStatus>> {
+        return attemptAsync(async () => {
+            // if the account was rejected, they can request again.
 
-        const sendEmail = (message: string) => {
-            account.sendEmail('sfzMusic Membership Request', EmailType.text, {
-                constructor: {
-                    message,
-                    title: 'sfzMusic Membership Request'
-                }
-            });
-        };
-
-        const isMember = await Member.get(account.username);
-
-        if (isMember) {
-            if (isMember.status === 'rejected') {
-                await DB.run('member/update-status', {
-                    status: 'twicePending',
-                    id: account.id
-                });
-
-                sendEmail(
-                    'You have re-requested to join sfzMusic. After this request, you cannot request again. You will receive another email when your request has been approved.'
+            const sendEmail = (message: string) => {
+                account.sendEmail(
+                    'sfzMusic Membership Request',
+                    EmailType.text,
+                    {
+                        constructor: {
+                            message,
+                            title: 'sfzMusic Membership Request'
+                        }
+                    }
                 );
-                return 'pending';
-            } else {
-                return isMember.status;
+            };
+
+            const isMember = (await Member.get(account.username)).unwrap();
+
+            if (isMember) {
+                if (isMember.status === 'rejected') {
+                    await DB.run('member/update-status', {
+                        status: 'twicePending',
+                        id: account.id
+                    });
+
+                    sendEmail(
+                        'You have re-requested to join sfzMusic. After this request, you cannot request again. You will receive another email when your request has been approved.'
+                    );
+                    return 'pending';
+                } else {
+                    return isMember.status;
+                }
             }
-        }
 
-        const { id } = account;
+            await DB.run('member/new', {
+                id: account.id,
+                status: 'pending'
+            });
 
-        await DB.run('member/new', {
-            id: account.id,
-            status: 'pending'
+            sendEmail(
+                'You have requested to join sfzMusic. You will receive another email when your request has been approved.'
+            );
+
+            return 'pending';
         });
-
-        sendEmail(
-            'You have requested to join sfzMusic. You will receive another email when your request has been approved.'
-        );
-
-        new Member({
-            id,
-            bio: '',
-            title: '',
-            resume: '',
-            status: 'pending'
-        });
-
-        return 'pending';
     }
 
     /**
@@ -175,12 +174,15 @@ export class Member {
      * @param {string} username
      * @returns {Promise<Member | undefined>}
      */
-    static async get(username: string): Promise<Member | undefined> {
-        const data = await DB.get('member/from-username', {
-            username
+    static async get(username: string) {
+        return attemptAsync(async () => {
+            const data = (
+                await DB.get('member/from-username', {
+                    username
+                })
+            ).unwrap();
+            if (data) return new Member(data);
         });
-        if (data.isOk() && data.value) return new Member(data.value);
-        return undefined;
     }
 
     /**
@@ -191,10 +193,12 @@ export class Member {
      * @async
      * @returns {Promise<Member[]>}
      */
-    static async getMembers(): Promise<Member[]> {
-        const res = await DB.all('member/all');
-        if (res.isOk()) return res.value.map((m: MemberObj) => new Member(m));
-        return [];
+    static async getMembers() {
+        return attemptAsync(async () => {
+            return (await DB.all('member/all'))
+                .unwrap()
+                .map(m => new Member(m));
+        });
     }
 
     /**
@@ -269,7 +273,7 @@ export class Member {
 
         this.status = 'accepted';
 
-        const account = await Account.fromId(this.id);
+        const account = (await Account.fromId(this.id)).unwrap();
         if (!account) return;
 
         account.sendEmail(
@@ -290,21 +294,27 @@ export class Member {
      * @date 3/8/2024 - 6:09:32 AM
      */
     reject() {
-        if (this.status === 'twicePending') {
-            DB.run('member/update-status', {
-                status: 'notAllowed',
-                id: this.id
-            });
+        return attemptAsync(async () => {
+            if (this.status === 'twicePending') {
+                (
+                    await DB.run('member/update-status', {
+                        status: 'notAllowed',
+                        id: this.id
+                    })
+                ).unwrap();
 
-            this.status = 'notAllowed';
-            return;
-        }
-        DB.run('member/update-status', {
-            status: 'rejected',
-            id: this.id
+                this.status = 'notAllowed';
+                return;
+            }
+            (
+                await DB.run('member/update-status', {
+                    status: 'rejected',
+                    id: this.id
+                })
+            ).unwrap();
+
+            this.status = 'rejected';
         });
-
-        this.status = 'rejected';
     }
 
     /**
@@ -315,17 +325,25 @@ export class Member {
      * @returns {*}
      */
     async revoke() {
-        DB.run('member/delete', {
-            id: this.id
-        });
-        const account = await Account.fromId(this.id);
-        if (!account) return;
-        account.sendEmail(`${env.TITLE} Membership Revoked`, EmailType.text, {
-            constructor: {
-                message:
-                    'Your membership to sfzMusic has been revoked. You can no longer access the member portal.',
-                title: 'sfzMusic Membership Revoked'
-            }
+        return attemptAsync(async () => {
+            (
+                await DB.run('member/delete', {
+                    id: this.id
+                })
+            ).unwrap();
+            const account = (await Account.fromId(this.id)).unwrap();
+            if (!account) return;
+            account.sendEmail(
+                `${env.TITLE} Membership Revoked`,
+                EmailType.text,
+                {
+                    constructor: {
+                        message:
+                            'Your membership to sfzMusic has been revoked. You can no longer access the member portal.',
+                        title: 'sfzMusic Membership Revoked'
+                    }
+                }
+            );
         });
     }
 
@@ -355,16 +373,21 @@ export class Member {
      * @returns {(MemberReturnStatus.invalidBio | MemberReturnStatus.success)}
      */
     changeBio(bio: string) {
-        if (!Account.isValid(bio, [' '])) return MemberReturnStatus.invalidBio;
+        return attemptAsync(async () => {
+            if (!Account.isValid(bio, [' ']))
+                return MemberReturnStatus.invalidBio;
 
-        DB.run('member/update-bio', {
-            bio: bio,
-            id: this.id
+            (
+                await DB.run('member/update-bio', {
+                    bio: bio,
+                    id: this.id
+                })
+            ).unwrap();
+
+            this.bio = bio;
+
+            return MemberReturnStatus.success;
         });
-
-        this.bio = bio;
-
-        return MemberReturnStatus.success;
     }
 
     /**
@@ -375,18 +398,22 @@ export class Member {
      * @returns {(MemberReturnStatus.invalidTitle | MemberReturnStatus.success)}
      */
     changeTitle(title: string) {
-        if (!Account.isValid(title, [' '])) {
-            return MemberReturnStatus.invalidTitle;
-        }
+        return attemptAsync(async () => {
+            if (!Account.isValid(title, [' '])) {
+                return MemberReturnStatus.invalidTitle;
+            }
 
-        DB.run('member/update-title', {
-            title,
-            id: this.id
+            (
+                await DB.run('member/update-title', {
+                    title,
+                    id: this.id
+                })
+            ).unwrap();
+
+            this.title = title;
+
+            return MemberReturnStatus.success;
         });
-
-        this.title = title;
-
-        return MemberReturnStatus.success;
     }
 
     // async addSkill(...skills: { skill: string, years: number }[]): Promise<MemberReturnStatus[]> {
@@ -443,7 +470,7 @@ export class Member {
 
         this.resume = resume;
 
-        DB.run('member/update-resume', {
+        return DB.run('member/update-resume', {
             resume: id,
             id: this.id
         });

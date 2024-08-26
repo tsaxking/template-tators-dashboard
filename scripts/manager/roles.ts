@@ -12,7 +12,7 @@ export const selectRole = async (
     message = 'Select a role'
 ): Promise<Result<Role>> => {
     return attemptAsync(async () => {
-        const roles = await Role.all();
+        const roles = (await Role.all()).unwrap();
         if (!roles.length) {
             throw new Error('no-role');
         }
@@ -85,7 +85,7 @@ export const addRoleToAccount = async () => {
             const account = accountRes.value;
             const role = roleRes.value;
 
-            const roles = await account.getRoles();
+            const roles = (await account.getRoles()).unwrap();
 
             if (roles.some(r => r.name === role.name)) {
                 backToMain(
@@ -111,7 +111,7 @@ export const removeRoleFromAccount = async () => {
 
         if (!account) return backToMain('No account selected');
 
-        const roles = await account.getRoles();
+        const roles = (await account.getRoles()).unwrap();
         if (!roles.length) {
             backToMain(`Account ${account.username} has no roles`);
         } else {
@@ -145,10 +145,10 @@ export const saveRolesToJson = async () => {
 
     const data = {
         roles: await Promise.all(
-            roles.map(async role => {
+            roles.unwrap().map(async role => {
                 return {
                     role,
-                    permissions: await role.getPermissions()
+                    permissions: (await role.getPermissions()).unwrap()
                 };
             })
         ),
@@ -166,8 +166,8 @@ export const saveRolesToJson = async () => {
 };
 
 export const applyRolesFromJson = async () => {
-    const currentRoles = await Role.all();
-    const currentPermissions = await Role.getAllPermissions();
+    const currentRoles = (await Role.all()).unwrap();
+    const currentPermissions = (await Role.getAllPermissions()).unwrap();
 
     if (currentRoles.length || currentPermissions.length) {
         const res = await confirm(
