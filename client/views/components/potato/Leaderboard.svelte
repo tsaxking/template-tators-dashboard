@@ -50,7 +50,9 @@ onMount(() => {
         <tbody>
             {#each potatoes as potato, i}
                 <tr
-                    class="{self && self.accountId === potato.accountId ? 'table-primary' : ''}"
+                    class="{self && self.accountId === potato.accountId
+                        ? 'table-primary'
+                        : ''}"
                 >
                     <td>{i + 1}</td>
                     <td>{potato.username}</td>

@@ -5,9 +5,13 @@ import {
     Accounts,
     Delete_account_notifications_delete,
     Insert_account_notifications_new,
+    Insert_potato_new,
+    Potato,
     Select_account_notifications_from_account,
     Select_account_notifications_from_id,
-    Update_account_notifications_mark_read
+    Select_potato_from_account,
+    Update_account_notifications_mark_read,
+    Update_potato_update
 } from './tables';
 import { Select_whiteboards_from_strategy } from './tables';
 import { Members } from './tables';
@@ -710,4 +714,8 @@ export type Queries = {
         ],
         ScoutingQuestions
     ];
+    'potato/all': [[], Potato];
+    'potato/from-account': [[Select_potato_from_account], Potato];
+    'potato/new': [[Insert_potato_new], unknown];
+    'potato/update': [[Update_potato_update], unknown];
 };

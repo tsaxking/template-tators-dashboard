@@ -8,13 +8,14 @@ import Filter from 'bad-words';
 export const router = new Route();
 
 router.post('/init', async (req, res) => {
-    const a = await req.session.getAccount();
+    const a = (await req.session.getAccount()).unwrap();
     if (!a) return res.sendStatus('account:not-logged-in');
 
-    const roles = await a.getRoles();
-    if (roles.find(r => r.name.toLowerCase() === 'mentor')) return res.status(401).json({
-        error: 'Mentors are not allowed to have a potato.'
-    });
+    const roles = (await a.getRoles()).unwrap();
+    if (roles.find(r => r.name.toLowerCase() === 'mentor'))
+        return res.status(401).json({
+            error: 'Mentors are not allowed to have a potato.'
+        });
 
     const p = (await Potato.fromAccount(a.id)).unwrap();
     res.json((await p.toObject()).unwrap());

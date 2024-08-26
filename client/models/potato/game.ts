@@ -126,6 +126,6 @@ export class Potato extends Cache<PotatoEvents> {
     }
 
     changeName(name: string) {
-        return ServerRequest.post('/api/potato/change-name', {name});
+        return ServerRequest.post('/api/potato/change-name', { name });
     }
 }

@@ -12,7 +12,7 @@ import EventSummary from '../pages/EventSummary.svelte';
 import { FIRSTEvent } from '../../models/FIRST/event';
 import MatchSchedule from '../pages/MatchSchedule.svelte';
 import Strategy from '../pages/Strategy.svelte';
-import Leaderboard from '../componenets/potato/Leaderboard.svelte';
+import Leaderboard from '../components/potato/Leaderboard.svelte';
 
 const groups: PageGroup[] = [
     {

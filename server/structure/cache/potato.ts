@@ -15,7 +15,7 @@ export class Potato extends Cache {
 
     public static fromUsername(username: string) {
         return attemptAsync(async () => {
-            const account = await Account.fromUsername(username);
+            const account = (await Account.fromUsername(username)).unwrap();
             if (!account) return null;
             return (await this.fromAccount(account.id)).unwrap();
         });
@@ -130,14 +130,13 @@ export class Potato extends Cache {
     }
 
     getAccount() {
-        return attemptAsync(async () => {
-            return Account.fromId(this.accountId);
-        });
+        return Account.fromId(this.accountId);
     }
 
     toObject() {
         return attemptAsync(async () => {
-            const username = (await this.getAccount()).unwrap()?.username || 'Unknown';
+            const username =
+                (await this.getAccount()).unwrap()?.username || 'Unknown';
             return {
                 username,
                 ...this.json
