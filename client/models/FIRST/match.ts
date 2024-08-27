@@ -276,4 +276,8 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         FIRSTMatch.current = this;
         FIRSTMatch.emit('select', this);
     }
+
+    hasTeam(team: number): boolean {
+        return teamsFromMatch(this.tba).includes(team);
+    }
 }
