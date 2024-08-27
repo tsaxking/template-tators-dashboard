@@ -4,7 +4,7 @@ import { FIRSTMatch } from './../../../models/FIRST/match';
 import { Strategy } from '../../../models/FIRST/strategy';
 import { onMount } from 'svelte';
 import { fade } from 'svelte/transition';
-import { prompt } from '../../../utilities/notifications';
+import { alert, prompt } from '../../../utilities/notifications';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 
 let loading: boolean = true;
@@ -27,14 +27,17 @@ const getMatches = async (event: FIRSTEvent) => {
 
     matches = res.value;
     if (matches.length > 0) {
-        match = matches[0]; // Set the first match as the default selected
-        await updateTeams();
-        await getStrategies(match);
+        match = matches.find(m => m.hasTeam(2122)); // Set the first match as the default selected
+        if (!match) match = matches[0]; // this should never happen
+        await Promise.all([
+            updateTeams(match),
+            getStrategies(match),
+        ]);
     }
     loading = false;
 };
 
-const updateTeams = async () => {
+const updateTeams = async (match: FIRSTMatch | undefined) => {
     if (!match) return;
     const teamsResult = await match.getTeams();
     if (teamsResult.isErr()) {
@@ -51,12 +54,16 @@ const updateTeams = async () => {
 };
 
 const newStrategy = async () => {
+    if (!match) return alert('No match selected');
     let name = await prompt('Strategy Name');
     if (!name) return;
 
-    const res = await Strategy.new({
+    const info = await match.getInfo();
+    if (info.isErr()) return console.error(info.error);
+
+    Strategy.new({
         name,
-        matchId: undefined,
+        matchId: info.value.id,
         customMatchId: undefined,
         comment: '',
         checks: ''
@@ -106,18 +113,14 @@ const removeCheck = async (checkToRemove: string) => {
 };
 
 onMount(() => {
-    const handleSelectEvent = async (event: FIRSTEvent) => {
-        await getMatches(event);
-    };
-
-    FIRSTEvent.on('select', handleSelectEvent);
+    FIRSTEvent.on('select', getMatches);
 
     if (FIRSTEvent.current) {
         getMatches(FIRSTEvent.current);
     }
 
     return () => {
-        FIRSTEvent.off('select', handleSelectEvent);
+        FIRSTEvent.off('select', getMatches);
     };
 });
 </script>
@@ -139,7 +142,7 @@ onMount(() => {
                 <select
                     bind:value="{match}"
                     class="form-select"
-                    on:change="{updateTeams}"
+                    on:change="{() => updateTeams(match)}"
                 >
                     {#each matches as match}
                         <option value="{match}">
