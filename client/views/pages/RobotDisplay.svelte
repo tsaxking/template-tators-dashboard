@@ -27,7 +27,7 @@ let team: FIRSTTeam | undefined = undefined;
 let traces: TraceArray[] = [];
 
 const getTeam = async (t?: FIRSTTeam) => {
-    console.log('Loading: ', t);
+    team = t;
     if (!t) {
         traces = [];
         loading = false;
