@@ -13,8 +13,10 @@ let matches: FIRSTMatch[] = [];
 let match: FIRSTMatch | undefined;
 let strategies: Strategy[] = [];
 let strategy: Strategy | undefined;
-let blueTeams: FIRSTTeam[] = [];
-let redTeams: FIRSTTeam[] = [];
+let blueTeams: { team: FIRSTTeam; checks: boolean[] }[] = [];
+let redTeams: { team: FIRSTTeam; checks: boolean[] }[] = [];
+
+let checks = ['Check 1', 'Check 2', 'Check 3', 'Check 4', 'Check 5'];
 
 const getMatches = async (event: FIRSTEvent) => {
     const res = await event.getMatches();
@@ -40,8 +42,12 @@ const updateTeams = async () => {
         return;
     }
     const teams = teamsResult.value.filter(Boolean);
-    redTeams = teams.slice(0, 3);
-    blueTeams = teams.slice(3, 6);
+    redTeams = teams
+        .slice(0, 3)
+        .map(team => ({ team, checks: checks.map(() => false) }));
+    blueTeams = teams
+        .slice(3, 6)
+        .map(team => ({ team, checks: checks.map(() => false) }));
 };
 
 const newStrategy = async () => {
@@ -65,6 +71,38 @@ const getStrategies = async (match: FIRSTMatch) => {
     }
 
     strategies = res.value;
+};
+
+// Add a new check
+const addCheck = async () => {
+    const newCheck = await prompt('Enter the name of the new check:');
+    if (newCheck && !checks.includes(newCheck)) {
+        checks = [...checks, newCheck];
+        redTeams = redTeams.map(team => ({
+            ...team,
+            checks: [...team.checks, false]
+        }));
+        blueTeams = blueTeams.map(team => ({
+            ...team,
+            checks: [...team.checks, false]
+        }));
+    }
+};
+
+// Remove an existing check
+const removeCheck = async (checkToRemove: string) => {
+    const index = checks.indexOf(checkToRemove);
+    if (index > -1) {
+        checks = checks.filter(check => check !== checkToRemove);
+        redTeams = redTeams.map(team => ({
+            ...team,
+            checks: team.checks.filter((_, i) => i !== index)
+        }));
+        blueTeams = blueTeams.map(team => ({
+            ...team,
+            checks: team.checks.filter((_, i) => i !== index)
+        }));
+    }
 };
 
 onMount(() => {
@@ -133,7 +171,7 @@ onMount(() => {
         <div class="row mb-3 mx-1 h-auto">
             <div class="col-md-6 bg-danger border rounded">
                 <div class="d-flex flex-column h-100 p-3">
-                    {#each redTeams as team}
+                    {#each redTeams as { team, checks }}
                         <div
                             class="row align-items-center bg-gray-light rounded mb-2"
                         >
@@ -148,7 +186,7 @@ onMount(() => {
 
             <div class="col-md-6 bg-primary border rounded">
                 <div class="d-flex flex-column h-100 p-3">
-                    {#each blueTeams as team}
+                    {#each blueTeams as { team, checks }}
                         <div
                             class="row align-items-center bg-gray-light rounded mb-2"
                         >
@@ -162,14 +200,25 @@ onMount(() => {
             </div>
         </div>
 
-        <!-- Checks placeholder -->
+        <!-- Add/Remove Checks Section -->
         <div class="row mb-3 mx-1">
             <div class="col-md-12 border rounded border-light-subtle p-3">
-                <h1>Checks</h1>
-                <p>
-                    I don't actually remember why this is here, but it is on my
-                    whiteboard for design. Same as above.
-                </p>
+                <h1>Manage Checks</h1>
+                <p>Add or remove possible checks for each team.</p>
+                <button on:click="{addCheck}" class="btn btn-success"
+                    >Add Check</button
+                >
+                <div class="mt-3">
+                    {#each checks as check}
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="me-auto">{check}</span>
+                            <button
+                                on:click="{() => removeCheck(check)}"
+                                class="btn btn-danger btn-sm">Remove</button
+                            >
+                        </div>
+                    {/each}
+                </div>
             </div>
         </div>
 
@@ -177,13 +226,25 @@ onMount(() => {
         <div class="row mb-3 mx-1">
             <div class="col-md-6 bg-dark border rounded p-3">
                 <div class="d-flex flex-column">
-                    {#each redTeams as team}
+                    {#each redTeams as { team, checks: teamChecks }}
                         <div class="bg-gray-light rounded mb-2 p-3">
                             <h5 class="m-0">{team.number} {team.name}</h5>
                             <ul>
-                                <li>Test</li>
-                                <li>Test</li>
-                                <li>Test</li>
+                                {#each teamChecks as checked, index}
+                                    <li>
+                                        <input
+                                            type="checkbox"
+                                            bind:checked="{teamChecks[index]}"
+                                            on:click="{() =>
+                                                console.log(
+                                                    checks[index],
+                                                    teamChecks[index],
+                                                    team.number
+                                                )}"
+                                        />
+                                        <label>{checks[index]}</label>
+                                    </li>
+                                {/each}
                             </ul>
                         </div>
                     {/each}
@@ -192,13 +253,25 @@ onMount(() => {
 
             <div class="col-md-6 bg-dark border rounded p-3">
                 <div class="d-flex flex-column">
-                    {#each blueTeams as team}
+                    {#each blueTeams as { team, checks: teamChecks }}
                         <div class="bg-gray-light rounded mb-2 p-3">
                             <h5 class="m-0">{team.number} {team.name}</h5>
                             <ul>
-                                <li>Test</li>
-                                <li>Test</li>
-                                <li>Test</li>
+                                {#each teamChecks as checked, index}
+                                    <li>
+                                        <input
+                                            type="checkbox"
+                                            bind:checked="{teamChecks[index]}"
+                                            on:click="{() =>
+                                                console.log(
+                                                    checks[index],
+                                                    teamChecks[index],
+                                                    team.number
+                                                )}"
+                                        />
+                                        <label>{checks[index]}</label>
+                                    </li>
+                                {/each}
                             </ul>
                         </div>
                     {/each}
