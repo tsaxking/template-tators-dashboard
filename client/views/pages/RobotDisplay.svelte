@@ -43,8 +43,7 @@ const getTeam = async (t?: FIRSTTeam) => {
 
 onMount(() => {
     FIRSTTeam.on('select', getTeam);
-    team = FIRSTTeam.current;
-    getTeam(team);
+    getTeam(FIRSTTeam.current);
     return () => {
         FIRSTTeam.off('select', getTeam);
         team = undefined;
