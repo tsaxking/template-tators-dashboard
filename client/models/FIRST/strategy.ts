@@ -4,6 +4,8 @@ import { EventEmitter } from '../../../shared/event-emitter';
 import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
 import { Cache } from '../cache';
+import { CustomMatch } from './custom-match';
+import { FIRSTMatch } from './match';
 
 /**
  * Events that are emitted by a {@link Strategy} object
@@ -129,20 +131,52 @@ export class Strategy extends Cache<StrategyUpdateData> {
             ...data,
         });
     }
-}
 
-
-export class Check {
-    public static from(data: string[], teams: [number, number, number, number, number, number]): Result<[Check,Check,Check,Check,Check,Check]> {
-        return attempt(() => {
-            throw new Error('test');
+    getTeams() {
+        return attemptAsync(async () => {
+            const match = (await this.getMatch()).unwrap();
         });
     }
 
-    constructor(public readonly team: number, checks: string[]) {
+    getMatch() {
+        return attemptAsync(async () => {
+            if (this.matchId) return (await FIRSTMatch.fromId(this.matchId)).unwrap();
+            if (this.customMatchId) return (await CustomMatch.fromId(this.customMatchId)).unwrap();
+            throw new Error('No match found');
+        });
+    }
+
+    getChecks() {
+        return attemptAsync(async () => {
+            const teams = await this.getTeams();
+        });
+    }
+}
+
+
+type CheckEvents = {
+    'new-check': string;
+}
+
+export class Check extends EventEmitter<CheckEvents> {
+    public static from(data: string[], teams: number[]): Result<Check[]> {
+        return attempt(() => {
+            const checks = data.map(d => (d.split(':') as [string, string]));
+            return teams.map((t) => {
+                const c = checks
+                    .filter(c => +c[0] === t)
+                    .map(c => c[1]);
+                return new Check(t, c);
+            }) as [Check,Check,Check,Check,Check,Check];
+        });
+    }
+
+    constructor(public readonly team: number, public checks: string[]) {
+        super();
     }
     
     serialize(): string[] { // ['2122:check']
+        return this.checks.map(c => `${this.team}:${c}`);
     }
 }
 

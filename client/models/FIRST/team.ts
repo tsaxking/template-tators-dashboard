@@ -91,6 +91,28 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         FIRSTTeam.emit('select', undefined);
     }
 
+    public static from(team: number, event: string) {
+        return attemptAsync(async () => {
+            const [tbaTeam, tbaEvent] = await Promise.all([
+                TBA.get<TBATeam>(`/event/${event}/team/${team}`),
+                TBA.get<TBAEvent>(`/event/${event}`),
+            ]);
+
+            const t = tbaTeam.unwrap().data;
+            const e = tbaEvent.unwrap().data;
+
+            return FIRSTTeam.retrieve(t, e);
+        });
+    }
+
+    public static retrieve(team: TBATeam, event: TBAEvent) {
+        if (this.$cache.has(team.team_number + ':' + event.key)) {
+            return this.$cache.get(team.team_number + ':' + event.key) as FIRSTTeam;
+        }
+
+        return new FIRSTTeam(team, FIRSTEvent.retrieve(event));
+    }
+
     /**
      * Map of all FIRSTTeam objects
      * @date 10/9/2023 - 6:55:03 PM
