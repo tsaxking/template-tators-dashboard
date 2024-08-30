@@ -147,16 +147,16 @@ export class CustomMatch extends Cache<CustomMatchEventData> implements MatchInt
     }
 
 
-    getAlliances(): Promise<Result<{ red: FIRSTAlliance; blue: FIRSTAlliance; }>> {
-        
+    getAlliances() {
+        return attemptAsync(async () => {});
     }
 
-    getWhiteboard(): Promise<Result<Whiteboard>> {
-        
+    getWhiteboards(ctx: CanvasRenderingContext2D) {
+        return attemptAsync(async () => {});
     }
 
-    getStrategies(): Promise<Result<Strategy[]>> {
-        
+    getStrategies() {
+        return attemptAsync(async () => {});
     }
 
     hasTeam(number: number): boolean {
