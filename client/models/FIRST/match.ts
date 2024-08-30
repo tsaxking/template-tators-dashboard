@@ -5,6 +5,7 @@ import {
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
 import {
+    TBAEvent,
     TBAMatch,
     teamsFromMatch
 } from '../../../shared/submodules/tatorscout-calculations/tba';
@@ -18,6 +19,9 @@ import { Strategy } from './strategy';
 import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/check';
 import { Alliance, FIRSTAlliance } from './alliance';
+import { Matches } from '../../../server/utilities/tables';
+import { TBA } from '../../utilities/tba';
+import { MatchInterface } from './interfaces/match';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -42,7 +46,7 @@ type Updates = {
  * @class FIRSTMatch
  * @typedef {FIRSTMatch}
  */
-export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
+export class FIRSTMatch extends Cache<FIRSTMatchEventData> implements MatchInterface {
     private static readonly $emitter: EventEmitter<keyof Updates> =
         new EventEmitter<keyof Updates>();
 
@@ -71,6 +75,33 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         FIRSTMatch.$emitter.once(event, callback);
     }
 
+    public static fromId(id: string) {
+        return attemptAsync(async () => {
+            const res = (await ServerRequest.post<Matches>(
+                '/api/matches/from-id',
+                { id }
+            )).unwrap();
+
+            return (await FIRSTMatch.fromObj(res)).unwrap();
+        });
+    }
+
+    public static fromObj(data: Matches) {
+        return attemptAsync(async () => {
+            const { eventKey, matchNumber, compLevel } = data;
+            const key = `${eventKey}-${compLevel}-${matchNumber}`;
+            const [eventRes, matchRes] = await Promise.all([
+                TBA.get<TBAEvent>('/event/' + eventKey),
+                TBA.get<TBAMatch>(`/match/${key}`),
+            ]);
+            
+            const event = eventRes.unwrap().data;
+            const match = matchRes.unwrap().data;
+
+            return new FIRSTMatch(match, new FIRSTEvent(event));
+        });
+    }
+
     public static sorter(a: FIRSTMatch, b: FIRSTMatch): number {
         const levels = ['qm', 'qf', 'sf', 'f'];
         const aLevel = levels.indexOf(a.compLevel);
@@ -81,6 +112,14 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         if (+a.number < +b.number) return -1;
         if (+a.number > +b.number) return 1;
         return 0;
+    }
+
+    public static retrieve(match: TBAMatch, event: TBAEvent) {
+        if (FIRSTMatch.cache.has(match.key)) {
+            return FIRSTMatch.cache.get(match.key) as FIRSTMatch;
+        } else {
+            return new FIRSTMatch(match, FIRSTEvent.retrieve(event));
+        }
     }
 
     public static current?: FIRSTMatch = undefined;

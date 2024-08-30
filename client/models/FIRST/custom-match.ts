@@ -1,8 +1,13 @@
-import { CustomMatch as CustomMatchObj } from '../../../shared/db-types-extended';
 import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { FIRSTTeam } from './team';
-import { FIRSTEvent } from './event';
+import { attemptAsync, resolveAll, Result } from '../../../shared/check';
+import { Alliance, FIRSTAlliance } from './alliance';
+import { CustomMatches as CM_Obj } from '../../../server/utilities/tables';
+import { ServerRequest } from '../../utilities/requests';
+import { MatchInterface } from './interfaces/match';
+import { Whiteboard } from '../whiteboard/whiteboard';
+import { Strategy } from './strategy';
 
 type CustomMatchEventData = {
     update: CustomMatch;
@@ -12,7 +17,7 @@ type Updates = {
     select: CustomMatch;
 };
 
-export class CustomMatch extends Cache<CustomMatchEventData> {
+export class CustomMatch extends Cache<CustomMatchEventData> implements MatchInterface {
     private static readonly $emitter: EventEmitter<keyof Updates> =
         new EventEmitter<keyof Updates>();
 
@@ -41,6 +46,22 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
         CustomMatch.$emitter.once(event, callback);
     }
 
+    public static new(data: Omit<CM_Obj, 'id' | 'archive' | 'created'>) {
+        return ServerRequest.post('/api/custom-matcesh/new', data);
+    }
+
+    public static fromId(id: string) {
+        return attemptAsync(async () => {
+            const cm = (await ServerRequest.post<CM_Obj>('/api/custom-matches/from-id', { id })).unwrap();
+            return CustomMatch.retrieve(cm);
+        });
+    }
+
+    public static retrieve(data: CM_Obj) {
+        if (CustomMatch.cache.has(data.id)) return CustomMatch.cache.get(data.id) as CustomMatch;
+        return new CustomMatch(data);
+    }
+
     public static current?: CustomMatch = undefined;
     /**
      * Map of all FIRSTMatch objects
@@ -56,42 +77,89 @@ export class CustomMatch extends Cache<CustomMatchEventData> {
         CustomMatch
     >();
 
-    constructor(public readonly data: CustomMatchObj) {
+    public readonly id: string;
+    public readonly eventKey: string;
+    public readonly matchNumber: number;
+    public readonly compLevel: string;
+    public red1: number;
+    public red2: number;
+    public red3: number;
+    public red4: number | undefined;
+    public blue1: number;
+    public blue2: number;
+    public blue3: number;
+    public blue4: number | undefined;
+    public readonly created: number;
+    public name: string;
+    public archive: 0 | 1;
+
+    constructor(data: CM_Obj) {
         super();
+        this.id = data.id;
+        this.eventKey = data.eventKey;
+        this.matchNumber = data.matchNumber;
+        this.compLevel = data.compLevel;
+        this.red1 = data.red1;
+        this.red2 = data.red2;
+        this.red3 = data.red3;
+        this.red4 = data.red4;
+        this.blue1 = data.blue1;
+        this.blue2 = data.blue2;
+        this.blue3 = data.blue3;
+        this.blue4 = data.blue4;
+        this.created = data.created;
+        this.name = data.name;
+        this.archive = data.archive;
+
         if (!CustomMatch.cache.has(data.id)) {
             CustomMatch.cache.get(data.id)?.destroy();
         }
         CustomMatch.cache.set(data.id, this);
     }
 
-    async getTeams(): Promise<
-        [FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam, FIRSTTeam]
-    > {
-        return new Promise((res, rej) => {
-            if (!FIRSTEvent.current) return rej('No current event');
-
-            Promise.all([
-                FIRSTEvent.current.getTeam(this.data.red1),
-                FIRSTEvent.current.getTeam(this.data.red2),
-                FIRSTEvent.current.getTeam(this.data.red3),
-                FIRSTEvent.current.getTeam(this.data.blue1),
-                FIRSTEvent.current.getTeam(this.data.blue2),
-                FIRSTEvent.current.getTeam(this.data.blue3)
-            ])
-                .then(teams => {
-                    if (teams.some(t => !t)) return rej('Invalid team');
-                    res(
-                        teams as [
-                            FIRSTTeam,
-                            FIRSTTeam,
-                            FIRSTTeam,
-                            FIRSTTeam,
-                            FIRSTTeam,
-                            FIRSTTeam
-                        ]
-                    );
-                })
-                .catch(rej);
+    getTeams() {
+        return attemptAsync(async () => {
+            return resolveAll(await Promise.all([
+                this.red1,
+                this.red2,
+                this.red3,
+                this.red4, // can be null
+                this.blue1,
+                this.blue2,
+                this.blue3,
+                this.blue4, // can be null
+            ].map(t => {
+                return attemptAsync(async () => {
+                    if (!t) return null; // 0, undefined, etc.
+                    // team can be 0 if it's a practice match
+                    return (await FIRSTTeam.from(t, this.eventKey)).unwrap();
+                });
+            }))).unwrap() as [...Alliance, ...Alliance];
         });
+    }
+
+
+    update(data: Partial<Omit<CM_Obj, 'id' | 'created'>>) {
+        return ServerRequest.post('/api/custom-matches/update', {
+            ...this,
+            ...data,
+        });
+    }
+
+
+    getAlliances(): Promise<Result<{ red: FIRSTAlliance; blue: FIRSTAlliance; }>> {
+        
+    }
+
+    getWhiteboard(): Promise<Result<Whiteboard>> {
+        
+    }
+
+    getStrategies(): Promise<Result<Strategy[]>> {
+        
+    }
+
+    hasTeam(number: number): boolean {
+        
     }
 }
