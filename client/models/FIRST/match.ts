@@ -22,6 +22,8 @@ import { Alliance, FIRSTAlliance } from './alliance';
 import { Matches } from '../../../server/utilities/tables';
 import { TBA } from '../../utilities/tba';
 import { MatchInterface } from './interfaces/match';
+import { Whiteboard } from '../whiteboard/whiteboard';
+import { FIRSTWhiteboard } from './whiteboard';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -249,18 +251,21 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> implements MatchInter
         });
     }
 
-    async getWhiteboard(): Promise<Result<WhiteboardObj>> {
-        return ServerRequest.post<WhiteboardObj>(
-            '/api/whiteboard/from-match',
-            {
-                eventKey: this.event.tba.key,
-                matchNumber: this.tba.match_number,
-                compLevel: this.tba.comp_level
-            },
-            {
-                cached: true
-            }
-        );
+    async getWhiteboards(ctx: CanvasRenderingContext2D) {
+        return attemptAsync(async () => {
+            const obj = (await ServerRequest.post<WhiteboardObj>(
+                '/api/whiteboard/from-match',
+                {
+                    eventKey: this.event.tba.key,
+                    matchNumber: this.tba.match_number,
+                    compLevel: this.tba.comp_level
+                },
+                {
+                    cached: true
+                }
+            )).unwrap();
+            return FIRSTWhiteboard.retrieve(obj, ctx);
+        });
     }
 
     /**

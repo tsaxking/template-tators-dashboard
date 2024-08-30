@@ -5,7 +5,7 @@ import { socket } from '../../utilities/socket';
 import { EventEmitter } from '../../../shared/event-emitter';
 
 /**
- * Events that are emitted by a {@link WhiteboardCache} object
+ * Events that are emitted by a {@link FIRSTWhiteboard} object
  * @date 10/9/2023 - 6:58:43 PM
  *
  * @typedef {WhiteboardUpdateData}
@@ -15,7 +15,7 @@ type WhiteboardUpdateData = {
 };
 
 type Updates = {
-    select: WhiteboardCache;
+    select: FIRSTWhiteboard;
 };
 
 /**
@@ -24,10 +24,10 @@ type Updates = {
  *
  * @export
  * @class Whiteboard
- * @typedef {WhiteboardCache}
+ * @typedef {FIRSTWhiteboard}
  * @implements {FIRST}
  */
-export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
+export class FIRSTWhiteboard extends Cache<WhiteboardUpdateData> {
     private static readonly $emitter: EventEmitter<keyof Updates> =
         new EventEmitter<keyof Updates>();
 
@@ -35,34 +35,40 @@ export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
         event: K,
         callback: (data: any) => void
     ): void {
-        WhiteboardCache.$emitter.on(event, callback);
+        FIRSTWhiteboard.$emitter.on(event, callback);
     }
 
     public static off<K extends keyof Updates>(
         event: K,
         callback?: (data: any) => void
     ): void {
-        WhiteboardCache.$emitter.off(event, callback);
+        FIRSTWhiteboard.$emitter.off(event, callback);
     }
 
     public static emit<K extends keyof Updates>(event: K, data: any): void {
-        WhiteboardCache.$emitter.emit(event, data);
+        FIRSTWhiteboard.$emitter.emit(event, data);
     }
 
-    public static current?: WhiteboardCache = undefined;
+    public static retrieve(data: WhiteboardObj, ctx: CanvasRenderingContext2D) {
+        if (FIRSTWhiteboard.cache.has(data.id))
+            return FIRSTWhiteboard.cache.get(data.id) as FIRSTWhiteboard;
+        return new FIRSTWhiteboard(data, ctx);
+    }
+
+    public static current?: FIRSTWhiteboard = undefined;
 
     /**
-     * Cache for all {@link WhiteboardCache} objects
+     * Cache for all {@link FIRSTWhiteboard} objects
      * @date 10/9/2023 - 6:58:43 PM
      *
      * @public
      * @static
      * @readonly
-     * @type {Map<string, WhiteboardCache>}
+     * @type {Map<string, FIRSTWhiteboard>}
      */
-    public static readonly cache: Map<string, WhiteboardCache> = new Map<
+    public static readonly cache: Map<string, FIRSTWhiteboard> = new Map<
         string,
-        WhiteboardCache
+        FIRSTWhiteboard
     >();
 
     public readonly board: WB;
@@ -76,11 +82,11 @@ export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
      */
     constructor(
         public readonly data: WhiteboardObj,
-        ctx: CanvasRenderingContext2D
+        public readonly ctx: CanvasRenderingContext2D
     ) {
         super();
-        if (!WhiteboardCache.cache.has(data.id)) {
-            WhiteboardCache.cache.set(data.id, this);
+        if (!FIRSTWhiteboard.cache.has(data.id)) {
+            FIRSTWhiteboard.cache.set(data.id, this);
         }
 
         const b = JSON.parse(data.board) as WhiteboardState[];
@@ -94,13 +100,13 @@ export class WhiteboardCache extends Cache<WhiteboardUpdateData> {
      * @public
      */
     public destroy() {
-        WhiteboardCache.cache.delete(this.data.id);
+        FIRSTWhiteboard.cache.delete(this.data.id);
         super.destroy();
     }
 
     public select(): void {
-        WhiteboardCache.current = this;
-        WhiteboardCache.emit('select', this);
+        FIRSTWhiteboard.current = this;
+        FIRSTWhiteboard.emit('select', this);
     }
 }
 
