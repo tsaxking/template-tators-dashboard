@@ -1,4 +1,5 @@
 import { Result } from '../../../../shared/check';
+import { CompLevel } from '../../../../shared/submodules/tatorscout-calculations/tba';
 import { FIRSTAlliance, Alliance as TeamArray } from '../alliance';
 import { Strategy } from '../strategy';
 import { FIRSTWhiteboard } from '../whiteboard';
@@ -10,4 +11,8 @@ export interface MatchInterface {
     >;
     hasTeam(number: number): boolean;
     getStrategies(): Promise<Result<Strategy[]>>;
+
+    number: number;
+    compLevel: CompLevel;
+    eventKey: string;
 }

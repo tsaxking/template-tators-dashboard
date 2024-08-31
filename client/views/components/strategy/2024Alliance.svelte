@@ -10,11 +10,17 @@ import {
     resolveAll
 } from '../../../../shared/check';
 import { Bar } from 'svelte-chartjs';
+import { FIRSTAlliance } from '../../../models/FIRST/alliance';
 
-export let team1: FIRSTTeam | undefined = undefined;
-export let team2: FIRSTTeam | undefined = undefined;
-export let team3: FIRSTTeam | undefined = undefined;
+export let alliance: FIRSTAlliance;
 export let color: 'blue' | 'red' = 'blue';
+
+
+let team1: FIRSTTeam | undefined;
+let team2: FIRSTTeam | undefined;
+let team3: FIRSTTeam | undefined;
+
+$: [team1, team2, team3] = alliance.teams;
 
 type DataArr = {
     auto: {

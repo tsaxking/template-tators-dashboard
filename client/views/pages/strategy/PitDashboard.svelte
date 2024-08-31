@@ -144,7 +144,6 @@ $: {
                         <RobotCard
                             alignment="end"
                             {team}
-                            match="{selectedMatch}"
                         />
                     {/each}
                 {/if}
@@ -161,7 +160,6 @@ $: {
                         <RobotCard
                             alignment="start"
                             {team}
-                            match="{selectedMatch}"
                         />
                     {/each}
                 {/if}

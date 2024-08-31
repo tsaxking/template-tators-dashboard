@@ -1,14 +1,12 @@
 <script lang="ts">
-import { FIRSTMatch } from './../../../models/FIRST/match';
 import { FIRSTTeam } from './../../../models/FIRST/team';
 import { FIRSTEvent } from '../../../models/FIRST/event';
-import { Modal } from '../../../utilities/modals';
 import { onMount } from 'svelte';
+import { MatchInterface } from '../../../models/FIRST/interfaces/match';
 
 const rbt = '../../../../public/pictures/icons/rbt.png';
 
 export let team: FIRSTTeam | undefined;
-export let match: number;
 export let alignment: 'start' | 'end';
 export let pictures: P[] = [];
 

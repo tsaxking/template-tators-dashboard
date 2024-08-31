@@ -5,6 +5,7 @@ import {
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
 import {
+    CompLevel,
     TBAEvent,
     TBAMatch,
     teamsFromMatch
@@ -165,7 +166,7 @@ export class FIRSTMatch
     }
 
     get compLevel() {
-        return this.tba.comp_level;
+        return this.tba.comp_level as CompLevel;
     }
 
     get eventKey() {

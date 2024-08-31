@@ -90,8 +90,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
     }
 
     public static retrieve(team: TBATeam, event: TBAEvent) {
-        if (this.$cache.has(team.team_number + ':' + event.key)) {
-            return this.$cache.get(
+        if (this.cache.has(team.team_number + ':' + event.key)) {
+            return this.cache.get(
                 team.team_number + ':' + event.key
             ) as FIRSTTeam;
         }
