@@ -29,10 +29,7 @@ const getMatches = async (event: FIRSTEvent) => {
     if (matches.length > 0) {
         match = matches.find(m => m.hasTeam(2122)); // Set the first match as the default selected
         if (!match) match = matches[0]; // this should never happen
-        await Promise.all([
-            updateTeams(match),
-            getStrategies(match),
-        ]);
+        await Promise.all([updateTeams(match), getStrategies(match)]);
     }
     loading = false;
 };

@@ -23,7 +23,6 @@ type Updates = {
     update: Strategy;
 };
 
-
 /**
  * Represents the strategy for a match or a custom match. Can be paired with a whiteboard
  * @date 10/9/2023 - 6:52:30 PM
@@ -51,7 +50,10 @@ export class Strategy extends Cache<StrategyUpdateData> {
         Strategy.$emitter.off(event, callback);
     }
 
-    public static emit<K extends keyof Updates>(event: K, data: Updates[K]): void {
+    public static emit<K extends keyof Updates>(
+        event: K,
+        data: Updates[K]
+    ): void {
         Strategy.$emitter.emit(event, data);
     }
 
@@ -69,28 +71,41 @@ export class Strategy extends Cache<StrategyUpdateData> {
         Strategy
     >();
 
-
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const s = (await ServerRequest.post<S>('/api/strategy/from-id', { id })).unwrap();
+            const s = (
+                await ServerRequest.post<S>('/api/strategy/from-id', { id })
+            ).unwrap();
             return Strategy.retrieve(s);
         });
     }
 
-    public static fromMatch(eventKey: string, matchNumber: number, compLevel: string) {
+    public static fromMatch(
+        eventKey: string,
+        matchNumber: number,
+        compLevel: string
+    ) {
         return attemptAsync(async () => {
-            const s = (await ServerRequest.post<S[]>('/api/strategy/from-match', { eventKey, matchNumber, compLevel })).unwrap();
+            const s = (
+                await ServerRequest.post<S[]>('/api/strategy/from-match', {
+                    eventKey,
+                    matchNumber,
+                    compLevel
+                })
+            ).unwrap();
             return s.map(s => Strategy.retrieve(s));
         });
     }
 
-    public static new(data: Omit<S, 'id' | 'createdBy' | 'archive' | 'time' | 'createdBy'>) {
+    public static new(
+        data: Omit<S, 'id' | 'createdBy' | 'archive' | 'time' | 'createdBy'>
+    ) {
         return ServerRequest.post('/api/strategy/new', data);
     }
 
     public static retrieve(strategy: S): Strategy {
         if (Strategy.cache.has(strategy.id)) {
-            return Strategy.cache.get(strategy.id) as Strategy; 
+            return Strategy.cache.get(strategy.id) as Strategy;
         } else {
             return new Strategy(strategy);
         }
@@ -128,7 +143,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
     update(data: Omit<S, 'id' | 'createdBy'>) {
         return ServerRequest.post('/api/strategy/update', {
             id: this.id,
-            ...data,
+            ...data
         });
     }
 
@@ -140,8 +155,10 @@ export class Strategy extends Cache<StrategyUpdateData> {
 
     getMatch() {
         return attemptAsync(async () => {
-            if (this.matchId) return (await FIRSTMatch.fromId(this.matchId)).unwrap();
-            if (this.customMatchId) return (await CustomMatch.fromId(this.customMatchId)).unwrap();
+            if (this.matchId)
+                return (await FIRSTMatch.fromId(this.matchId)).unwrap();
+            if (this.customMatchId)
+                return (await CustomMatch.fromId(this.customMatchId)).unwrap();
             throw new Error('No match found');
         });
     }
@@ -153,29 +170,30 @@ export class Strategy extends Cache<StrategyUpdateData> {
     }
 }
 
-
 type CheckEvents = {
     'new-check': string;
-}
+};
 
 export class Check extends EventEmitter<CheckEvents> {
     public static from(data: string[], teams: number[]): Result<Check[]> {
         return attempt(() => {
-            const checks = data.map(d => (d.split(':') as [string, string]));
-            return teams.map((t) => {
-                const c = checks
-                    .filter(c => +c[0] === t)
-                    .map(c => c[1]);
+            const checks = data.map(d => d.split(':') as [string, string]);
+            return teams.map(t => {
+                const c = checks.filter(c => +c[0] === t).map(c => c[1]);
                 return new Check(t, c);
-            }) as [Check,Check,Check,Check,Check,Check];
+            }) as [Check, Check, Check, Check, Check, Check];
         });
     }
 
-    constructor(public readonly team: number, public checks: string[]) {
+    constructor(
+        public readonly team: number,
+        public checks: string[]
+    ) {
         super();
     }
-    
-    serialize(): string[] { // ['2122:check']
+
+    serialize(): string[] {
+        // ['2122:check']
         return this.checks.map(c => `${this.team}:${c}`);
     }
 }

@@ -17,7 +17,10 @@ type Updates = {
     select: CustomMatch;
 };
 
-export class CustomMatch extends Cache<CustomMatchEventData> implements MatchInterface {
+export class CustomMatch
+    extends Cache<CustomMatchEventData>
+    implements MatchInterface
+{
     private static readonly $emitter: EventEmitter<keyof Updates> =
         new EventEmitter<keyof Updates>();
 
@@ -52,13 +55,19 @@ export class CustomMatch extends Cache<CustomMatchEventData> implements MatchInt
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const cm = (await ServerRequest.post<CM_Obj>('/api/custom-matches/from-id', { id })).unwrap();
+            const cm = (
+                await ServerRequest.post<CM_Obj>(
+                    '/api/custom-matches/from-id',
+                    { id }
+                )
+            ).unwrap();
             return CustomMatch.retrieve(cm);
         });
     }
 
     public static retrieve(data: CM_Obj) {
-        if (CustomMatch.cache.has(data.id)) return CustomMatch.cache.get(data.id) as CustomMatch;
+        if (CustomMatch.cache.has(data.id))
+            return CustomMatch.cache.get(data.id) as CustomMatch;
         return new CustomMatch(data);
     }
 
@@ -119,47 +128,66 @@ export class CustomMatch extends Cache<CustomMatchEventData> implements MatchInt
 
     getTeams() {
         return attemptAsync(async () => {
-            return resolveAll(await Promise.all([
-                this.red1,
-                this.red2,
-                this.red3,
-                this.red4, // can be null
-                this.blue1,
-                this.blue2,
-                this.blue3,
-                this.blue4, // can be null
-            ].map(t => {
-                return attemptAsync(async () => {
-                    if (!t) return null; // 0, undefined, etc.
-                    // team can be 0 if it's a practice match
-                    return (await FIRSTTeam.from(t, this.eventKey)).unwrap();
-                });
-            }))).unwrap() as [...Alliance, ...Alliance];
+            return resolveAll(
+                await Promise.all(
+                    [
+                        this.red1,
+                        this.red2,
+                        this.red3,
+                        this.red4, // can be null
+                        this.blue1,
+                        this.blue2,
+                        this.blue3,
+                        this.blue4 // can be null
+                    ].map(t => {
+                        return attemptAsync(async () => {
+                            if (!t) return null; // 0, undefined, etc.
+                            // team can be 0 if it's a practice match
+                            return (
+                                await FIRSTTeam.from(t, this.eventKey)
+                            ).unwrap();
+                        });
+                    })
+                )
+            ).unwrap() as [...Alliance, ...Alliance];
         });
     }
-
 
     update(data: Partial<Omit<CM_Obj, 'id' | 'created'>>) {
         return ServerRequest.post('/api/custom-matches/update', {
             ...this,
-            ...data,
+            ...data
         });
     }
 
-
     getAlliances() {
-        return attemptAsync(async () => {});
-    }
-
-    getWhiteboards(ctx: CanvasRenderingContext2D) {
-        return attemptAsync(async () => {});
+        return attemptAsync(async () => {
+            const teams = (await this.getTeams()).unwrap();
+            return {
+                red: new FIRSTAlliance(teams.slice(0, 3) as Alliance),
+                blue: new FIRSTAlliance(teams.slice(4, 7) as Alliance)
+            };
+        });
     }
 
     getStrategies() {
-        return attemptAsync(async () => {});
+        return Strategy.fromMatch(
+            this.eventKey,
+            this.matchNumber,
+            this.compLevel
+        );
     }
 
     hasTeam(number: number): boolean {
-        
+        return [
+            this.red1,
+            this.red2,
+            this.red3,
+            this.red4,
+            this.blue1,
+            this.blue2,
+            this.blue3,
+            this.blue4
+        ].includes(number);
     }
 }

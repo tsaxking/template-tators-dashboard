@@ -25,8 +25,7 @@ const assertEquals = (a: unknown, b: unknown) => {
         console.error(e);
         throw e;
     }
-}
-
+};
 
 const test = async (name: string, fn: () => void | Promise<void>) => {
     const ok = '✅';
@@ -40,160 +39,164 @@ const test = async (name: string, fn: () => void | Promise<void>) => {
         console.error(e);
         return 1;
     }
-}
+};
 
-export const runTests = async () => Promise.all([
-    test('Run async task functionality', async () => {
-        const asyncTest = await runFile<string[]>(
-            './scripts/tests/run-task-test.ts',
-            'asyncFn',
-            'a',
-            'b',
-            'c'
-        );
-        log('Async test result:', asyncTest);
-        if (asyncTest.isErr()) throw asyncTest.error;
-        else assertEquals(asyncTest.value, ['a', 'b', 'c']);
-    }),
+export const runTests = async () =>
+    Promise.all([
+        test('Run async task functionality', async () => {
+            const asyncTest = await runFile<string[]>(
+                './scripts/tests/run-task-test.ts',
+                'asyncFn',
+                'a',
+                'b',
+                'c'
+            );
+            log('Async test result:', asyncTest);
+            if (asyncTest.isErr()) throw asyncTest.error;
+            else assertEquals(asyncTest.value, ['a', 'b', 'c']);
+        }),
 
-    test('Run sync task functionality', async () => {
-        const syncTest = await runFile<string[]>(
-            './scripts/tests/run-task-test.ts',
-            'syncFn',
-            'a',
-            'b',
-            'c'
-        );
-        log('Sync test result:', syncTest);
-        if (syncTest.isErr()) throw syncTest.error;
-        else assertEquals(syncTest.value, ['a', 'b', 'c']);
-    }),
+        test('Run sync task functionality', async () => {
+            const syncTest = await runFile<string[]>(
+                './scripts/tests/run-task-test.ts',
+                'syncFn',
+                'a',
+                'b',
+                'c'
+            );
+            log('Sync test result:', syncTest);
+            if (syncTest.isErr()) throw syncTest.error;
+            else assertEquals(syncTest.value, ['a', 'b', 'c']);
+        }),
 
-    test('Run command', async () => {
-        const result = await runTask('echo', ['"test"']);
-        log('Command result:', result);
-        if (result.isOk()) return assertEquals(true, true);
-        throw result.error;
-    }),
+        test('Run command', async () => {
+            const result = await runTask('echo', ['"test"']);
+            log('Command result:', result);
+            if (result.isOk()) return assertEquals(true, true);
+            throw result.error;
+        }),
 
-    test('Data validation', async () => {
-        const fail = () => {
-            console.log('Validation should not have passed');
+        test('Data validation', async () => {
+            const fail = () => {
+                console.log('Validation should not have passed');
 
-            assertEquals(true, false);
-        };
+                assertEquals(true, false);
+            };
 
-        const pass = () => assertEquals(true, true);
+            const pass = () => assertEquals(true, true);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const invalid: [string, any][] = [];
-        const missing: string[] = [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const invalid: [string, any][] = [];
+            const missing: string[] = [];
 
-        JSON.parse;
+            JSON.parse;
 
-        // simulate a request
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        validate<any>(
-            {
-                passBoolean: 'boolean',
-                failBoolean: 'boolean',
-                passString: 'string',
-                failString: 'string',
-                passNumber: 'number',
-                failNumber: 'number',
-                passPrimitiveArray: ['string', 'number'],
-                failPrimitiveArray: ['string', 'number'],
-                passCustomArray: ['a', 'b', 'c'],
-                failCustomArray: ['a', 'b', 'c'],
-                passFunction: () => true,
-                failFunction: () => false,
+            // simulate a request
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            validate<any>(
+                {
+                    passBoolean: 'boolean',
+                    failBoolean: 'boolean',
+                    passString: 'string',
+                    failString: 'string',
+                    passNumber: 'number',
+                    failNumber: 'number',
+                    passPrimitiveArray: ['string', 'number'],
+                    failPrimitiveArray: ['string', 'number'],
+                    passCustomArray: ['a', 'b', 'c'],
+                    failCustomArray: ['a', 'b', 'c'],
+                    passFunction: () => true,
+                    failFunction: () => false,
 
-                missing: 'string'
-            },
-            {
-                // log: true,
-                onInvalid: (key, value) => {
-                    invalid.push([key, value]);
+                    missing: 'string'
                 },
-                onMissing: key => {
-                    missing.push(key);
-                }
-            }
-        )(
-            {
-                body: {
-                    passBoolean: true,
-                    failBoolean: 'true',
-                    passString: 'test',
-                    failString: 1,
-                    passNumber: 1,
-                    failNumber: '1',
-                    passPrimitiveArray: 'string',
-                    failPrimitiveArray: true,
-                    passCustomArray: 'a',
-                    failCustomArray: 'd',
-                    passFunction: true,
-                    failFunction: false
-                },
-                url: new URL('http://localhost:1234')
-            } as unknown as Req,
-            {
-                sendStatus: () => {
-                    const passedInvalids = invalid.every(([key, _value]) => {
-                        return [
-                            'failBoolean',
-                            'failString',
-                            'failNumber',
-                            'failPrimitiveArray',
-                            'failCustomArray',
-                            'failFunction'
-                        ].includes(key);
-                    });
-
-                    const passedMissings = missing.every(
-                        key => key === 'missing'
-                    );
-
-                    if (passedInvalids && passedMissings) {
-                        pass();
-                    } else {
-                        console.log('Validation failed on the wrong keys');
-                        console.log('Passed invalids:', invalid);
-                        console.log('Passed missings:', missing);
-
-                        assertEquals(true, false);
+                {
+                    // log: true,
+                    onInvalid: (key, value) => {
+                        invalid.push([key, value]);
+                    },
+                    onMissing: key => {
+                        missing.push(key);
                     }
                 }
-            } as unknown as Res,
-            fail
-        );
-    }),
+            )(
+                {
+                    body: {
+                        passBoolean: true,
+                        failBoolean: 'true',
+                        passString: 'test',
+                        failString: 1,
+                        passNumber: 1,
+                        failNumber: '1',
+                        passPrimitiveArray: 'string',
+                        failPrimitiveArray: true,
+                        passCustomArray: 'a',
+                        failCustomArray: 'd',
+                        passFunction: true,
+                        failFunction: false
+                    },
+                    url: new URL('http://localhost:1234')
+                } as unknown as Req,
+                {
+                    sendStatus: () => {
+                        const passedInvalids = invalid.every(
+                            ([key, _value]) => {
+                                return [
+                                    'failBoolean',
+                                    'failString',
+                                    'failNumber',
+                                    'failPrimitiveArray',
+                                    'failCustomArray',
+                                    'failFunction'
+                                ].includes(key);
+                            }
+                        );
 
-    test('Scout groups', async () => {
-        const eventKey = '2023cabl';
-        const regex = /^([0-9]{4}[a-z]{3,4})$/i;
-        if (!regex.test(eventKey)) throw new Error('Invalid event key');
+                        const passedMissings = missing.every(
+                            key => key === 'missing'
+                        );
 
-        const data = await getJSONSync<{
-            matches: TBAMatch[];
-            teams: TBATeam[];
-        }>('scout-group-test');
+                        if (passedInvalids && passedMissings) {
+                            pass();
+                        } else {
+                            console.log('Validation failed on the wrong keys');
+                            console.log('Passed invalids:', invalid);
+                            console.log('Passed missings:', missing);
 
-        if (data.isOk()) {
-            const { matches, teams } = data.value;
-            const assignments = generateScoutGroups(teams, matches);
-            const result = testAssignments(assignments);
+                            assertEquals(true, false);
+                        }
+                    }
+                } as unknown as Res,
+                fail
+            );
+        }),
 
-            assertEquals(result.status, 'ok');
-        } else {
-            throw data.error;
-        }
-    }),
-    // if (!process.argv.includes('lite')) {
-    //     test('Database tests', async () => {
-    //         const { DB } = await import('../../server/utilities/databases');
-    //     });
-    // }
-]);
+        test('Scout groups', async () => {
+            const eventKey = '2023cabl';
+            const regex = /^([0-9]{4}[a-z]{3,4})$/i;
+            if (!regex.test(eventKey)) throw new Error('Invalid event key');
 
-if (require.main === module) runTests().then((val) => process.exit(val.some(v => v === 1) ? 1 : 0));
+            const data = await getJSONSync<{
+                matches: TBAMatch[];
+                teams: TBATeam[];
+            }>('scout-group-test');
+
+            if (data.isOk()) {
+                const { matches, teams } = data.value;
+                const assignments = generateScoutGroups(teams, matches);
+                const result = testAssignments(assignments);
+
+                assertEquals(result.status, 'ok');
+            } else {
+                throw data.error;
+            }
+        })
+        // if (!process.argv.includes('lite')) {
+        //     test('Database tests', async () => {
+        //         const { DB } = await import('../../server/utilities/databases');
+        //     });
+        // }
+    ]);
+
+if (require.main === module)
+    runTests().then(val => process.exit(val.some(v => v === 1) ? 1 : 0));
