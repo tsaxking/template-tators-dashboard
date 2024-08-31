@@ -59,7 +59,7 @@ export class Ok<T = unknown> {
      * @param {string} message
      * @returns {T}
      */
-    expect(message: string): T {
+    expect(_message: string): T {
         // console.warn(
         //     'Warning: Expecting Ok result, this is not recommended for anything other than testing.'
         // );
@@ -166,7 +166,7 @@ export const attempt = <T = unknown, E = Error>(
     try {
         return new Ok(fn());
     } catch (e) {
-        console.error('[check.ts]', e);
+        // console.error('[check.ts]', e);
         if (parseError) {
             const err = attempt(
                 () => parseError(e as Error),
@@ -235,7 +235,7 @@ type Primitive =
  * @typedef {O}
  */
 type O = {
-    [key: string]: Primitive | O | A;
+    [key: string]: isValid;
 };
 
 /**
@@ -244,18 +244,24 @@ type O = {
  *
  * @typedef {A}
  */
-type A = [Primitive | O | A];
+type A = isValid[];
+
+type Fn = (data: unknown) => boolean;
+
+export type isValid = Primitive | O | A | Fn;
 
 /**
  * Checks if the data matches the type
  * @date 1/28/2024 - 5:40:39 AM
  */
-export const check = (data: unknown, type: Primitive | O | A): boolean => {
+export const check = (data: unknown, type: isValid): boolean => {
     const isPrimitive = (data: unknown, type: Primitive): boolean =>
         typeof data === type;
     const isObject = (data: unknown): data is O =>
         typeof data === 'object' && data !== null;
     const isArray = (data: unknown): data is A => Array.isArray(data);
+    const isFunction = (data: unknown): data is Fn =>
+        typeof data === 'function';
     try {
         JSON.stringify(data);
     } catch (error) {
@@ -274,16 +280,23 @@ export const check = (data: unknown, type: Primitive | O | A): boolean => {
         return false;
     }
 
-    const runCheck = (data: unknown, type: Primitive | O | A): boolean => {
+    const runCheck = (data: unknown, type: isValid): boolean => {
+        if (isFunction(type)) {
+            return type(data);
+        }
+
         if (typeof type === 'string') {
             return isPrimitive(data, type);
         }
 
         if (isArray(type)) {
-            return (
-                isArray(data) &&
-                data.every(item => type.some(t => runCheck(item, t)))
-            );
+            if (isArray(data)) {
+                // data is an array, type is an array. Check if all elements match any of the types
+                return data.every(d => type.some(t => runCheck(d, t)));
+            } else {
+                if (type.length === 1) return false; // data is supposed to be an array
+                return type.some(t => runCheck(data, t)); // data is not an array, type is supposed to be an "or" type
+            }
         }
 
         if (isObject(data) && isObject(type)) {
@@ -296,6 +309,23 @@ export const check = (data: unknown, type: Primitive | O | A): boolean => {
     };
 
     return runCheck(data, type);
+};
+
+export const isSimilar = (a: unknown, b: unknown): boolean => {
+    if (typeof a !== typeof b) return false;
+    if (typeof a !== 'object') return a === b;
+    if (a === null || b === null) return a === b;
+    if (Array.isArray(a) && Array.isArray(b)) {
+        if (a.length !== b.length) return false;
+        return a.every((v, i) => isSimilar(v, b[i]));
+    }
+    if (typeof a === 'object' && typeof b === 'object') {
+        const aKeys = Object.keys(a) as (keyof typeof a)[];
+        const bKeys = Object.keys(b) as (keyof typeof b)[];
+        if (aKeys.length !== bKeys.length) return false;
+        return aKeys.every(k => isSimilar(a[k], b[k]));
+    }
+    return false;
 };
 
 /**

@@ -88,7 +88,7 @@ c.animate(() => {
     }
 
     for (const [p1, p2] of edges) {
-        c.$ctx.save();
+        c.ctx.save();
 
         const fromColor = new Color(
             ...(circles[p1].center as Point3D)
@@ -98,29 +98,29 @@ c.animate(() => {
         );
 
         // linear fade
-        const gradient = c.$ctx.createLinearGradient(
-            circles[p1].x * c.$ctx.canvas.width,
-            circles[p1].y * c.$ctx.canvas.height,
-            circles[p2].x * c.$ctx.canvas.width,
-            circles[p2].y * c.$ctx.canvas.height
+        const gradient = c.ctx.createLinearGradient(
+            circles[p1].x * c.ctx.canvas.width,
+            circles[p1].y * c.ctx.canvas.height,
+            circles[p2].x * c.ctx.canvas.width,
+            circles[p2].y * c.ctx.canvas.height
         );
 
         gradient.addColorStop(0, fromColor);
         gradient.addColorStop(1, toColor);
 
-        c.$ctx.strokeStyle = gradient;
+        c.ctx.strokeStyle = gradient;
 
-        c.$ctx.beginPath();
-        c.$ctx.moveTo(
-            circles[p1].x * c.$ctx.canvas.width,
-            circles[p1].y * c.$ctx.canvas.height
+        c.ctx.beginPath();
+        c.ctx.moveTo(
+            circles[p1].x * c.ctx.canvas.width,
+            circles[p1].y * c.ctx.canvas.height
         );
-        c.$ctx.lineTo(
-            circles[p2].x * c.$ctx.canvas.width,
-            circles[p2].y * c.$ctx.canvas.height
+        c.ctx.lineTo(
+            circles[p2].x * c.ctx.canvas.width,
+            circles[p2].y * c.ctx.canvas.height
         );
-        c.$ctx.stroke();
-        c.$ctx.restore();
+        c.ctx.stroke();
+        c.ctx.restore();
     }
 
     for (const p of splinePoints) {
@@ -132,16 +132,16 @@ c.animate(() => {
             ...(p.array.map(n => n * 255) as Point3D)
         ).toString('rgba');
 
-        c.$ctx.fillStyle = color;
-        c.$ctx.beginPath();
-        c.$ctx.arc(
-            p.x * c.$ctx.canvas.width,
-            p.y * c.$ctx.canvas.height,
+        c.ctx.fillStyle = color;
+        c.ctx.beginPath();
+        c.ctx.arc(
+            p.x * c.ctx.canvas.width,
+            p.y * c.ctx.canvas.height,
             5,
             0,
             2 * Math.PI
         );
-        c.$ctx.fill();
+        c.ctx.fill();
     }
 });
 

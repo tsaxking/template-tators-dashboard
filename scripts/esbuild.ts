@@ -35,6 +35,40 @@ const log = (...data: unknown[]) =>
  * @returns {Promise<string[]>}
  */
 const readDir = async (dirPath: string): Promise<string[]> => {
+    const saveFile = async (fullpath: string) => {
+        const templateFilePath = path
+            .resolve(__templates, 'entries', path.relative(__entries, fullpath))
+            .replace('.ts', '.html');
+
+        const index = await getTemplate('index', {
+            script: path
+                .relative(
+                    templateFilePath,
+                    path.resolve(
+                        __root,
+                        'dist',
+                        path.relative(__entries, fullpath)
+                    )
+                )
+                .replace('.ts', '.js'),
+            style: path.relative(
+                templateFilePath,
+                path
+                    .resolve(__root, 'dist', path.relative(__entries, fullpath))
+                    .replace('.ts', '.css')
+            ),
+            title: env.TITLE || 'Untitled'
+        });
+        if (index.isOk()) {
+            await saveTemplate(templateFilePath, index.value);
+        }
+    };
+
+    if ((await fs.promises.stat(dirPath)).isFile()) {
+        await saveFile(dirPath);
+        return [dirPath];
+    }
+
     // log('Reading:', dirPath);
     const entries = await fs.promises.readdir(dirPath);
     // log('Entries:', entries);
@@ -46,40 +80,7 @@ const readDir = async (dirPath: string): Promise<string[]> => {
 
                 // if it's a file, save the template then return the path
                 if ((await fs.promises.stat(fullpath)).isFile()) {
-                    const templateFilePath = path
-                        .resolve(
-                            __templates,
-                            'entries',
-                            path.relative(__entries, fullpath)
-                        )
-                        .replace('.ts', '.html');
-
-                    const index = await getTemplate('index', {
-                        script: path
-                            .relative(
-                                templateFilePath,
-                                path.resolve(
-                                    __root,
-                                    'dist',
-                                    path.relative(__entries, fullpath)
-                                )
-                            )
-                            .replace('.ts', '.js'),
-                        style: path.relative(
-                            templateFilePath,
-                            path
-                                .resolve(
-                                    __root,
-                                    'dist',
-                                    path.relative(__entries, fullpath)
-                                )
-                                .replace('.ts', '.css')
-                        ),
-                        title: env.TITLE || 'Untitled'
-                    });
-                    if (index.isOk()) {
-                        await saveTemplate(templateFilePath, index.value);
-                    }
+                    await saveFile(fullpath);
                     return fullpath;
                 } else {
                     // if it's a directory, recursively read it
@@ -90,12 +91,18 @@ const readDir = async (dirPath: string): Promise<string[]> => {
     ).flat(Infinity) as string[];
 };
 
-export const bundle = () =>
+export const bundle = (target?: string) =>
     attemptAsync(async () =>
         Promise.all([
-            readDir(__entries),
+            readDir(path.resolve(__entries, target || '')),
             esbuild.build({
-                entryPoints: ['client/entries/**/*.ts'],
+                entryPoints: [
+                    target // does target exist?
+                        ? target.endsWith('.ts') // is target a file?
+                            ? 'client/entries/' + target // target is a file
+                            : 'client/entries/' + target + '/**/*.ts' // target is a directory
+                        : 'client/entries/**/*.ts' // target does not exist
+                ],
                 bundle: true,
                 minify: env.MINIFY === 'y',
                 metafile: true,
@@ -131,8 +138,10 @@ export const bundle = () =>
     );
 
 if (require.main === module) {
+    const [, , target] = process.argv;
+
     log('Building client (main)');
-    bundle().then(res => {
+    bundle(target).then(res => {
         if (res.isErr()) throw res.error;
         log('Built client');
         process.exit(0);

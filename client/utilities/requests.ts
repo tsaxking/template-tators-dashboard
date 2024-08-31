@@ -72,8 +72,10 @@ type RetrieveStreamEventData<T> = {
  * @extends {EventEmitter<RetrieveStreamEvent<T>>}
  */
 export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
-    keyof RetrieveStreamEventData<T>
+    RetrieveStreamEventData<T>
 > {
+    completed = false;
+    data: T[] = [];
     /**
      * Creates an instance of RetrieveStreamEventEmitter.
      * @date 10/12/2023 - 1:19:15 PM
@@ -82,51 +84,10 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
      */
     constructor() {
         super();
-    }
-
-    /**
-     * Adds an event listener
-     * @date 10/12/2023 - 1:19:15 PM
-     *
-     * @template {RetrieveStreamEvent<T>} K
-     * @param {K} event
-     * @param {(data: RetrieveStreamEventData<T>[K]) => void} callback
-     */
-    on<K extends keyof RetrieveStreamEventData<T>>(
-        event: K,
-        callback: (data: RetrieveStreamEventData<T>[K]) => void
-    ): void {
-        super.on(event, callback);
-    }
-
-    /**
-     * Emits an event
-     * @date 10/12/2023 - 1:19:15 PM
-     *
-     * @template {RetrieveStreamEvent<T>} K
-     * @param {K} event
-     * @param {RetrieveStreamEventData<T>[K]} data
-     */
-    emit<K extends keyof RetrieveStreamEventData<T>>(
-        event: K,
-        data: RetrieveStreamEventData<T>[K]
-    ): void {
-        super.emit(event, data);
-    }
-
-    /**
-     * Removes an event listener
-     * @date 10/12/2023 - 1:19:15 PM
-     *
-     * @template {RetrieveStreamEvent<T>} K
-     * @param {K} event
-     * @param {(data: RetrieveStreamEventData<T>[K]) => void} callback
-     */
-    off<K extends keyof RetrieveStreamEventData<T>>(
-        event: K,
-        callback: (data: RetrieveStreamEventData<T>[K]) => void
-    ): void {
-        super.off(event, callback);
+        this.on('complete', d => {
+            this.completed = true;
+            this.data = d;
+        });
     }
 
     /**
@@ -139,7 +100,8 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
      */
     get promise() {
         return new Promise<T[]>(res => {
-            this.on('complete', res);
+            if (this.completed) res(this.data);
+            else this.on('complete', res);
         });
     }
 }
@@ -173,16 +135,7 @@ type SendStreamOptions = {
  * @class SendStream
  * @typedef {SendStream}
  */
-export class SendStream {
-    /**
-     * Event emitter for sending a stream
-     * @date 1/8/2024 - 3:39:39 PM
-     *
-     * @private
-     * @readonly
-     * @type {*}
-     */
-    private readonly $emitter = new EventEmitter<keyof SendStreamEventData>();
+export class SendStream extends EventEmitter<SendStreamEventData> {
     /**
      * The data that will be sent to the server
      * @date 1/8/2024 - 3:39:39 PM
@@ -212,7 +165,9 @@ export class SendStream {
     constructor(
         public readonly url: string,
         public readonly options: SendStreamOptions
-    ) {}
+    ) {
+        super();
+    }
 
     /**
      * Add data you want sent to the server
@@ -222,51 +177,6 @@ export class SendStream {
      */
     add(data: string) {
         this.data.push(data);
-    }
-
-    /**
-     * Adds an event listener
-     * @date 1/8/2024 - 3:39:39 PM
-     *
-     * @template {keyof SendStreamEventData} K
-     * @param {K} event
-     * @param {(data: SendStreamEventData[K]) => void} callback
-     */
-    on<K extends keyof SendStreamEventData>(
-        event: K,
-        callback: (data: SendStreamEventData[K]) => void
-    ): void {
-        this.$emitter.on(event, callback);
-    }
-
-    /**
-     * Emits an event
-     * @date 1/8/2024 - 3:39:39 PM
-     *
-     * @template {keyof SendStreamEventData} K
-     * @param {K} event
-     * @param {SendStreamEventData[K]} data
-     */
-    emit<K extends keyof SendStreamEventData>(
-        event: K,
-        data: SendStreamEventData[K]
-    ): void {
-        this.$emitter.emit(event, data);
-    }
-
-    /**
-     * Removes an event listener
-     * @date 1/8/2024 - 3:39:39 PM
-     *
-     * @template {keyof SendStreamEventData} K
-     * @param {K} event
-     * @param {(data: SendStreamEventData[K]) => void} callback
-     */
-    off<K extends keyof SendStreamEventData>(
-        event: K,
-        callback: (data: SendStreamEventData[K]) => void
-    ): void {
-        this.$emitter.off(event, callback);
     }
 
     /**
@@ -498,8 +408,8 @@ export class ServerRequest<T = unknown> {
         files: FileList,
         body?: unknown,
         options?: StreamOptions
-    ): EventEmitter<keyof SendFileStreamEventData> {
-        const emitter = new EventEmitter<keyof SendFileStreamEventData>();
+    ): EventEmitter<SendFileStreamEventData> {
+        const emitter = new EventEmitter<SendFileStreamEventData>();
 
         const formData = new FormData();
         for (let i = 0; i < files.length; i++) {

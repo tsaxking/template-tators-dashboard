@@ -54,7 +54,7 @@ const c = new Canvas(ctx, {
     ]
 });
 
-const stop = () => (c.$animating = false);
+const stop = () => (c.animating = false);
 
 const spline = new S();
 

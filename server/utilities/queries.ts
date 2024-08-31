@@ -2,9 +2,15 @@
 
 import {
     Accounts,
-    Select_whiteboards_from_strategy,
     Update_custom_matches_update
+    AccountNotifications,
+    Delete_account_notifications_delete,
+    Insert_account_notifications_new,
+    Select_account_notifications_from_account,
+    Select_account_notifications_from_id,
+    Update_account_notifications_mark_read
 } from './tables';
+import { Select_whiteboards_from_strategy } from './tables';
 import { Members } from './tables';
 import { Roles } from './tables';
 import { AccountRoles } from './tables';
@@ -52,6 +58,7 @@ import { Delete_account_remove_role } from './tables';
 import { Insert_account_add_role } from './tables';
 import { Select_account_from_email } from './tables';
 import { Insert_account_new } from './tables';
+import { Update_account_update } from './tables';
 import { Update_account_request_password_change } from './tables';
 import { Select_account_from_password_change } from './tables';
 import { Select_account_from_id } from './tables';
@@ -217,6 +224,7 @@ export type Queries = {
     'account/add-role': [[Insert_account_add_role], unknown];
     'account/from-email': [[Select_account_from_email], Accounts];
     'account/new': [[Insert_account_new], unknown];
+    'account/update': [[Update_account_update], unknown];
     'account/request-password-change': [
         [Update_account_request_password_change],
         unknown
@@ -233,6 +241,24 @@ export type Queries = {
     ];
     'account/change-username': [[Update_account_change_username], unknown];
     'account/roles': [[{ id: string }], Roles];
+    'account-notifications/all': [[], AccountNotifications];
+    'account-notifications/delete': [
+        [Delete_account_notifications_delete],
+        unknown
+    ];
+    'account-notifications/from-account': [
+        [Select_account_notifications_from_account],
+        AccountNotifications
+    ];
+    'account-notifications/mark-read': [
+        [Update_account_notifications_mark_read],
+        unknown
+    ];
+    'account-notifications/new': [[Insert_account_notifications_new], unknown];
+    'account-notifications/from-id': [
+        [Select_account_notifications_from_id],
+        AccountNotifications
+    ];
     'db/get-version': [[Select_db_get_version], Version];
     'db/change-version': [[Insert_db_change_version], unknown];
     'db/delete-version': [[Delete_db_delete_version], unknown];

@@ -52,33 +52,13 @@ export class FIRSTMatch
     extends Cache<FIRSTMatchEventData>
     implements MatchInterface
 {
-    private static readonly $emitter: EventEmitter<keyof Updates> =
-        new EventEmitter<keyof Updates>();
+    private static readonly emitter: EventEmitter<Updates> =
+        new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        FIRSTMatch.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: any) => void
-    ): void {
-        FIRSTMatch.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(event: K, data: any): void {
-        FIRSTMatch.$emitter.emit(event, data);
-    }
-
-    public static once<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        FIRSTMatch.$emitter.once(event, callback);
-    }
+    public static on = FIRSTMatch.emitter.on.bind(FIRSTMatch.emitter);
+    public static off = FIRSTMatch.emitter.off.bind(FIRSTMatch.emitter);
+    public static emit = FIRSTMatch.emitter.emit.bind(FIRSTMatch.emitter);
+    public static once = FIRSTMatch.emitter.once.bind(FIRSTMatch.emitter);
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
@@ -167,7 +147,7 @@ export class FIRSTMatch
                     t.on('match-scouting', async () => {
                         const scouting = await this.getMatchScouting();
                         if (scouting.isOk() && scouting.value[t.number])
-                            this.$emitter.emit(
+                            this.emit(
                                 'match-scouting',
                                 scouting.value[t.number]
                             );
@@ -206,7 +186,7 @@ export class FIRSTMatch
 
     public async getInfo(): Promise<Result<MatchObj>> {
         return attemptAsync(async () => {
-            const info = this.$cache.get('info') as MatchObj;
+            const info = this.cache.get('info') as MatchObj;
             if (info) return info;
 
             const res = await ServerRequest.post<MatchObj>(
@@ -222,7 +202,7 @@ export class FIRSTMatch
             );
 
             if (res.isOk()) {
-                this.$cache.set('info', res.value);
+                this.cache.set('info', res.value);
 
                 return res.value;
             }

@@ -3,7 +3,7 @@ import { sgTransport } from '@neoxia-js/nodemailer-sendgrid-transport';
 import { Constructor, FileError, getTemplateSync } from './files';
 import env from './env';
 import { error } from './terminal-logging';
-import { Result } from '../../shared/check';
+import { attemptAsync, Result } from '../../shared/check';
 
 /**
  * Sendgrid transporter, used to send emails
@@ -85,7 +85,7 @@ export class Email {
      * @returns {*}
      */
     send() {
-        try {
+        return attemptAsync(async () => {
             const { to, subject, type, options } = this;
             let { constructor } = options;
             const { attachments } = options;
@@ -143,8 +143,6 @@ export class Email {
             }
 
             throw r.error;
-        } catch (e) {
-            error('Unable to send email:', e);
-        }
+        });
     }
 }

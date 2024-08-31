@@ -33,8 +33,8 @@ onMount(() => {
 
 <div class="d-flex flex-column align-items-center">
     <!-- TODO: variable for this, pass in an element, or just do it yourself when you import this?
-                <h4>Time Left:</h4>
-                -->
+			<h4>Time Left:</h4>
+			-->
     {#if timeLeft > 0}
         {#if timeLeft >= 3600000}
             <p class="display-4">
