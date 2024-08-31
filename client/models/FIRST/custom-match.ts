@@ -8,6 +8,7 @@ import { ServerRequest } from '../../utilities/requests';
 import { MatchInterface } from './interfaces/match';
 import { Whiteboard } from '../whiteboard/whiteboard';
 import { Strategy } from './strategy';
+import { CompLevel } from '../../../shared/submodules/tatorscout-calculations/tba';
 
 type CustomMatchEventData = {
     update: CustomMatch;
@@ -69,7 +70,7 @@ export class CustomMatch
     public readonly id: string;
     public readonly eventKey: string;
     public readonly matchNumber: number;
-    public readonly compLevel: string;
+    public readonly compLevel: CompLevel;
     public red1: number;
     public red2: number;
     public red3: number;
@@ -87,7 +88,7 @@ export class CustomMatch
         this.id = data.id;
         this.eventKey = data.eventKey;
         this.matchNumber = data.matchNumber;
-        this.compLevel = data.compLevel;
+        this.compLevel = data.compLevel as CompLevel;
         this.red1 = data.red1;
         this.red2 = data.red2;
         this.red3 = data.red3;
@@ -104,6 +105,10 @@ export class CustomMatch
             CustomMatch.cache.get(data.id)?.destroy();
         }
         CustomMatch.cache.set(data.id, this);
+    }
+
+    get number() {
+        return this.matchNumber;
     }
 
     getTeams() {

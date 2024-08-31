@@ -2,7 +2,7 @@
 
 import {
     Accounts,
-    Update_custom_matches_update
+    Update_custom_matches_update,
     AccountNotifications,
     Delete_account_notifications_delete,
     Insert_account_notifications_new,

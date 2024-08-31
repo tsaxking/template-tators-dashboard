@@ -33,6 +33,8 @@ type Updates = {
  * @implements {FIRST}
  */
 export class Strategy extends Cache<StrategyUpdateData> {
+    public static current: Strategy | undefined;
+
     private static readonly emitter = new EventEmitter<Updates>();
 
     public static on = Strategy.emitter.on.bind(Strategy.emitter);
@@ -123,9 +125,9 @@ export class Strategy extends Cache<StrategyUpdateData> {
         }
     }
 
-    update(data: Omit<S, 'id' | 'createdBy'>) {
+    update(data: Partial<Omit<S, 'id' | 'createdBy'>>) {
         return ServerRequest.post('/api/strategy/update', {
-            id: this.id,
+            ...this,
             ...data
         });
     }
@@ -133,6 +135,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
     getTeams() {
         return attemptAsync(async () => {
             const match = (await this.getMatch()).unwrap();
+            return (await match.getTeams()).unwrap();
         });
     }
 
@@ -148,40 +151,106 @@ export class Strategy extends Cache<StrategyUpdateData> {
 
     getChecks() {
         return attemptAsync(async () => {
-            const teams = await this.getTeams();
+            const teams = (await this.getTeams())
+                .unwrap()
+                .filter(Boolean)
+                .map(t => t.number);
+            return (await Check.from(this)).unwrap();
         });
+    }
+    select() {
+        Strategy.current = this;
+        Strategy.emit('select', this);
     }
 }
 
 type CheckEvents = {
     'new-check': string;
+    'remove-check': string;
 };
 
 export class Check extends EventEmitter<CheckEvents> {
-    public static from(data: string[], teams: number[]): Result<Check[]> {
-        return attempt(() => {
+    public static checks = [
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+    ];
+
+    public static from(strategy: Strategy) {
+        return attemptAsync( async () => {
+            const data = strategy.checks;
+            const teams = (await strategy.getTeams()).unwrap().filter(Boolean).map(t => t.number);
             const checks = data.map(d => d.split(':') as [string, string]);
             return teams.map(t => {
                 const c = checks.filter(c => +c[0] === t).map(c => c[1]);
-                return new Check(t, c);
+                return new Check(t, c, strategy);
             }) as [Check, Check, Check, Check, Check, Check];
         });
     }
 
     constructor(
         public readonly team: number,
-        public checks: string[]
+        public checks: string[],
+        public readonly strategy: Strategy,
     ) {
         super();
+    }
+
+    private change() {
+        return attemptAsync(async () => {
+            const data = this.serialize();
+            await this.strategy.update({
+                checks: JSON.stringify([
+                    ...data,
+                    ...this.strategy.checks,
+                ]
+                // Remove duplicates
+                .filter((c, i, a) => a.indexOf(c) === i)
+            ),
+            })
+        });
     }
 
     serialize(): string[] {
         // ['2122:check']
         return this.checks.map(c => `${this.team}:${c}`);
     }
+
+    add(check: string) {
+        this.checks.push(check);
+        this.emit('new-check', check);
+        return this.change();
+    }
+
+    remove(check: string) {
+        this.checks = this.checks.filter(c => c !== check);
+        this.emit('remove-check', check);
+        return this.change();
+    }
+
+    toggle(check: string) {
+        if (this.has(check)) {
+            return this.remove(check);
+        } else {
+            return this.add(check);
+        }
+    }
+
+    has(check: string) {
+        return this.checks.includes(check);
+    }
 }
 
 socket.on('strategy:new', (data: S) => {
     const s = Strategy.retrieve(data);
     Strategy.emit('new', s);
+});
+
+socket.on('strategy:update', (data: S) => {
+    const s = Strategy.retrieve(data);
+    Object.assign(s, data);
+    s.checks = JSON.parse(data.checks);
+    Strategy.emit('update', s);
 });
