@@ -58,6 +58,12 @@ const newStrategy = async () => {
     if (!name) return;
     // use prompt to get the strategy name
     // use Strategy.new();
+    let matchInfo: {
+        id: string;
+        compLevel: string;
+        number: number;
+        eventKey: string;
+    };
 };
 
 const onSelect = async (s: Strategy) => {

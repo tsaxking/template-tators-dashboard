@@ -12,6 +12,8 @@ export interface MatchInterface {
     hasTeam(number: number): boolean;
     getStrategies(): Promise<Result<Strategy[]>>;
 
+    getInfo(): unknown;
+
     number: number;
     compLevel: CompLevel;
     eventKey: string;
