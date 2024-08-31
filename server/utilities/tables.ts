@@ -653,6 +653,23 @@ export type Select_custom_matches_from_id = {
     id: string;
 };
 
+export type Update_custom_matches_update = {
+    id: string;
+    eventKey: string;
+    matchNumber: number;
+    compLevel: string;
+    name: string;
+    red1: number;
+    red2: number;
+    red3: number;
+    red4: number | undefined;
+    blue1: number;
+    blue2: number;
+    blue3: number;
+    blue4: number | undefined;
+    archive: 0 | 1;
+};
+
 export type Update_scouting_questions_update_group = {
     eventKey: string;
     name: string;

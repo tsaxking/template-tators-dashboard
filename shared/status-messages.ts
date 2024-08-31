@@ -275,6 +275,18 @@ export const messages: {
     code: 400,
     instructions: '',
 },
+    'custom-match:created': {
+    message: 'Custom match created',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
+    'custom-match:not-found': {
+    message: 'Custom match not found',
+    color: 'danger',
+    code: 404,
+    instructions: '',
+},
     'discord:account-linked': {
     message: 'Your discord account has been linked to this account',
     color: 'success',
@@ -791,6 +803,12 @@ export const messages: {
     code: 404,
     instructions: '',
 },
+    'strategy:updated': {
+    message: 'Strategy updated',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
     'tba:invalid-path': {
     message: 'Invalid path when accessing TBA data',
     color: 'danger',
@@ -932,6 +950,8 @@ export type StatusId =
 	| 'account:username-taken'
 	| 'account:verified'
 	| 'admin:invalid-key'
+	| 'custom-match:created'
+	| 'custom-match:not-found'
 	| 'discord:account-linked'
 	| 'discord:invalid-link'
 	| 'discord:link-expired'
@@ -1018,6 +1038,7 @@ export type StatusId =
 	| 'strategy:delete'
 	| 'strategy:new'
 	| 'strategy:not-found'
+	| 'strategy:updated'
 	| 'tba:invalid-path'
 	| 'tba:not-updated'
 	| 'team-comment:new'
@@ -1080,6 +1101,10 @@ export type AccountStatusId = 'already-logged-in'
 
 
 export type AdminStatusId = 'invalid-key';
+
+
+export type CustomMatchStatusId = 'created'
+	| 'not-found';
 
 
 export type DiscordStatusId = 'account-linked'
@@ -1203,7 +1228,8 @@ export type SpamStatusId = 'detected';
 
 export type StrategyStatusId = 'delete'
 	| 'new'
-	| 'not-found';
+	| 'not-found'
+	| 'updated';
 
 
 export type TbaStatusId = 'invalid-path'

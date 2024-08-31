@@ -48,7 +48,10 @@ type Updates = {
  * @class FIRSTMatch
  * @typedef {FIRSTMatch}
  */
-export class FIRSTMatch extends Cache<FIRSTMatchEventData> implements MatchInterface {
+export class FIRSTMatch
+    extends Cache<FIRSTMatchEventData>
+    implements MatchInterface
+{
     private static readonly $emitter: EventEmitter<keyof Updates> =
         new EventEmitter<keyof Updates>();
 
@@ -79,10 +82,11 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> implements MatchInter
 
     public static fromId(id: string) {
         return attemptAsync(async () => {
-            const res = (await ServerRequest.post<Matches>(
-                '/api/matches/from-id',
-                { id }
-            )).unwrap();
+            const res = (
+                await ServerRequest.post<Matches>('/api/matches/from-id', {
+                    id
+                })
+            ).unwrap();
 
             return (await FIRSTMatch.fromObj(res)).unwrap();
         });
@@ -94,9 +98,9 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> implements MatchInter
             const key = `${eventKey}-${compLevel}-${matchNumber}`;
             const [eventRes, matchRes] = await Promise.all([
                 TBA.get<TBAEvent>('/event/' + eventKey),
-                TBA.get<TBAMatch>(`/match/${key}`),
+                TBA.get<TBAMatch>(`/match/${key}`)
             ]);
-            
+
             const event = eventRes.unwrap().data;
             const match = matchRes.unwrap().data;
 
@@ -196,11 +200,8 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> implements MatchInter
         return this.tba.actual_time !== -1;
     }
 
-
-    public getStrategies(): Promise<Result<Strategy[]>> {
-        return attemptAsync(async () => {
-            throw new Error('Not implemented');
-        });
+    public getStrategies() {
+        return Strategy.fromMatch(this.eventKey, this.number, this.compLevel);
     }
 
     public async getInfo(): Promise<Result<MatchObj>> {
@@ -248,23 +249,6 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> implements MatchInter
     > {
         return attemptAsync(async () => {
             throw new Error('Not implemented');
-        });
-    }
-
-    async getWhiteboards(ctx: CanvasRenderingContext2D) {
-        return attemptAsync(async () => {
-            const obj = (await ServerRequest.post<WhiteboardObj>(
-                '/api/whiteboard/from-match',
-                {
-                    eventKey: this.event.tba.key,
-                    matchNumber: this.tba.match_number,
-                    compLevel: this.tba.comp_level
-                },
-                {
-                    cached: true
-                }
-            )).unwrap();
-            return FIRSTWhiteboard.retrieve(obj, ctx);
         });
     }
 

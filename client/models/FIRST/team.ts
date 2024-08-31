@@ -95,7 +95,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         return attemptAsync(async () => {
             const [tbaTeam, tbaEvent] = await Promise.all([
                 TBA.get<TBATeam>(`/event/${event}/team/${team}`),
-                TBA.get<TBAEvent>(`/event/${event}`),
+                TBA.get<TBAEvent>(`/event/${event}`)
             ]);
 
             const t = tbaTeam.unwrap().data;
@@ -107,7 +107,9 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
     public static retrieve(team: TBATeam, event: TBAEvent) {
         if (this.$cache.has(team.team_number + ':' + event.key)) {
-            return this.$cache.get(team.team_number + ':' + event.key) as FIRSTTeam;
+            return this.$cache.get(
+                team.team_number + ':' + event.key
+            ) as FIRSTTeam;
         }
 
         return new FIRSTTeam(team, FIRSTEvent.retrieve(event));

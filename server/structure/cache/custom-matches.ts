@@ -88,7 +88,8 @@ export class CustomMatch extends Cache {
         this.archive = data.archive;
     }
 
-    // update(data: Partial<Omit<CM, 'id' | 'created'>>) {
-    //     return DB.run('custom-matches/update', { id: this.id, ...data });
-    // }
+    update(data: Partial<Omit<CM, 'id' | 'created'>>) {
+        Object.assign(this, data);
+        return DB.run('custom-matches/update', { ...this, ...data });
+    }
 }
