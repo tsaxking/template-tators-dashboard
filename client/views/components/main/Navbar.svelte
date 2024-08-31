@@ -1,4 +1,5 @@
 <script lang="ts">
+import { onMount } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import ThemeSwitch from '../ThemeSwitch.svelte';
 import EventSelect from './GlobalEventSelect.svelte';
@@ -7,17 +8,19 @@ export let navItems: string[] = [];
 import { Account } from '../../../models/account';
 import { Modal } from '../../../utilities/modals';
 import Settings from '../../pages/Settings.svelte';
-import { onMount } from 'svelte';
+import { AccountNotification } from '../../../models/account-notifications';
+import AccountNotifications from './AccountNotifications.svelte';
 
 export let active: string = '';
 
 let account: Account = Account.guest;
+let notifications: AccountNotification[] = [];
+let showNotifications = false;
+let unread: number;
+
+$: unread = notifications.filter(n => !n.read).length;
 
 export let accountLinks: (string | null)[] = [];
-
-Account.getAccount().then(a => {
-    if (a) account = a;
-});
 
 const openSettings = () => {
     const m = new Modal();
@@ -34,7 +37,19 @@ const openSettings = () => {
     m.show();
 };
 
+const initAccount = async () => {
+    const a = await Account.getAccount();
+    if (a.isOk() && a.value) {
+        account = a.value;
+        const n = await a.value.getNotifications();
+        if (n.isOk()) {
+            notifications = n.value;
+        }
+    }
+};
+
 onMount(() => {
+    initAccount();
     jQuery('#report-issue').tooltip();
 });
 </script>
@@ -99,6 +114,25 @@ onMount(() => {
                     <span class="material-icons">person</span>
                 {/if}
             </a>
+            <button
+                type="button"
+                class="btn btn-primary position-relative p-2 me-5"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#notifications-offcanvas"
+                aria-controls="notifications-offcanvas"
+                on:click="{() => {
+                    showNotifications = !showNotifications;
+                }}"
+            >
+                <i class="material-icons"> notifications </i>
+                {#if !!unread}
+                    <span
+                        class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
+                    >
+                        {unread}
+                    </span>
+                {/if}
+            </button>
             <ul
                 class="dropdown-menu dropdown-menu-end p-0"
                 aria-labelledby="navbarDropdown"
@@ -149,3 +183,5 @@ onMount(() => {
         </button>
     </div>
 </nav>
+
+<AccountNotifications {notifications} />

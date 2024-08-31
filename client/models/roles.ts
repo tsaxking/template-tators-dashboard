@@ -48,7 +48,7 @@ export class Role extends Cache<RoleEvents> {
      * @readonly
      * @type {*}
      */
-    static readonly $emitter = new EventEmitter<keyof Events>();
+    static readonly emitter = new EventEmitter<Events>();
 
     static readonly cache = new Map<string, Role>();
 
@@ -68,7 +68,7 @@ export class Role extends Cache<RoleEvents> {
         event: E,
         listener: (data: Events[E]) => void
     ) {
-        Role.$emitter.on(event, listener);
+        Role.emitter.on(event, listener);
     }
 
     /**
@@ -85,7 +85,7 @@ export class Role extends Cache<RoleEvents> {
         event: E,
         listener: (data: Events[E]) => void
     ) {
-        Role.$emitter.off(event, listener);
+        Role.emitter.off(event, listener);
     }
 
     /**
@@ -98,7 +98,7 @@ export class Role extends Cache<RoleEvents> {
      * @param {Events[E]} data
      */
     static emit<E extends keyof Events>(event: E, data: Events[E]) {
-        Role.$emitter.emit(event, data);
+        Role.emitter.emit(event, data);
     }
 
     /**
@@ -115,7 +115,7 @@ export class Role extends Cache<RoleEvents> {
         event: E,
         listener: (data: Events[E]) => void
     ) {
-        Role.$emitter.once(event, listener);
+        Role.emitter.once(event, listener);
     }
 
     /**

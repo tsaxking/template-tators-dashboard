@@ -8,6 +8,7 @@ import { router as admin } from './routes/admin';
 import { router as account } from './routes/account';
 import { router as api } from './routes/api';
 import { router as role } from './routes/roles';
+import { router as notifications } from './routes/account-notifications';
 import { FileUpload } from './middleware/stream';
 import { ReqBody } from './structure/app/req';
 import { parseCookie } from '../shared/cookie';
@@ -28,9 +29,8 @@ if (process.argv.includes('--stats')) {
 
 const port = +(env.PORT || 3000);
 
-export const app = new App<{
-    test: string;
-}>(port, env.DOMAIN || `http://localhost:${port}`);
+// add 2 generics to the App class to specify session.customData and account.customData types
+export const app = new App(port, env.DOMAIN || `http://localhost:${port}`);
 
 Session.setDeleteInterval(1000 * 60 * 10); // delete unused sessions every 10 minutes
 
@@ -176,6 +176,7 @@ app.get('/home', (_req, res) => {
 app.route('/api', api);
 app.route('/account', account);
 app.route('/roles', role);
+app.route('/account-notifications', notifications);
 
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 

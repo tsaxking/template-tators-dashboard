@@ -5,6 +5,8 @@ import { attemptAsync, Result } from '../../shared/check';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
 import { socket } from '../utilities/socket';
+import { AccountNotifications } from '../../server/utilities/tables';
+import { AccountNotification } from './account-notifications';
 
 /**
  * All account events
@@ -53,7 +55,7 @@ export class Account extends Cache<AccountEvents> {
      * @readonly
      * @type {*}
      */
-    public static readonly $cache = new Map<string, Account>();
+    public static readonly cache = new Map<string, Account>();
     /**
      * Guest account
      * @date 2/8/2024 - 4:22:42 PM
@@ -84,17 +86,21 @@ export class Account extends Cache<AccountEvents> {
      */
     public static current?: Account;
 
-    public static async getAccount(): Promise<Account | undefined> {
-        if (Account.current) return Account.current;
-        const res = await ServerRequest.post<AccountSafe>(
-            '/account/get-account'
-        );
-        if (res.isOk()) {
-            if (!res.value.id) return;
-            Account.current = new Account(res.value);
-            Account.emit('current', Account.current);
-            return Account.current;
-        }
+    public static async getAccount() {
+        return attemptAsync(async () => {
+            if (Account.current) return Account.current;
+            const res = await ServerRequest.post<AccountSafe>(
+                '/account/get-account'
+            );
+            if (res.isOk()) {
+                if (!res.value.id) return;
+                Account.current = new Account(res.value);
+                Account.emit('current', Account.current);
+                return Account.current;
+            } else {
+                throw res.error;
+            }
+        });
     }
 
     private static requested: string[] = [];
@@ -109,8 +115,8 @@ export class Account extends Cache<AccountEvents> {
         for (let i = 0; i < ids.length; i++) {
             const id = ids[i];
             if (!id) continue;
-            if (Account.$cache.has(id) || Account.requested.includes(id)) {
-                output[i] = Account.$cache.get(id);
+            if (Account.cache.has(id) || Account.requested.includes(id)) {
+                output[i] = Account.cache.get(id);
             } else {
                 toRequest.add(id);
             }
@@ -147,7 +153,7 @@ export class Account extends Cache<AccountEvents> {
      * @readonly
      * @type {*}
      */
-    public static readonly emitter = new EventEmitter<keyof Events>();
+    public static readonly emitter = new EventEmitter<Events>();
 
     get name() {
         return `${this.firstName} ${this.lastName}`;
@@ -232,9 +238,9 @@ export class Account extends Cache<AccountEvents> {
      */
     public static async all(): Promise<Result<Account[]>> {
         return attemptAsync(async () => {
-            if (Account.$cache.size > 1) {
+            if (Account.cache.size > 1) {
                 // guest account is included
-                return Array.from(Account.$cache.values());
+                return Array.from(Account.cache.values());
             }
 
             const res = await ServerRequest.post<AccountSafe[]>('/account/all');
@@ -340,11 +346,11 @@ export class Account extends Cache<AccountEvents> {
         this.phoneNumber = data.phoneNumber;
         this.picture = data.picture;
 
-        if (Account.$cache.has(this.id)) {
-            Account.$cache.delete(this.id);
+        if (Account.cache.has(this.id)) {
+            Account.cache.delete(this.id);
         }
 
-        Account.$cache.set(this.id, this);
+        Account.cache.set(this.id, this);
     }
 
     /**
@@ -357,8 +363,8 @@ export class Account extends Cache<AccountEvents> {
      */
     public async getRoles(force = false): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('roles') && !force) {
-                const roles = this.$cache.get('roles') as Role[];
+            if (this.cache.has('roles') && !force) {
+                const roles = this.cache.get('roles') as Role[];
                 if (roles.length) return roles;
             }
 
@@ -370,7 +376,7 @@ export class Account extends Cache<AccountEvents> {
 
             if (res.isOk()) {
                 const roles = res.value.map(r => new Role(r));
-                this.$cache.set('roles', roles);
+                this.cache.set('roles', roles);
                 return roles;
             }
 
@@ -390,8 +396,8 @@ export class Account extends Cache<AccountEvents> {
         force = false
     ): Promise<Result<RolePermission[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('permissions') && !force) {
-                return this.$cache.get('permissions') as RolePermission[];
+            if (this.cache.has('permissions') && !force) {
+                return this.cache.get('permissions') as RolePermission[];
             }
 
             const res = await ServerRequest.post<RolePermission[]>(
@@ -403,7 +409,7 @@ export class Account extends Cache<AccountEvents> {
 
             if (res.isOk()) {
                 const permissions = res.value;
-                this.$cache.set('permissions', permissions);
+                this.cache.set('permissions', permissions);
                 return permissions;
             }
 
@@ -520,7 +526,7 @@ export class Account extends Cache<AccountEvents> {
             });
 
             if (res.isOk()) {
-                Account.$cache.delete(this.id);
+                Account.cache.delete(this.id);
                 this.destroy();
                 return;
             }
@@ -544,11 +550,22 @@ export class Account extends Cache<AccountEvents> {
             });
 
             if (res.isOk()) {
-                Account.$cache.delete(this.id);
+                Account.cache.delete(this.id);
                 return;
             }
 
             throw res.error;
+        });
+    }
+
+    public async getNotifications() {
+        return attemptAsync(async () => {
+            const data = (
+                await ServerRequest.post<AccountNotifications[]>(
+                    '/account-notifications/get'
+                )
+            ).unwrap();
+            return data.map(AccountNotification.retrieve);
         });
     }
 }
@@ -558,12 +575,12 @@ Object.assign(window, {
 });
 
 socket.on('account:removed', (accountId: string) => {
-    const account = Account.$cache.get(accountId);
-    Account.$cache.delete(accountId);
+    const account = Account.cache.get(accountId);
+    Account.cache.delete(accountId);
     if (account) {
         console.log('account removed', account);
         Account.emit('delete', account);
-        Account.$cache.delete(accountId);
+        Account.cache.delete(accountId);
         account.emit('delete', undefined);
         account.destroy();
     }
@@ -578,7 +595,7 @@ socket.on(
     'account:role-removed',
     async (data: { accountId: string; roleId: string }) => {
         const { accountId, roleId } = data;
-        const account = Account.$cache.get(accountId);
+        const account = Account.cache.get(accountId);
         if (account) {
             await account.getRoles(true); // force update
 
@@ -593,7 +610,7 @@ socket.on(
     'account:role-added',
     async (data: { accountId: string; roleId: string }) => {
         const { accountId, roleId } = data;
-        const account = Account.$cache.get(accountId);
+        const account = Account.cache.get(accountId);
         if (account) {
             await account.getRoles(true); // force update
 
@@ -605,7 +622,7 @@ socket.on(
 );
 
 socket.on('account:verified', (accountId: string) => {
-    const account = Account.$cache.get(accountId);
+    const account = Account.cache.get(accountId);
     if (account) {
         account.verified = 1;
         account.emit('verified', account);
@@ -615,7 +632,7 @@ socket.on('account:verified', (accountId: string) => {
 });
 
 socket.on('account:unverified', (accountId: string) => {
-    const account = Account.$cache.get(accountId);
+    const account = Account.cache.get(accountId);
     if (account) {
         account.verified = 0;
         account.emit('unverified', account);

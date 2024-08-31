@@ -46,36 +46,14 @@ type Updates = {
  * @typedef {FIRSTEvent}
  */
 export class FIRSTEvent extends Cache<FIRSTEventData> {
-    private static readonly $emitter = new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        FIRSTEvent.$emitter.on(event, callback);
-    }
+    public static on = FIRSTEvent.emitter.on.bind(FIRSTEvent.emitter);
+    public static off = FIRSTEvent.emitter.off.bind(FIRSTEvent.emitter);
+    public static emit = FIRSTEvent.emitter.emit.bind(FIRSTEvent.emitter);
+    public static once = FIRSTEvent.emitter.once.bind(FIRSTEvent.emitter);
 
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        FIRSTEvent.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        FIRSTEvent.$emitter.emit(event, data);
-    }
-
-    public static once<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        FIRSTEvent.$emitter.once(event, callback);
-    }
-    public static current: FIRSTEvent | null = null;
+    public static current: FIRSTEvent | undefined = undefined;
 
     public static retrieve(event: TBAEvent) {
         if (FIRSTEvent.cache.has(event.key)) {
@@ -103,7 +81,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
      * @readonly
      * @type {Map<string, any>}
      */
-    readonly $cache = new Map<string, unknown>();
+    readonly cache = new Map<string, unknown>();
 
     /**
      * Creates an instance of FIRSTEvent
@@ -140,7 +118,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
      */
     async getMatches(): Promise<Result<FIRSTMatch[]>> {
         return attemptAsync(async () => {
-            const c = this.$cache.get('matches');
+            const c = this.cache.get('matches');
             if (c) return c as FIRSTMatch[];
 
             const serverStream = ServerRequest.retrieveStream<Match>(
@@ -172,7 +150,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     );
 
                     if (found) {
-                        found.$cache.set('info', match);
+                        found.cache.set('info', match);
                     }
                 });
 
@@ -204,7 +182,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
      */
     async getTeams(): Promise<Result<FIRSTTeam[]>> {
         return attemptAsync(async () => {
-            const c = this.$cache.get('teams') as FIRSTTeam[];
+            const c = this.cache.get('teams') as FIRSTTeam[];
             if (c && c.length) return c;
 
             const res = await TBA.get<TBATeam[]>(
@@ -229,7 +207,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     });
                 });
 
-                this.$cache.set('teams', teams);
+                this.cache.set('teams', teams);
 
                 return teams;
             }
@@ -260,7 +238,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                     console.error(
                         `Event properties for ${this.tba.key} have not been set. The server may not have the event in its database.`
                     );
-                } else this.$cache.set('properties', res.value);
+                } else this.cache.set('properties', res.value);
 
                 return res.value;
             }
@@ -273,7 +251,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         const teams = await this.getTeams();
         if (teams.isErr()) return;
 
-        if (teams.value.some(t => t.$cache.has('pictures'))) return;
+        if (teams.value.some(t => t.cache.has('pictures'))) return;
 
         const res = await ServerRequest.post<TeamPicture[]>(
             '/api/teams/pictures-from-event',
@@ -286,14 +264,12 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
             for (const p of res.value) {
                 const t = teams.value.find(t => t.number === p.teamNumber);
                 if (!t) continue;
-                t.$cache.set(
+                t.cache.set(
                     'pictures',
                     [
                         ...(() => {
-                            if (t.$cache.has('pictures'))
-                                return t.$cache.get(
-                                    'pictures'
-                                ) as TeamPicture[];
+                            if (t.cache.has('pictures'))
+                                return t.cache.get('pictures') as TeamPicture[];
                             else return [];
                         })(),
                         p
@@ -433,16 +409,16 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     }
 }
 
-socket.on(
-    'event:update-properties',
-    ({ eventKey, properties }: { eventKey: string; properties: string }) => {
-        const event = FIRSTEvent.cache.get(eventKey);
-        if (!event) return;
+// socket.on(
+//     'event:update-properties',
+//     ({ eventKey, properties }: { eventKey: string; properties: string }) => {
+//         const event = FIRSTEvent.cache.get(eventKey);
+//         if (!event) return;
 
-        event.$cache.set('properties', properties);
-        event.$emitter.emit('update-properties', properties);
-    }
-);
+//         event.cache.set('properties', properties);
+//         event.emit('update-properties', properties);
+//     }
+// );
 
 FIRSTEvent.on('select', async e => {
     const url = new URL(window.location.href);

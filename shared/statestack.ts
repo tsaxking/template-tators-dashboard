@@ -90,17 +90,9 @@ export class State<T = unknown> {
  * @typedef {StateStack}
  * @template [T=unknown]
  */
-export class StateStack<T = unknown> {
-    /**
-     * Event emitter for state stack events
-     * @date 10/12/2023 - 2:31:40 PM
-     *
-     * @private
-     * @readonly
-     * @type {EventEmitter<keyof StateStackEventData<T>>}
-     */
-    private readonly $emitter: EventEmitter<keyof StateStackEventData<T>> =
-        new EventEmitter<keyof StateStackEventData<T>>();
+export class StateStack<T = unknown> extends EventEmitter<
+    StateStackEventData<T>
+> {
     /**
      * List of states in the stack
      * @date 10/12/2023 - 2:31:40 PM
@@ -136,6 +128,7 @@ export class StateStack<T = unknown> {
      * @param {?StateStackOptions} [options]
      */
     constructor(init?: T, options?: StateStackOptions) {
+        super();
         if (init) this.add(init);
         this.options = options;
     }
@@ -149,7 +142,7 @@ export class StateStack<T = unknown> {
      */
     add(data: T): State<T> {
         const s = new State<T>(data, this);
-        this.$emitter.emit('new', s);
+        this.emit('new', s);
 
         if (this.index < this.states.length - 1) {
             this.states.splice(this.index + 1);
@@ -162,7 +155,8 @@ export class StateStack<T = unknown> {
 
         this.states.push(s);
         this.index++;
-        this.$emitter.emit('change', this.current);
+        const { current } = this;
+        if (current) this.emit('change', current);
 
         return s;
     }
@@ -176,8 +170,11 @@ export class StateStack<T = unknown> {
     next(): State<T> | undefined {
         if (this.index < this.states.length - 1) {
             this.index++;
-            this.$emitter.emit('next', this.current);
-            this.$emitter.emit('change', this.current);
+            const { current } = this;
+            if (current) {
+                this.emit('next', current);
+                this.emit('change', current);
+            }
             return this.current;
         }
     }
@@ -191,8 +188,12 @@ export class StateStack<T = unknown> {
     prev(): State<T> | undefined {
         if (this.index > 0) {
             this.index--;
-            this.$emitter.emit('prev', this.current);
-            this.$emitter.emit('change', this.current);
+            const { current } = this;
+            if (current) {
+                this.emit('prev', current);
+
+                this.emit('change', current);
+            }
             return this.current;
         }
     }
@@ -206,51 +207,6 @@ export class StateStack<T = unknown> {
      */
     get current(): State<T> | undefined {
         return this.states[this.index];
-    }
-
-    /**
-     * Adds a listener for the given event
-     * @date 10/12/2023 - 2:31:40 PM
-     *
-     * @template {StateStackEvent<T>} K
-     * @param {K} event
-     * @param {(data: StateStackEventData<T>[K]) => void} callback
-     */
-    on<K extends keyof StateStackEventData<T>>(
-        event: K,
-        callback: (data: StateStackEventData<T>[K]) => void
-    ): void {
-        this.$emitter.on(event, callback);
-    }
-
-    /**
-     * Removes a listener for the given event
-     * @date 10/12/2023 - 2:31:40 PM
-     *
-     * @template {StateStackEvent<T>} K
-     * @param {K} event
-     * @param {?(data: StateStackEventData<T>[K]) => void} [callback]
-     */
-    off<K extends keyof StateStackEventData<T>>(
-        event: K,
-        callback?: (data: StateStackEventData<T>[K]) => void
-    ): void {
-        this.$emitter.off(event, callback);
-    }
-
-    /**
-     * Emits an event with the given data
-     * @date 10/12/2023 - 2:33:03 PM
-     *
-     * @template {keyof StateStackEventData<T>} K
-     * @param {K} event
-     * @param {StateStackEventData<T>[K]} data
-     */
-    emit<K extends keyof StateStackEventData<T>>(
-        event: K,
-        data: StateStackEventData<T>[K]
-    ): void {
-        this.$emitter.emit(event, data);
     }
 }
 
@@ -277,7 +233,7 @@ type BranchEventData<T = unknown> = {
  * @typedef {BranchStack}
  * @template [T=unknown]
  */
-export class BranchStack<T = unknown> {
+export class BranchStack<T = unknown> extends EventEmitter<BranchEventData<T>> {
     /**
      * List of branches in the stack
      * @date 10/12/2023 - 2:31:40 PM
@@ -294,15 +250,6 @@ export class BranchStack<T = unknown> {
      * @type {?string}
      */
     private currentBranch?: string;
-    /**
-     * Event emitter for branch stack events
-     * @date 10/12/2023 - 2:31:40 PM
-     *
-     * @private
-     * @type {EventEmitter<keyof BranchEventData<T>>}
-     */
-    private readonly $emitter: EventEmitter<keyof BranchEventData<T>> =
-        new EventEmitter<keyof BranchEventData<T>>();
 
     /**
      * Returns the current branch (if it exists)
@@ -327,7 +274,7 @@ export class BranchStack<T = unknown> {
     add(branch: string, data: T): StateStack<T> {
         if (!this.branches.has(branch)) {
             this.branches.set(branch, new StateStack<T>(data));
-            this.$emitter.emit('new', this.branches.get(branch)!);
+            this.emit('new', this.branches.get(branch)!);
         }
 
         return this.branches.get(branch)!;
@@ -343,7 +290,7 @@ export class BranchStack<T = unknown> {
     switch(branch: string): StateStack<T> | undefined {
         if (this.branches.has(branch)) {
             this.currentBranch = branch;
-            this.$emitter.emit('switch', this.branches.get(branch)!);
+            this.emit('switch', this.branches.get(branch)!);
             return this.branches.get(branch)!;
         }
     }
@@ -356,7 +303,7 @@ export class BranchStack<T = unknown> {
      */
     remove(branch: string): void {
         this.branches.delete(branch);
-        this.$emitter.emit('remove', branch);
+        this.emit('remove', branch);
     }
 
     /**
@@ -383,35 +330,5 @@ export class BranchStack<T = unknown> {
         this.branches.set(newName, newBranch);
 
         return newBranch;
-    }
-
-    /**
-     * Adds a listener for the given event
-     * @date 10/12/2023 - 2:31:40 PM
-     *
-     * @template {BranchEvent<T>} K
-     * @param {K} event
-     * @param {(data: BranchEventData<T>[K]) => void} callback
-     */
-    on<K extends keyof BranchEventData<T>>(
-        event: K,
-        callback: (data: BranchEventData<T>[K]) => void
-    ): void {
-        this.$emitter.on(event, callback);
-    }
-
-    /**
-     * Removes a listener for the given event
-     * @date 10/12/2023 - 2:31:40 PM
-     *
-     * @template {BranchEvent<T>} K
-     * @param {K} event
-     * @param {?(data: BranchEventData<T>[K]) => void} [callback]
-     */
-    off<K extends keyof BranchEventData<T>>(
-        event: K,
-        callback?: (data: BranchEventData<T>[K]) => void
-    ): void {
-        this.$emitter.off(event, callback);
     }
 }

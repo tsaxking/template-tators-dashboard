@@ -7,9 +7,8 @@
  */
 export type ContextMenuOptions = (
     | {
-          name: string;
           action: (e: MouseEvent) => void;
-          text: string;
+          name: string;
           //   class: string;
       }
     | null
@@ -44,8 +43,8 @@ const rightClickContextMenu = (e: MouseEvent, el: HTMLDivElement) => {
  * @param {HTMLElement} target
  */
 export const contextmenu = (
-    options: ContextMenuOptions,
-    target: HTMLElement
+    target: HTMLElement,
+    options: ContextMenuOptions
 ) => {
     const el = create('div');
     el.classList.add('shadow', 'border-0', 'contextmenu', 'rounded');
@@ -88,7 +87,7 @@ export const contextmenu = (
             // i.classList.add(...o.class.split(' '), 'me-2');
             // button.appendChild(i);
             const span = create('span');
-            span.textContent = o.text;
+            span.textContent = o.name;
             button.appendChild(span);
             button.addEventListener('click', o.action);
             li.appendChild(button);
@@ -105,6 +104,7 @@ export const contextmenu = (
         const pos = rightClickContextMenu(e, el);
         el.style.left = `${pos.x}px`;
         el.style.top = `${pos.y}px`;
+        el.style.zIndex = '9000';
         document.body.appendChild(el);
         // target.removeEventListener('contextmenu', fn);
 

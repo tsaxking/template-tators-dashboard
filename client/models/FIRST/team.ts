@@ -61,28 +61,12 @@ type FIRSTTeamEventData = {
  * @implements {FIRST}
  */
 export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
-    private static readonly $emitter = new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: Updates[K]) => void
-    ): void {
-        FIRSTTeam.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: Updates[K]) => void
-    ): void {
-        FIRSTTeam.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(
-        event: K,
-        data: Updates[K]
-    ): void {
-        FIRSTTeam.$emitter.emit(event, data);
-    }
+    public static on = FIRSTTeam.emitter.on.bind(FIRSTTeam.emitter);
+    public static off = FIRSTTeam.emitter.off.bind(FIRSTTeam.emitter);
+    public static emit = FIRSTTeam.emitter.emit.bind(FIRSTTeam.emitter);
+    public static once = FIRSTTeam.emitter.once.bind(FIRSTTeam.emitter);
 
     public static current?: FIRSTTeam = undefined;
 
@@ -124,7 +108,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @type {Map<number, FIRSTTeam>}
      */
     // <team number>:<event key>
-    public static readonly $cache = new Map<string, FIRSTTeam>();
+    public static readonly cache = new Map<string, FIRSTTeam>();
 
     /**
      * Creates an instance of FIRSTTeam.
@@ -139,10 +123,10 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         public readonly event: FIRSTEvent
     ) {
         super();
-        if (!FIRSTTeam.$cache.has(tba.team_number + ':' + event.key)) {
-            FIRSTTeam.$cache.get(tba.team_number + ':' + event.key)?.destroy();
+        if (!FIRSTTeam.cache.has(tba.team_number + ':' + event.key)) {
+            FIRSTTeam.cache.get(tba.team_number + ':' + event.key)?.destroy();
         }
-        FIRSTTeam.$cache.set(tba.team_number + ':' + event.key, this);
+        FIRSTTeam.cache.set(tba.team_number + ':' + event.key, this);
     }
 
     get number(): number {
@@ -165,8 +149,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      */
     public async getEvents(simple = false): Promise<Result<TBAEvent[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('events')) {
-                return this.$cache.get('events') as TBAEvent[];
+            if (this.cache.has('events')) {
+                return this.cache.get('events') as TBAEvent[];
             }
 
             const res = await TBA.get<TBAEvent[]>(
@@ -176,13 +160,13 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             if (res.isOk()) {
                 res.value.onUpdate(
                     (data: TBAEvent[]) => {
-                        this.$emitter.emit('update-events', data);
-                        this.$cache.set('events', data);
+                        this.emit('update-events', data);
+                        this.cache.set('events', data);
                     },
                     1000 * 60 * 60 * 24
                 ); // 24 hours
 
-                this.$cache.set('events', res.value.data);
+                this.cache.set('events', res.value.data);
 
                 return res.value.data;
             }
@@ -213,7 +197,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
             if (res.isOk()) {
                 if (res.value) {
-                    this.$cache.set('watch-priority', res.value.watchPriority);
+                    this.cache.set('watch-priority', res.value.watchPriority);
                     return res.value.watchPriority;
                 }
 
@@ -235,7 +219,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             );
 
             if (res.isOk()) {
-                this.$cache.set('info', res.value);
+                this.cache.set('info', res.value);
                 return res.value;
             }
 
@@ -253,8 +237,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      */
     public async getMatchScouting(): Promise<Result<MatchScouting[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('match-scouting')) {
-                return this.$cache.get('match-scouting') as MatchScouting[];
+            if (this.cache.has('match-scouting')) {
+                return this.cache.get('match-scouting') as MatchScouting[];
             }
 
             const res = await MatchScouting.fromTeam(
@@ -276,7 +260,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                         }) === i
                 );
 
-            this.$cache.set('match-scouting', data);
+            this.cache.set('match-scouting', data);
             return data;
         });
     }
@@ -336,7 +320,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
      * @public
      */
     public destroy() {
-        FIRSTTeam.$cache.delete(this.tba.team_number + ':' + this.event.key);
+        FIRSTTeam.cache.delete(this.tba.team_number + ':' + this.event.key);
         super.destroy();
     }
 
@@ -364,7 +348,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                 );
 
                 stream.on('error', rej);
-                stream.on('complete', res);
+                stream.on('complete', () => res());
             });
         });
     }
@@ -423,8 +407,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 
     async getPictures(): Promise<Result<TeamPicture[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('pictures')) {
-                return this.$cache.get('pictures') as TeamPicture[];
+            if (this.cache.has('pictures')) {
+                return this.cache.get('pictures') as TeamPicture[];
             }
             const res = await ServerRequest.post<TeamPicture[]>(
                 `/api/teams/get-pictures`,
@@ -435,7 +419,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
             );
 
             if (res.isOk()) {
-                this.$cache.set('pictures', res.value);
+                this.cache.set('pictures', res.value);
                 return res.value;
             }
 
@@ -447,15 +431,13 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
 // update sockets:
 
 socket.on('match-scouting:new', (data: RetrievedMatchScouting) => {
-    const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
+    const team = FIRSTTeam.cache.get(data.team + ':' + data.eventKey);
 
     if (!team) return;
 
     // if it's in cache, update by either replacing data or pushing then sorting
-    if (team.$cache.has('match-scouting')) {
-        const ms = team.$cache.get(
-            'match-scouting'
-        ) as RetrievedMatchScouting[];
+    if (team.cache.has('match-scouting')) {
+        const ms = team.cache.get('match-scouting') as RetrievedMatchScouting[];
         const match = ms.find(m => m.id === data.id);
         if (match) {
             // update
@@ -473,40 +455,38 @@ socket.on('match-scouting:new', (data: RetrievedMatchScouting) => {
                 );
             });
         }
-        team.$cache.set('match-scouting', ms);
+        team.cache.set('match-scouting', ms);
     }
 
-    team.$emitter.emit('match-scouting', data);
+    team.emit('match-scouting', data);
 });
 
 socket.on('match-scouting:delete', (data: RetrievedMatchScouting) => {
-    const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
+    const team = FIRSTTeam.cache.get(data.team + ':' + data.eventKey);
 
     if (!team) return;
 
     // if it's in cache, update by either replacing data or pushing then sorting
-    if (team.$cache.has('match-scouting')) {
-        const ms = team.$cache.get(
-            'match-scouting'
-        ) as RetrievedMatchScouting[];
+    if (team.cache.has('match-scouting')) {
+        const ms = team.cache.get('match-scouting') as RetrievedMatchScouting[];
         const match = ms.find(m => m.id === data.id);
         if (match) {
             // update
             ms.splice(ms.indexOf(match), 1);
         }
-        team.$cache.set('match-scouting', ms);
+        team.cache.set('match-scouting', ms);
     }
 
-    team.$emitter.emit('match-scouting', data);
+    team.emit('match-scouting', data);
 });
 
 // socket.on('match-comments:new', (data: MatchScoutingComments) => {
-//     const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
+//     const team = FIRSTTeam.cache.get(data.team + ':' + data.eventKey);
 
 //     if (!team) return;
 
-//     if (team.$cache.has('match-comments')) {
-//         const mc = team.$cache.get('match-comments') as MatchScoutingComments[];
+//     if (team.cache.has('match-comments')) {
+//         const mc = team.cache.get('match-comments') as MatchScoutingComments[];
 //         const match = mc.find((m) => m.id === data.id);
 //         if (match) {
 //             mc.splice(mc.indexOf(match), 1, data);
@@ -514,37 +494,37 @@ socket.on('match-scouting:delete', (data: RetrievedMatchScouting) => {
 //             mc.push(data);
 //         }
 
-//         team.$cache.set('match-comments', mc);
+//         team.cache.set('match-comments', mc);
 //     }
 
-//     team.$emitter.emit('match-comments', data);
+//     team.emit('match-comments', data);
 // });
 
 // socket.on('match-comments:delete', (data: MatchScoutingComments) => {
-//     const team = FIRSTTeam.$cache.get(data.team + ':' + data.eventKey);
+//     const team = FIRSTTeam.cache.get(data.team + ':' + data.eventKey);
 
 //     if (!team) return;
 
-//     if (team.$cache.has('match-comments')) {
-//         const mc = team.$cache.get('match-comments') as MatchScoutingComments[];
+//     if (team.cache.has('match-comments')) {
+//         const mc = team.cache.get('match-comments') as MatchScoutingComments[];
 //         const match = mc.find((m) => m.id === data.id);
 //         if (match) {
 //             mc.splice(mc.indexOf(match), 1);
 //         }
 
-//         team.$cache.set('match-comments', mc);
+//         team.cache.set('match-comments', mc);
 //     }
 
-//     team.$emitter.emit('match-comments', data);
+//     team.emit('match-comments', data);
 // });
 
 socket.on('pit-scouting:new', (data: RetrievedScoutingAnswer) => {
-    const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
+    const team = FIRSTTeam.cache.get(data.teamNumber + ':' + data.eventKey);
 
     if (!team) return;
 
-    if (team.$cache.has('pit-scouting')) {
-        const ps = team.$cache.get('pit-scouting') as RetrievedScoutingAnswer[];
+    if (team.cache.has('pit-scouting')) {
+        const ps = team.cache.get('pit-scouting') as RetrievedScoutingAnswer[];
         const match = ps.find(m => m.id === data.id);
         if (match) {
             ps.splice(ps.indexOf(match), 1, data);
@@ -552,34 +532,34 @@ socket.on('pit-scouting:new', (data: RetrievedScoutingAnswer) => {
             ps.push(data);
         }
 
-        team.$cache.set('pit-scouting', ps);
+        team.cache.set('pit-scouting', ps);
     }
 
-    team.$emitter.emit('pit-scouting', data);
+    team.emit('pit-scouting', data);
 });
 
 socket.on('pit-scouting:delete', (data: RetrievedScoutingAnswer) => {
-    const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
+    const team = FIRSTTeam.cache.get(data.teamNumber + ':' + data.eventKey);
 
     if (!team) return;
 
-    if (team.$cache.has('pit-scouting')) {
-        const ps = team.$cache.get('pit-scouting') as RetrievedScoutingAnswer[];
+    if (team.cache.has('pit-scouting')) {
+        const ps = team.cache.get('pit-scouting') as RetrievedScoutingAnswer[];
         const match = ps.find(m => m.id === data.id);
         if (match) {
             ps.splice(ps.indexOf(match), 1);
         }
 
-        team.$cache.set('pit-scouting', ps);
+        team.cache.set('pit-scouting', ps);
     }
 
-    team.$emitter.emit('pit-scouting', data);
+    team.emit('pit-scouting', data);
 });
 
 // TODO: sockets for watch priority
 
 socket.on('teams:pictures-uploaded', async (data: TeamPicture) => {
-    const team = FIRSTTeam.$cache.get(data.teamNumber + ':' + data.eventKey);
+    const team = FIRSTTeam.cache.get(data.teamNumber + ':' + data.eventKey);
     if (!team) return;
 
     const pictures = await team.getPictures();
@@ -594,7 +574,7 @@ socket.on('teams:pictures-uploaded', async (data: TeamPicture) => {
         teamNumber: data.teamNumber
     });
 
-    team.$cache.set('pictures', pictures.value);
+    team.cache.set('pictures', pictures.value);
     team.emit('new-picture', data);
 });
 

@@ -28,26 +28,18 @@ type Updates = {
  * @implements {FIRST}
  */
 export class FIRSTWhiteboard extends Cache<WhiteboardUpdateData> {
-    private static readonly $emitter: EventEmitter<keyof Updates> =
-        new EventEmitter<keyof Updates>();
+    private static readonly emitter = new EventEmitter<Updates>();
 
-    public static on<K extends keyof Updates>(
-        event: K,
-        callback: (data: any) => void
-    ): void {
-        FIRSTWhiteboard.$emitter.on(event, callback);
-    }
-
-    public static off<K extends keyof Updates>(
-        event: K,
-        callback?: (data: any) => void
-    ): void {
-        FIRSTWhiteboard.$emitter.off(event, callback);
-    }
-
-    public static emit<K extends keyof Updates>(event: K, data: any): void {
-        FIRSTWhiteboard.$emitter.emit(event, data);
-    }
+    public static on = FIRSTWhiteboard.emitter.on.bind(FIRSTWhiteboard.emitter);
+    public static off = FIRSTWhiteboard.emitter.off.bind(
+        FIRSTWhiteboard.emitter
+    );
+    public static emit = FIRSTWhiteboard.emitter.emit.bind(
+        FIRSTWhiteboard.emitter
+    );
+    public static once = FIRSTWhiteboard.emitter.once.bind(
+        FIRSTWhiteboard.emitter
+    );
 
     public static retrieve(data: WhiteboardObj, ctx: CanvasRenderingContext2D) {
         if (FIRSTWhiteboard.cache.has(data.id))
