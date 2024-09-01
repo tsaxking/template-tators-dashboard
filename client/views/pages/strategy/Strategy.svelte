@@ -3,11 +3,11 @@ import { FIRSTEvent } from '../../../models/FIRST/event';
 import { FIRSTMatch } from '../../../models/FIRST/match';
 import { Check, Strategy } from '../../../models/FIRST/strategy';
 import { onMount } from 'svelte';
-import { prompt } from '../../../utilities/notifications';
+import { alert, prompt } from '../../../utilities/notifications';
 import { FIRSTAlliance } from '../../../models/FIRST/alliance';
 import Alliance from '../../components/strategy/2024Alliance.svelte';
 import RobotCard from '../../components/strategy/RobotCard.svelte';
-import { MatchInterface } from '../../../models/FIRST/interfaces/match';
+import { type MatchInterface } from '../../../models/FIRST/interfaces/match';
 // import { dateString } from '../../../../shared/clock';
 // import { Loop } from '../../../../shared/loop';
 import { Color } from '../../../submodules/colors/color';
@@ -16,6 +16,7 @@ import Comment from '../../components/strategy/Comment.svelte';
 import MatchSelect from '../../components/main/MatchSelect.svelte';
 import StrategySelect from '../../components/strategy/StrategySelect.svelte';
 
+export let loading: boolean;
 
 // move ../Strategy.svelte into this director
 // Use that Strategy.svelte in pit and main dashboard, so you don't have to write the code twice
@@ -25,22 +26,25 @@ import StrategySelect from '../../components/strategy/StrategySelect.svelte';
 
 // const date = dateString('MM/DD/YYYY hh:mm:ss AM');
 let matches: FIRSTMatch[] = [];
-let strategies: Strategy[] = [];
 let strategy: Strategy | undefined;
 let red: FIRSTAlliance | undefined;
 let blue: FIRSTAlliance | undefined;
 let match: MatchInterface | undefined;
 let checks: Check[] = [];
 
-let alliance : 'red' | 'blue' | undefined;
+let alliance: 'red' | 'blue' | undefined;
 
-$: alliance = red?.hasTeam(2122) ? 'red' : blue?.hasTeam(2122) ? 'blue' : undefined;
+$: alliance = red?.hasTeam(2122)
+    ? 'red'
+    : blue?.hasTeam(2122)
+      ? 'blue'
+      : undefined;
 
 const colors = {
     red: Color.fromBootstrap('danger').toString(),
     blue: Color.fromBootstrap('primary').toString(),
     redFaded: Color.fromBootstrap('danger').setAlpha(0.5).toString(),
-    blueFaded: Color.fromBootstrap('primary').setAlpha(0.5).toString(),
+    blueFaded: Color.fromBootstrap('primary').setAlpha(0.5).toString()
 };
 // let currentTime = date();
 
@@ -54,31 +58,32 @@ const getMatches = async (event: FIRSTEvent) => {
 };
 
 const newStrategy = async () => {
+    if (!match)
+        return alert(
+            'Match not selected! You cannot make a new strategy without selecting a match.'
+        );
     let name = await prompt('Strategy Name');
     if (!name) return;
     // use prompt to get the strategy name
     // use Strategy.new();
-    let matchInfo: {
-        id: string;
-        compLevel: string;
-        number: number;
-        eventKey: string;
-    };
-};
-
-const onSelect = async (s: Strategy) => {
-    red = undefined;
-    blue = undefined;
-    strategy = s;
-    s.select();
-
-    const m = await s.getMatch();
-    if (m.isErr()) {
-        return console.error(m.error);
+    const info = await match.getInfo();
+    if (info.isErr()) {
+        return console.error(info.error);
     }
 
-    match = m.value;
+    const isMatch = match instanceof FIRSTMatch;
 
+    Strategy.new({
+        matchId: isMatch ? info.value.id : undefined,
+        customMatchId: isMatch ? undefined : info.value.id,
+        name,
+    });
+};
+
+const onMatchSelect = async (m: MatchInterface) => {
+    match = m;
+    red = undefined;
+    blue = undefined;
     const alliances = await match.getAlliances();
 
     if (alliances.isErr()) {
@@ -89,15 +94,29 @@ const onSelect = async (s: Strategy) => {
     red = r;
     blue = b;
 
+    const strategies = await m.getStrategies();
+    if (strategies.isErr()) return console.error(strategies.error);
+
+    strategy = strategies.value[0];
+};
+
+const onStrategySelect = async (s: Strategy) => {
+    if (!match) return console.error('Strategy: match not selected');
+    strategy = s;
+    s.select();
+
     const c = await s.getChecks();
     if (c.isErr()) {
         return console.error(c.error);
     }
 
+    console.log('CHECKS', { c });
+
     checks = c.value;
 };
 
 onMount(() => {
+    loading = false;
     FIRSTEvent.on('select', getMatches);
     if (FIRSTEvent.current) getMatches(FIRSTEvent.current);
 
@@ -107,22 +126,23 @@ onMount(() => {
 });
 </script>
 
-
-<button on:click="{newStrategy}">button</button>
-<MatchSelect on:select={({ detail }) => {
-    match = detail;
-}} />
+<button type="button" class="btn btn-primary" on:click="{newStrategy}">New Strategy</button>
+<MatchSelect
+    on:select="{({ detail }) => onMatchSelect(detail)}"
+/>
 {#if match}
-    <StrategySelect {match} on:select="{({detail}) => onSelect(detail)}" />
+    <StrategySelect {match} on:select="{({ detail }) => onStrategySelect(detail)}" />
 {/if}
 
 <div class="container-fluid">
     {#if match && red && blue}
         <div class="row">
             <div class="col-md-12">
-                    <div
+                <div
                     class="d-flex flex-column justify-content-center align-items-center h-100"
-                    style="background-color: {alliance === 'red' ? colors.red : colors.redFaded}"
+                    style="background-color: {alliance === 'red'
+                        ? colors.red
+                        : colors.redFaded}"
                 >
                     <div class="d-flex align-items-center">
                         <h2 class="display-1 text-black">
@@ -139,14 +159,13 @@ onMount(() => {
             <div class="col-md-6">
                 <div
                     class="d-flex flex-column h-100 justify-content-between align-items-start p-3"
-                    style="background-color: {alliance === 'blue' ? colors.blue : colors.blueFaded}"
+                    style="background-color: {alliance === 'blue'
+                        ? colors.blue
+                        : colors.blueFaded}"
                 >
                     {#each red.teams as team}
                         {#if team}
-                            <RobotCard
-                                alignment="end"
-                                {team}
-                            />
+                            <RobotCard alignment="end" {team} />
                         {/if}
                     {/each}
                 </div>
@@ -157,10 +176,7 @@ onMount(() => {
                 >
                     {#each blue.teams as team}
                         {#if team}
-                            <RobotCard
-                                alignment="end"
-                                {team}
-                            />
+                            <RobotCard alignment="end" {team} />
                         {/if}
                     {/each}
                 </div>
@@ -169,11 +185,11 @@ onMount(() => {
         <div class="row mb-3">
             <div class="col-md-6 bg-danger">
                 <h1>Red Alliance</h1>
-                <Alliance bind:alliance={red} />
+                <Alliance bind:alliance="{red}" />
             </div>
             <div class="col-md-6 bg-primary">
                 <h1>Blue Alliance</h1>
-                <Alliance bind:alliance={blue} />
+                <Alliance bind:alliance="{blue}" />
             </div>
         </div>
         {#if strategy}
@@ -183,22 +199,24 @@ onMount(() => {
             <div class="row mb-3">
                 <!-- Checks -->
                 <div class="col-md-6">
-                    <Checks checks={checks[0]} />
-                    <Checks checks={checks[1]} />
-                    <Checks checks={checks[2]} />
+                    <Checks checks="{checks[0]}" />
+                    <Checks checks="{checks[1]}" />
+                    <Checks checks="{checks[2]}" />
                 </div>
                 <div class="col-md-6">
-                    <Checks checks={checks[3]} />
-                    <Checks checks={checks[4]} />
-                    <Checks checks={checks[5]} />
+                    <Checks checks="{checks[3]}" />
+                    <Checks checks="{checks[4]}" />
+                    <Checks checks="{checks[5]}" />
                 </div>
             </div>
+        {:else} 
+            <p>No strategy selected</p>
         {/if}
-        
+
         <!-- {#if strategy}
             <Whiteboard {strategy} />
         {/if} -->
     {:else}
-        <h3>No Match Selected</h3>
+        <p>No match selected</p>
     {/if}
 </div>

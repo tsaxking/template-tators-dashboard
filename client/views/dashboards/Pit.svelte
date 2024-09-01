@@ -1,13 +1,13 @@
 <script lang="ts">
-import TaylorPitStrategy from './../pages/pit-display/TaylorPitStrategy.svelte';
+import TaylorPitStrategy from '../pages/strategy/Strategy.svelte';
 import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
 import BorderlessPage from '../components/main/BorderlessPage.svelte';
 import { type PageGroup } from '../../utilities/general-types';
 import { getOpenPage } from '../../utilities/page';
 import { FIRSTEvent } from '../../models/FIRST/event';
-import PitDashboard from '../pages/pit-display/PitDashboard.svelte';
-import PitStrategy from '../pages/pit-display/PitStrategy.svelte';
+import PitDashboard from '../pages/strategy/PitDashboard.svelte';
+import PitStrategy from '../pages/strategy/PitStrategy.svelte';
 
 const groups: PageGroup[] = [
     {
@@ -69,7 +69,7 @@ FIRSTEvent.on('select', e => {
     <Page {active} {domain} title="pit-strategy">
         <PitStrategy />
     </Page>
-    <Page {active} {domain} title="taylor-pit-strategy">
-        <TaylorPitStrategy />
-    </Page>
+    <!-- <Page {active} {domain} title="taylor-pit-strategy"> -->
+        <!-- <Strategy bind:loading /> -->
+    <!-- </Page> -->
 </Main>

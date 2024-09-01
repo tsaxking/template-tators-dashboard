@@ -141,10 +141,7 @@ $: {
                     </div>
                 {:else}
                     {#each redTeams as team}
-                        <RobotCard
-                            alignment="end"
-                            {team}
-                        />
+                        <RobotCard alignment="end" {team} />
                     {/each}
                 {/if}
             </div>
@@ -157,10 +154,7 @@ $: {
                     <div class="text-center text-white">Loading...</div>
                 {:else}
                     {#each blueTeams as team}
-                        <RobotCard
-                            alignment="start"
-                            {team}
-                        />
+                        <RobotCard alignment="start" {team} />
                     {/each}
                 {/if}
             </div>

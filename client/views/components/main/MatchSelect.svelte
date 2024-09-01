@@ -17,7 +17,7 @@ const onEventSelect = async (event: FIRSTEvent) => {
     } else {
         options = [];
     }
-}
+};
 
 const handleChange = async (e: any) => {
     const { detail: matchKey } = e;
@@ -34,7 +34,7 @@ onMount(() => {
 
     () => {
         FIRSTEvent.off('select', onEventSelect);
-    }
+    };
 });
 </script>
 

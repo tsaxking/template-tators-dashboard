@@ -9,20 +9,20 @@ router.post<{
     name: string;
     matchId: string | undefined;
     customMatchId: string | undefined;
-    comment: string;
-    checks: string[];
 }>(
     '/new',
     validate({
         name: 'string',
-        matchId: ['string', 'undefined'],
-        customMatchId: ['string', 'undefined'],
-        comment: 'string',
-        checks: (v: unknown) =>
-            Array.isArray(v) && v.every(val => typeof val === 'string')
+        matchId: v => typeof v === 'string' || v === undefined,
+        customMatchId: v => typeof v === 'string' || v === undefined,
+    }, {
+        log: true
     }),
     async (req, res) => {
-        const { name, matchId, customMatchId, comment, checks } = req.body;
+        const { name, matchId, customMatchId } = req.body;
+        
+        if (customMatchId && matchId) return res.sendStatus('strategy:invalid');
+
         const { accountId } = req.session;
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
@@ -32,8 +32,8 @@ router.post<{
                 time: Date.now(),
                 matchId,
                 customMatchId,
-                comment,
-                checks: JSON.stringify(checks),
+                comment: '',
+                checks: JSON.stringify([]),
                 createdBy: accountId
             })
         ).unwrap();

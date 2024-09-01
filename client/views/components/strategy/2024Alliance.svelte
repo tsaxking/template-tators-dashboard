@@ -15,7 +15,6 @@ import { FIRSTAlliance } from '../../../models/FIRST/alliance';
 export let alliance: FIRSTAlliance;
 export let color: 'blue' | 'red' = 'blue';
 
-
 let team1: FIRSTTeam | undefined;
 let team2: FIRSTTeam | undefined;
 let team3: FIRSTTeam | undefined;
