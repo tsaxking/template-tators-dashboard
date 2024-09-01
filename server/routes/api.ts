@@ -34,3 +34,9 @@ router.route('/match-scouting', matchScouting);
 
 import { router as teamComments } from './api/team-comments';
 router.route('/team-comments', teamComments);
+
+import { router as customMatches } from './api/custom-matches';
+router.route('/custom-matches', customMatches);
+
+import { router as whiteboard } from './api/whiteboard';
+router.route('/whiteboard', whiteboard);

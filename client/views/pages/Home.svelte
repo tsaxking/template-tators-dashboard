@@ -61,6 +61,14 @@ const links: {
         textColor: 'light',
         linkColor: 'light',
         requiredPermission: 'developer'
+    },
+    {
+        link: '/dashboard/pit',
+        name: 'Pit Display',
+        description: 'Displays to be shown in the pit.',
+        color: 'secondary',
+        textColor: 'light',
+        linkColor: 'light'
     }
 ];
 
