@@ -23,8 +23,6 @@ import { Alliance, FIRSTAlliance } from './alliance';
 import { Matches } from '../../../server/utilities/tables';
 import { TBA } from '../../utilities/tba';
 import { MatchInterface } from './interfaces/match';
-import { Whiteboard } from '../whiteboard/whiteboard';
-import { FIRSTWhiteboard } from './whiteboard';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object

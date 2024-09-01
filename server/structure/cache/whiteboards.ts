@@ -5,27 +5,27 @@ import { attemptAsync } from '../../../shared/check';
 import { uuid } from '../../utilities/uuid';
 import { Strategy } from './strategy';
 
-export class Whiteboard extends Cache {
+export class FIRSTWhiteboard extends Cache {
     public static fromStrategy(strategyId: string) {
         return attemptAsync(async () => {
             const boards = (
                 await DB.all('whiteboards/from-strategy', { strategyId })
             ).unwrap();
-            return boards.map(b => new Whiteboard(b));
+            return boards.map(b => new FIRSTWhiteboard(b));
         });
     }
 
     public static all() {
         return attemptAsync(async () => {
             const boards = (await DB.all('whiteboards/all')).unwrap();
-            return boards.map(b => new Whiteboard(b));
+            return boards.map(b => new FIRSTWhiteboard(b));
         });
     }
 
     public static archived() {
         return attemptAsync(async () => {
             const boards = (await DB.all('whiteboards/archived')).unwrap();
-            return boards.map(b => new Whiteboard(b));
+            return boards.map(b => new FIRSTWhiteboard(b));
         });
     }
 
@@ -34,7 +34,7 @@ export class Whiteboard extends Cache {
             const board = (
                 await DB.get('whiteboards/from-id', { id })
             ).unwrap();
-            return board ? new Whiteboard(board) : undefined;
+            return board ? new FIRSTWhiteboard(board) : undefined;
         });
     }
 
@@ -42,7 +42,7 @@ export class Whiteboard extends Cache {
         return attemptAsync(async () => {
             const id = uuid();
             await DB.run('whiteboards/new', { ...data, id });
-            return new Whiteboard({ ...data, id, archived: false });
+            return new FIRSTWhiteboard({ ...data, id, archived: false });
         });
     }
 

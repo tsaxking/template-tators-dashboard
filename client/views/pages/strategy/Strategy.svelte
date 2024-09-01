@@ -15,6 +15,7 @@ import Checks from '../../components/strategy/Checks.svelte';
 import Comment from '../../components/strategy/Comment.svelte';
 import MatchSelect from '../../components/main/MatchSelect.svelte';
 import StrategySelect from '../../components/strategy/StrategySelect.svelte';
+import WhiteboardContainer from '../../components/whiteboard/WhiteboardContainer.svelte';
 
 export let loading: boolean;
 
@@ -196,9 +197,9 @@ onMount(() => {
             <p>No strategy selected</p>
         {/if}
 
-        <!-- {#if strategy}
-            <Whiteboard {strategy} />
-        {/if} -->
+        {#if strategy}
+            <WhiteboardContainer {strategy} />
+        {/if}
     {:else}
         <p>No match selected</p>
     {/if}
