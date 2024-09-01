@@ -97,20 +97,19 @@ const onMatchSelect = async (m: MatchInterface) => {
     const strategies = await m.getStrategies();
     if (strategies.isErr()) return console.error(strategies.error);
 
-    strategy = strategies.value[0];
+    const s = strategies.value[0];
+    if (s) selectStrategy(s);
 };
 
-const onStrategySelect = async (s: Strategy) => {
+const selectStrategy = async (s: Strategy) => {
     if (!match) return console.error('Strategy: match not selected');
     strategy = s;
-    s.select();
+    // s.select();
 
     const c = await s.getChecks();
     if (c.isErr()) {
         return console.error(c.error);
     }
-
-    console.log('CHECKS', { c });
 
     checks = c.value;
 };
@@ -131,12 +130,12 @@ onMount(() => {
     on:select="{({ detail }) => onMatchSelect(detail)}"
 />
 {#if match}
-    <StrategySelect {match} on:select="{({ detail }) => onStrategySelect(detail)}" />
+    <StrategySelect {match} on:select="{({ detail }) => selectStrategy(detail)}" />
 {/if}
 
 <div class="container-fluid">
     {#if match && red && blue}
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-md-12">
                 <div
                     class="d-flex flex-column justify-content-center align-items-center h-100"
@@ -148,14 +147,14 @@ onMount(() => {
                         <h2 class="display-1 text-black">
                             Match: {match.compLevel}{match.number}
                         </h2>
-                        <!-- <p class="display-1 text-black" style="font-size: 200%;">
+                        <p class="display-1 text-black" style="font-size: 200%;">
                             {currentTime}
-                        </p> -->
+                        </p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mb-3">
+        </div> -->
+        <!-- <div class="row mb-3">
             <div class="col-md-6">
                 <div
                     class="d-flex flex-column h-100 justify-content-between align-items-start p-3"
@@ -165,7 +164,9 @@ onMount(() => {
                 >
                     {#each red.teams as team}
                         {#if team}
-                            <RobotCard alignment="end" {team} />
+                        {#if team}
+                            <p class="text-danger">{team.number}</p>
+                        {/if}
                         {/if}
                     {/each}
                 </div>
@@ -176,13 +177,13 @@ onMount(() => {
                 >
                     {#each blue.teams as team}
                         {#if team}
-                            <RobotCard alignment="end" {team} />
+                            <p class="text-primary">{team.number}</p>
                         {/if}
                     {/each}
                 </div>
             </div>
-        </div>
-        <div class="row mb-3">
+        </div> -->
+        <!-- <div class="row mb-3">
             <div class="col-md-6 bg-danger">
                 <h1>Red Alliance</h1>
                 <Alliance bind:alliance="{red}" />
@@ -191,7 +192,7 @@ onMount(() => {
                 <h1>Blue Alliance</h1>
                 <Alliance bind:alliance="{blue}" />
             </div>
-        </div>
+        </div> -->
         {#if strategy}
             <div class="row mb-3">
                 <Comment {strategy} />

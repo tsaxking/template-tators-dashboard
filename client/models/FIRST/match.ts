@@ -76,7 +76,7 @@ export class FIRSTMatch
     public static fromObj(data: Matches) {
         return attemptAsync(async () => {
             const { eventKey, matchNumber, compLevel } = data;
-            const key = `${eventKey}-${compLevel}-${matchNumber}`;
+            const key = `${eventKey}_${compLevel}${matchNumber}`;
             const [eventRes, matchRes] = await Promise.all([
                 TBA.get<TBAEvent>('/event/' + eventKey),
                 TBA.get<TBAMatch>(`/match/${key}`)
