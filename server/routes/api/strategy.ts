@@ -11,16 +11,19 @@ router.post<{
     customMatchId: string | undefined;
 }>(
     '/new',
-    validate({
-        name: 'string',
-        matchId: v => typeof v === 'string' || v === undefined,
-        customMatchId: v => typeof v === 'string' || v === undefined,
-    }, {
-        log: true
-    }),
+    validate(
+        {
+            name: 'string',
+            matchId: v => typeof v === 'string' || v === undefined,
+            customMatchId: v => typeof v === 'string' || v === undefined
+        },
+        {
+            log: true
+        }
+    ),
     async (req, res) => {
         const { name, matchId, customMatchId } = req.body;
-        
+
         if (customMatchId && matchId) return res.sendStatus('strategy:invalid');
 
         const { accountId } = req.session;
@@ -99,7 +102,8 @@ router.post<{
         name: 'string',
         time: 'number',
         matchId: v => typeof v === 'string' || v === undefined || v === null,
-        customMatchId: v => typeof v === 'string' || v === undefined || v === null,
+        customMatchId: v =>
+            typeof v === 'string' || v === undefined || v === null,
         comment: 'string',
         checks: (v: unknown) =>
             Array.isArray(v) && v.every(val => typeof val === 'string')

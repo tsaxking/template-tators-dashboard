@@ -127,7 +127,12 @@ export const validate = <type = unknown>(
                 if (options?.log) console.log('[validate]', key, ...args);
             };
 
-            if (typeof isValid === 'function' && body && typeof body === 'object' && isValid(body[key as keyof typeof body])) {
+            if (
+                typeof isValid === 'function' &&
+                body &&
+                typeof body === 'object' &&
+                isValid(body[key as keyof typeof body])
+            ) {
                 log('Passed function test');
                 continue;
             }

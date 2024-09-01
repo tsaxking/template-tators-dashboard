@@ -83,7 +83,16 @@ export class Strategy extends Cache<StrategyUpdateData> {
     }
 
     public static new(
-        data: Omit<S, 'id' | 'createdBy' | 'archive' | 'time' | 'createdBy' | 'checks' | 'comment'>
+        data: Omit<
+            S,
+            | 'id'
+            | 'createdBy'
+            | 'archive'
+            | 'time'
+            | 'createdBy'
+            | 'checks'
+            | 'comment'
+        >
     ) {
         return ServerRequest.post('/api/strategy/new', data);
     }
@@ -125,9 +134,13 @@ export class Strategy extends Cache<StrategyUpdateData> {
         }
     }
 
-    update(data: Partial<Omit<S, 'id' | 'createdBy' | 'checks'> & {
-        checks: string[]
-    }>) {
+    update(
+        data: Partial<
+            Omit<S, 'id' | 'createdBy' | 'checks'> & {
+                checks: string[];
+            }
+        >
+    ) {
         return ServerRequest.post('/api/strategy/update', {
             ...this,
             ...data
@@ -178,7 +191,7 @@ export class Check extends EventEmitter<CheckEvents> {
                 .filter(Boolean)
                 .map(t => t.number);
             const checks = data.map(d => d.split(':') as [string, string]);
-            
+
             console.log('Check.from:', data, teams);
             return teams.map(t => {
                 const c = checks.filter(c => +c[0] === t).map(c => c[1]);
@@ -199,11 +212,9 @@ export class Check extends EventEmitter<CheckEvents> {
         return attemptAsync(async () => {
             const data = this.serialize();
             await this.strategy.update({
-                checks: 
-                    [...data, ...this.strategy.checks]
-                        // Remove duplicates
-                        .filter((c, i, a) => a.indexOf(c) === i)
-
+                checks: [...data, ...this.strategy.checks]
+                    // Remove duplicates
+                    .filter((c, i, a) => a.indexOf(c) === i)
             });
         });
     }

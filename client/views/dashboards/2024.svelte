@@ -124,6 +124,6 @@ let loading = true;
         <Quiz bind:loading />
     </Page>
     <Page {active} {domain} title="strategy" bind:loading>
-    <Strategy bind:loading />
+        <Strategy bind:loading />
     </Page>
 </Main>

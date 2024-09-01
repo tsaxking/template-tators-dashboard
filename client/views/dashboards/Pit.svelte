@@ -70,6 +70,6 @@ FIRSTEvent.on('select', e => {
         <PitStrategy />
     </Page>
     <!-- <Page {active} {domain} title="taylor-pit-strategy"> -->
-        <!-- <Strategy bind:loading /> -->
+    <!-- <Strategy bind:loading /> -->
     <!-- </Page> -->
 </Main>

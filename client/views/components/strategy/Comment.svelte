@@ -16,7 +16,6 @@ const submit = (comment: string) => {
     strategy.update({ comment });
 };
 
-
 onMount(() => {
     strategy.on('update', update);
 
@@ -36,10 +35,10 @@ onMount(() => {
         <textarea
             class="form-control"
             rows="5"
-            on:input={(e) => {
+            on:input="{e => {
                 comment = e.currentTarget.value;
-            }}
-        >{comment}</textarea>
+            }}">{comment}</textarea
+        >
         {#if strategy.comment !== comment}
             <small class="text-danger">Unsaved changes</small>
             <button
