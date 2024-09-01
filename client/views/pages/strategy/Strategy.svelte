@@ -125,74 +125,57 @@ onMount(() => {
 });
 </script>
 
-<button type="button" class="btn btn-primary" on:click="{newStrategy}">New Strategy</button>
-<MatchSelect
-    on:select="{({ detail }) => onMatchSelect(detail)}"
-/>
-{#if match}
-    <StrategySelect {match} on:select="{({ detail }) => selectStrategy(detail)}" />
-{/if}
+<div class="d-flex flex-row mb-3">
+
+
+
+</div>
+
 
 <div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-4">
+            <MatchSelect
+            on:select="{({ detail }) => onMatchSelect(detail)}"
+        />
+        </div>
+        {#if match}
+        <div class="col-4">
+            <StrategySelect {match} on:select="{({ detail }) => selectStrategy(detail)}" />
+
+        </div>
+        <div class="col-4">
+            <button type="button" class="btn btn-primary w-100" on:click="{newStrategy}">New Strategy</button>
+
+        </div>
+
+{/if}
+    </div>
     {#if match && red && blue}
-        <!-- <div class="row">
-            <div class="col-md-12">
-                <div
-                    class="d-flex flex-column justify-content-center align-items-center h-100"
-                    style="background-color: {alliance === 'red'
-                        ? colors.red
-                        : colors.redFaded}"
-                >
-                    <div class="d-flex align-items-center">
-                        <h2 class="display-1 text-black">
-                            Match: {match.compLevel}{match.number}
-                        </h2>
-                        <p class="display-1 text-black" style="font-size: 200%;">
-                            {currentTime}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-        <!-- <div class="row mb-3">
-            <div class="col-md-6">
-                <div
-                    class="d-flex flex-column h-100 justify-content-between align-items-start p-3"
-                    style="background-color: {alliance === 'blue'
-                        ? colors.blue
-                        : colors.blueFaded}"
-                >
-                    {#each red.teams as team}
-                        {#if team}
-                        {#if team}
-                            <p class="text-danger">{team.number}</p>
-                        {/if}
-                        {/if}
-                    {/each}
-                </div>
-            </div>
-            <div class="col-md-6 bg-primary">
-                <div
-                    class="d-flex flex-column h-100 justify-content-between align-items-end p-3"
-                >
-                    {#each blue.teams as team}
-                        {#if team}
-                            <p class="text-primary">{team.number}</p>
-                        {/if}
-                    {/each}
-                </div>
-            </div>
-        </div> -->
-        <!-- <div class="row mb-3">
+        <div class="row mb-3">
             <div class="col-md-6 bg-danger">
-                <h1>Red Alliance</h1>
+                <h3>Red Alliance</h3>
+                <div class="d-flex flex-row justify-content-around">
+
+                    {#each red.teams as t}
+                    {#if t}
+                    <h5>{t.number}</h5>
+                    {/if}{/each}
+                </div>
                 <Alliance bind:alliance="{red}" />
             </div>
             <div class="col-md-6 bg-primary">
-                <h1>Blue Alliance</h1>
+                <h3>Blue Alliance</h3>
+                <div class="d-flex flex-row justify-content-around">
+
+                    {#each blue.teams as t}
+                    {#if t}
+                    <h5>{t.number}</h5>
+                    {/if}{/each}
+                </div>
                 <Alliance bind:alliance="{blue}" />
             </div>
-        </div> -->
+        </div>
         {#if strategy}
             <div class="row mb-3">
                 <Comment {strategy} />
@@ -201,12 +184,16 @@ onMount(() => {
                 <!-- Checks -->
                 <div class="col-md-6">
                     <Checks checks="{checks[0]}" />
+                    <hr>
                     <Checks checks="{checks[1]}" />
+                    <hr>
                     <Checks checks="{checks[2]}" />
                 </div>
                 <div class="col-md-6">
                     <Checks checks="{checks[3]}" />
+                    <hr>
                     <Checks checks="{checks[4]}" />
+                    <hr>
                     <Checks checks="{checks[5]}" />
                 </div>
             </div>
