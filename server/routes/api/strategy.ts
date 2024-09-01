@@ -98,8 +98,8 @@ router.post<{
         id: 'string',
         name: 'string',
         time: 'number',
-        matchId: ['string', 'undefined'],
-        customMatchId: ['string', 'undefined'],
+        matchId: v => typeof v === 'string' || v === undefined || v === null,
+        customMatchId: v => typeof v === 'string' || v === undefined || v === null,
         comment: 'string',
         checks: (v: unknown) =>
             Array.isArray(v) && v.every(val => typeof val === 'string')
