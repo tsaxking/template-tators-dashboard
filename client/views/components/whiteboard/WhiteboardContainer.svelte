@@ -14,9 +14,14 @@ let year: number | undefined;
 let options: string[] = [];
 let values: string[] = [];
 
+$: options = whiteboards.map(w => w.name);
+$: values = whiteboards.map(w => w.id);
+
 const onSelect = (e: CustomEvent) => {
     const { detail: id } = e;
+    console.log('Selecting: ', id);
     const wb = whiteboards.find(w => w.id === id);
+    console.log('FOUND', wb);
     if (wb) whiteboard = wb;
 };
 
@@ -46,7 +51,7 @@ $: getWhiteboards(strategy);
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col-md-6">
-            <Select {options} {values} on:select="{onSelect}" />
+            <Select {options} {values} on:change="{onSelect}" />
         </div>
         <div class="col-md-6">
             <button
@@ -58,7 +63,7 @@ $: getWhiteboards(strategy);
     </div>
     {#if whiteboard && year}
         <div class="row mb-3">
-            <Whiteboard {whiteboard} {year} />
+            <Whiteboard bind:whiteboard={whiteboard} {year} />
         </div>
     {/if}
 </div>

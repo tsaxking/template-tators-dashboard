@@ -2,22 +2,25 @@
 import { onMount } from 'svelte';
 import { FIRSTWhiteboard } from '../../../models/FIRST/whiteboard';
 import { type Pens } from '../../../models/whiteboard/board-state';
+import { Canvas } from '../../../models/canvas/canvas';
 
 export let whiteboard: FIRSTWhiteboard;
 export let year: number;
 
 let name = whiteboard.name;
-
 let currentPen: keyof Pens = 'black';
-
 let canvasEl: HTMLCanvasElement;
+let currentCanvas: Canvas | undefined;
+
+$: changeWhiteboard(whiteboard);
 
 const changePen = (pen: keyof Pens) => {
     whiteboard.board.currentProperties.color = pen;
     currentPen = pen;
 };
 
-onMount(() => {
+const changeWhiteboard = (whiteboard: FIRSTWhiteboard) => {
+    if (currentCanvas) currentCanvas.animating = false;
     const ctx = canvasEl.getContext('2d');
     if (!ctx) throw new Error('Could not get 2d context');
     const canvas = whiteboard.buildCanvas(ctx, year);
@@ -28,7 +31,10 @@ onMount(() => {
     }
     canvas.adaptable = true;
     canvas.animate();
-});
+    currentCanvas = canvas;
+}
+
+
 </script>
 
 <div class="container-fluid">

@@ -1,4 +1,5 @@
 import { attempt } from '../../../shared/check';
+import { EventEmitter } from '../../../shared/event-emitter';
 import {
     Point,
     Point2D
@@ -126,7 +127,8 @@ export class BoardState {
         public readonly pens: Pens,
         public readonly positions: Positions,
         public readonly board: Board
-    ) {}
+    ) {
+    }
 
     draw(ctx: CanvasRenderingContext2D) {
         const draw = (pen: Path[]) => {
