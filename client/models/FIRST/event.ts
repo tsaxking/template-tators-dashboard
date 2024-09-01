@@ -55,6 +55,14 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
 
     public static current: FIRSTEvent | undefined = undefined;
 
+    public static retrieve(event: TBAEvent) {
+        if (FIRSTEvent.cache.has(event.key)) {
+            return FIRSTEvent.cache.get(event.key) as FIRSTEvent;
+        } else {
+            return new FIRSTEvent(event);
+        }
+    }
+
     /**
      * Map of all FIRSTEvent objects
      * @date 10/9/2023 - 6:36:17 PM

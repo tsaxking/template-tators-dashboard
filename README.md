@@ -10,14 +10,14 @@ This includes a GitHub action to deploy documentation to GitHub Pages, and a Git
 
 ## Table of Contents
 
-- [Full-Stack Web Development Starter](#full-stack-web-development-starter)
-  - [Table of Contents](#table-of-contents)
-  - [Installation](#installation)
-  - [Manage](#manage)
-  - [Back End](#back-end)
-  - [Front End](#front-end)
-  - [Contributing](#contributing)
-  - [Contact](#contact)
+-   [Full-Stack Web Development Starter](#full-stack-web-development-starter)
+    -   [Table of Contents](#table-of-contents)
+    -   [Installation](#installation)
+    -   [Manage](#manage)
+    -   [Back End](#back-end)
+    -   [Front End](#front-end)
+    -   [Contributing](#contributing)
+    -   [Contact](#contact)
 
 ## Installation
 

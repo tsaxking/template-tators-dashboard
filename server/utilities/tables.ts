@@ -516,6 +516,7 @@ export type Strategy = {
     customMatchId: string | undefined;
     comment: string;
     archive: 0 | 1;
+    checks: string;
 };
 
 export type TeamComments = {
@@ -680,6 +681,23 @@ export type Insert_custom_matches_new = {
 
 export type Select_custom_matches_from_id = {
     id: string;
+};
+
+export type Update_custom_matches_update = {
+    id: string;
+    eventKey: string;
+    matchNumber: number;
+    compLevel: string;
+    name: string;
+    red1: number;
+    red2: number;
+    red3: number;
+    red4: number | undefined;
+    blue1: number;
+    blue2: number;
+    blue3: number;
+    blue4: number | undefined;
+    archive: 0 | 1;
 };
 
 export type Update_scouting_questions_update_group = {
@@ -951,6 +969,7 @@ export type Update_strategy_update = {
     customMatchId: string | undefined;
     comment: string;
     id: string;
+    checks: string;
 };
 
 export type Insert_strategy_new = {
@@ -961,6 +980,7 @@ export type Insert_strategy_new = {
     matchId: string | undefined;
     customMatchId: string | undefined;
     comment: string;
+    checks: string;
 };
 
 export type Select_strategy_from_id = {

@@ -3,17 +3,17 @@ INSERT INTO Strategy (
     name,
     time,
     createdBy,
-    whiteboardId,
     matchId,
     customMatchId,
-    comment
+    comment,
+    checks
 ) VALUES (
     :id,
     :name,
     :time,
     :createdBy,
-    :whiteboardId,
     :matchId,
     :customMatchId,
-    :comment
+    :comment,
+    :checks
 );

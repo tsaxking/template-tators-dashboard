@@ -1,1 +1,1 @@
-SELECT * FROM Strategy WHERE customMatchId = :customMatchId AND archived = 0;
+SELECT * FROM Strategy WHERE customMatchId = :customMatchId AND archived = FALSE;
