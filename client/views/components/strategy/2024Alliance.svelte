@@ -162,16 +162,9 @@ $: fns.getAllianceData(team1, team2, team3);
 </script>
 
 <div class="card bg-dark text-white">
-    <div class="card-header bg-{color === 'red' ? 'danger' : 'primary'}">
-        <div class="d-flex">
-            <TeamSelect bind:selected="{team1}"></TeamSelect>
-            <TeamSelect bind:selected="{team2}"></TeamSelect>
-            <TeamSelect bind:selected="{team3}"></TeamSelect>
-        </div>
-    </div>
     <div class="card-body">
         <h5 class="text-center">
-            Average ({M.sum(allianceInfo.map(a => M.average(a.total)))})
+            Average ({M.roundTo(4, M.sum(allianceInfo.map(a => M.average(a.total))))})
         </h5>
         <Bar
             data="{{

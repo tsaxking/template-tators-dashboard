@@ -7,9 +7,9 @@ export let checks: Check | undefined;
 {#if checks}
 
 <div>
-    <p>
+    <h4>
         {checks.team}
-    </p>
+    </h4>
     <div class="container-fluid">
         <div class="row p-0 m-0">
             {#each Check.checks as c}
