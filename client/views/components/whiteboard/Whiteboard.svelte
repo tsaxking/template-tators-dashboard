@@ -1,9 +1,9 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { Whiteboard } from '../../../models/FIRST/whiteboard';
+import { FIRSTWhiteboard } from '../../../models/FIRST/whiteboard';
 import { type Pens } from '../../../models/whiteboard/board-state';
 
-export let whiteboard: Whiteboard;
+export let whiteboard: FIRSTWhiteboard;
 export let year: number;
 
 let name = whiteboard.name;

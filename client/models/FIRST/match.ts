@@ -5,6 +5,8 @@ import {
 } from '../../../shared/db-types-extended';
 import { EventEmitter } from '../../../shared/event-emitter';
 import {
+    CompLevel,
+    TBAEvent,
     TBAMatch,
     teamsFromMatch
 } from '../../../shared/submodules/tatorscout-calculations/tba';
@@ -18,6 +20,11 @@ import { Strategy } from './strategy';
 import { Cache } from '../cache';
 import { attemptAsync, Result } from '../../../shared/check';
 import { Alliance, FIRSTAlliance } from './alliance';
+import { Matches } from '../../../server/utilities/tables';
+import { TBA } from '../../utilities/tba';
+import { MatchInterface } from './interfaces/match';
+import { Whiteboard } from '../whiteboard/whiteboard';
+import { FIRSTWhiteboard } from './whiteboard';
 
 /**
  * Events that are emitted by a {@link FIRSTMatch} object
@@ -42,13 +49,45 @@ type Updates = {
  * @class FIRSTMatch
  * @typedef {FIRSTMatch}
  */
-export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
-    private static readonly emitter = new EventEmitter<Updates>();
+export class FIRSTMatch
+    extends Cache<FIRSTMatchEventData>
+    implements MatchInterface
+{
+    private static readonly emitter: EventEmitter<Updates> =
+        new EventEmitter<Updates>();
 
     public static on = FIRSTMatch.emitter.on.bind(FIRSTMatch.emitter);
     public static off = FIRSTMatch.emitter.off.bind(FIRSTMatch.emitter);
     public static emit = FIRSTMatch.emitter.emit.bind(FIRSTMatch.emitter);
     public static once = FIRSTMatch.emitter.once.bind(FIRSTMatch.emitter);
+
+    public static fromId(id: string) {
+        return attemptAsync(async () => {
+            const res = (
+                await ServerRequest.post<Matches>('/api/matches/from-id', {
+                    id
+                })
+            ).unwrap();
+
+            return (await FIRSTMatch.fromObj(res)).unwrap();
+        });
+    }
+
+    public static fromObj(data: Matches) {
+        return attemptAsync(async () => {
+            const { eventKey, matchNumber, compLevel } = data;
+            const key = `${eventKey}_${compLevel}${matchNumber}`;
+            const [eventRes, matchRes] = await Promise.all([
+                TBA.get<TBAEvent>('/event/' + eventKey),
+                TBA.get<TBAMatch>(`/match/${key}`)
+            ]);
+
+            const event = eventRes.unwrap().data;
+            const match = matchRes.unwrap().data;
+
+            return new FIRSTMatch(match, new FIRSTEvent(event));
+        });
+    }
 
     public static sorter(a: FIRSTMatch, b: FIRSTMatch): number {
         const levels = ['qm', 'qf', 'sf', 'f'];
@@ -60,6 +99,14 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         if (+a.number < +b.number) return -1;
         if (+a.number > +b.number) return 1;
         return 0;
+    }
+
+    public static retrieve(match: TBAMatch, event: TBAEvent) {
+        if (FIRSTMatch.cache.has(match.key)) {
+            return FIRSTMatch.cache.get(match.key) as FIRSTMatch;
+        } else {
+            return new FIRSTMatch(match, FIRSTEvent.retrieve(event));
+        }
     }
 
     public static current?: FIRSTMatch = undefined;
@@ -119,7 +166,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     }
 
     get compLevel() {
-        return this.tba.comp_level;
+        return this.tba.comp_level as CompLevel;
     }
 
     get eventKey() {
@@ -135,9 +182,7 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     }
 
     public getStrategies() {
-        return attemptAsync(async () => {
-            throw new Error('Not implemented');
-        });
+        return Strategy.fromMatch(this.eventKey, this.number, this.compLevel);
     }
 
     public async getInfo(): Promise<Result<MatchObj>> {
@@ -186,20 +231,6 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
         return attemptAsync(async () => {
             throw new Error('Not implemented');
         });
-    }
-
-    async getWhiteboard(): Promise<Result<WhiteboardObj>> {
-        return ServerRequest.post<WhiteboardObj>(
-            '/api/whiteboard/from-match',
-            {
-                eventKey: this.event.tba.key,
-                matchNumber: this.tba.match_number,
-                compLevel: this.tba.comp_level
-            },
-            {
-                cached: true
-            }
-        );
     }
 
     /**
@@ -253,5 +284,9 @@ export class FIRSTMatch extends Cache<FIRSTMatchEventData> {
     public select(): void {
         FIRSTMatch.current = this;
         FIRSTMatch.emit('select', this);
+    }
+
+    hasTeam(team: number): boolean {
+        return teamsFromMatch(this.tba).includes(team);
     }
 }

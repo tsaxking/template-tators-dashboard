@@ -4,6 +4,8 @@ import { dateTime } from '../../../shared/clock';
 import { FIRSTEvent } from '../../models/FIRST/event';
 import { FIRSTMatch } from '../../models/FIRST/match';
 
+export let loading: boolean;
+
 let matchScouting: {
     teams: {
         team: number;
@@ -12,71 +14,72 @@ let matchScouting: {
     match?: FIRSTMatch;
 }[] = [];
 
-onMount(() => {
-    const fn = async (e: FIRSTEvent) => {
-        const [statusRes, matchesRes] = await Promise.all([
-            e.getStatus(),
-            e.getMatches()
-        ]);
-        if (statusRes.isErr()) return console.error(statusRes.error);
-        if (matchesRes.isErr()) return console.error(matchesRes.error);
+const init = async (e: FIRSTEvent) => {
+    const [statusRes, matchesRes] = await Promise.all([
+        e.getStatus(),
+        e.getMatches()
+    ]);
+    if (statusRes.isErr()) return console.error(statusRes.error);
+    if (matchesRes.isErr()) return console.error(matchesRes.error);
 
-        const { matches } = statusRes.value;
+    const { matches } = statusRes.value;
 
-        const levels = ['qm', 'qf', 'sf', 'f'];
+    const levels = ['qm', 'qf', 'sf', 'f'];
 
-        matchScouting = (
-            await Promise.all(
-                matchesRes.value.map(async m => {
-                    const match = matches.find(
-                        _m =>
-                            _m.match === m.number &&
-                            _m.compLevel === m.compLevel
-                    );
-                    if (!match) {
-                        return {
-                            teams: []
-                        };
-                    }
-                    const unScouted = match.teams;
-                    const teams = await m.getTeams();
-
-                    if (teams.isErr()) {
-                        return {
-                            teams: []
-                        };
-                    }
-
-                    return {
-                        teams: teams.value.filter(Boolean).map(t => ({
-                            team: t.number,
-                            scouted: !unScouted.includes(t.number)
-                        })),
-                        match: m
-                    };
-                })
-            )
-        ).sort((a, b) => {
-            if (!a.match || !b.match) return 0;
-            if (a.match.compLevel === b.match.compLevel) {
-                return a.match.number - b.match.number;
-            } else {
-                return (
-                    levels.indexOf(a.match.compLevel) -
-                    levels.indexOf(b.match.compLevel)
+    matchScouting = (
+        await Promise.all(
+            matchesRes.value.map(async m => {
+                const match = matches.find(
+                    _m => _m.match === m.number && _m.compLevel === m.compLevel
                 );
-            }
-        });
-    };
+                if (!match) {
+                    return {
+                        teams: []
+                    };
+                }
+                const unScouted = match.teams;
+                const teams = await m.getTeams();
 
-    FIRSTEvent.on('select', fn);
+                if (teams.isErr()) {
+                    return {
+                        teams: []
+                    };
+                }
+
+                return {
+                    teams: teams.value.filter(Boolean).map(t => ({
+                        team: t.number,
+                        scouted: !unScouted.includes(t.number)
+                    })),
+                    match: m
+                };
+            })
+        )
+    ).sort((a, b) => {
+        if (!a.match || !b.match) return 0;
+        if (a.match.compLevel === b.match.compLevel) {
+            return a.match.number - b.match.number;
+        } else {
+            return (
+                levels.indexOf(a.match.compLevel) -
+                levels.indexOf(b.match.compLevel)
+            );
+        }
+    });
+
+    loading = false;
+};
+
+onMount(() => {
+    FIRSTEvent.on('select', init);
 
     if (FIRSTEvent.current) {
-        fn(FIRSTEvent.current);
+        init(FIRSTEvent.current);
     }
 
     return () => {
-        FIRSTEvent.off('select', fn);
+        FIRSTEvent.off('select', init);
+        loading = true;
     };
 });
 </script>

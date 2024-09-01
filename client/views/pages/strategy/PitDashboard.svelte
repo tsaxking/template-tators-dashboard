@@ -1,18 +1,21 @@
 <script lang="ts">
-import { dateTime } from './../../../../shared/clock';
+import { dateString, dateTime } from './../../../../shared/clock';
 import { FIRSTEvent } from './../../../models/FIRST/event';
 import { FIRSTMatch } from './../../../models/FIRST/match';
 import { onMount } from 'svelte';
-import RobotCard from './RobotCard.svelte';
+import RobotCard from '../../components/strategy/RobotCard.svelte';
 import { Color } from '../../../submodules/colors/color';
 import { FIRSTTeam } from '../../../models/FIRST/team';
 import { Ok } from '../../../../shared/check';
 import { fade } from 'svelte/transition';
+import Countdown from '../../components/bootstrap/Countdown.svelte';
 
 interface MatchScouting {
     teams: { team: number; scouted: boolean }[];
     match?: FIRSTMatch;
 }
+
+const dateTimeSeconds = dateString('MM/DD/YYYY hh:mm:ss AM');
 
 let matchScouting: MatchScouting[] = [];
 let selectedMatch = 0;
@@ -22,6 +25,7 @@ let minutes = 0;
 let closestMatch: FIRSTMatch | undefined;
 let loading = true;
 let matchtime: string;
+let currentTime = Date.now();
 
 const updateMatchScouting = async (e: FIRSTEvent) => {
     loading = true;
@@ -82,6 +86,10 @@ const fetchTeamsData = async (match: FIRSTMatch) => {
     return teamsResult.value.filter(Boolean);
 };
 
+setInterval(() => {
+    currentTime = Date.now();
+}, 1000);
+
 $: {
     const match = matchScouting[selectedMatch]?.match;
     if (match) {
@@ -133,11 +141,7 @@ $: {
                     </div>
                 {:else}
                     {#each redTeams as team}
-                        <RobotCard
-                            alignment="end"
-                            {team}
-                            match="{selectedMatch}"
-                        />
+                        <RobotCard alignment="end" {team} />
                     {/each}
                 {/if}
             </div>
@@ -150,17 +154,29 @@ $: {
                     <div class="text-center text-white">Loading...</div>
                 {:else}
                     {#each blueTeams as team}
-                        <RobotCard
-                            alignment="start"
-                            {team}
-                            match="{selectedMatch}"
-                        />
+                        <RobotCard alignment="start" {team} />
                     {/each}
                 {/if}
             </div>
         </div>
     </div>
-    <!-- Dark gray square overlay -->
+
+    <div
+        class="container h-auto w-auto bg-gray-light rounded position-absolute start-50 translate-middle-x z-3"
+        style="top: calc(1%);"
+    >
+        <div
+            class="d-flex flex-column justify-content-center align-items-center h-100"
+        >
+            <div class="d-flex align-items-center">
+                <p class="display-1 text-black" style="font-size: 200%;">
+                    {dateTimeSeconds(currentTime)}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dark gray square overlay for match info -->
     <div
         class="container h-50 w-25 bg-gray-light rounded position-absolute top-50 start-50 translate-middle z-3"
     >
@@ -168,10 +184,28 @@ $: {
             class="d-flex flex-column justify-content-center align-items-center h-100 my-2"
         >
             <h4 class="text-black">
-                Match {selectedMatch + 1} is in {minutes} minutes at
+                Match {selectedMatch + 1} is in
             </h4>
+            <div class="text-black">
+                {#if closestMatch?.tba.predicted_time}
+                    {#if closestMatch.tba.predicted_time > Date.now()}
+                        <Countdown
+                            targetTime="{closestMatch.tba.predicted_time}"
+                            onFinish="{() => {}}"
+                        />
+                    {:else}
+                        <h3>Now</h3>
+                    {/if}
+                {:else}
+                    <h3>No time available</h3>
+                {/if}
+            </div>
+            <h4 class="text-black">at</h4>
             <div class="d-flex align-items-center mb-3">
-                <p class="display-1 text-black" style="font-size: 400%;">
+                <p
+                    class="display-1 text-black text-center"
+                    style="font-size: 400%;"
+                >
                     {matchtime}
                 </p>
             </div>
@@ -209,6 +243,26 @@ $: {
             </div>
         </div>
     </div>
+
+    {#if blueTeams.some(team => team.tba.team_number === 2122) || redTeams.some(team => team.tba.team_number === 2122)}
+        <div
+            transition:fade
+            class="container h-auto w-auto bg-gray-light rounded position-absolute start-50 translate-middle-x z-3 fs-1"
+            style="bottom: calc(10%);"
+        >
+            <div
+                class="d-flex flex-column justify-content-center align-items-center h-100 text-bold"
+            >
+                <div class="d-flex align-items-center">
+                    {#if blueTeams.some(team => team.tba.team_number === 2122)}
+                        <p class="text-primary">YOU ARE: BLUE</p>
+                    {:else if redTeams.some(team => team.tba.team_number === 2122)}
+                        <p class="text-danger">YOU ARE: RED</p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    {/if}
 </div>
 
 <style>

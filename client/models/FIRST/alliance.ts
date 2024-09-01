@@ -23,4 +23,8 @@ export class FIRSTAlliance extends Cache<FIRSTAllianceEventData> {
     constructor(public readonly teams: Alliance) {
         super();
     }
+
+    hasTeam(team: number) {
+        return this.teams.some(t => t?.number === team);
+    }
 }
