@@ -1,10 +1,12 @@
+import { Whiteboard } from '../../../server/structure/cache/whiteboards';
 import { Strategy as S } from '../../../server/utilities/tables';
 import { attempt, attemptAsync, Result } from '../../../shared/check';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
 import { Cache } from '../cache';
-import { Whiteboard } from './whiteboard';
+import { CustomMatch } from './custom-match';
+import { FIRSTMatch } from './match';
 
 /**
  * Events that are emitted by a {@link Strategy} object
@@ -32,6 +34,8 @@ type Updates = {
  * @implements {FIRST}
  */
 export class Strategy extends Cache<StrategyUpdateData> {
+    public static current: Strategy | undefined;
+
     private static readonly emitter = new EventEmitter<Updates>();
 
     public static on = Strategy.emitter.on.bind(Strategy.emitter);
@@ -62,7 +66,35 @@ export class Strategy extends Cache<StrategyUpdateData> {
         });
     }
 
-    public static new(data: Omit<S, 'id' | 'createdBy' | 'archive'>) {
+    public static fromMatch(
+        eventKey: string,
+        matchNumber: number,
+        compLevel: string
+    ) {
+        return attemptAsync(async () => {
+            const s = (
+                await ServerRequest.post<S[]>('/api/strategy/from-match', {
+                    eventKey,
+                    matchNumber,
+                    compLevel
+                })
+            ).unwrap();
+            return s.map(s => Strategy.retrieve(s));
+        });
+    }
+
+    public static new(
+        data: Omit<
+            S,
+            | 'id'
+            | 'createdBy'
+            | 'archive'
+            | 'time'
+            | 'createdBy'
+            | 'checks'
+            | 'comment'
+        >
+    ) {
         return ServerRequest.post('/api/strategy/new', data);
     }
 
@@ -88,7 +120,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
         super();
         this.id = data.id;
         this.name = data.name;
-        this.time = data.time;
+        this.time = +data.time;
         this.createdBy = data.createdBy;
         this.matchId = data.matchId;
         this.customMatchId = data.customMatchId;
@@ -103,11 +135,44 @@ export class Strategy extends Cache<StrategyUpdateData> {
         }
     }
 
-    update(data: Omit<S, 'id' | 'createdBy'>) {
+    update(
+        data: Partial<
+            Omit<S, 'id' | 'createdBy' | 'checks'> & {
+                checks: string[];
+            }
+        >
+    ) {
         return ServerRequest.post('/api/strategy/update', {
-            id: this.id,
+            ...this,
             ...data
         });
+    }
+
+    getTeams() {
+        return attemptAsync(async () => {
+            const match = (await this.getMatch()).unwrap();
+            return (await match.getTeams()).unwrap();
+        });
+    }
+
+    getMatch() {
+        return attemptAsync(async () => {
+            if (this.matchId)
+                return (await FIRSTMatch.fromId(this.matchId)).unwrap();
+            if (this.customMatchId)
+                return (await CustomMatch.fromId(this.customMatchId)).unwrap();
+            throw new Error('No match found');
+        });
+    }
+
+    getChecks() {
+        return attemptAsync(async () => {
+            return (await Check.from(this)).unwrap();
+        });
+    }
+    select() {
+        Strategy.current = this;
+        Strategy.emit('select', this);
     }
 
     getWhiteboards() {
@@ -115,27 +180,88 @@ export class Strategy extends Cache<StrategyUpdateData> {
     }
 }
 
-export class Check {
-    public static from(
-        data: string[],
-        teams: [number, number, number, number, number, number]
-    ): Result<[Check, Check, Check, Check, Check, Check]> {
-        return attempt(() => {
-            throw new Error('test');
+type CheckEvents = {
+    'new-check': string;
+    'remove-check': string;
+};
+
+export class Check extends EventEmitter<CheckEvents> {
+    public static checks = ['a', 'b', 'c', 'd', 'e'];
+
+    public static from(strategy: Strategy) {
+        return attemptAsync(async () => {
+            const data = strategy.checks;
+            const teams = (await strategy.getTeams())
+                .unwrap()
+                .filter(Boolean)
+                .map(t => t.number);
+            const checks = data.map(d => d.split(':') as [string, string]);
+
+            console.log('Check.from:', data, teams);
+            return teams.map(t => {
+                const c = checks.filter(c => +c[0] === t).map(c => c[1]);
+                return new Check(t, c, strategy);
+            }) as [Check, Check, Check, Check, Check, Check];
         });
     }
 
     constructor(
         public readonly team: number,
-        checks: string[]
-    ) {}
+        public checks: string[],
+        public readonly strategy: Strategy
+    ) {
+        super();
+    }
+
+    private change() {
+        return attemptAsync(async () => {
+            const data = this.serialize();
+            await this.strategy.update({
+                checks: [...data, ...this.strategy.checks]
+                    // Remove duplicates
+                    .filter((c, i, a) => a.indexOf(c) === i)
+            });
+        });
+    }
+
     serialize(): string[] {
         // ['2122:check']
-        throw new Error('Not implemented');
+        return this.checks.map(c => `${this.team}:${c}`);
+    }
+
+    add(check: string) {
+        this.checks.push(check);
+        this.emit('new-check', check);
+        return this.change();
+    }
+
+    remove(check: string) {
+        this.checks = this.checks.filter(c => c !== check);
+        this.emit('remove-check', check);
+        return this.change();
+    }
+
+    toggle(check: string) {
+        if (this.has(check)) {
+            return this.remove(check);
+        } else {
+            return this.add(check);
+        }
+    }
+
+    has(check: string) {
+        return this.checks.includes(check);
     }
 }
 
 socket.on('strategy:new', (data: S) => {
     const s = Strategy.retrieve(data);
     Strategy.emit('new', s);
+});
+
+socket.on('strategy:update', (data: S) => {
+    const s = Strategy.retrieve(data);
+    Object.assign(s, data);
+    s.checks = JSON.parse(data.checks);
+    Strategy.emit('update', s);
 });

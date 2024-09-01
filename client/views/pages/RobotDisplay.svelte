@@ -20,26 +20,36 @@ import ScoutSummary from '../components/robot-display/ScoutSummary.svelte';
 import { onMount } from 'svelte';
 import Progress from '../components/robot-display/Progress.svelte';
 
-let team: FIRSTTeam | undefined = undefined;
+export let loading: boolean;
 
-FIRSTTeam.on('select', t => (team = t));
+let team: FIRSTTeam | undefined = undefined;
 
 let traces: TraceArray[] = [];
 
-const fns = {
-    getTeam: async (t?: FIRSTTeam) => {
-        console.log('Loading: ', t);
-        if (!t) return (traces = []);
+const getTeam = async (t?: FIRSTTeam) => {
+    team = t;
+    if (!t) {
         traces = [];
-        const scouting = await t.getMatchScouting();
-        if (scouting.isOk()) {
-            traces = scouting.value.map(s => s.trace);
-        }
+        loading = false;
+        return;
     }
+    traces = [];
+    const scouting = await t.getMatchScouting();
+    if (scouting.isOk()) {
+        traces = scouting.value.map(s => s.trace);
+    }
+    loading = false;
 };
 
-$: fns.getTeam(team);
-onMount(() => (team = team));
+onMount(() => {
+    FIRSTTeam.on('select', getTeam);
+    getTeam(FIRSTTeam.current);
+    return () => {
+        FIRSTTeam.off('select', getTeam);
+        team = undefined;
+        loading = true;
+    };
+});
 
 MatchScouting.on('new', m => {
     if (!team) return (traces = []);
@@ -64,22 +74,33 @@ MatchScouting.on('new', m => {
     </div>
     <hr />
     <div class="row">
-        <DashboardCard title="Summary" expandable="{true}">
+        <DashboardCard title="Summary" expandable="{true}" id="tba-summary">
             <TbaSummary {team} />
         </DashboardCard>
-        <DashboardCard title="Comments" scroll="{true}" expandable="{true}">
+        <DashboardCard
+            title="Comments"
+            scroll="{true}"
+            expandable="{true}"
+            id="team-comment-summary"
+        >
             <TeamCommentSummary {team} />
         </DashboardCard>
-        <DashboardCard title="Pictures" scroll="{true}">
+        <DashboardCard title="Pictures" scroll="{true}" id="team-pictures">
             <TeamPictures {team} upload="{true}" />
         </DashboardCard>
-        <DashboardCard title="Match Viewer" expandable="{true}" scroll="{true}">
+        <DashboardCard
+            title="Match Viewer"
+            expandable="{true}"
+            scroll="{true}"
+            id="horizontal-match-viewer"
+        >
             <HorizontalMatchViewer {team} preScouting="{false}" />
         </DashboardCard>
         <DashboardCard
             title="Event Summary"
             scroll="{true}"
             expandable="{true}"
+            id="event-summary-chart"
         >
             <EventSummaryChart {team} />
         </DashboardCard>
@@ -87,19 +108,33 @@ MatchScouting.on('new', m => {
             title="Matches Summary"
             scroll="{true}"
             expandable="{true}"
+            id="matches-summary-chart"
         >
             <MatchesSummaryChart {team} />
         </DashboardCard>
-        <DashboardCard title="Progress" expandable="{true}">
+        <DashboardCard title="Progress" expandable="{true}" id="team-progress">
             <Progress {team} />
         </DashboardCard>
-        <DashboardCard title="Matches" scroll="{true}" expandable="{true}">
+        <DashboardCard
+            title="Matches"
+            scroll="{true}"
+            expandable="{true}"
+            id="team-match-table"
+        >
             <TeamMatchTable {team} />
         </DashboardCard>
-        <DashboardCard title="Action Heatmap" expandable="{true}">
+        <DashboardCard
+            title="Action Heatmap"
+            expandable="{true}"
+            id="action-heatmap"
+        >
             <ActionHeatmap {team} />
         </DashboardCard>
-        <DashboardCard title="Velocity Histogram" expandable="{true}">
+        <DashboardCard
+            title="Velocity Histogram"
+            expandable="{true}"
+            id="velocity-histogram"
+        >
             <VelocityHistogram {traces} />
         </DashboardCard>
         <PitScouting {team} />
@@ -107,6 +142,7 @@ MatchScouting.on('new', m => {
             title="Checks Summary"
             scroll="{true}"
             expandable="{true}"
+            id="checks-summary"
         >
             <ChecksSummary {team} />
         </DashboardCard>
@@ -114,6 +150,7 @@ MatchScouting.on('new', m => {
             title="Practice Matches"
             scroll="{true}"
             expandable="{true}"
+            id="practice-matches"
         >
             <PracticeMatches {team} />
         </DashboardCard>
@@ -121,10 +158,16 @@ MatchScouting.on('new', m => {
             title="Scouts Summary"
             scroll="{true}"
             expandable="{true}"
+            id="scout-summary"
         >
             <ScoutSummary {team} />
         </DashboardCard>
-        <DashboardCard title="Pre Scouting" scroll="{true}" expandable="{true}">
+        <DashboardCard
+            title="Pre Scouting"
+            scroll="{true}"
+            expandable="{true}"
+            id="horizontal-match-viewer"
+        >
             <HorizontalMatchViewer {team} preScouting="{true}" />
         </DashboardCard>
     </div>

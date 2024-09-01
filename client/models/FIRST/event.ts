@@ -53,7 +53,15 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     public static emit = FIRSTEvent.emitter.emit.bind(FIRSTEvent.emitter);
     public static once = FIRSTEvent.emitter.once.bind(FIRSTEvent.emitter);
 
-    public static current: FIRSTEvent | null = null;
+    public static current: FIRSTEvent | undefined = undefined;
+
+    public static retrieve(event: TBAEvent) {
+        if (FIRSTEvent.cache.has(event.key)) {
+            return FIRSTEvent.cache.get(event.key) as FIRSTEvent;
+        } else {
+            return new FIRSTEvent(event);
+        }
+    }
 
     /**
      * Map of all FIRSTEvent objects

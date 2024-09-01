@@ -7,7 +7,7 @@ import { Img } from '../canvas/image';
 import { Strategy } from './strategy';
 import { socket } from '../../utilities/socket';
 
-export class Whiteboard {
+export class FIRSTWhiteboard {
     public static fromStrategy(strategyId: string) {
         return attemptAsync(async () => {
             const boards = (
@@ -19,7 +19,7 @@ export class Whiteboard {
                 )
             ).unwrap();
 
-            return boards.map(b => new Whiteboard(b));
+            return boards.map(b => new FIRSTWhiteboard(b));
         });
     }
 
