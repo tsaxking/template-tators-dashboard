@@ -390,7 +390,7 @@ export class Canvas<T = unknown> {
         this.canvas.height = height;
     }
 
-    private ratio = 1;
+    public ratio = 1;
 
     private __adaptable = false;
 

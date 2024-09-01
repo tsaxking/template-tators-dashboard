@@ -32,7 +32,7 @@ export type JSONState = {
         black: Point2D[][];
     };
     positions: (
-        {
+        | {
               position: Point2D;
               color: 'red' | 'blue';
               number: number;

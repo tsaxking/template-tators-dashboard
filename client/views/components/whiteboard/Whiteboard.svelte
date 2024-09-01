@@ -36,7 +36,7 @@ onMount(() => {
         <div
             style="
         width: 100vw;
-        height: 100vh;
+        height: 50vw;
         position: relative;
     "
         >
@@ -60,9 +60,6 @@ onMount(() => {
                 on:select|preventDefault
                 on:selectstart|preventDefault
             ></canvas>
-
-
-
 
             <div class="d-flex" style="position: absolute; top: 10; left: 10;">
                 <!-- Pens -->

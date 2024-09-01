@@ -39,4 +39,4 @@ import { router as customMatches } from './api/custom-matches';
 router.route('/custom-matches', customMatches);
 
 import { router as whiteboard } from './api/whiteboard';
-router.route('/whiteboard', whiteboard);
+router.route('/whiteboards', whiteboard);

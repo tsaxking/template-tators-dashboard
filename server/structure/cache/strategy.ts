@@ -4,7 +4,7 @@ import { Strategy as S } from '../../utilities/tables';
 import { attemptAsync } from '../../../shared/check';
 import { CompLevel } from '../../../shared/db-types-extended';
 import { uuid } from '../../utilities/uuid';
-import { Whiteboard } from './whiteboards';
+import { FIRSTWhiteboard } from './whiteboards';
 
 export class Strategy extends Cache {
     public static fromId(id: string) {
@@ -80,6 +80,6 @@ export class Strategy extends Cache {
     }
 
     getWhiteboards() {
-        return Whiteboard.fromStrategy(this.id);
+        return FIRSTWhiteboard.fromStrategy(this.id);
     }
 }

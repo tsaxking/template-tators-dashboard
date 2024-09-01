@@ -1,4 +1,3 @@
-import { Whiteboard } from '../../../server/structure/cache/whiteboards';
 import { Strategy as S } from '../../../server/utilities/tables';
 import { attempt, attemptAsync, Result } from '../../../shared/check';
 import { EventEmitter } from '../../../shared/event-emitter';
@@ -7,6 +6,7 @@ import { socket } from '../../utilities/socket';
 import { Cache } from '../cache';
 import { CustomMatch } from './custom-match';
 import { FIRSTMatch } from './match';
+import { FIRSTWhiteboard } from './whiteboard';
 
 /**
  * Events that are emitted by a {@link Strategy} object
@@ -176,7 +176,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
     }
 
     getWhiteboards() {
-        return Whiteboard.fromStrategy(this.id);
+        return FIRSTWhiteboard.fromStrategy(this.id);
     }
 }
 

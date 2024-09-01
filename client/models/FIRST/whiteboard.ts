@@ -8,6 +8,8 @@ import { Strategy } from './strategy';
 import { socket } from '../../utilities/socket';
 
 export class FIRSTWhiteboard {
+    public static readonly cache = new Map<string, FIRSTWhiteboard>();
+
     public static fromStrategy(strategyId: string) {
         return attemptAsync(async () => {
             const boards = (
@@ -19,21 +21,24 @@ export class FIRSTWhiteboard {
                 )
             ).unwrap();
 
-            return boards.map(b => new FIRSTWhiteboard(b));
+            return boards.map(FIRSTWhiteboard.retrieve);
         });
     }
 
     public static new(name: string, strategy: Strategy) {
         return attemptAsync(async () => {
-            const board = new Board('[]'); // empty
             (
                 await ServerRequest.post('/api/whiteboards/new', {
                     name,
-                    board: board.serialize(),
                     strategyId: strategy.id
                 })
             ).unwrap();
         });
+    }
+
+    public static retrieve(w: W) {
+        if (FIRSTWhiteboard.cache.has(w.id)) return FIRSTWhiteboard.cache.get(w.id) as FIRSTWhiteboard;
+        return new FIRSTWhiteboard(w);
     }
 
     public readonly id: string;
@@ -49,6 +54,8 @@ export class FIRSTWhiteboard {
         this.strategyId = data.strategyId;
         this.archived = data.archived;
         this.board = new Board(data.board);
+
+        if (!FIRSTWhiteboard.cache.has(this.id)) FIRSTWhiteboard.cache.set(this.id, this);
     }
 
     buildCanvas(ctx: CanvasRenderingContext2D, year: number) {
@@ -67,6 +74,8 @@ export class FIRSTWhiteboard {
                 'click'
             ]
         });
+        c.adaptable = true;
+        c.ratio = 2;
         c.add(img, this.board);
         return c;
     }
@@ -92,7 +101,4 @@ export class FIRSTWhiteboard {
     }
 }
 
-
-socket.on('whiteboard:update', (data: W) => {
-    
-});
+socket.on('whiteboard:update', (data: W) => {});
