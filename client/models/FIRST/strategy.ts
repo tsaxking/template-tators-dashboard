@@ -110,7 +110,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
         super();
         this.id = data.id;
         this.name = data.name;
-        this.time = data.time;
+        this.time = +data.time;
         this.createdBy = data.createdBy;
         this.matchId = data.matchId;
         this.customMatchId = data.customMatchId;
