@@ -54,7 +54,7 @@ export class FIRSTWhiteboard {
         this.name = data.name;
         this.strategyId = data.strategyId;
         this.archived = data.archived;
-        this.board = new Board(data.board);
+        this.board = new Board(data.board, this);
 
         if (!FIRSTWhiteboard.cache.has(this.id))
             FIRSTWhiteboard.cache.set(this.id, this);
@@ -82,11 +82,13 @@ export class FIRSTWhiteboard {
         return c;
     }
 
-    update(data: Partial<Omit<W, 'id' | 'board' | 'archived'>>) {
-        return ServerRequest.post('/api/whiteboards/update', {
-            ...this,
-            ...data,
-            board: this.board.serialize()
+    update(data: Partial<Omit<W, 'id' | 'archived'>>) {
+        return attemptAsync(async () => {
+            return (await ServerRequest.post('/api/whiteboards/update', {
+                ...this,
+                ...data,
+                board: this.board.serialize().unwrap()
+            })).unwrap();
         });
     }
 

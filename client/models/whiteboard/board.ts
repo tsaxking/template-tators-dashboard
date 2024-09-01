@@ -1,5 +1,6 @@
 import { attempt } from '../../../shared/check';
 import { Drawable } from '../canvas/drawable';
+import { FIRSTWhiteboard } from '../FIRST/whiteboard';
 import { BoardState, JSONState, Pens } from './board-state';
 
 // this class manages all of the states of the board
@@ -14,7 +15,7 @@ export class Board extends Drawable {
         color: 'black'
     };
 
-    constructor(data: string) {
+    constructor(data: string, public readonly whiteboard: FIRSTWhiteboard) {
         super();
 
         const states = JSON.parse(data) as JSONState[];
@@ -48,6 +49,9 @@ export class Board extends Drawable {
             this.states.splice(this.currentIndex + 1);
         }
         this.states.push(state.clone().unwrap());
+        this.whiteboard.update({
+            board: this.serialize().unwrap(),
+        })
         this.next();
     }
 
