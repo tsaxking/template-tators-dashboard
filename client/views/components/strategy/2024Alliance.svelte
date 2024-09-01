@@ -164,7 +164,10 @@ $: fns.getAllianceData(team1, team2, team3);
 <div class="card bg-dark text-white">
     <div class="card-body">
         <h5 class="text-center">
-            Average ({M.roundTo(4, M.sum(allianceInfo.map(a => M.average(a.total))))})
+            Average ({M.roundTo(
+                4,
+                M.sum(allianceInfo.map(a => M.average(a.total)))
+            )})
         </h5>
         <Bar
             data="{{

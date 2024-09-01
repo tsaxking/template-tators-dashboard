@@ -76,7 +76,7 @@ const newStrategy = async () => {
     Strategy.new({
         matchId: isMatch ? info.value.id : undefined,
         customMatchId: isMatch ? undefined : info.value.id,
-        name,
+        name
     });
 };
 
@@ -125,53 +125,48 @@ onMount(() => {
 });
 </script>
 
-<div class="d-flex flex-row mb-3">
-
-
-
-</div>
-
+<div class="d-flex flex-row mb-3"></div>
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col-4">
-            <MatchSelect
-            on:select="{({ detail }) => onMatchSelect(detail)}"
-        />
+            <MatchSelect on:select="{({ detail }) => onMatchSelect(detail)}" />
         </div>
         {#if match}
-        <div class="col-4">
-            <StrategySelect {match} on:select="{({ detail }) => selectStrategy(detail)}" />
-
-        </div>
-        <div class="col-4">
-            <button type="button" class="btn btn-primary w-100" on:click="{newStrategy}">New Strategy</button>
-
-        </div>
-
-{/if}
+            <div class="col-4">
+                <StrategySelect
+                    {match}
+                    on:select="{({ detail }) => selectStrategy(detail)}"
+                />
+            </div>
+            <div class="col-4">
+                <button
+                    type="button"
+                    class="btn btn-primary w-100"
+                    on:click="{newStrategy}">New Strategy</button
+                >
+            </div>
+        {/if}
     </div>
     {#if match && red && blue}
         <div class="row mb-3">
             <div class="col-md-6 bg-danger">
                 <h3>Red Alliance</h3>
                 <div class="d-flex flex-row justify-content-around">
-
                     {#each red.teams as t}
-                    {#if t}
-                    <h5>{t.number}</h5>
-                    {/if}{/each}
+                        {#if t}
+                            <h5>{t.number}</h5>
+                        {/if}{/each}
                 </div>
                 <Alliance bind:alliance="{red}" />
             </div>
             <div class="col-md-6 bg-primary">
                 <h3>Blue Alliance</h3>
                 <div class="d-flex flex-row justify-content-around">
-
                     {#each blue.teams as t}
-                    {#if t}
-                    <h5>{t.number}</h5>
-                    {/if}{/each}
+                        {#if t}
+                            <h5>{t.number}</h5>
+                        {/if}{/each}
                 </div>
                 <Alliance bind:alliance="{blue}" />
             </div>
@@ -184,20 +179,20 @@ onMount(() => {
                 <!-- Checks -->
                 <div class="col-md-6">
                     <Checks checks="{checks[0]}" />
-                    <hr>
+                    <hr />
                     <Checks checks="{checks[1]}" />
-                    <hr>
+                    <hr />
                     <Checks checks="{checks[2]}" />
                 </div>
                 <div class="col-md-6">
                     <Checks checks="{checks[3]}" />
-                    <hr>
+                    <hr />
                     <Checks checks="{checks[4]}" />
-                    <hr>
+                    <hr />
                     <Checks checks="{checks[5]}" />
                 </div>
             </div>
-        {:else} 
+        {:else}
             <p>No strategy selected</p>
         {/if}
 
