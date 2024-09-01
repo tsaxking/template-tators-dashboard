@@ -1,5 +1,7 @@
-import { attempt } from '../../../shared/check';
+import { attempt, resolveAll, Result } from '../../../shared/check';
 import { EventEmitter } from '../../../shared/event-emitter';
+import { Loop } from '../../../shared/loop';
+import { $Math } from '../../../shared/math';
 import {
     Point,
     Point2D
@@ -10,6 +12,7 @@ import { Drawable, DrawableEvent } from '../canvas/drawable';
 import { Path } from '../canvas/path';
 import { Polygon } from '../canvas/polygon';
 import { Board } from './board';
+import { compress, decompress } from '../../../shared/compression';
 
 export type Pens = {
     red: Path[];
@@ -28,9 +31,12 @@ export type Positions = [
 
 export type JSONState = {
     pens: {
-        red: Point2D[][];
-        blue: Point2D[][];
-        black: Point2D[][];
+        // red: Point2D[][];
+        // blue: Point2D[][];
+        // black: Point2D[][];
+        red: string[],
+        blue: string[],
+        black: string[]
     };
     positions: (
         | {
@@ -88,21 +94,9 @@ export class BoardState {
     public static fromJSON(data: JSONState, board: Board) {
         return attempt(() => {
             const pens: Pens = {
-                red: data.pens.red.map(p => {
-                    const path = new Path(p);
-                    path.properties.line.color = 'red';
-                    return path;
-                }),
-                blue: data.pens.blue.map(p => {
-                    const path = new Path(p);
-                    path.properties.line.color = 'blue';
-                    return path;
-                }),
-                black: data.pens.black.map(p => {
-                    const path = new Path(p);
-                    path.properties.line.color = 'black';
-                    return path;
-                })
+                red: resolveAll(data.pens.red.map(BoardState.pathFromStr)).unwrap(),
+                blue: resolveAll(data.pens.blue.map(BoardState.pathFromStr)).unwrap(),
+                black: resolveAll(data.pens.black.map(BoardState.pathFromStr)).unwrap(),
             };
 
             const positions = data.positions.map(p => {
@@ -120,6 +114,39 @@ export class BoardState {
             }
 
             return new BoardState(pens, positions as Positions, board);
+        });
+    }
+
+    public static pathFromStr(str: string) {
+        return attempt(() => {
+            let temp = true;
+            const arr = str
+                .split(' ')
+                .reduce((acc, val) => {
+                    let arr: [number, number];
+                    if (temp) {
+                        arr = [decompress(val).unwrap(), 0];
+                        acc.push(arr);
+                        return acc;
+                    }
+                    arr = acc[acc.length - 1];
+                    arr = [arr[0], decompress(val).unwrap()];
+                    temp = !temp;
+                    return acc;
+                }, [] as [number, number][]);
+
+            return new Path(arr);
+        });
+    }
+
+
+    public static pathToStr(path: Path) {
+        return attempt(() => {
+            const grow = (num: number) => Math.round($Math.roundTo(4, num) * 10000);
+            const arr = path.points.reduce((acc, val) => {
+                return acc + compress(grow(val[0])).unwrap() + ' ' + compress(grow(val[1])).unwrap() + ' ';
+            }, '');
+            return arr;
         });
     }
 
@@ -145,30 +172,35 @@ export class BoardState {
         }
     }
 
-    toJSON(): JSONState {
-        return {
-            pens: {
-                red: this.pens.red.map(p => p.points.map(p => [p[0], p[1]])),
-                blue: this.pens.blue.map(p => p.points.map(p => [p[0], p[1]])),
-                black: this.pens.black.map(p => p.points.map(p => [p[0], p[1]]))
-            },
-            positions: this.positions.map(p => {
-                if (!p) return undefined;
-                return {
-                    position: [p.position.x, p.position.y],
-                    color: p.color.closestName.name === 'red' ? 'red' : 'blue',
-                    number: p.number
-                };
-            })
-        };
+    toJSON(): Result<JSONState> {
+        return attempt(() => {
+            return {
+                pens: {
+                    red: resolveAll(this.pens.red.map(BoardState.pathToStr)).unwrap(),
+                    blue: resolveAll(this.pens.blue.map(BoardState.pathToStr)).unwrap(),
+                    black: resolveAll(this.pens.black.map(BoardState.pathToStr)).unwrap(),
+                },
+                positions: this.positions.map(p => {
+                    if (!p) return undefined;
+                    return {
+                        position: [p.position.x, p.position.y],
+                        color: p.color.closestName.name === 'red' ? 'red' : 'blue',
+                        number: p.number
+                    };
+                })
+            };
+        });
     }
 
     clone() {
-        return BoardState.fromJSON(this.toJSON(), this.board);
+        return attempt(() => {
+            return BoardState.fromJSON(this.toJSON().unwrap(), this.board).unwrap();
+        });
     }
 
     setListeners() {
         return attempt(() => {
+            const round = (num: number) => $Math.roundTo(4, num);
             const canvas = this.board.canvas;
             if (!canvas) throw new Error('Canvas not found');
             type E = (
@@ -196,16 +228,14 @@ export class BoardState {
                         const canvas = this.board.canvas;
                         if (!canvas) return;
                         const [[x, y]] = canvas.getXY(e.event);
-                        p.position.x = x;
-                        p.position.y = y;
+                        p.position.x = round(x);
+                        p.position.y = round(y);
                     }
                 };
                 const end = () => {
                     dragging = undefined;
-                    const newBoard = this.clone();
-                    if (newBoard.isOk()) {
-                        this.board.push(newBoard.value);
-                    }
+                    const newBoard = this.clone().unwrap();
+                    this.board.push(newBoard);
                 };
 
                 p.on('mousedown', start as E);
@@ -218,12 +248,30 @@ export class BoardState {
                 p.on('touchcancel', end as E);
             }
 
+
             let currentPath: Path | undefined;
+
+            let point: Point2D | undefined;
+
+            const push = () => {
+                if (!currentPath) return;
+                if (!point) return;
+                const [x, y] = point;
+                point = undefined;
+                currentPath.points.push([round(x), round(y)]);
+            }
+
+            const loop = new Loop(() => {
+                push();
+            }, 30);
+
+            const set = (x: number, y: number) => point = [x, y];
 
             const start: E_FN = e => {
                 if (dragging) return;
+                loop.start();
                 const [[x, y]] = canvas.getXY(e.event);
-                currentPath = new Path([[x, y]]);
+                currentPath = new Path([[round(x), round(y)]]);
 
                 const { color } = this.board.currentProperties;
                 currentPath.properties.line.color = color;
@@ -235,11 +283,10 @@ export class BoardState {
                 const canvas = this.board.canvas;
                 if (!canvas) return;
                 const [[x, y]] = canvas.getXY(e.event);
-                if (currentPath) {
-                    currentPath.points.push([x, y]);
-                }
+                set(x, y);
             };
             const end: E_FN = () => {
+                loop.stop();
                 this.board.push(this.clone().unwrap()); // the next view
                 const { color } = this.board.currentProperties;
                 this.pens[color].pop(); // remove the current path from the last state

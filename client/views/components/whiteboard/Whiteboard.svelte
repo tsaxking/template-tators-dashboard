@@ -21,6 +21,7 @@ const changePen = (pen: keyof Pens) => {
 
 const changeWhiteboard = (whiteboard: FIRSTWhiteboard) => {
     if (currentCanvas) currentCanvas.animating = false;
+    if (!canvasEl) return;
     const ctx = canvasEl.getContext('2d');
     if (!ctx) throw new Error('Could not get 2d context');
     const canvas = whiteboard.buildCanvas(ctx, year);
@@ -33,6 +34,10 @@ const changeWhiteboard = (whiteboard: FIRSTWhiteboard) => {
     canvas.animate();
     currentCanvas = canvas;
 }
+
+onMount(() => {
+    if (whiteboard) changeWhiteboard(whiteboard);
+});
 
 
 </script>
