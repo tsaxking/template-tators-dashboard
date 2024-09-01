@@ -49,7 +49,11 @@ $: getWhiteboards(strategy);
             <Select {options} {values} on:select="{onSelect}" />
         </div>
         <div class="col-md-6">
-            <button type="button" class="btn btn-primary w-100" on:click="{newWhiteboard}">New Whiteboard</button>
+            <button
+                type="button"
+                class="btn btn-primary w-100"
+                on:click="{newWhiteboard}">New Whiteboard</button
+            >
         </div>
     </div>
     {#if whiteboard && year}

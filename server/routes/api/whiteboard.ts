@@ -7,17 +7,21 @@ export const router = new Route();
 router.post<{
     name: string;
     strategyId: string;
-}>('/new', validate({
-    name: 'string',
-    strategyId: 'string'
-}), async (req, res) => {
-    const { name, strategyId } = req.body;
-    const wb = (
-        await FIRSTWhiteboard.new({ name, board: '[]', strategyId })
-    ).unwrap();
-    res.sendStatus('whiteboard:created');
-    req.io.emit('whiteboard:created', wb);
-});
+}>(
+    '/new',
+    validate({
+        name: 'string',
+        strategyId: 'string'
+    }),
+    async (req, res) => {
+        const { name, strategyId } = req.body;
+        const wb = (
+            await FIRSTWhiteboard.new({ name, board: '[]', strategyId })
+        ).unwrap();
+        res.sendStatus('whiteboard:created');
+        req.io.emit('whiteboard:created', wb);
+    }
+);
 
 router.post<{
     strategyId: string;
