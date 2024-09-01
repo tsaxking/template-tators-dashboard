@@ -37,7 +37,8 @@ export class FIRSTWhiteboard {
     }
 
     public static retrieve(w: W) {
-        if (FIRSTWhiteboard.cache.has(w.id)) return FIRSTWhiteboard.cache.get(w.id) as FIRSTWhiteboard;
+        if (FIRSTWhiteboard.cache.has(w.id))
+            return FIRSTWhiteboard.cache.get(w.id) as FIRSTWhiteboard;
         return new FIRSTWhiteboard(w);
     }
 
@@ -55,7 +56,8 @@ export class FIRSTWhiteboard {
         this.archived = data.archived;
         this.board = new Board(data.board);
 
-        if (!FIRSTWhiteboard.cache.has(this.id)) FIRSTWhiteboard.cache.set(this.id, this);
+        if (!FIRSTWhiteboard.cache.has(this.id))
+            FIRSTWhiteboard.cache.set(this.id, this);
     }
 
     buildCanvas(ctx: CanvasRenderingContext2D, year: number) {
