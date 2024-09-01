@@ -11,7 +11,7 @@ import Quiz from '../pages/Quiz.svelte';
 import EventSummary from '../pages/EventSummary.svelte';
 import { FIRSTEvent } from '../../models/FIRST/event';
 import MatchSchedule from '../pages/MatchSchedule.svelte';
-import Strategy from '../pages/pit-display/Strategy.svelte';
+import Strategy from '../pages/strategy/Strategy.svelte';
 
 const groups: PageGroup[] = [
     {
@@ -31,12 +31,12 @@ const groups: PageGroup[] = [
                 name: 'robot-display',
                 icon: 'home',
                 iconType: 'material'
+            },
+            {
+                name: 'strategy',
+                icon: 'strategy',
+                iconType: 'symbols'
             }
-            // {
-            //     name: 'alliance-builder',
-            //     icon: 'strategy',
-            //     iconType: 'symbols'
-            // }
         ]
     },
     {
@@ -123,7 +123,7 @@ let loading = true;
     <Page {active} {domain} title="quiz" bind:loading>
         <Quiz bind:loading />
     </Page>
-    <!-- <Page {active} {domain} title="alliance-builder" bind:loading> -->
-    <!-- <Strategy bind:loading /> -->
-    <!-- </Page> -->
+    <Page {active} {domain} title="strategy" bind:loading>
+    <Strategy bind:loading />
+    </Page>
 </Main>

@@ -175,4 +175,15 @@ export class CustomMatch
             this.blue4
         ].includes(number);
     }
+
+    getInfo() {
+        return attemptAsync(async () => {
+            return {
+                eventKey: this.eventKey,
+                matchNumber: this.matchNumber,
+                id: this.id,
+                compLevel: this.compLevel
+            };
+        });
+    }
 }

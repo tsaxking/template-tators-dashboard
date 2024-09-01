@@ -83,7 +83,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
     }
 
     public static new(
-        data: Omit<S, 'id' | 'createdBy' | 'archive' | 'time' | 'createdBy'>
+        data: Omit<S, 'id' | 'createdBy' | 'archive' | 'time' | 'createdBy' | 'checks' | 'comment'>
     ) {
         return ServerRequest.post('/api/strategy/new', data);
     }
@@ -151,10 +151,6 @@ export class Strategy extends Cache<StrategyUpdateData> {
 
     getChecks() {
         return attemptAsync(async () => {
-            const teams = (await this.getTeams())
-                .unwrap()
-                .filter(Boolean)
-                .map(t => t.number);
             return (await Check.from(this)).unwrap();
         });
     }
@@ -170,18 +166,15 @@ type CheckEvents = {
 };
 
 export class Check extends EventEmitter<CheckEvents> {
-    public static checks = [
-        'a',
-        'b',
-        'c',
-        'd',
-        'e',
-    ];
+    public static checks = ['a', 'b', 'c', 'd', 'e'];
 
     public static from(strategy: Strategy) {
-        return attemptAsync( async () => {
+        return attemptAsync(async () => {
             const data = strategy.checks;
-            const teams = (await strategy.getTeams()).unwrap().filter(Boolean).map(t => t.number);
+            const teams = (await strategy.getTeams())
+                .unwrap()
+                .filter(Boolean)
+                .map(t => t.number);
             const checks = data.map(d => d.split(':') as [string, string]);
             return teams.map(t => {
                 const c = checks.filter(c => +c[0] === t).map(c => c[1]);
@@ -193,7 +186,7 @@ export class Check extends EventEmitter<CheckEvents> {
     constructor(
         public readonly team: number,
         public checks: string[],
-        public readonly strategy: Strategy,
+        public readonly strategy: Strategy
     ) {
         super();
     }
@@ -202,14 +195,12 @@ export class Check extends EventEmitter<CheckEvents> {
         return attemptAsync(async () => {
             const data = this.serialize();
             await this.strategy.update({
-                checks: JSON.stringify([
-                    ...data,
-                    ...this.strategy.checks,
-                ]
-                // Remove duplicates
-                .filter((c, i, a) => a.indexOf(c) === i)
-            ),
-            })
+                checks: JSON.stringify(
+                    [...data, ...this.strategy.checks]
+                        // Remove duplicates
+                        .filter((c, i, a) => a.indexOf(c) === i)
+                )
+            });
         });
     }
 

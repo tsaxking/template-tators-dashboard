@@ -2,7 +2,7 @@
 import { FIRSTTeam } from './../../../models/FIRST/team';
 import { FIRSTEvent } from '../../../models/FIRST/event';
 import { onMount } from 'svelte';
-import { MatchInterface } from '../../../models/FIRST/interfaces/match';
+import { type MatchInterface } from '../../../models/FIRST/interfaces/match';
 
 const rbt = '../../../../public/pictures/icons/rbt.png';
 

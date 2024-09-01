@@ -1,8 +1,10 @@
 <script lang="ts">
-    import { Check } from '../../../models/FIRST/strategy';
+import { Check } from '../../../models/FIRST/strategy';
 
-    export let checks: Check;
+export let checks: Check | undefined;
 </script>
+
+{#if checks}
 
 <div>
     <p>
@@ -15,15 +17,20 @@
                     <h4>{c}</h4>
                 </div>
                 <div class="d-flex flex-column">
-                    <input type="checkbox" on:input="{(e) => {
-                        if (e.currentTarget.checked) {
-                            checks.add(c);
-                        } else {
-                            checks.remove(c);
-                        }
-                    }}" checked={checks.has(c)} />
+                    <input
+                        type="checkbox"
+                        on:input="{e => {
+                            if (e.currentTarget.checked) {
+                                checks.add(c);
+                            } else {
+                                checks.remove(c);
+                            }
+                        }}"
+                        checked="{checks.has(c)}"
+                    />
                 </div>
             </div>
         {/each}
     </div>
 </div>
+{/if}
