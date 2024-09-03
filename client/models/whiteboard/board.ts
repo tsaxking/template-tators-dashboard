@@ -49,10 +49,8 @@ export class Board extends Drawable {
             this.states.splice(this.currentIndex + 1);
         }
         this.states.push(state.clone().unwrap());
-        this.whiteboard.update({
-            board: this.serialize().unwrap(),
-        })
         this.next();
+        this.whiteboard.addState(state, this.currentIndex);
     }
 
     clear() {

@@ -1,9 +1,10 @@
 import { Cache } from './cache';
 import { DB } from '../../utilities/databases';
 import { Whiteboards as W } from '../../utilities/tables';
-import { attemptAsync } from '../../../shared/check';
+import { attemptAsync, parseJSON } from '../../../shared/check';
 import { uuid } from '../../utilities/uuid';
 import { Strategy } from './strategy';
+import { JSONState } from '../../../client/models/whiteboard/board-state';
 
 export class FIRSTWhiteboard extends Cache {
     public static fromStrategy(strategyId: string) {
@@ -78,5 +79,17 @@ export class FIRSTWhiteboard extends Cache {
 
     getStrategy() {
         return Strategy.fromId(this.strategyId);
+    }
+
+    addState(state: string, index: number) {
+        return attemptAsync(async () => {
+            const s = JSON.parse(state) as JSONState;
+            const states = JSON.parse(this.board) as JSONState[];
+            // remove all states after and including index
+            states.splice(index);
+            states.push(s);
+            this.board = JSON.stringify(states);
+            return (await this.update({ board: this.board })).unwrap();
+        });
     }
 }
