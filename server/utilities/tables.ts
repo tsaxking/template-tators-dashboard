@@ -51,6 +51,8 @@ export type Version = {
     major: number;
     minor: number;
     patch: number;
+    gitBranch: string;
+    gitCommit: string;
 };
 
 export type Sessions = {

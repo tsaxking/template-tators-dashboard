@@ -1,4 +1,4 @@
-name: Formatter
+name: Format & Lint
 
 on:
   workflow_call:
@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  formatter:
+  format_and_lint:
     runs-on: ubuntu-latest
     steps:
       - name: Retrieve git dependencies
@@ -36,3 +36,4 @@ jobs:
           npm i
           echo "Running formatter..."
           npm run fmt
+          npm run lint

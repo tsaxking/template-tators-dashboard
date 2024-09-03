@@ -22,24 +22,22 @@ router.get('/link/:key', async (req, res) => {
             return res.sendStatus('discord:link-expired', {
                 key
             });
-        } else {
-            const { accountId } = req.session;
-            if (!accountId) return res.sendStatus('account:not-logged-in');
-
-            DB.run('account/set-discord-id', {
-                discordId: pair.id,
-                id: accountId
-            });
-
-            DB.run('discord/delete', {
-                key
-            });
-
-            return res.sendStatus('discord:account-linked', {
-                key
-            });
         }
-    } else {
-        res.sendStatus('discord:invalid-link');
+        const { accountId } = req.session;
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        DB.run('account/set-discord-id', {
+            discordId: pair.id,
+            id: accountId
+        });
+
+        DB.run('discord/delete', {
+            key
+        });
+
+        return res.sendStatus('discord:account-linked', {
+            key
+        });
     }
+    res.sendStatus('discord:invalid-link');
 });

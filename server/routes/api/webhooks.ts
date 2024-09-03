@@ -233,7 +233,7 @@ router.post('/event/:eventKey/pit-scouting', auth, async (req, res) => {
                     ); // this should never be undefined
                     return acc;
                 },
-                {} as { [key: string]: any }
+                {} as { [key: string]: unknown }
             );
 
             return {

@@ -91,6 +91,8 @@ export const generateTrace = (num = 1) => {
         ) {}
 
         simplify(): P {
+            const { roundTo } = $Math;
+
             const simple: [number, number, number, Action | 0] = [
                 this.index,
                 -1,
@@ -99,8 +101,8 @@ export const generateTrace = (num = 1) => {
             ];
 
             if (this.pos) {
-                simple[1] = $Math.roundTo(4, this.pos[0]);
-                simple[2] = $Math.roundTo(4, this.pos[1]);
+                simple[1] = roundTo(4, this.pos[0]);
+                simple[2] = roundTo(4, this.pos[1]);
             }
 
             if (this.action) simple[3] = this.action;

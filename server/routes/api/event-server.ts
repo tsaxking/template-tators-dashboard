@@ -253,12 +253,11 @@ router.post<{
                     eventKey: req.body.eventKey,
                     event
                 };
-            } else {
-                throw new Error(
-                    'Error fetching data from TBA ' +
-                        JSON.stringify([teamsRes, matchesRes, eventRes])
-                );
             }
+            throw new Error(
+                'Error fetching data from TBA ' +
+                    JSON.stringify([teamsRes, matchesRes, eventRes])
+            );
         });
 
         if (result.isOk()) {

@@ -3,7 +3,7 @@ import { TBAEvent } from '../../shared/submodules/tatorscout-calculations/tba';
 import { backToMain, selectFile } from '../manager';
 import { confirm, search, select } from '../prompt';
 import { pullEvent } from '../../server/utilities/tba/pull-event';
-import { DB } from '../../server/utilities/databases';
+import { Backup, DB } from '../../server/utilities/databases';
 import { runFile } from '../../server/utilities/run-task';
 import { RetrievedMatchScouting } from '../../server/utilities/tables';
 import { dateTime } from '../../shared/clock';
@@ -41,9 +41,8 @@ export const pullEvents = async () => {
         const res = await pullEvent(event.key);
         if (res.isErr()) return backToMain('Error pulling event: ' + res.error);
         return backToMain('Event pulled successfully');
-    } else {
-        return backToMain('Error retrieving events: ' + events.error);
     }
+    return backToMain('Error retrieving events: ' + events.error);
 };
 
 const transferDb = async (...args: string[]) => {
@@ -54,7 +53,7 @@ const transferDb = async (...args: string[]) => {
         return backToMain('Error selecting old database: ' + oldDb.error);
     }
 
-    await DB.makeBackup();
+    await Backup.makeBackup();
 
     const res = await runFile(
         'scripts/transfer-db.ts',
