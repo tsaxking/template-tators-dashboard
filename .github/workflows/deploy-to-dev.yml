@@ -27,4 +27,4 @@ jobs:
                   port: ${{ secrets.PORT }}
                   envs: PROJECT
                   script: |
-                      sh gh-actions/test.sh
+                      sh gh-actions/tatorscout/nightly.sh
