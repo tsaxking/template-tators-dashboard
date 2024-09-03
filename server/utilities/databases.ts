@@ -289,7 +289,7 @@ export class Version {
                     const script = `storage/db/scripts/versions/${version.serialize(
                         '-',
                         true
-                    )}`;
+                    )}.ts`;
                     // see if update script exists
                     const scriptExists = exists(script);
 
@@ -298,10 +298,9 @@ export class Version {
                             'Running update script',
                             version.serialize('.', true)
                         );
-                        const scriptRes = await runTask('run', [
-                            '--allow-all',
+                        const scriptRes = await runTask('npx', [
+                            'ts-node',
                             script,
-                            '--update',
                             version.serialize('.', true) + '.ts'
                         ]);
                         if (scriptRes.isErr()) {
@@ -377,8 +376,9 @@ export class Version {
         return attemptAsync(async () => {
             (await Version.init()).unwrap();
             const versions = (await Version.getVersions()).unwrap();
+
             for (const version of versions) {
-                if (await Version.hasVersion(version)) {
+                if ((await Version.hasVersion(version)).unwrap()) {
                     console.log(
                         'Database already has updated to or version',
                         version.serialize('.')
@@ -1400,13 +1400,13 @@ Do you want to reset the database and update to the current branch?`
                     throw new Error('Backups not found');
                 }
             } else {
-                await setVersion();
                 await Version.runAllUpdates();
                 await Backup.makeBackup();
+                await setVersion();
             }
         } else {
-            await setVersion();
             await Version.runAllUpdates();
+            await setVersion();
         }
 
         await DB.setIntervals();
