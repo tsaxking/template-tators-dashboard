@@ -27,4 +27,4 @@ jobs:
                   port: ${{ secrets.PORT }}
                   envs: PROJECT
                   script: |
-                      echo "Did this work?"
+                      sh gh-actions/test.sh
