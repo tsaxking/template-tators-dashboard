@@ -1384,8 +1384,8 @@ Database git branch: ${v.gitBranch}
 Do you want to reset the database and update to the current branch?`
                 ));
             if (confirmed) {
-                (await Version.reset()).unwrap();
-                (await Version.runAllUpdates()).unwrap();
+                await Version.reset();
+                await Version.runAllUpdates();
                 await setVersion();
 
                 const backups = (await Backup.getBackups()).unwrap().reverse();
@@ -1401,12 +1401,12 @@ Do you want to reset the database and update to the current branch?`
                 }
             } else {
                 await setVersion();
-                (await Version.runAllUpdates()).unwrap();
-                (await Backup.makeBackup()).unwrap();
+                await Version.runAllUpdates();
+                await Backup.makeBackup();
             }
         } else {
             await setVersion();
-            (await Version.runAllUpdates()).unwrap();
+            await Version.runAllUpdates();
         }
 
         await DB.setIntervals();
