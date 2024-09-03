@@ -1,0 +1,30 @@
+name: Deploy to Development Environment
+on:
+    # release:
+    #     types: [published]
+    push:
+        branches:
+            - 2024-9-2-TK-Releases
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Retrieve git dependencies
+              uses: actions/checkout@v3
+              with:
+                  submodules: 'true'
+                  token: ${{ secrets.GH_TOKEN }}
+
+            - name: pull latest from deploy branch
+              uses: appleboy/ssh-action@v1.0.3
+              env:
+                  PROJECT: /root/tators-dashboard
+          
+              with:
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  key: ${{ secrets.KEY }}
+                  port: ${{ secrets.PORT }}
+                  envs: PROJECT
+                  script: |
+                      echo "Did this work?"
