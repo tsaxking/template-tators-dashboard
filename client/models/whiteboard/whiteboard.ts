@@ -12,6 +12,7 @@ export type Path = {
 export class WhiteboardState {
     static fromJSON(json: string): WhiteboardState | undefined {
         try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const obj = JSON.parse(json) as any;
             if (!obj.initPositions || !obj.states) {
                 throw new Error('Invalid JSON: ' + json);

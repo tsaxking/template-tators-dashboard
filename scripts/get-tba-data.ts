@@ -1,7 +1,7 @@
 import { TBA } from '../server/utilities/tba/tba';
 import { TBAMatch } from '../shared/submodules/tatorscout-calculations/tba';
 
-const getType = (data: any): any => {
+const getType = (data: unknown): string => {
     let tsStr = '';
     if (data === null) {
         return 'null';

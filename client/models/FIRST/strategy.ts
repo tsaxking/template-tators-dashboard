@@ -100,9 +100,8 @@ export class Strategy extends Cache<StrategyUpdateData> {
     public static retrieve(strategy: S): Strategy {
         if (Strategy.cache.has(strategy.id)) {
             return Strategy.cache.get(strategy.id) as Strategy;
-        } else {
-            return new Strategy(strategy);
         }
+        return new Strategy(strategy);
     }
 
     public readonly id: string;
@@ -239,9 +238,8 @@ export class Check extends EventEmitter<CheckEvents> {
     toggle(check: string) {
         if (this.has(check)) {
             return this.remove(check);
-        } else {
-            return this.add(check);
         }
+        return this.add(check);
     }
 
     has(check: string) {

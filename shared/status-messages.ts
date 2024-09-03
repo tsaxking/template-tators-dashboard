@@ -924,7 +924,7 @@ export const messages: Record<string, StatusMessage> = {
         instructions: ''
     },
     'teams:pictures-uploaded': {
-        message: "Team's picture was uploaded successfully",
+        message: 'Team\'s picture was uploaded successfully',
         color: 'success',
         code: 200,
         instructions: ''

@@ -26,8 +26,8 @@
     }
 
     ServerRequest.post('/account/sign-in', {
-        username: username.trim(),
-        password: password.trim()
+      username: username.trim(),
+      password: password.trim()
     });
   };
 

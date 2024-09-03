@@ -24,12 +24,12 @@
     }
 
     ServerRequest.post('/account/sign-up', {
-        username: username.trim(),
-        password: password.trim(),
-        confirmPassword: confirmPassword.trim(),
-        email: email.trim(),
-        firstName: firstName.trim(),
-        lastName: lastName.trim()
+      username: username.trim(),
+      password: password.trim(),
+      confirmPassword: confirmPassword.trim(),
+      email: email.trim(),
+      firstName: firstName.trim(),
+      lastName: lastName.trim()
     });
   };
 
