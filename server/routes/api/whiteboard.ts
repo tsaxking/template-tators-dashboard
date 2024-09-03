@@ -34,24 +34,21 @@ router.post<{
 router.post<{
     id: string;
     name: string;
-    board: string;
     strategyId: string;
 }>(
     '/update',
     validate({
         id: 'string',
         name: 'string',
-        board: 'string'
     }),
     async (req, res) => {
-        const { id, name, board, strategyId } = req.body;
+        const { id, name, strategyId } = req.body;
         const wb = (await FIRSTWhiteboard.fromId(id)).unwrap();
         if (!wb) return res.sendStatus('whiteboard:not-found');
 
         (
             await wb.update({
                 name,
-                board,
                 strategyId
             })
         ).unwrap();
@@ -60,3 +57,30 @@ router.post<{
         req.io.emit('whiteboard:update', wb);
     }
 );
+
+router.post<{
+    id: string;
+    state: string;
+    index: number;
+}>('/add-state', validate({
+    id: 'string',
+    state: 'string',
+    index: 'number',
+}), async (req, res) => {
+    const { id, state, index } = req.body;
+
+    const wb = (await FIRSTWhiteboard.fromId(id)).unwrap();
+    if (!wb) return res.sendStatus('whiteboard:not-found');
+
+    (
+        await wb.addState(state, index)
+    ).unwrap();
+
+    res.sendStatus('whiteboard:state-added');
+
+    req.io.emit('whiteboard:state-added', {
+        id,
+        state,
+        index,
+    });
+});

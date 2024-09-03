@@ -6,8 +6,14 @@ import { Canvas } from '../canvas/canvas';
 import { Img } from '../canvas/image';
 import { Strategy } from './strategy';
 import { socket } from '../../utilities/socket';
+import { BoardState, JSONState } from '../whiteboard/board-state';
+import { Cache } from '../cache';
 
-export class FIRSTWhiteboard {
+type WhiteboardEvents = {
+    updated: undefined;
+}
+
+export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
     public static readonly cache = new Map<string, FIRSTWhiteboard>();
 
     public static fromStrategy(strategyId: string) {
@@ -49,7 +55,7 @@ export class FIRSTWhiteboard {
     public readonly board: Board;
 
     constructor(data: W) {
-        // super();
+        super();
         this.id = data.id;
         this.name = data.name;
         this.strategyId = data.strategyId;
@@ -82,12 +88,23 @@ export class FIRSTWhiteboard {
         return c;
     }
 
-    update(data: Partial<Omit<W, 'id' | 'archived'>>) {
+    update(data: Partial<Omit<W, 'id' | 'archived' | 'board'>>) {
         return attemptAsync(async () => {
             return (await ServerRequest.post('/api/whiteboards/update', {
-                ...this,
-                ...data,
-                board: this.board.serialize().unwrap()
+                id: this.id,
+                archived: this.archived,
+                strategyId: data.strategyId ?? this.strategyId,
+                name: data.name ?? this.name,
+            })).unwrap();
+        });
+    }
+
+    addState(state: BoardState, index: number) {
+        return attemptAsync(async () => {
+            return (await ServerRequest.post('/api/whiteboards/add-state', {
+                id: this.id,
+                state: JSON.stringify(state.toJSON().unwrap()),
+                index,
             })).unwrap();
         });
     }
@@ -105,4 +122,34 @@ export class FIRSTWhiteboard {
     }
 }
 
-socket.on('whiteboard:update', (data: W) => {});
+// socket.on('whiteboard:update', (data: W) => {
+//     const wb = FIRSTWhiteboard.cache.get(data.id);
+//     if (!wb) return;
+
+//     wb.name = data.name;
+//     wb.archived = data.archived;
+//     wb.strategyId = data.strategyId;
+
+//     wb.emit('updated', undefined);
+// });
+
+
+// socket.on('whiteboard:add-state', (data: {
+//     id: string;
+//     state: string;
+//     index: number;
+// }) => {
+//     const wb = FIRSTWhiteboard.cache.get(data.id);
+//     if (!wb) return;
+
+//     const state = JSON.parse(data.state) as JSONState;
+
+//     const states = wb.board.states;
+//     const exists = states.find(s => JSON.stringify(s.toJSON().unwrap()) === data.state);
+//     if (exists) return;
+
+//     const parsedState = BoardState.fromJSON(state, wb.board).unwrap();
+//     states.splice(data.index, 0, parsedState);
+
+//     wb.emit('updated', undefined);
+// });

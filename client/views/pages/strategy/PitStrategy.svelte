@@ -62,7 +62,6 @@ const newStrategy = async () => {
         name,
         matchId: info.value.id,
         customMatchId: undefined,
-        comment: '',
         checks: ''
     });
 };
