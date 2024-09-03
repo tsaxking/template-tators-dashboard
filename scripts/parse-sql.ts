@@ -860,7 +860,7 @@ export const writeFiles = async (
         );
         if (!res) {
             console.log('Aborting...');
-            // Deno.exit();
+            // process.exit();
             process.exit(0);
         }
     }
@@ -1122,27 +1122,27 @@ export const merge = async (num: number): Promise<Result<unknown>> => {
 };
 
 // if (import.meta.main) {
-//     if (!Deno.args.length) {
+//     if (!process.argv.length) {
 //         console.log('No arguments provided');
-//         Deno.exit();
+//         process.exit();
 //     }
 
-//     if (Deno.args.includes('--merge')) {
-//         const num = Number(Deno.args[Deno.args.indexOf('--merge') + 1]);
+//     if (process.argv.includes('--merge')) {
+//         const num = Number(process.argv[process.argv.indexOf('--merge') + 1]);
 //         if (isNaN(num)) {
 //             console.log('Invalid number');
-//             Deno.exit();
+//             process.exit();
 //         }
 //         const res = await merge(num);
 //         if (res.isErr()) {
 //             console.log(res.error);
-//             Deno.exit();
+//             process.exit();
 //         }
 //         console.log('Merge complete');
-//         Deno.exit();
+//         process.exit();
 //     }
 
-//     if (Deno.args.includes('--parse')) {
+//     if (process.argv.includes('--parse')) {
 //         parseSql('server/utilities', 'server/utilities');
 //     }
 // }
