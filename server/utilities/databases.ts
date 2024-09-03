@@ -316,7 +316,7 @@ export class Version {
                         console.log('Update script ran successfully');
                     }
 
-                    Version.set(version);
+                    (await Version.set(version)).unwrap();
                     return true;
                 }
                 console.log(
@@ -378,12 +378,22 @@ export class Version {
             const versions = (await Version.getVersions()).unwrap();
 
             for (const version of versions) {
-                if ((await Version.hasVersion(version)).unwrap()) {
+                console.log('Version:', version.serialize('.'));
+                const has = await Version.hasVersion(version);
+                if (has.isErr()) {
+                    console.log('Error checking version', has.error);
+                    break;
+                }
+                if (has.value) {
                     console.log(
                         'Database already has updated to or version',
                         version.serialize('.')
                     );
                 } else {
+                    console.log(
+                        'Running version update:',
+                        version.serialize('.')
+                    );
                     const res = await Version.runUpdate(version);
                     if (res.isErr()) {
                         console.log(
