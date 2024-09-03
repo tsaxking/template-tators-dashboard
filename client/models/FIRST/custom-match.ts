@@ -6,7 +6,6 @@ import { Alliance, FIRSTAlliance } from './alliance';
 import { CustomMatches as CM_Obj } from '../../../server/utilities/tables';
 import { ServerRequest } from '../../utilities/requests';
 import { MatchInterface } from './interfaces/match';
-import { Whiteboard } from '../whiteboard/whiteboard';
 import { Strategy } from './strategy';
 import { CompLevel } from '../../../shared/submodules/tatorscout-calculations/tba';
 

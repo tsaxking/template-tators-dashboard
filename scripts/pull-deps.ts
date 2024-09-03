@@ -53,9 +53,8 @@ export const pullDeps = async () => {
                     console.log('Successfully fetched', dep);
                     if (data.ok) {
                         return data.arrayBuffer();
-                    } else {
-                        return Promise.reject(`Failed to fetch ${dep}`);
                     }
+                    return Promise.reject(`Failed to fetch ${dep}`);
                 })
                 .then(async buffer => {
                     const name = parse(dep);

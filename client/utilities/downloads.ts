@@ -95,8 +95,7 @@ export const loadFileContents = (): Promise<
             );
 
             return contents;
-        } else {
-            throw res.error;
         }
+        throw res.error;
     });
 };

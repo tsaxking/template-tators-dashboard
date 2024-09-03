@@ -23,7 +23,6 @@ import { Alliance, FIRSTAlliance } from './alliance';
 import { Matches } from '../../../server/utilities/tables';
 import { TBA } from '../../utilities/tba';
 import { MatchInterface } from './interfaces/match';
-import { Whiteboard } from '../whiteboard/whiteboard';
 import { FIRSTWhiteboard } from './whiteboard';
 
 /**
@@ -104,9 +103,8 @@ export class FIRSTMatch
     public static retrieve(match: TBAMatch, event: TBAEvent) {
         if (FIRSTMatch.cache.has(match.key)) {
             return FIRSTMatch.cache.get(match.key) as FIRSTMatch;
-        } else {
-            return new FIRSTMatch(match, FIRSTEvent.retrieve(event));
         }
+        return new FIRSTMatch(match, FIRSTEvent.retrieve(event));
     }
 
     public static current?: FIRSTMatch = undefined;

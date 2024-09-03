@@ -7,10 +7,8 @@ type LoopEvents = {
 };
 
 export class Loop<
-    T extends Record<string, unknown> = {
-        [key: string]: unknown;
-    }
-> extends EventEmitter<LoopEvents & Omit<T, 'stop' | 'start'>> {
+    Events extends Record<string, unknown> = Record<string, unknown>
+> extends EventEmitter<LoopEvents & Omit<Events, 'stop' | 'start'>> {
     private _running = false;
     public stop = () => {
         this._running = false;

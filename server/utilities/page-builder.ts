@@ -38,22 +38,28 @@ const builds: {
 };
 
 /**
- * Middleware that builds the page if it exists
+ * Generates the navbar
  * @date 10/12/2023 - 3:25:12 PM
  *
  * @async
  */
-export const builder = async (req: Req, res: Res, next: Next) => {
-    const { url } = req;
-    if (builds[url]) {
-        const r = await homeBuilder(url);
-        if (r.isOk()) res.send(r.value);
-        else {
-            res.sendStatus('server:unknown-server-error');
-        }
-    } else {
-        next();
-    }
+export const navBuilder = async (url: string, offcanvas: boolean) => {
+    return await getTemplate('components/navbar', {
+        offcanvas: {
+            offcanvas
+        },
+        navbarRepeat: await getJSON<string[]>('pages/home').then(r => {
+            if (r.isErr()) throw new Error(r.error);
+            return r.value.map((page: string) => {
+                return {
+                    active: '/' + page === url,
+                    name: capitalize(fromSnakeCase(page, '-')),
+                    href: '/' + page,
+                    disabled: false
+                };
+            });
+        })
+    });
 };
 
 /**
@@ -89,26 +95,20 @@ export const homeBuilder = async (url: string) => {
 };
 
 /**
- * Generates the navbar
+ * Middleware that builds the page if it exists
  * @date 10/12/2023 - 3:25:12 PM
  *
  * @async
  */
-export const navBuilder = async (url: string, offcanvas: boolean) => {
-    return await getTemplate('components/navbar', {
-        offcanvas: {
-            offcanvas
-        },
-        navbarRepeat: await getJSON<string[]>('pages/home').then(r => {
-            if (r.isErr()) throw new Error(r.error);
-            return r.value.map((page: string) => {
-                return {
-                    active: '/' + page === url,
-                    name: capitalize(fromSnakeCase(page, '-')),
-                    href: '/' + page,
-                    disabled: false
-                };
-            });
-        })
-    });
+export const builder = async (req: Req, res: Res, next: Next) => {
+    const { url } = req;
+    if (builds[url]) {
+        const r = await homeBuilder(url);
+        if (r.isOk()) res.send(r.value);
+        else {
+            res.sendStatus('server:unknown-server-error');
+        }
+    } else {
+        next();
+    }
 };
