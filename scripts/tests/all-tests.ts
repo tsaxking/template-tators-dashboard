@@ -9,6 +9,16 @@ import { Res } from '../../server/structure/app/res';
 import { deepEqual } from 'assert';
 import { check, isValid, parseJSON } from '../../shared/check';
 import { match, matchInstance } from '../../shared/match';
+import assert from 'assert';
+import { getJSONSync } from '../../server/utilities/files';
+import {
+    TBAMatch,
+    TBATeam
+} from '../../shared/submodules/tatorscout-calculations/tba';
+import {
+    generateScoutGroups,
+    testAssignments
+} from '../../shared/submodules/tatorscout-calculations/scout-groups';
 
 const assertEquals = (a: unknown, b: unknown) => {
     try {
@@ -285,7 +295,32 @@ export const runTests = async () =>
             assertEquals(a, 'test');
             assertEquals(b, 'default');
             assertEquals(c, 'test');
+        }),
+        test('Scout groups', async () => {
+            const eventKey = '2023cabl';
+            const regex = /^([0-9]{4}[a-z]{3,4})$/i;
+            if (!regex.test(eventKey)) throw new Error('Invalid event key');
+
+            const data = await getJSONSync<{
+                matches: TBAMatch[];
+                teams: TBATeam[];
+            }>('scout-group-test');
+
+            if (data.isOk()) {
+                const { matches, teams } = data.value;
+                const assignments = generateScoutGroups(teams, matches);
+                const result = testAssignments(assignments);
+
+                assertEquals(result.status, 'ok');
+            } else {
+                throw data.error;
+            }
         })
+        // if (!process.argv.includes('lite')) {
+        //     test('Database tests', async () => {
+        //         const { DB } = await import('../../server/utilities/databases');
+        //     });
+        // }
     ]);
 
 if (require.main === module)
