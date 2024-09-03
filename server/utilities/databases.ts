@@ -376,7 +376,6 @@ export class Version {
         return attemptAsync(async () => {
             (await Version.init()).unwrap();
             const versions = (await Version.getVersions()).unwrap();
-            console.log('VERSIONS:', versions);
 
             for (const version of versions) {
                 console.log('Version:', version.serialize('.'));
