@@ -14,9 +14,8 @@
   export let groups: PageGroup[] = [];
   export let active: string;
 
-  const d = createEventDispatcher();
-
-  const openPage = (page: string) => {
+const openPage = (page?: string) => {
+    console.log({ page });
     if (!page) return console.error('No page provided!');
 
     document.title =
@@ -39,13 +38,13 @@
     <slot name="nav" />
   </Navbar>
 
-  <Offcanvas
-    {active}
-    {groups}
-    on:openPage="{e => {
-      active = e.detail;
-    }}"
-  />
+    <Offcanvas
+        {groups}
+        on:openPage="{e => {
+            openPage(e.detail);
+        }}"
+        {active}
+    ></Offcanvas>
 
   <slot />
 </main>
