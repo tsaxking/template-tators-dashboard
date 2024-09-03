@@ -377,7 +377,6 @@ export class Version {
             (await Version.init()).unwrap();
             const versions = (await Version.getVersions()).unwrap();
 
-
             for (const version of versions) {
                 if ((await Version.hasVersion(version)).unwrap()) {
                     console.log(
