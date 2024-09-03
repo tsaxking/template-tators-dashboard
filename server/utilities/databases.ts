@@ -379,8 +379,8 @@ export class Version {
             console.log('VERSIONS:', versions);
 
             for (const version of versions) {
-                console.log("Version:", version.serialize('.'));
-                const has = (await Version.hasVersion(version));
+                console.log('Version:', version.serialize('.'));
+                const has = await Version.hasVersion(version);
                 if (has.isErr()) {
                     console.log('Error checking version', has.error);
                     break;
@@ -391,7 +391,10 @@ export class Version {
                         version.serialize('.')
                     );
                 } else {
-                    console.log('Running version update:', version.serialize('.'));
+                    console.log(
+                        'Running version update:',
+                        version.serialize('.')
+                    );
                     const res = await Version.runUpdate(version);
                     if (res.isErr()) {
                         console.log(
