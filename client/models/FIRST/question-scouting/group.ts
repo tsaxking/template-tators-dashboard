@@ -75,7 +75,7 @@ export class Group extends Cache<GroupUpdates> {
 
             if (res.isOk()) {
                 if (res.value) return new Group(res.value);
-                else return undefined;
+                return undefined;
             }
             throw res.error;
         });
@@ -97,9 +97,8 @@ export class Group extends Cache<GroupUpdates> {
 
             if (groups.isOk()) {
                 return groups.value.map(g => new Group(g));
-            } else {
-                throw groups.error;
             }
+            throw groups.error;
         });
     }
 
@@ -163,7 +162,8 @@ export class Group extends Cache<GroupUpdates> {
                 this.cache.set('questions', questions);
 
                 return questions;
-            } else throw res.error;
+            }
+            throw res.error;
         });
     }
 

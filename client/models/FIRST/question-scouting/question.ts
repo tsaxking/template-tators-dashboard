@@ -68,7 +68,7 @@ export class Question extends Cache<QuestionUpdates> {
 
             if (res.isOk()) {
                 if (res.value) return new Question(res.value);
-                else return undefined;
+                return undefined;
             }
             throw res.error;
         });
@@ -199,7 +199,8 @@ export class Question extends Cache<QuestionUpdates> {
             const res = await Answer.fromTeam(team.number, event);
             if (res.isOk()) {
                 return res.value.find(q => q.questionId === this.id);
-            } else throw res.error;
+            }
+            throw res.error;
         });
     }
 

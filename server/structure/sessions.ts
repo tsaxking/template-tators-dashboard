@@ -123,13 +123,12 @@ export class Session<
                 req,
                 res
             );
-        } else {
-            return Session.newSession<SessionCustomData, AccountCustomData>(
-                app,
-                req,
-                res
-            );
         }
+        return Session.newSession<SessionCustomData, AccountCustomData>(
+            app,
+            req,
+            res
+        );
     }
 
     /**
@@ -589,19 +588,18 @@ export class Session<
                 requests: this.requests,
                 customData: JSON.stringify(this.customData || {})
             });
-        } else {
-            return DB.run('sessions/new', {
-                id: this.id,
-                ip: this.ip || '',
-                latestActivity: this.latestActivity,
-                accountId: this.accountId || '',
-                userAgent: this.userAgent || '',
-                prevUrl: this.prevUrl || '',
-                requests: this.requests,
-                created: this.created,
-                customData: JSON.stringify(this.customData || {})
-            });
         }
+        return DB.run('sessions/new', {
+            id: this.id,
+            ip: this.ip || '',
+            latestActivity: this.latestActivity,
+            accountId: this.accountId || '',
+            userAgent: this.userAgent || '',
+            prevUrl: this.prevUrl || '',
+            requests: this.requests,
+            created: this.created,
+            customData: JSON.stringify(this.customData || {})
+        });
     }
 
     /**
