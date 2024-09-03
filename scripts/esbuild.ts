@@ -82,10 +82,9 @@ const readDir = async (dirPath: string): Promise<string[]> => {
                 if ((await fs.promises.stat(fullpath)).isFile()) {
                     await saveFile(fullpath);
                     return fullpath;
-                } else {
-                    // if it's a directory, recursively read it
-                    return readDir(fullpath);
                 }
+                // if it's a directory, recursively read it
+                return readDir(fullpath);
             })
         )
     ).flat(Infinity) as string[];

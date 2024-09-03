@@ -609,11 +609,10 @@ export class Canvas<T = unknown> {
 
         if (e instanceof MouseEvent) {
             return [makePoint(e.clientX, e.clientY)];
-        } else {
-            return Array.from(e.touches).map(touch =>
-                makePoint(touch.clientX, touch.clientY)
-            );
         }
+        return Array.from(e.touches).map(touch =>
+            makePoint(touch.clientX, touch.clientY)
+        );
     }
 
     /**

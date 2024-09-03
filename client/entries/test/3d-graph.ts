@@ -67,7 +67,7 @@ const edges = [
     [3, 7]
 ];
 
-const spline = new Spline(
+const spline = new Spline([
     new Point(...translate(scale([0, 0, 0], scaleMatrix), translateMatrix)),
     new Point(...translate(scale([1, 0.5, 0], scaleMatrix), translateMatrix)),
     new Point(...translate(scale([1, 0.5, 0], scaleMatrix), translateMatrix)),
@@ -76,7 +76,7 @@ const spline = new Spline(
         ...translate(scale([0.75, 0.25, 0.75], scaleMatrix), translateMatrix)
     ),
     new Point(...translate(scale([0, 1, 0], scaleMatrix), translateMatrix))
-);
+]);
 
 const splinePoints = spline.generatePoints(100);
 

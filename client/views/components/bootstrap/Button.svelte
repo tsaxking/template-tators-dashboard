@@ -1,5 +1,5 @@
 <script lang="ts">
-export let color:
+  export let color:
     | 'primary'
     | 'secondary'
     | 'success'
@@ -9,20 +9,20 @@ export let color:
     | 'light'
     | 'dark'
     | 'link' = 'primary';
-export let disabled: boolean = false;
-export let outline: boolean = false;
-export let text: string = '';
+  export let disabled: boolean = false;
+  export let outline: boolean = false;
+  export let text: string = '';
 
-import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
 
-const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher();
 </script>
 
 <button
-    class="btn btn-{outline ? 'outline-' : ''}{color}"
-    {disabled}
-    on:click="{() => dispatch('click')}"
+  class="btn btn-{outline ? 'outline-' : ''}{color}"
+  {disabled}
+  on:click="{() => dispatch('click')}"
 >
-    {text}
-    <slot />
+  {text}
+  <slot />
 </button>

@@ -65,12 +65,11 @@ router.post<{
                                 ...m,
                                 comments: []
                             };
-                        } else {
-                            return {
-                                ...m,
-                                comments: comments.value
-                            };
                         }
+                        return {
+                            ...m,
+                            comments: comments.value
+                        };
                     })
             )
         );
@@ -113,12 +112,11 @@ router.post<{
                             ...m,
                             comments: []
                         };
-                    } else {
-                        return {
-                            ...m,
-                            comments: comments.value
-                        };
                     }
+                    return {
+                        ...m,
+                        comments: comments.value
+                    };
                 })
             )
         );
@@ -168,12 +166,11 @@ router.post<{
                                 ...m,
                                 comments: []
                             };
-                        } else {
-                            return {
-                                ...m,
-                                comments: comments.value
-                            };
                         }
+                        return {
+                            ...m,
+                            comments: comments.value
+                        };
                     })
             )
         );

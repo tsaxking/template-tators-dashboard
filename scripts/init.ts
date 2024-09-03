@@ -21,7 +21,7 @@ const runPrompt = async (
             allowBlank
         );
         if (r) return r;
-        else return defaultValue || '';
+        return defaultValue || '';
     }
     return prompt(message + ':') || defaultValue || '';
 };

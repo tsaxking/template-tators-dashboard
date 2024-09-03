@@ -16,6 +16,7 @@ const colors: [Color, Color, Color, Color, Color, Color] = [
 class FieldBoardState extends WhiteboardState {
     static fromJSON(json: string): FieldBoardState | undefined {
         try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const obj = JSON.parse(json) as any;
             if (!obj.initPositions || !obj.paths) {
                 throw new Error('Invalid JSON: ' + json);
