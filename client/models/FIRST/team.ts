@@ -411,7 +411,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                 return this.cache.get('pictures') as TeamPicture[];
             }
             const res = await ServerRequest.post<TeamPicture[]>(
-                `/api/teams/get-pictures`,
+                '/api/teams/get-pictures',
                 {
                     eventKey: this.event.key,
                     teamNumber: this.number

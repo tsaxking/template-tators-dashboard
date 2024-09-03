@@ -58,9 +58,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     public static retrieve(event: TBAEvent) {
         if (FIRSTEvent.cache.has(event.key)) {
             return FIRSTEvent.cache.get(event.key) as FIRSTEvent;
-        } else {
-            return new FIRSTEvent(event);
         }
+        return new FIRSTEvent(event);
     }
 
     /**
@@ -270,7 +269,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                         ...(() => {
                             if (t.cache.has('pictures'))
                                 return t.cache.get('pictures') as TeamPicture[];
-                            else return [];
+                            return [];
                         })(),
                         p
                     ].filter(
@@ -286,7 +285,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         const teams = await this.getTeams();
         if (teams.isOk()) {
             return teams.value.find(t => t.tba.team_number === teamNumber);
-        } else return undefined;
+        }
+        return undefined;
     }
 
     /**
