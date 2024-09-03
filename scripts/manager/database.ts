@@ -247,7 +247,7 @@ export const restoreBackup = async () => {
 
     const latest = await Backup.latest();
     let latestBackup = '';
-    if(latest.isOk()) latestBackup = latest.value?.serialize() || '';
+    if (latest.isOk()) latestBackup = latest.value?.serialize() || '';
 
     const backup = await search(
         `Search for a backup to restore (${latestBackup})`,

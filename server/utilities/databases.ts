@@ -511,7 +511,7 @@ export class Backup extends Version {
             return backups
                 .map(Backup.from)
                 .filter(b => b.isOk())
-                .map(b =>b.unwrap())
+                .map(b => b.unwrap())
                 .filter(b => b.gitBranch === version.gitBranch);
         });
     }
@@ -1375,12 +1375,14 @@ export const run = () => {
             ).unwrap();
 
         if (b !== v.gitBranch) {
-            const confirmed = process.argv.includes('branch-reset') || await confirm(
-                `Database branch does not match current branch
+            const confirmed =
+                process.argv.includes('branch-reset') ||
+                (await confirm(
+                    `Database branch does not match current branch
 Current git branch: ${b}
 Database git branch: ${v.gitBranch}
 Do you want to reset the database and update to the current branch?`
-            );
+                ));
             if (confirmed) {
                 await Version.reset();
                 await Version.runAllUpdates();
