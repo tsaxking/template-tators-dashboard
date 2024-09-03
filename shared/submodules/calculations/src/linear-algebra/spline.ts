@@ -9,10 +9,9 @@ export interface SplineInterface {
     generatePoints(count: number): Point[];
 }
 
-
 type SplineOptions = {
     type: 'bezier' | 'catmull-rom';
-}
+};
 
 /**
  * A curve defined by a series of points
@@ -39,7 +38,10 @@ export class Spline implements SplineInterface {
      * @constructor
      * @param {...Point[]} points
      */
-    constructor(points: Point[], public options?: Partial<SplineOptions>) {
+    constructor(
+        points: Point[],
+        public options?: Partial<SplineOptions>
+    ) {
         this.points = points;
     }
 
@@ -61,14 +63,21 @@ export class Spline implements SplineInterface {
             });
         };
 
-        const catmulRom = (p0: Point, p1: Point, p2: Point, p3: Point, t: number) => {
-            return 0.5 * (
-                (2 * p1.x) +
-                (-p0.x + p2.x) * t +
-                (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t +
-                (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t
+        const catmulRom = (
+            p0: Point,
+            p1: Point,
+            p2: Point,
+            p3: Point,
+            t: number
+        ) => {
+            return (
+                0.5 *
+                (2 * p1.x +
+                    (-p0.x + p2.x) * t +
+                    (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t +
+                    (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t)
             );
-        }
+        };
 
         const createCatmullRom = (points: Point[], factor: number): Point[] => {
             return new Array(points.length - 1).fill(null).map((_, i) => {
@@ -81,7 +90,7 @@ export class Spline implements SplineInterface {
                     catmulRom(p0, p1, p2, p3, factor)
                 );
             });
-        }
+        };
 
         while (points.length > 1) {
             if (type === 'bezier') points = createBezier(points, t);
