@@ -1,0 +1,1 @@
+SELECT * FROM Checklists WHERE eventKey = :eventKey AND archived = 0;
