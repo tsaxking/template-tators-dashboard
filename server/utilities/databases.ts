@@ -190,13 +190,14 @@ export class Version {
     public static current() {
         return attemptAsync(async () => {
             const res = await DB.get('db/get-version');
-            if (res.isErr()) return new Version({
-                major: 0,
-                minor: 0,
-                patch: 0,
-                gitBranch: '',
-                gitCommit: ''
-            });
+            if (res.isErr())
+                return new Version({
+                    major: 0,
+                    minor: 0,
+                    patch: 0,
+                    gitBranch: '',
+                    gitCommit: ''
+                });
             const v = res.value;
             if (!v) throw new Error('Database version not found');
             return new Version(v);
@@ -255,7 +256,7 @@ export class Version {
                 const res = await DB.unsafe.run(initQuery.value);
                 if (res.isOk()) {
                     log('Database initialized');
-                    (await Version.addGitCols());
+                    await Version.addGitCols();
                 } else {
                     log('Error initializing database', res.error);
                     throw res.error;
@@ -328,11 +329,7 @@ export class Version {
                     (await Version.set(version)).unwrap();
                     return true;
                 }
-                error(
-                    'Error updating database to version',
-                    version,
-                    res.error
-                );
+                error('Error updating database to version', version, res.error);
                 await Backup.restoreBackup(b.value);
                 throw res.error;
             } else {
@@ -399,10 +396,7 @@ export class Version {
                         version.serialize('.')
                     );
                 } else {
-                    log(
-                        'Running version update:',
-                        version.serialize('.')
-                    );
+                    log('Running version update:', version.serialize('.'));
                     const res = await Version.runUpdate(version);
                     if (res.isErr()) {
                         log(
@@ -496,17 +490,17 @@ export class Version {
         if (this.major > v.major) {
             // log('this.major > v.major');
             return true;
-        } else {
+        } 
             // log('this.major <= v.major');
-        }
+        
 
         if (this.major === v.major) {
             if (this.minor > v.minor) {
                 // log('this.minor > v.minor');
                 return true;
-            } else {
+            } 
                 // log('this.minor <= v.minor');
-            }
+            
 
             if (this.minor === v.minor) {
                 if (this.patch > v.patch) {
@@ -631,10 +625,13 @@ export class Backup extends Version {
         return attemptAsync(async () => {
             const currentVersion = (await Version.current()).unwrap();
             if (currentVersion.gitBranch !== backup.gitBranch) {
-                const confirmed = await confirm('Are you sure you want to restore backup from a different branch?');
-                if (!confirmed) throw new Error(
-                    'Cannot restore backup from a different branch'
+                const confirmed = await confirm(
+                    'Are you sure you want to restore backup from a different branch?'
                 );
+                if (!confirmed)
+                    throw new Error(
+                        'Cannot restore backup from a different branch'
+                    );
             }
             const currentBackup = (await Backup.makeBackup()).unwrap();
 
@@ -741,7 +738,7 @@ export class Backup extends Version {
     }
 
     greaterThan(b: Backup, equalTo = false) {
-        if (super.greaterThan(b), equalTo) return true;
+        if ((super.greaterThan(b), equalTo)) return true;
         return equalTo ? this.date >= b.date : this.date > b.date;
     }
 }

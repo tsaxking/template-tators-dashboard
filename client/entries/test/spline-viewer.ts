@@ -60,7 +60,7 @@ globalize(c, 'canvas');
 const stop = () => (c.animating = false);
 
 const spline = new S([], {
-    type:  'catmull-rom'
+    type: 'catmull-rom'
 });
 
 globalize(spline, 'spline');
