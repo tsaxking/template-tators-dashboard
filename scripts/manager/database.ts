@@ -270,17 +270,19 @@ export const restoreBackup = async () => {
     }
 
     const res = await Backup.restoreBackup(b.value);
+    console.log({ res });
     if (res.isOk()) {
         backToMain('Backup restored');
     } else {
-        backToMain('Error restoring backup: ' + res.error.message);
+        // console.error(res.error);
+        backToMain('Error restoring backup: ' + res.error);
     }
 };
 
 export const backup = async () => {
     const res = await Backup.makeBackup();
     if (res.isOk()) {
-        backToMain(`Backup created: ${res.value}`);
+        backToMain(`Backup created: ${res.value.serialize()}`);
     } else {
         backToMain('Error creating backup: ' + res.error.message);
     }
