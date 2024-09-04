@@ -19,7 +19,7 @@
           role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-        <p>Loading teams</p>
+        <p>Loading...</p>
       </div>
     </div>
   {/if}
@@ -41,3 +41,18 @@
     </div>
   </div>
 {/if}
+
+<style>
+.loading-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>

@@ -127,9 +127,20 @@ export const validate = <type = unknown>(
                 if (options?.log) console.log('[validate]', key, ...args);
             };
 
+            if (
+                typeof isValid === 'function' &&
+                body &&
+                typeof body === 'object' &&
+                isValid(body[key as keyof typeof body])
+            ) {
+                log('Passed function test');
+                continue;
+            }
+
             if (!body || (body as any)[key] === undefined) {
                 passed = false;
                 missing.push(key);
+                log('missing key');
                 emitter.throw(
                     'fail',
                     [key, (body as any)[key], isValid as IsValid],
