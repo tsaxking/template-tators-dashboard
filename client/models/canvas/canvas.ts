@@ -390,7 +390,7 @@ export class Canvas<T = unknown> {
         this.canvas.height = height;
     }
 
-    private ratio = 1;
+    public ratio = 1;
 
     private __adaptable = false;
 
@@ -609,10 +609,11 @@ export class Canvas<T = unknown> {
 
         if (e instanceof MouseEvent) {
             return [makePoint(e.clientX, e.clientY)];
-        }
-        return Array.from(e.touches).map(touch =>
-            makePoint(touch.clientX, touch.clientY)
-        );
+        } 
+            return Array.from(e.touches).map(touch =>
+                makePoint(touch.clientX, touch.clientY)
+            );
+        
     }
 
     /**
