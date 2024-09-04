@@ -16,7 +16,8 @@
 
   const d = createEventDispatcher();
 
-  const openPage = (page: string) => {
+  const openPage = (page?: string) => {
+    console.log({ page });
     if (!page) return console.error('No page provided!');
 
     document.title =
@@ -43,7 +44,7 @@
     {active}
     {groups}
     on:openPage="{e => {
-      active = e.detail;
+      openPage(e.detail);
     }}"
   />
 
