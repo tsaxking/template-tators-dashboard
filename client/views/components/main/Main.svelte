@@ -16,8 +16,9 @@
 
     const d = createEventDispatcher();
 
-    const openPage = (page: string) => {
-        if (!page) return console.error('No page provided!');
+  const openPage = (page?: string) => {
+    console.log({ page });
+    if (!page) return console.error('No page provided!');
 
         document.title =
             capitalize(title) + ': ' + capitalize(fromSnakeCase(page, '-'));
@@ -39,13 +40,13 @@
         <slot name="nav" />
     </Navbar>
 
-    <Offcanvas
-        {active}
-        {groups}
-        on:openPage="{e => {
-            active = e.detail;
-        }}"
-    />
+  <Offcanvas
+    {active}
+    {groups}
+    on:openPage="{e => {
+      openPage(e.detail);
+    }}"
+  />
 
     <slot />
 </main>
