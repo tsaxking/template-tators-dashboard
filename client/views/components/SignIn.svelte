@@ -25,11 +25,11 @@
             console.log('Is not valid');
         }
 
-        ServerRequest.post('/account/sign-in', {
-            username,
-            password
-        });
-    };
+    ServerRequest.post('/account/sign-in', {
+      username: username.trim(),
+      password: password.trim()
+    });
+  };
 
     const isValid = (username: string, password: string) => {
         return isUsernameValid(username) && password.length > 8;

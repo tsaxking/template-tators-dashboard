@@ -23,15 +23,15 @@
             console.log('Is not valid');
         }
 
-        ServerRequest.post('/account/sign-up', {
-            username,
-            password,
-            confirmPassword,
-            email,
-            firstName,
-            lastName
-        });
-    };
+    ServerRequest.post('/account/sign-up', {
+      username: username.trim(),
+      password: password.trim(),
+      confirmPassword: confirmPassword.trim(),
+      email: email.trim(),
+      firstName: firstName.trim(),
+      lastName: lastName.trim()
+    });
+  };
 
     const isValid = (
         username: string,
