@@ -83,7 +83,7 @@ export class Section extends Cache<SectionUpdates> {
 
             if (res.isOk()) {
                 if (res.value) return new Section(res.value);
-                else return undefined;
+                return undefined;
             }
             throw res.error;
         });
@@ -186,7 +186,8 @@ export class Section extends Cache<SectionUpdates> {
                 Group.cache.delete(id);
                 group.destroy();
                 return;
-            } else throw res.error;
+            }
+            throw res.error;
         });
     }
 

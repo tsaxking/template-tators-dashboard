@@ -94,6 +94,16 @@ const _select = async <T = unknown>(
     clear = true
 ): Promise<T> => {
     const res = await new Promise<T>(res => {
+        let selected = 0;
+
+        const stdin = process.stdin as unknown as NodeJS.ReadStream & {
+            off: (event: string, listener: (key: string) => void) => void;
+        };
+
+        stdin.setRawMode(true);
+        stdin.resume();
+        stdin.setEncoding('utf8');
+
         const run = (selected: number) => {
             if (clear) console.clear();
             console.log(Colors.FgBlue, '?', Colors.Reset, message, '\n');
@@ -109,16 +119,6 @@ const _select = async <T = unknown>(
 
             stdin.on('data', handleKey);
         };
-
-        let selected = 0;
-
-        const stdin = process.stdin as unknown as NodeJS.ReadStream & {
-            off: (event: string, fn: (str: string) => void) => void;
-        };
-
-        stdin.setRawMode(true);
-        stdin.resume();
-        stdin.setEncoding('utf8');
 
         const handleKey = (key: string) => {
             if (key === '\u0003') {
@@ -278,7 +278,7 @@ export const search = async <T extends string | Option>(
             if (res === '$$back$$') {
                 const res = await run();
                 if (res.isOk()) return res.value;
-                else throw res.error;
+                throw res.error;
             }
 
             if (res === '$$exit$$') {

@@ -82,7 +82,7 @@ export class Trace<action = Action> extends Drawable<Trace<Action>> {
 export class Heatmap {
     public static get spline() {
         return new Spline(
-            ...[
+            [
                 Color.fromName('blue'),
                 Color.fromName('green'),
                 Color.fromName('red'),

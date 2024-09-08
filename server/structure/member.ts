@@ -147,9 +147,8 @@ export class Member {
                         'You have re-requested to join sfzMusic. After this request, you cannot request again. You will receive another email when your request has been approved.'
                     );
                     return 'pending';
-                } else {
-                    return isMember.status;
                 }
+                return isMember.status;
             }
 
             await DB.run('member/new', {

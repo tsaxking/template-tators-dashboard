@@ -8,6 +8,7 @@ import { Spline as S } from '../../../shared/submodules/calculations/src/linear-
 import { DrawableEvent } from '../../models/canvas/drawable';
 import { Spline } from '../../models/canvas/spline';
 import { downloadText } from '../../utilities/downloads';
+import { globalize } from '../../utilities/global';
 
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
@@ -54,9 +55,15 @@ const c = new Canvas(ctx, {
     ]
 });
 
+globalize(c, 'canvas');
+
 const stop = () => (c.animating = false);
 
-const spline = new S();
+const spline = new S([], {
+    type: 'catmull-rom'
+});
+
+globalize(spline, 'spline');
 
 const start = () => {
     c.destroy();

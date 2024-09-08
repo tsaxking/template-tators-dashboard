@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS DiscordAccount (
     date BIGINT NOT NULL
 );
 
+-- Added AccountNotifications in 1-6-0
+
 
 CREATE TABLE IF NOT EXISTS Members (
     id TEXT PRIMARY KEY,
