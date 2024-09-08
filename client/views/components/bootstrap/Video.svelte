@@ -1,9 +1,9 @@
 <script lang="ts">
-  export let src: string;
+    export let src: string;
 </script>
 
 <video
-  controls
-  {src}>
-  <track kind="captions" />
+    controls
+    {src}>
+    <track kind="captions" />
 </video>

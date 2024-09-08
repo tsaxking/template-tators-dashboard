@@ -199,7 +199,7 @@ export class Version {
                     gitCommit: ''
                 });
             const v = res.value;
-            if (!v) throw new Error('Database version not found');
+            if (!v) return Version.zero;
             return new Version(v);
         });
     }
@@ -490,17 +490,15 @@ export class Version {
         if (this.major > v.major) {
             // log('this.major > v.major');
             return true;
-        } 
-            // log('this.major <= v.major');
-        
+        }
+        // log('this.major <= v.major');
 
         if (this.major === v.major) {
             if (this.minor > v.minor) {
                 // log('this.minor > v.minor');
                 return true;
-            } 
-                // log('this.minor <= v.minor');
-            
+            }
+            // log('this.minor <= v.minor');
 
             if (this.minor === v.minor) {
                 if (this.patch > v.patch) {
@@ -1382,7 +1380,8 @@ export class DB {
  */
 export const run = () => {
     return attemptAsync(async () => {
-        (await Version.init()).unwrap();
+        await Version.init();
+        await Version.addGitCols();
 
         const [branch, commit, version] = await Promise.all([
             gitBranch(),
@@ -1390,7 +1389,7 @@ export const run = () => {
             Version.current()
         ]);
 
-        const b = branch.unwrap();
+        const b = branch.unwrap().replaceAll('-', '');
         const c = commit.unwrap();
 
         let v: Version;

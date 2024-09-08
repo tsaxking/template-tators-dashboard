@@ -6,12 +6,12 @@ import { Canvas } from '../canvas/canvas';
 import { Img } from '../canvas/image';
 import { Strategy } from './strategy';
 import { socket } from '../../utilities/socket';
-import { BoardState, JSONState } from '../whiteboard/board-state';
+import { BoardState, WhiteboardState } from '../whiteboard/board-state';
 import { Cache } from '../cache';
 
 type WhiteboardEvents = {
     updated: undefined;
-}
+};
 
 export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
     public static readonly cache = new Map<string, FIRSTWhiteboard>();
@@ -60,7 +60,7 @@ export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
         this.name = data.name;
         this.strategyId = data.strategyId;
         this.archived = data.archived;
-        this.board = new Board(data.board, this);
+        this.board = new Board(JSON.parse(data.board), this);
 
         if (!FIRSTWhiteboard.cache.has(this.id))
             FIRSTWhiteboard.cache.set(this.id, this);
@@ -90,22 +90,26 @@ export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
 
     update(data: Partial<Omit<W, 'id' | 'archived' | 'board'>>) {
         return attemptAsync(async () => {
-            return (await ServerRequest.post('/api/whiteboards/update', {
-                id: this.id,
-                archived: this.archived,
-                strategyId: data.strategyId ?? this.strategyId,
-                name: data.name ?? this.name,
-            })).unwrap();
+            return (
+                await ServerRequest.post('/api/whiteboards/update', {
+                    id: this.id,
+                    archived: this.archived,
+                    strategyId: data.strategyId ?? this.strategyId,
+                    name: data.name ?? this.name
+                })
+            ).unwrap();
         });
     }
 
     addState(state: BoardState, index: number) {
         return attemptAsync(async () => {
-            return (await ServerRequest.post('/api/whiteboards/add-state', {
-                id: this.id,
-                state: JSON.stringify(state.toJSON().unwrap()),
-                index,
-            })).unwrap();
+            return (
+                await ServerRequest.post('/api/whiteboards/add-state', {
+                    id: this.id,
+                    state: JSON.stringify(state.serialize()),
+                    index
+                })
+            ).unwrap();
         });
     }
 
@@ -122,34 +126,35 @@ export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
     }
 }
 
-// socket.on('whiteboard:update', (data: W) => {
-//     const wb = FIRSTWhiteboard.cache.get(data.id);
-//     if (!wb) return;
+socket.on('whiteboard:update', (data: W) => {
+    const wb = FIRSTWhiteboard.cache.get(data.id);
+    if (!wb) return;
 
-//     wb.name = data.name;
-//     wb.archived = data.archived;
-//     wb.strategyId = data.strategyId;
+    wb.name = data.name;
+    wb.archived = data.archived;
+    wb.strategyId = data.strategyId;
 
-//     wb.emit('updated', undefined);
-// });
+    wb.emit('updated', undefined);
+});
 
+socket.on(
+    'whiteboard:state-added',
+    (data: { id: string; state: string; index: number }) => {
+        const wb = FIRSTWhiteboard.cache.get(data.id);
+        if (!wb) return;
 
-// socket.on('whiteboard:add-state', (data: {
-//     id: string;
-//     state: string;
-//     index: number;
-// }) => {
-//     const wb = FIRSTWhiteboard.cache.get(data.id);
-//     if (!wb) return;
+        const state = JSON.parse(data.state) as WhiteboardState;
 
-//     const state = JSON.parse(data.state) as JSONState;
+        const states = wb.board.states;
+        const exists = states.find(
+            s => JSON.stringify(s.serialize()) === data.state
+        );
+        if (exists) return console.log('State already exists');
 
-//     const states = wb.board.states;
-//     const exists = states.find(s => JSON.stringify(s.toJSON().unwrap()) === data.state);
-//     if (exists) return;
+        const parsedState = BoardState.deserialize(state, wb.board).unwrap();
+        states.splice(data.index, 0, parsedState);
+        wb.board.currentIndex++;
 
-//     const parsedState = BoardState.fromJSON(state, wb.board).unwrap();
-//     states.splice(data.index, 0, parsedState);
-
-//     wb.emit('updated', undefined);
-// });
+        wb.emit('updated', undefined);
+    }
+);

@@ -4,7 +4,7 @@ import { Whiteboards as W } from '../../utilities/tables';
 import { attemptAsync, parseJSON } from '../../../shared/check';
 import { uuid } from '../../utilities/uuid';
 import { Strategy } from './strategy';
-import { JSONState } from '../../../client/models/whiteboard/board-state';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 
 export class FIRSTWhiteboard extends Cache {
     public static fromStrategy(strategyId: string) {
@@ -83,8 +83,14 @@ export class FIRSTWhiteboard extends Cache {
 
     addState(state: string, index: number) {
         return attemptAsync(async () => {
-            const s = JSON.parse(state) as JSONState;
-            const states = JSON.parse(this.board) as JSONState[];
+            const s = JSON.parse(state) as {
+                color: string;
+                points: Point2D[];
+            };
+            const states = JSON.parse(this.board) as {
+                color: string;
+                points: Point2D[];
+            }[];
             // remove all states after and including index
             states.splice(index);
             states.push(s);
