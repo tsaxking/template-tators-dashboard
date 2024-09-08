@@ -63,10 +63,7 @@ export class Position extends Drawable {
 // handles each individual state of the board, and handles all the listeners
 
 export class BoardState {
-    public static deserialize(
-        data: WhiteboardState,
-        board: Board
-    ) {
+    public static deserialize(data: WhiteboardState, board: Board) {
         return attempt(() => {
             const strokes = new Stroke(data.points, data.color);
 
@@ -117,7 +114,7 @@ export class BoardState {
     constructor(
         public stroke: Stroke,
         public readonly board: Board,
-        public clear: boolean = false,
+        public clear: boolean = false
     ) {}
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -128,7 +125,7 @@ export class BoardState {
         return {
             color: this.stroke.color,
             points: this.stroke.points as Point2D[],
-            clear: this.clear,
+            clear: this.clear
         };
     }
 
