@@ -1,56 +1,54 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { FIRSTWhiteboard } from '../../../models/FIRST/whiteboard';
-import { type Pens } from '../../../models/whiteboard/board-state';
-import { Canvas } from '../../../models/canvas/canvas';
+    import { onMount } from 'svelte';
+    import { FIRSTWhiteboard } from '../../../models/FIRST/whiteboard';
+    import { Canvas } from '../../../models/canvas/canvas';
 
-export let whiteboard: FIRSTWhiteboard;
-export let year: number;
+    export let whiteboard: FIRSTWhiteboard;
+    export let year: number;
 
-let name = whiteboard.name;
-let currentPen: keyof Pens = 'black';
-let canvasEl: HTMLCanvasElement;
-let currentCanvas: Canvas | undefined;
+    let name = whiteboard.name;
+    let currentPen = 'black';
+    let canvasEl: HTMLCanvasElement;
+    let currentCanvas: Canvas | undefined;
 
-$: changeWhiteboard(whiteboard);
+    $: changeWhiteboard(whiteboard);
 
-const changePen = (pen: keyof Pens) => {
-    whiteboard.board.currentProperties.color = pen;
-    currentPen = pen;
-};
+    const changePen = (pen: string) => {
+        whiteboard.board.setColor(pen);
+        currentPen = pen;
+    };
 
-const changeWhiteboard = (whiteboard: FIRSTWhiteboard) => {
-    if (currentCanvas) currentCanvas.animating = false;
-    if (!canvasEl) return;
-    const ctx = canvasEl.getContext('2d');
-    if (!ctx) throw new Error('Could not get 2d context');
-    const canvas = whiteboard.buildCanvas(ctx, year);
-    if (whiteboard.board.states.length === 0) {
-        whiteboard.board.clear();
-    } else {
-        whiteboard.board.getState()?.setListeners();
-    }
-    canvas.adaptable = true;
-    canvas.animate();
-    currentCanvas = canvas;
-}
+    const changeWhiteboard = (whiteboard: FIRSTWhiteboard) => {
+        if (currentCanvas) currentCanvas.animating = false;
+        if (!canvasEl) return;
+        const ctx = canvasEl.getContext('2d');
+        if (!ctx) throw new Error('Could not get 2d context');
 
-onMount(() => {
-    if (whiteboard) changeWhiteboard(whiteboard);
-});
+        const canvas = whiteboard.buildCanvas(ctx, year);
 
+        canvas.width = 1000;
+        canvas.height = 500;
+        if (whiteboard.board.states.length === 0) {
+            whiteboard.board.clear();
+        } else {
+            whiteboard.board.getCurrentState()?.setListeners();
+        }
+        canvas.adaptable = true;
+        canvas.animate();
+        currentCanvas = canvas;
+    };
 
+    onMount(() => {
+        if (whiteboard) changeWhiteboard(whiteboard);
+    });
 </script>
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div
-            style="
-        width: 100vw;
-        height: 50vw;
-        position: relative;
-    "
-        >
+            style:width="100vw"
+            style:position="relative"
+            style:height="50vw">
             <canvas
                 bind:this="{canvasEl}"
                 on:click|preventDefault
@@ -67,26 +65,34 @@ onMount(() => {
                 on:blur|preventDefault
                 on:focus|preventDefault
                 on:resize|preventDefault
-                on:scroll|preventDefault
                 on:select|preventDefault
                 on:selectstart|preventDefault
-            ></canvas>
+            />
 
-            <div class="d-flex" style="position: absolute; top: 10; left: 10;">
+            <div
+                style:position="absolute"
+                style:top="10"
+                style:left="10"
+                class="d-flex"
+            >
                 <!-- Pens -->
-                <div class="btn-group" role="group">
+                <div
+                    class="btn-group"
+                    role="group">
                     <button
                         class="btn"
-                        class:btn-outline-dark="{currentPen !== 'black'}"
                         class:btn-dark="{currentPen === 'black'}"
+                        class:btn-outline-dark="{currentPen !== 'black'}"
+                        type="button"
                         on:click="{() => changePen('black')}"
                     >
                         <i class="material-icons"> brush </i>
                     </button>
                     <button
                         class="btn"
-                        class:btn-outline-danger="{currentPen !== 'red'}"
                         class:btn-danger="{currentPen === 'red'}"
+                        class:btn-outline-danger="{currentPen !== 'red'}"
+                        type="button"
                         on:click="{() => changePen('red')}"
                     >
                         <i class="material-icons"> brush </i>
@@ -95,6 +101,7 @@ onMount(() => {
                         class="btn btn-primary"
                         class:btn-outline-primary="{currentPen !== 'blue'}"
                         class:btn-primary="{currentPen === 'blue'}"
+                        type="button"
                         on:click="{() => changePen('blue')}"
                     >
                         <i class="material-icons"> brush </i>
@@ -102,15 +109,19 @@ onMount(() => {
                 </div>
 
                 <!-- Functions -->
-                <div class="btn-group" role="group">
+                <div
+                    class="btn-group"
+                    role="group">
                     <button
                         class="btn btn-warning"
+                        type="button"
                         on:click="{() => whiteboard.board.prev()}"
                     >
                         <i class="material-icons"> undo </i>
                     </button>
                     <button
                         class="btn btn-warning"
+                        type="button"
                         on:click="{() => whiteboard.board.next()}"
                     >
                         <i class="material-icons"> redo </i>
@@ -118,9 +129,12 @@ onMount(() => {
                 </div>
 
                 <!-- Save/clear -->
-                <div class="btn-group" role="group">
+                <div
+                    class="btn-group"
+                    role="group">
                     <button
                         class="btn btn-success"
+                        type="button"
                         on:click="{() =>
                             whiteboard.update({
                                 name
@@ -131,6 +145,7 @@ onMount(() => {
 
                     <button
                         class="btn btn-danger"
+                        type="button"
                         on:click="{() => whiteboard.board.clear()}"
                     >
                         Clear

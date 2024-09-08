@@ -1,50 +1,50 @@
 import { attempt } from '../../../shared/check';
 import { Drawable } from '../canvas/drawable';
 import { FIRSTWhiteboard } from '../FIRST/whiteboard';
-import { BoardState, JSONState, Pens } from './board-state';
+import { BoardState, WhiteboardState } from './board-state';
+import { Stroke } from './stroke';
 
 // this class manages all of the states of the board
 
 export class Board extends Drawable {
+    public color: string = 'black';
+
     public readonly states: BoardState[];
     public currentIndex = -1;
 
-    public readonly currentProperties: {
-        color: keyof Pens;
-    } = {
-        color: 'black'
-    };
+    public drawingStroke = new Stroke([], 'black');
 
-    constructor(data: string, public readonly whiteboard: FIRSTWhiteboard) {
+    constructor(
+        data: WhiteboardState[],
+        public readonly whiteboard: FIRSTWhiteboard
+    ) {
         super();
 
-        const states = JSON.parse(data) as JSONState[];
-        this.states = states.map(s => BoardState.fromJSON(s, this).unwrap());
+        this.states = data.map(d => BoardState.deserialize(d, this).unwrap());
         this.currentIndex = this.states.length - 1;
     }
 
-    getState(): BoardState | undefined {
+    getCurrentState(): BoardState | undefined {
         return this.states[this.currentIndex];
     }
 
     next() {
         if (this.currentIndex < this.states.length - 1) {
-            this.getState()?.removeListeners();
+            this.getCurrentState()?.removeListeners();
             this.currentIndex++;
-            this.getState()?.setListeners();
+            this.getCurrentState()?.setListeners();
         }
     }
 
     prev() {
         if (this.currentIndex > 0) {
-            this.getState()?.removeListeners();
+            this.getCurrentState()?.removeListeners();
             this.currentIndex--;
-            this.getState()?.setListeners();
+            this.getCurrentState()?.setListeners();
         }
     }
 
     push(state: BoardState) {
-        this.getState()?.removeListeners();
         if (this.currentIndex < this.states.length - 1) {
             this.states.splice(this.currentIndex + 1);
         }
@@ -54,22 +54,14 @@ export class Board extends Drawable {
     }
 
     clear() {
-        const state = new BoardState(
-            {
-                red: [],
-                blue: [],
-                black: []
-            },
-            [undefined, undefined, undefined, undefined, undefined, undefined],
-            this
-        );
+        const state = new BoardState(new Stroke([], 'black'), this, true);
         this.push(state);
         return state;
     }
 
     serialize() {
         return attempt(() => {
-            return JSON.stringify(this.states.map(s => s.toJSON()));
+            return JSON.stringify(this.states.map(s => s.serialize()));
         });
     }
 
@@ -78,6 +70,20 @@ export class Board extends Drawable {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        this.getState()?.draw(ctx);
+        const start = this.states.findLastIndex((s, i) => s.clear && i <= this.currentIndex);
+        const end = this.currentIndex;
+        const drawables = this.states.slice(
+            start,
+            end + 1,
+        );
+        for (const d of drawables) {
+            d.draw(ctx);
+        }
+        this.drawingStroke.draw(ctx);
+    }
+
+    setColor(color: string) {
+        this.color = color;
+        this.drawingStroke.color = color;
     }
 }

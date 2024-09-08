@@ -1001,6 +1001,12 @@ export const messages: Record<string, StatusMessage> = {
         color: 'success',
         code: 200,
         instructions: ''
+    },
+    'whiteboard:state-added': {
+        message: 'State added to whiteboard',
+        color: 'success',
+        code: 200,
+        instructions: ''
     }
 };
 
@@ -1191,4 +1197,5 @@ export type WhiteboardStatusId =
     | 'deleted'
     | 'match-not-found'
     | 'not-found'
-    | 'update';
+    | 'update'
+    | 'state-added';
