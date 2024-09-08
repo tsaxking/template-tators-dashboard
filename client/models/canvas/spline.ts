@@ -1,5 +1,5 @@
 import { Drawable } from './drawable';
-import { Spline as S } from '../../../shared/submodules/calculations/src/linear-algebra/spline';
+import { SplineInterface as S } from '../../../shared/submodules/calculations/src/linear-algebra/spline';
 
 type SplineOptions = {
     frames: number;

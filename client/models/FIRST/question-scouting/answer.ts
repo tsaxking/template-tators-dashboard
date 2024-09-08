@@ -73,7 +73,7 @@ export class Answer extends Cache<AnswerEvents> {
 
             if (res.isOk()) {
                 if (res.value) return new Answer(res.value, eventKey);
-                else return undefined;
+                return undefined;
             }
             throw res.error;
         });
@@ -125,9 +125,8 @@ export class Answer extends Cache<AnswerEvents> {
             if (q.isOk()) {
                 if (!q.value) throw new Error('question not found');
                 return q.value;
-            } else {
-                throw q.error;
             }
+            throw q.error;
         });
     }
 }

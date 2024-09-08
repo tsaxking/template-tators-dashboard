@@ -1,6 +1,7 @@
-import { attempt } from "./check";
+import { attempt } from './check';
 
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}|:"<>?`~[]\';./=\\,';
+const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}|:"<>?`~[]\';./=\\,';
 
 export const compress = (num: number) => {
     return attempt(() => {
@@ -15,7 +16,7 @@ export const compress = (num: number) => {
         }
         return result;
     });
-}
+};
 
 export const decompress = (str: string) => {
     return attempt(() => {
@@ -28,4 +29,4 @@ export const decompress = (str: string) => {
 
         return parseInt(str);
     });
-}
+};

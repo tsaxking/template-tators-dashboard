@@ -1,5 +1,5 @@
 import { Colors } from '../server/utilities/colors';
-import { DB } from '../server/utilities/databases';
+import { Version } from '../server/utilities/databases';
 import env from '../server/utilities/env';
 import { sleep } from '../shared/sleep';
 
@@ -16,7 +16,7 @@ const main = async () => {
         await sleep(1000);
     }
 
-    await DB.reset();
+    await Version.reset();
     process.exit(0);
 };
 

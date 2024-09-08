@@ -2,8 +2,15 @@ import env, { __root } from './env';
 import { error, log } from './terminal-logging';
 import { Client } from 'pg';
 import { Queries } from './queries';
-import { exists, readDir, readFile, saveFile, log as csv } from './files';
-import { attemptAsync, Result } from '../../shared/check';
+import {
+    exists,
+    readDir,
+    readFile,
+    saveFile,
+    log as csv,
+    removeFile
+} from './files';
+import { attempt, attemptAsync, resolveAll, Result } from '../../shared/check';
 import {
     capitalize,
     fromCamelCase,
@@ -15,10 +22,12 @@ import {
 import { bigIntDecode, bigIntEncode } from '../../shared/objects';
 import { daysTimeout, sleepUntil } from '../../shared/sleep';
 import { runTask } from './run-task';
-import { removeFile } from './files';
 import fs from 'fs';
 import path from 'path';
 import { SimpleEventEmitter } from '../../shared/event-emitter';
+import { gitBranch, gitCommit } from './git';
+import { Version as V } from './tables';
+import { confirm } from '../../scripts/prompt';
 
 /**
  * The name of the main database
@@ -62,7 +71,7 @@ const {
 //             Colors.Reset,
 //     );
 //     if (!confirmed) {
-//         console.log('Exiting...');
+//         log('Exiting...');
 //         process.exit(0);
 //     }
 // }
@@ -104,14 +113,635 @@ type QueryResult<T> = {
     params: unknown[];
 };
 
-/**
- * Database version [major, minor, patch]
- * @date 3/8/2024 - 5:37:17 AM
- *
- * @export
- * @typedef {Version}
- */
-export type Version = [number, number, number];
+export class Version {
+    /**
+     * Retrieves the version of the database (based on the latest update file)
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Version>}
+     */
+    public static latest() {
+        return attemptAsync(async () => {
+            return (await Version.getVersions()).unwrap().pop();
+        });
+    }
+
+    /**
+     * Checks if the database is at least the version provided
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {Version} v
+     * @returns {Promise<boolean>}
+     */
+    static async hasVersion(v: Version) {
+        return attemptAsync(async () => {
+            const current = (await Version.current()).unwrap();
+            return current.greaterThan(v, true);
+        });
+    }
+
+    /**
+     * Retrieves all available updates for the database, including those that have already been run
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<Version[]>>}
+     */
+    static async getVersions(): Promise<Result<Version[]>> {
+        return attemptAsync(async () => {
+            const versions = await readDir('storage/db/queries/db/versions');
+            if (versions.isOk()) {
+                return (
+                    versions.value
+                        .map(v => {
+                            const [M, m, p] = v.replace('.sql', '').split('-');
+                            return new Version({
+                                major: Number(M),
+                                minor: Number(m),
+                                patch: Number(p),
+                                gitBranch: '',
+                                gitCommit: ''
+                            });
+                        })
+                        // remove errors
+                        // sort by version
+                        .sort((a, b) => {
+                            return a.greaterThan(b) ? 1 : -1;
+                        })
+                );
+            }
+            return [];
+        });
+    }
+
+    /**
+     * Retrieves the version of the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Version>}
+     */
+    public static current() {
+        return attemptAsync(async () => {
+            const res = await DB.get('db/get-version');
+            if (res.isErr())
+                return new Version({
+                    major: 0,
+                    minor: 0,
+                    patch: 0,
+                    gitBranch: '',
+                    gitCommit: ''
+                });
+            const v = res.value;
+            if (!v) throw new Error('Database version not found');
+            return new Version(v);
+        });
+    }
+
+    public static addGitCols() {
+        return DB.unsafe.run(`
+                ALTER TABLE Version
+                    ADD COLUMN gitBranch TEXT NOT NULL DEFAULT '',
+                    ADD COLUMN gitCommit TEXT NOT NULL DEFAULT '';
+            `);
+    }
+
+    /**
+     * Updates the database to a specific version
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {Version} version
+     * @returns {Promise<Result<void>>}
+     */
+    static async updateToVersion(version: Version): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            (await Version.init()).unwrap();
+            const versions = (await Version.getVersions()).unwrap();
+            for (const v of versions) {
+                // log('Checking version', v, 'against', version, version.greaterThan(version));
+                if (version.greaterThan(v, true)) {
+                    log('Running update for version', v);
+                    (await Version.runUpdate(v)).unwrap();
+                }
+            }
+        });
+    }
+
+    /**
+     * Initializes the database with the init.sql file
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<void>>}
+     */
+    static async init(): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            const v = await Version.current();
+            if (v.isOk() && v.value.greaterThan(Version.zero)) {
+                return log('Database already initialized');
+            }
+
+            const initQuery = await readFile('storage/db/queries/db/init.sql');
+
+            if (initQuery.isOk()) {
+                const res = await DB.unsafe.run(initQuery.value);
+                if (res.isOk()) {
+                    log('Database initialized');
+                    await Version.addGitCols();
+                } else {
+                    log('Error initializing database', res.error);
+                    throw res.error;
+                }
+            } else {
+                log('Error reading init query', initQuery.error);
+                throw initQuery.error;
+            }
+        });
+    }
+
+    /**
+     * Runs a version update on the database
+     * If the version doesn't exist or there is an error, the database is restored from a backup
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {Version} version
+     * @returns {Promise<Result<boolean>>}
+     */
+    static async runUpdate(version: Version): Promise<Result<boolean>> {
+        return attemptAsync(async () => {
+            log('Updating database to version', version.serialize('.'));
+            const updateQuery = await readFile(
+                `storage/db/queries/db/versions/${version.serialize('-', true)}.sql`
+            );
+
+            if (updateQuery.isOk()) {
+                const b = await Backup.makeBackup();
+                if (b.isErr()) throw b.error;
+
+                const res = await DB.unsafe.run(updateQuery.value);
+                if (res.isOk()) {
+                    log(
+                        'Database updated to version',
+                        version.serialize('.', true)
+                    );
+
+                    const script = `storage/db/scripts/versions/${version.serialize(
+                        '-',
+                        true
+                    )}.ts`;
+                    // see if update script exists
+                    const scriptExists = exists(script);
+
+                    if (scriptExists) {
+                        log(
+                            'Running update script',
+                            version.serialize('.', true)
+                        );
+                        const scriptRes = await runTask('npx', [
+                            'ts-node',
+                            script,
+                            version.serialize('.', true) + '.ts'
+                        ]);
+                        if (scriptRes.isErr()) {
+                            error(
+                                'Error running update script',
+                                version.serialize('.', true),
+                                scriptRes.error
+                            );
+                            await Backup.restoreBackup(b.value);
+                            throw scriptRes.error;
+                        }
+
+                        log('Update script ran successfully');
+                    }
+
+                    (await Version.set(version)).unwrap();
+                    return true;
+                }
+                error('Error updating database to version', version, res.error);
+                await Backup.restoreBackup(b.value);
+                throw res.error;
+            } else {
+                error('Error reading update query', updateQuery.error);
+                throw updateQuery.error;
+            }
+        });
+    }
+
+    /**
+     * Resets the database to a blank state
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<string>>}
+     */
+    static async reset() {
+        return attemptAsync(async () => {
+            let b = await Backup.makeBackup();
+            if (b.isErr()) {
+                if (b.error.message.includes('not initialized')) {
+                    b = b.handle(Backup.zero);
+                } else {
+                    throw b.error;
+                }
+            }
+
+            const tables = (await DB.getTables()).unwrap();
+            resolveAll(
+                await Promise.all(
+                    tables.map(table => DB.unsafe.run(`DROP TABLE ${table};`))
+                )
+            ).unwrap();
+
+            log('Database reset');
+            return b.value;
+        });
+    }
+
+    /**
+     * Runs all updates for the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {*}
+     */
+    static async runAllUpdates() {
+        return attemptAsync(async () => {
+            (await Version.init()).unwrap();
+            const versions = (await Version.getVersions()).unwrap();
+
+            for (const version of versions) {
+                log('Version:', version.serialize('.'));
+                const has = await Version.hasVersion(version);
+                if (has.isErr()) {
+                    log('Error checking version', has.error);
+                    break;
+                }
+                if (has.value) {
+                    log(
+                        'Database already has updated to or version',
+                        version.serialize('.')
+                    );
+                } else {
+                    log('Running version update:', version.serialize('.'));
+                    const res = await Version.runUpdate(version);
+                    if (res.isErr()) {
+                        log(
+                            'There was an error updating the database, it may be corrupted. Please restore from backup, edit the update file, then try again.'
+                        );
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Sets the version of the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {Version} v
+     * @returns {Promise<Result<unknown>>}
+     */
+    public static set(v: Version) {
+        return attemptAsync(async () => {
+            log('Setting version to', v.serialize('.'));
+
+            (await DB.run('db/delete-version')).unwrap();
+            return (await DB.run('db/change-version', v)).unwrap();
+        });
+    }
+
+    public static from(str: string, deilimiter: string) {
+        return attempt(() => {
+            str = str.replaceAll('.json', '');
+            const [major, minor, patch, gitBranch, gitCommit] =
+                str.split(deilimiter);
+            if (isNaN(Number(major)))
+                throw new Error('Major version is not a number');
+            if (isNaN(Number(minor)))
+                throw new Error('Minor version is not a number');
+            if (isNaN(Number(patch)))
+                throw new Error('Patch version is not a number');
+            return new Version({
+                major: Number(major),
+                minor: Number(minor),
+                patch: Number(patch),
+                gitBranch,
+                gitCommit
+            });
+        });
+    }
+
+    public static get zero() {
+        return new Version({
+            major: 0,
+            minor: 0,
+            patch: 0,
+            gitBranch: 'main',
+            gitCommit: '0000000'
+        });
+    }
+
+    major: number;
+    minor: number;
+    patch: number;
+    gitBranch: string;
+    gitCommit: string;
+
+    constructor(v: V) {
+        this.major = v.major;
+        this.minor = v.minor;
+        this.patch = v.patch;
+        this.gitBranch = (v.gitBranch || '').replaceAll('-', '');
+        this.gitCommit = v.gitCommit || '';
+    }
+
+    serialize(delimiter: string, min = false) {
+        if (min) {
+            return [this.major, this.minor, this.patch].join(delimiter);
+        }
+        return [
+            this.major,
+            this.minor,
+            this.patch,
+            this.gitBranch,
+            this.gitCommit
+        ].join(delimiter);
+    }
+
+    greaterThan(v: Version, equalTo = false) {
+        log(this, v);
+        if (this.major > v.major) {
+            // log('this.major > v.major');
+            return true;
+        } 
+            // log('this.major <= v.major');
+        
+
+        if (this.major === v.major) {
+            if (this.minor > v.minor) {
+                // log('this.minor > v.minor');
+                return true;
+            } 
+                // log('this.minor <= v.minor');
+            
+
+            if (this.minor === v.minor) {
+                if (this.patch > v.patch) {
+                    // log('this.patch > v.patch');
+                    return true;
+                } else if (this.patch === v.patch && equalTo) {
+                    // log('this.patch === v.patch');
+                    return true;
+                }
+            }
+        } else {
+            // log('this.major <= v.major');
+        }
+
+        return false;
+    }
+}
+
+export class Backup extends Version {
+    public static from(str: string) {
+        return attempt(() => {
+            str = str.replaceAll('.json', '');
+            const [v, date] = str.split('_');
+            return new Backup(Version.from(v, '-').unwrap(), Number(date));
+        });
+    }
+
+    /**
+     * Retrieves all backups available for the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<string[]>>}
+     */
+    static async getBackups(): Promise<Result<Backup[]>> {
+        return attemptAsync(async () => {
+            const version = (await Version.current()).unwrap();
+
+            log('Getting backups for version', version.serialize('.'));
+
+            const backups = (await readDir('storage/db/backups'))
+                .unwrap()
+                .map(b => b.replace('.json', ''));
+
+            return backups
+                .map(Backup.from)
+                .filter(b => b.isOk())
+                .map(b => b.unwrap())
+                .filter(b => b.gitBranch === version.gitBranch);
+        });
+    }
+
+    static async latest() {
+        return attemptAsync(async () => {
+            const backups = (await Backup.getBackups()).unwrap();
+            if (!backups.length) return undefined;
+            return backups.pop();
+        });
+    }
+
+    /**
+     * Creates a full backup of the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<string>>}
+     */
+    static async makeBackup() {
+        return attemptAsync(async () => {
+            const [tables, version] = await Promise.all([
+                DB.getTables(),
+                Version.current()
+            ]);
+
+            // if (['-1.-1.-1'].includes(version.join('.'))) {
+            //     throw new Error('Database not initialized, no backup created');
+            // }
+
+            const t = tables.unwrap();
+            const v = version.unwrap();
+            const backup: {
+                [table: string]: unknown[]; // table name: rows
+            } = {};
+
+            // pull all data from each table
+            await Promise.all(
+                t.map(async table => {
+                    const data = await DB.unsafe.all(`SELECT * FROM ${table}`);
+                    if (data.isOk()) backup[table] = data.value;
+                    else throw data.error;
+                })
+            );
+
+            const copy = bigIntEncode(backup);
+            const str = JSON.stringify(copy, null, 2);
+            const b = new Backup(v, Date.now());
+            const name = `${b.serialize()}.json`;
+
+            const res = await saveFile('storage/db/backups/' + name, str);
+            if (res.isOk()) {
+                log('Backup created:', name);
+                return b;
+            }
+            log('Error creating backup', res.error);
+            throw res.error;
+        });
+    }
+
+    /**
+     * Restores the database from a backup
+     * This will reset the database, update it to the version of the backup, then insert the data from the backup
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {string} backupName
+     * @returns {Promise<Result<void>>}
+     */
+    static async restoreBackup(backup: Backup): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            const currentVersion = (await Version.current()).unwrap();
+            if (currentVersion.gitBranch !== backup.gitBranch) {
+                const confirmed = await confirm(
+                    'Are you sure you want to restore backup from a different branch?'
+                );
+                if (!confirmed)
+                    throw new Error(
+                        'Cannot restore backup from a different branch'
+                    );
+            }
+            const currentBackup = (await Backup.makeBackup()).unwrap();
+
+            const resetRes = await Version.reset();
+            if (resetRes.isErr()) {
+                log('Error resetting database', resetRes.error);
+                log(
+                    'Reinitializing database, and restoring its current version...'
+                );
+
+                const updateRes = await Version.updateToVersion(currentVersion);
+                if (updateRes.isErr()) throw updateRes.error;
+                const restoreRes = await Backup.restoreBackup(currentBackup);
+                if (restoreRes.isErr()) throw restoreRes.error;
+                throw resetRes.error;
+            }
+
+            const updateRes = await Version.updateToVersion(backup);
+            if (updateRes.isErr()) throw updateRes.error;
+            log('Update successful');
+
+            const versionNow = (await Version.current()).unwrap();
+            log('Version after updates:', versionNow.serialize('.'));
+
+            const ts = (await DB.getTables()).unwrap();
+            log('Tables after updates:', ts);
+
+            console.log('Filename:', backup.serialize());
+
+            const file = (
+                await readFile(`storage/db/backups/${backup.serialize()}.json`)
+            ).unwrap();
+
+            log('Retrieved file:', file.length);
+
+            const data = bigIntDecode(JSON.parse(file)) as {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                [table: string]: any[];
+            };
+
+            const tables = Object.keys(data);
+
+            log('Inserting...', tables);
+            const res = await Promise.all(
+                tables.map(async table => {
+                    const res = await attemptAsync(async () => {
+                        const rows = data[table];
+                        const cols = Object.keys(rows[0] || {});
+                        if (!cols.length) return; // no data to insert
+
+                        const colNames = cols.join(', ');
+                        const colVals = cols.map(c => `:${c}`).join(', ');
+
+                        return Promise.all(
+                            rows.map(async r => {
+                                const q = `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
+                                const res = await DB.unsafe.run(q, r);
+
+                                if (res.isErr()) {
+                                    error(
+                                        'Error inserting data into',
+                                        table,
+                                        res.error,
+                                        q,
+                                        r
+                                    );
+                                }
+
+                                return res;
+                            })
+                        );
+                    });
+
+                    if (res.isErr()) throw res.error;
+                    if (res.value?.some(r => r.isErr())) {
+                        error('Error inserting data');
+                        throw new Error('Error inserting data');
+                    }
+                    return res;
+                })
+            );
+
+            if (res.every(r => r.isOk())) {
+                log('Database restored');
+            } else {
+                // log('Error(s) restoring database', res);
+                throw new Error('Error(s) restoring database');
+            }
+        });
+    }
+
+    public static get zero() {
+        return new Backup(Version.zero, 0);
+    }
+
+    date: number;
+    constructor(v: V, date: number) {
+        super(v);
+        this.date = date;
+    }
+
+    serialize() {
+        return `${super.serialize('-')}_${this.date}`;
+    }
+
+    greaterThan(b: Backup, equalTo = false) {
+        if ((super.greaterThan(b), equalTo)) return true;
+        return equalTo ? this.date >= b.date : this.date > b.date;
+    }
+}
 
 /**
  * Database class
@@ -150,37 +780,6 @@ export class DB {
     static readonly em = new SimpleEventEmitter<'connect' | 'disconnect'>();
 
     /**
-     * Timeout for the database connection
-     * Currently not used since the database connection is kept alive
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @private
-     * @static
-     * @type {NodeJS.Timeout}
-     */
-    private static timeout: NodeJS.Timeout;
-
-    /**
-     * Resets the timeout for the database connection
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @private
-     * @static
-     * @async
-     * @returns {*}
-     */
-    private static async setTimeout() {
-        if (DB.timeout) clearTimeout(DB.timeout);
-        DB.timeout = setTimeout(
-            () => {
-                // console.log('Database connection timed out');
-                // DB.db.end();
-            },
-            1000 * 60 * 1
-        );
-    }
-
-    /**
      * Connects to the database
      * @date 3/8/2024 - 5:37:17 AM
      *
@@ -190,27 +789,29 @@ export class DB {
      */
     static async connect() {
         return attemptAsync(async () => {
-            // a little optimization
-            // return new Promise((res, rej) => {
-            // log('Connecting to the database...');
             return DB.db.connect();
-            // .then(() => {
-            //     // DB.setTimeout();
-            //     // close the connection every 10 minutes to prevent memory leaks
-            //     // log('Connected to the database');
-            //     res('Connected to the database');
-            // })
-            // .catch(e => {
-            //     // error('Database connection error', e);
-            //     rej('Error connecting to the database');
-            // });
-            // });
         });
+    }
+
+    /**
+     * Disconnects from the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @public
+     * @static
+     * @async
+     * @returns {unknown}
+     */
+    public static async disconnect() {
+        // await Promise.all(DB.stack); // wait for all queries to end
+        // DB.stack = [];
+        log('Closing database...');
+        return DB.db.end();
     }
 
     public static async vacuum() {
         return attemptAsync(async () => {
-            console.log('Vacuum go brrrrrrr');
+            log('Vacuum go brrrrrrr');
             const tables = await DB.getTables();
             if (tables.isErr()) throw tables.error;
             return Promise.all(
@@ -233,7 +834,7 @@ export class DB {
      * @param {any[]} args
      * @returns {[string, Parameter[]]}
      */
-    public static parseQuery(
+    public static parseQueryVariables(
         query: string,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         args: any[]
@@ -247,7 +848,7 @@ export class DB {
             str.replace(
                 /[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g,
                 word => {
-                    // console.log(toSnakeCase(fromCamelCase(word)));
+                    // log(toSnakeCase(fromCamelCase(word)));
                     let w = toSnakeCase(fromCamelCase(word));
                     if (w.startsWith('_')) {
                         w = w.slice(1);
@@ -275,7 +876,7 @@ export class DB {
 
         // get every :variable in the query
         const matches = query.match(/:\w+/g);
-        // console.log(matches);
+        // log(matches);
         const newArgs: Parameter[] = [];
         if (matches) {
             // for each match, replace it with a $n
@@ -330,440 +931,8 @@ export class DB {
 
             if (res.isOk()) {
                 return res.value.map(r => r.rolname);
-            } else {
-                throw res.error;
             }
-        });
-    }
-
-    /**
-     * Retrieves the version of the database
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @returns {Promise<Version>}
-     */
-    static async getVersion(): Promise<Version> {
-        const v = await DB.get('db/get-version');
-        if (v.isOk() && v.value) {
-            const { major, minor, patch } = v.value;
-            return [major, minor, patch];
-        }
-        // database is not initialized
-        return [-1, -1, -1];
-    }
-
-    /**
-     * Sets the version of the database
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @param {Version} v
-     * @returns {Promise<Result<unknown>>}
-     */
-    static async setVersion(v: Version): Promise<Result<unknown>> {
-        console.log('Setting version to', v.join('.'));
-        const [major, minor, patch] = v;
-
-        const deleteVersion = await DB.run('db/delete-version');
-        if (deleteVersion.isErr()) throw deleteVersion.error;
-
-        const res = await DB.run('db/change-version', {
-            major,
-            minor,
-            patch
-        });
-
-        if (res.isErr()) console.log('Error setting version', res.error);
-        return res;
-    }
-
-    /**
-     * Retrieves the version of the database (based on the latest update file)
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @returns {Promise<Version>}
-     */
-    static async latestVersion(): Promise<Version> {
-        const versions = await DB.getUpdates();
-        if (versions.isOk()) {
-            return versions.value[versions.value.length - 1];
-        }
-        return [-1, -1, -1];
-    }
-
-    /**
-     * Checks if the database is at least the version provided
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @param {Version} v
-     * @returns {Promise<boolean>}
-     */
-    static async hasVersion(v: Version): Promise<boolean> {
-        // checks if the database is at least the version provided
-        const [major, minor, patch] = v;
-        const [dbMajor, dbMinor, dbPatch] = await DB.getVersion();
-        return (
-            major < dbMajor ||
-            (major === dbMajor && minor < dbMinor) ||
-            (major === dbMajor && minor === dbMinor && patch <= dbPatch)
-        );
-    }
-
-    /**
-     * Initializes the database with the init.sql file
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @returns {Promise<Result<void>>}
-     */
-    static async init(): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            if (await DB.hasVersion([0, 0, 0])) {
-                console.log('Database already initialized');
-                return;
-            }
-
-            const initQuery = await readFile('storage/db/queries/db/init.sql');
-
-            if (initQuery.isOk()) {
-                const res = await DB.unsafe.run(initQuery.value);
-                if (res.isOk()) {
-                    console.log('Database initialized');
-                } else {
-                    console.log('Error initializing database', res.error);
-                    throw res.error;
-                }
-            } else {
-                console.log('Error reading init query', initQuery.error);
-                throw initQuery.error;
-            }
-        });
-    }
-
-    /**
-     * Retrieves all available updates for the database, including those that have already been run
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @returns {Promise<Result<Version[]>>}
-     */
-    static async getUpdates(): Promise<Result<Version[]>> {
-        return attemptAsync(async () => {
-            const versions = await readDir('storage/db/queries/db/versions');
-            if (versions.isOk()) {
-                return versions.value
-                    .map(v => {
-                        const [major, minor, patch] = v
-                            .replace('.sql', '')
-                            .split('-')
-                            .map(Number);
-                        return [major, minor, patch];
-                    })
-                    .sort((a, b) => {
-                        const [aM, am, ap] = a;
-                        const [bM, bm, bp] = b;
-
-                        if (aM !== bM) {
-                            return aM - bM;
-                        }
-                        if (am !== bm) {
-                            return am - bm;
-                        }
-                        return ap - bp;
-                    }) as Version[];
-            }
-            return [];
-        });
-    }
-
-    /**
-     * Runs a version update on the database
-     * If the version doesn't exist or there is an error, the database is restored from a backup
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @param {Version} version
-     * @returns {Promise<Result<boolean>>}
-     */
-    static async runUpdate(version: Version): Promise<Result<boolean>> {
-        return attemptAsync(async () => {
-            console.log('Updating database to version', version.join('.'));
-            const updateQuery = await readFile(
-                `storage/db/queries/db/versions/${version.join('-')}.sql`
-            );
-
-            if (updateQuery.isOk()) {
-                const b = await DB.makeBackup();
-                if (b.isErr()) throw b.error;
-
-                const res = await DB.unsafe.run(updateQuery.value);
-                if (res.isOk()) {
-                    console.log(
-                        'Database updated to version',
-                        version.join('.')
-                    );
-
-                    const script = `storage/db/scripts/versions/${version.join(
-                        '-'
-                    )}`;
-                    // see if update script exists
-                    const scriptExists = await exists(script);
-
-                    if (scriptExists) {
-                        console.log('Running update script', version.join('.'));
-                        const scriptRes = await runTask('run', [
-                            '--allow-all',
-                            script,
-                            '--update',
-                            version.join('.')
-                        ]);
-                        if (scriptRes.isErr()) {
-                            console.log(
-                                'Error running update script',
-                                version.join('.'),
-                                scriptRes.error
-                            );
-                            await DB.restoreBackup(b.value);
-                            throw scriptRes.error;
-                        }
-
-                        console.log('Update script ran successfully');
-                    }
-
-                    DB.setVersion(version);
-                    return true;
-                } else {
-                    console.log(
-                        'Error updating database to version',
-                        version,
-                        res.error
-                    );
-                    await DB.restoreBackup(b.value);
-                    throw res.error;
-                }
-            } else {
-                console.log('Error reading update query', updateQuery.error);
-                throw updateQuery.error;
-            }
-        });
-    }
-
-    /**
-     * Retrieves all backups available for the database
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @returns {Promise<Result<string[]>>}
-     */
-    static async getBackups(): Promise<Result<string[]>> {
-        return attemptAsync(async () => {
-            const backups = await readDir('storage/db/backups');
-            if (backups.isOk()) {
-                return backups.value.sort((a, b) => {
-                    const [, aDate] = a.split('_');
-                    const [, bDate] = b.split('_');
-                    return +aDate - +bDate;
-                });
-            }
-            return [];
-        });
-    }
-
-    /**
-     * Creates a full backup of the database
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @returns {Promise<Result<string>>}
-     */
-    static async makeBackup(): Promise<Result<string>> {
-        return attemptAsync(async () => {
-            const [tables, version] = await Promise.all([
-                DB.getTables(),
-                DB.getVersion()
-            ]);
-
-            // if (['-1.-1.-1'].includes(version.join('.'))) {
-            //     throw new Error('Database not initialized, no backup created');
-            // }
-
-            if (tables.isErr()) throw tables.error;
-            const backup: {
-                [table: string]: unknown[]; // table name: rows
-            } = {};
-
-            // pull all data from each table
-            await Promise.all(
-                tables.value.map(async table => {
-                    const data = await DB.unsafe.all(`SELECT * FROM ${table}`);
-                    if (data.isOk()) backup[table] = data.value;
-                    else throw data.error;
-                })
-            );
-
-            const copy = bigIntEncode(backup);
-            const str = JSON.stringify(copy, null, 2);
-            const name = `${version.join('-')}_${Date.now()}.json`;
-
-            const res = await saveFile('storage/db/backups/' + name, str);
-            if (res.isOk()) {
-                console.log('Backup created:', name);
-                return name;
-            } else {
-                console.log('Error creating backup', res.error);
-                throw res.error;
-            }
-        });
-    }
-
-    /**
-     * Resets the database to a blank state
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @returns {Promise<Result<string>>}
-     */
-    static async reset(): Promise<Result<string>> {
-        return attemptAsync(async () => {
-            let b = await DB.makeBackup();
-            if (b.isErr()) {
-                if (b.error.message.includes('not initialized')) {
-                    b = b.handle('0.0.0_0.json');
-                } else {
-                    throw b.error;
-                }
-            }
-
-            const tables = await DB.getTables();
-            if (tables.isErr()) throw tables.error;
-            const res = await Promise.all(
-                tables.value.map(table => DB.unsafe.run(`DROP TABLE ${table};`))
-            );
-
-            if (res.every(r => r.isOk())) {
-                console.log('Database reset');
-                return b.value;
-            } else {
-                console.log('Error(s) resetting database', res);
-                throw new Error('Error(s) resetting database');
-            }
-        });
-    }
-
-    /**
-     * Restores the database from a backup
-     * This will reset the database, update it to the version of the backup, then insert the data from the backup
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @param {string} backupName
-     * @returns {Promise<Result<void>>}
-     */
-    static async restoreBackup(backupName: string): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            const currentVersion = await DB.getVersion();
-            const backupRes = await DB.makeBackup();
-            if (backupRes.isErr()) throw backupRes.error;
-
-            const resetRes = await DB.reset();
-            if (resetRes.isErr()) {
-                console.log('Error resetting database', resetRes.error);
-                console.log(
-                    'Reinitializing database, and restoring its current version...'
-                );
-
-                const updateRes = await DB.updateToVersion(currentVersion);
-                if (updateRes.isErr()) throw updateRes.error;
-                const restoreRes = await this.restoreBackup(backupRes.value);
-                if (restoreRes.isErr()) throw restoreRes.error;
-                throw resetRes.error;
-            }
-
-            const version = backupName.split('_')[0].split('-').map(Number) as [
-                number,
-                number,
-                number
-            ];
-            const updateRes = await DB.updateToVersion(version);
-            if (updateRes.isErr()) throw updateRes.error;
-            console.log('Update successful');
-
-            const versionNow = await DB.getVersion();
-            console.log('Version after updates:', versionNow.join('.'));
-
-            const ts = await DB.getTables();
-            if (ts.isOk()) console.log('Tables after updates:', ts.value);
-
-            const file = await readFile(`storage/db/backups/${backupName}`);
-            if (file.isErr()) throw file.error;
-
-            const data = bigIntDecode(JSON.parse(file.value)) as {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                [table: string]: any[];
-            };
-
-            const tables = Object.keys(data);
-
-            console.log('Inserting...', tables);
-            const res = await Promise.all(
-                tables.map(async table => {
-                    const res = await attemptAsync(async () => {
-                        const rows = data[table];
-                        const cols = Object.keys(rows[0] || {});
-                        if (!cols.length) return; // no data to insert
-
-                        const colNames = cols.join(', ');
-                        const colVals = cols.map(c => `:${c}`).join(', ');
-
-                        return Promise.all(
-                            rows.map(async r => {
-                                const q = `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
-                                const res = await DB.unsafe.run(q, r);
-
-                                if (res.isErr()) {
-                                    console.error(
-                                        'Error inserting data into',
-                                        table,
-                                        res.error,
-                                        q,
-                                        r
-                                    );
-                                }
-
-                                return res;
-                            })
-                        );
-                    });
-
-                    if (res.isErr()) throw res.error;
-                    if (res.value?.some(r => r.isErr())) {
-                        console.error('Error inserting data');
-                        throw new Error('Error inserting data');
-                    }
-                    return res;
-                })
-            );
-
-            if (res.every(r => r.isOk())) {
-                console.log('Database restored');
-            } else {
-                // console.log('Error(s) restoring database', res);
-                throw new Error('Error(s) restoring database');
-            }
+            throw res.error;
         });
     }
 
@@ -778,14 +947,14 @@ export class DB {
     static async setIntervals() {
         const { BACKUP_INTERVAL, BACKUP_DAYS } = env;
         if (!BACKUP_INTERVAL || !BACKUP_DAYS) {
-            console.log(
+            log(
                 'BACKUP_INTERVAL or BACKUP_DAYS not set, skipping backup intervals'
             );
             return;
         }
         const now = Date.now();
 
-        console.log(
+        log(
             'Setting backup intervals to create every',
             BACKUP_INTERVAL,
             'hours, and delete after',
@@ -795,118 +964,51 @@ export class DB {
 
         // backup each day, delete after 30 days
         return attemptAsync(async () => {
-            const backups = await DB.getBackups();
+            const backups = await Backup.getBackups();
             if (backups.isErr()) throw new Error('Could not find backups');
 
-            console.log(
+            log(
                 'Setting backup intervals to delete every',
                 BACKUP_DAYS,
                 'days'
             );
 
-            const deleteAfter = (backup: string, days: number) => {
+            const setDelete = (backup: Backup, days: number) => {
                 daysTimeout(() => {
-                    console.log('Deleting backup:', backup);
-                    removeFile(`storage/db/backups/${backup}`);
+                    log('Deleting backup:', backup);
+                    removeFile(`storage/db/backups/${backup.serialize()}`);
                 }, days);
             };
 
             // creates a backup every BACKUP_INTERVAL hours
             setInterval(
                 async () => {
-                    console.log('Creating automated database backup...');
-                    const res = await DB.makeBackup();
+                    log('Creating automated database backup...');
+                    const res = await Backup.makeBackup();
                     if (res.isOk()) {
-                        deleteAfter(res.value, +BACKUP_DAYS);
+                        setDelete(res.value, +BACKUP_DAYS);
                     } else {
-                        console.log('Error creating backup', res.error);
+                        log('Error creating backup', res.error);
                     }
                 },
                 +BACKUP_INTERVAL * 60 * 60 * 1000
             );
 
             for (const b of backups.value) {
-                const [, time] = b.split('_');
-                const date = new Date(+time.split('.')[0]);
-                const deleteDate = new Date(+time.split('.')[0]).setDate(
+                const { date: time } = b;
+                const date = new Date(+time);
+                const deleteDate = new Date(+time).setDate(
                     date.getDate() + +BACKUP_DAYS
                 );
 
                 if (deleteDate < now) {
-                    console.log('Deleting backup:', b);
+                    log('Deleting backup:', b);
                     await removeFile(`storage/db/backups/${b}`);
                 } else {
-                    deleteAfter(b, +BACKUP_DAYS);
+                    setDelete(b, +BACKUP_DAYS);
                 }
             }
         });
-    }
-
-    /**
-     * Updates the database to a specific version
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @param {Version} version
-     * @returns {Promise<Result<void>>}
-     */
-    static async updateToVersion(version: Version): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            await DB.init();
-            const versions = await DB.getUpdates();
-            if (versions.isErr()) throw versions.error;
-
-            const [major, minor, patch] = version;
-
-            for (const v of versions.value) {
-                const [M, m, p] = v;
-                if (
-                    M < major ||
-                    (M === major && m < minor) ||
-                    (M === major && m === minor && p <= patch)
-                ) {
-                    const res = await DB.runUpdate(v);
-                    if (res.isErr()) throw res.error;
-                }
-            }
-        });
-    }
-    /**
-     * Runs all updates for the database
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @async
-     * @returns {*}
-     */
-    static async runAllUpdates() {
-        const res = await DB.init();
-        if (res.isErr()) {
-            console.log('Error initializing database', res.error);
-            return;
-        }
-        const versions = await DB.getUpdates();
-        if (versions.isOk()) {
-            for (const version of versions.value) {
-                if (await DB.hasVersion(version)) {
-                    console.log(
-                        'Database already has updated to or version',
-                        version.join('.')
-                    );
-                } else {
-                    const res = await DB.runUpdate(version);
-                    if (res.isErr()) {
-                        console.log(
-                            'There was an error updating the database, it may be corrupted. Please restore from backup, edit the update file, then try again.'
-                        );
-                        break;
-                    }
-                }
-            }
-        } else {
-            console.log('Error getting updates', versions.error);
-        }
     }
 
     /**
@@ -920,29 +1022,28 @@ export class DB {
     static async setClearBackups() {
         return attemptAsync(async () => {
             if (!env.BACKUP_DAYS) {
-                console.log('No backup days set, skipping backup clearing');
+                log('No backup days set, skipping backup clearing');
                 return;
             }
-            const backups = await DB.getBackups();
+            const backups = await Backup.getBackups();
             if (backups.isErr()) throw backups.error;
 
             for (const b of backups.value) {
-                let [, time] = b.split('_');
-                [time] = time.split('.');
+                const { date: time } = b;
 
-                const date = new Date(Number(time));
+                const date = new Date(+time);
                 const deleteDate = date.setDate(
                     date.getDate() + Number(env.BACKUP_DAYS)
                 );
 
                 if (deleteDate < Date.now()) {
-                    console.log('Deleting backup:', b);
+                    log('Deleting backup:', b);
                     await removeFile(`storage/db/backups/${b}`);
                 }
 
                 // delete after 30 days
                 sleepUntil(() => {
-                    console.log('Deleting backup:', b);
+                    log('Deleting backup:', b);
                     removeFile(`storage/db/backups/${b}`);
                 }, new Date(deleteDate));
             }
@@ -1010,17 +1111,6 @@ export class DB {
     }
 
     /**
-     * All currently running queries
-     * Currently not in use, but could be useful for ensuring that all queries are finished before disconnecting or exiting
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @static
-     * @type {Promise<unknown>[]}
-     */
-    static stack: Promise<unknown>[] = [];
-
-    // queries
-    /**
      * Prepares a static query
      * This will read the query from the file system and prepare it for running
      *
@@ -1043,7 +1133,7 @@ export class DB {
                 ),
                 'utf-8'
             );
-            const [parsedQuery, parsedArgs] = DB.parseQuery(sql, args);
+            const [parsedQuery, parsedArgs] = DB.parseQueryVariables(sql, args);
             return [parsedQuery, parsedArgs] as [string, Parameter[]];
         });
     }
@@ -1068,7 +1158,7 @@ export class DB {
         await DB.connect();
         const run = () =>
             attemptAsync(async () => {
-                const q = DB.parseQuery(query, args);
+                const q = DB.parseQueryVariables(query, args);
                 const [sql, newArgs] = q;
 
                 const result = await DB.db.query(sql, newArgs as unknown[]);
@@ -1147,7 +1237,7 @@ export class DB {
         ...args: Parameter[]
     ): Promise<Result<QueryResult<T>>> {
         return attemptAsync(async () => {
-            const [q, p] = DB.parseQuery(query, args);
+            const [q, p] = DB.parseQueryVariables(query, args);
 
             const result = await DB.runQuery(q, p);
 
@@ -1157,22 +1247,6 @@ export class DB {
 
             return result.value as QueryResult<T>;
         });
-    }
-
-    /**
-     * Disconnects from the database
-     * @date 3/8/2024 - 5:37:17 AM
-     *
-     * @public
-     * @static
-     * @async
-     * @returns {unknown}
-     */
-    public static async disconnect() {
-        await Promise.all(DB.stack); // wait for all queries to end
-        DB.stack = [];
-        log('Closing database...');
-        return DB.db.end();
     }
 
     /**
@@ -1192,7 +1266,7 @@ export class DB {
         return attemptAsync(async () => {
             const q = await DB.pipeSafe(type, ...args);
             if (q.isErr()) {
-                console.error(q.error);
+                error(q.error);
                 throw q.error;
             }
             return q.value.rows?.[0] as Queries[T][1];
@@ -1216,7 +1290,7 @@ export class DB {
         return attemptAsync(async () => {
             const q = await DB.pipeSafe(type, ...args);
             if (q.isErr()) {
-                console.error(q.error);
+                error(q.error);
                 throw q.error;
             }
             return q.value.rows[0];
@@ -1240,7 +1314,7 @@ export class DB {
         return attemptAsync(async () => {
             const q = await DB.pipeSafe(type, ...args);
             if (q.isErr()) {
-                console.error(q.error);
+                error(q.error);
                 throw q.error;
             }
             return q.value.rows;
@@ -1265,7 +1339,7 @@ export class DB {
                 return attemptAsync(async () => {
                     const r = await DB.pipeUnsafe(query, ...args);
                     if (r.isErr()) {
-                        console.error(r.error);
+                        error(r.error);
                         throw r.error;
                     }
                 });
@@ -1277,7 +1351,7 @@ export class DB {
                 return attemptAsync(async () => {
                     const r = await DB.pipeUnsafe(query, ...args);
                     if (r.isErr()) {
-                        console.error(r.error);
+                        error(r.error);
                         throw r.error;
                     }
                     return r.value.rows[0] as type;
@@ -1290,7 +1364,7 @@ export class DB {
                 return attemptAsync(async () => {
                     const r = await DB.pipeUnsafe(query, ...args);
                     if (r.isErr()) {
-                        console.error(r.error);
+                        error(r.error);
                         throw r.error;
                     }
                     return r.value.rows as type[];
@@ -1308,7 +1382,81 @@ export class DB {
  */
 export const run = () => {
     return attemptAsync(async () => {
-        await DB.runAllUpdates();
+        (await Version.init()).unwrap();
+
+        const [branch, commit, version] = await Promise.all([
+            gitBranch(),
+            gitCommit(),
+            Version.current()
+        ]);
+
+        const b = branch.unwrap();
+        const c = commit.unwrap();
+
+        let v: Version;
+        if (version.isErr()) {
+            // there is likely an issue with gitBranch and gitCommit
+            DB.unsafe.run(
+                `
+                UPDATE Version
+                SET gitBranch = :branch, gitCommit = :commit;
+            `,
+                {
+                    branch: b,
+                    commit: c
+                }
+            );
+
+            v = (await Version.current()).unwrap();
+        } else v = version.value;
+
+        const setBranch = async () =>
+            (
+                await Version.set(
+                    new Version({
+                        ...v,
+                        gitBranch: b,
+                        gitCommit: c
+                    })
+                )
+            ).unwrap();
+
+        if (v.gitBranch !== '' && b !== v.gitBranch) {
+            const confirmed =
+                process.argv.includes('branch-reset') ||
+                (await confirm(
+                    `Database branch does not match current branch
+Current git branch: ${b}
+Database git branch: ${v.gitBranch}
+Do you want to reset the database and update to the current branch?`
+                ));
+            if (confirmed) {
+                await Version.reset();
+                await Version.runAllUpdates();
+                await setBranch();
+
+                const backups = (await Backup.getBackups()).unwrap().reverse();
+                const [b] = backups;
+
+                if (b) {
+                    const confirmed = await confirm(
+                        `Do you want to restore the latest backup? ${b.serialize()}`
+                    );
+                    if (confirmed) await Backup.restoreBackup(b);
+                    await Version.runAllUpdates();
+                } else {
+                    throw new Error('Backups not found');
+                }
+            } else {
+                await Version.runAllUpdates();
+                await Backup.makeBackup();
+                await setBranch();
+            }
+        } else {
+            await Version.runAllUpdates();
+            await setBranch();
+        }
+
         await DB.setIntervals();
 
         DB.vacuum();
@@ -1318,12 +1466,12 @@ export const run = () => {
 
 DB.connect()
     .then(async () => {
-        console.log('Connected to the database');
-        await run();
+        log('Connected to the database');
+        (await run()).unwrap();
         DB.em.emit('connect');
 
         const close = async () => {
-            await Promise.all(DB.stack);
+            // await Promise.all(DB.stack);
             await DB.disconnect();
             process.exit(0);
         };
@@ -1332,6 +1480,6 @@ DB.connect()
         process.on('SIGTERM', close);
     })
     .catch(e => {
-        console.error('Error connecting to the database', e);
+        error('Error connecting to the database', e);
         process.exit(1);
     });

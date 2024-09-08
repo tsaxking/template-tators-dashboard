@@ -97,9 +97,8 @@ export class Account extends Cache<AccountEvents> {
                 Account.current = new Account(res.value);
                 Account.emit('current', Account.current);
                 return Account.current;
-            } else {
-                throw res.error;
             }
+            throw res.error;
         });
     }
 

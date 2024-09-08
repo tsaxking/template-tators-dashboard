@@ -23,9 +23,9 @@ export const saveEvent = async (eventKey: string) => {
             process.argv.includes('--force') &&
             process.argv.includes('--tba-task')
         ) {
-            DB.unsafe.run(`DELETE FROM Teams WHERE eventKey = ?`, eventKey);
-            DB.unsafe.run(`DELETE FROM Matches WHERE eventKey = ?`, eventKey);
-            DB.unsafe.run(`DELETE FROM Events WHERE eventKey = ?`, eventKey);
+            DB.unsafe.run('DELETE FROM Teams WHERE eventKey = ?', eventKey);
+            DB.unsafe.run('DELETE FROM Matches WHERE eventKey = ?', eventKey);
+            DB.unsafe.run('DELETE FROM Events WHERE eventKey = ?', eventKey);
             DB.run('events/new-event', {
                 eventKey,
                 flipX: 0,
@@ -80,7 +80,7 @@ export const saveMatches = async (eventKey: string) => {
                 process.argv.includes('--tba-task')
             ) {
                 DB.unsafe.run(
-                    `DELETE FROM matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?`,
+                    'DELETE FROM matches WHERE eventKey = ? AND matchNumber = ? AND compLevel = ?',
                     eventKey,
                     match.match_number,
                     match.comp_level
@@ -130,7 +130,7 @@ export const saveTeams = async (eventKey: string) => {
                 process.argv.includes('--tba-task')
             ) {
                 DB.unsafe.run(
-                    `DELETE FROM teams WHERE eventKey = ? AND number = ?`,
+                    'DELETE FROM teams WHERE eventKey = ? AND number = ?',
                     eventKey,
                     team.team_number
                 );

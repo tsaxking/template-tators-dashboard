@@ -1,4 +1,4 @@
-import { attemptAsync } from '../../shared/check';
+import { attemptAsync, Result } from '../../shared/check';
 import { spawn } from 'child_process';
 import path from 'path';
 import * as tsNode from 'ts-node';
@@ -64,4 +64,29 @@ export const runFile = async <T>(
         if (typeof func !== 'function') throw new Error('Function not found');
         return (await func(...params)) as T;
     });
+};
+
+export const exec = async (command: string) => {
+    return attemptAsync(
+        () =>
+            new Promise<string>((res, rej) => {
+                const [cmd, ...args] = command.split(' ');
+                const task = spawn(cmd, args, {
+                    cwd: __root,
+                    stdio: 'pipe'
+                });
+                let stdout = '';
+                let stderr = '';
+                task.stdout.on('data', data => {
+                    stdout += data.toString() + '\n';
+                });
+                task.stderr.on('data', data => {
+                    stderr += data.toString() + '\n';
+                });
+                task.on('close', code => {
+                    if (code === 0) res(stdout.trim());
+                    else rej(new Error(stderr.trim()));
+                });
+            })
+    );
 };
