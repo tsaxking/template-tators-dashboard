@@ -70,12 +70,11 @@ export class Board extends Drawable {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        const start = this.states.findLastIndex((s, i) => s.clear && i <= this.currentIndex);
-        const end = this.currentIndex;
-        const drawables = this.states.slice(
-            start,
-            end + 1,
+        const start = this.states.findLastIndex(
+            (s, i) => s.clear && i <= this.currentIndex
         );
+        const end = this.currentIndex;
+        const drawables = this.states.slice(start, end + 1);
         for (const d of drawables) {
             d.draw(ctx);
         }

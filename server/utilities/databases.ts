@@ -199,7 +199,7 @@ export class Version {
                     gitCommit: ''
                 });
             const v = res.value;
-            if (!v) return Version.zero;
+            if (!v) throw new Error('Database version not found');
             return new Version(v);
         });
     }
@@ -490,15 +490,17 @@ export class Version {
         if (this.major > v.major) {
             // log('this.major > v.major');
             return true;
-        }
-        // log('this.major <= v.major');
+        } 
+            // log('this.major <= v.major');
+        
 
         if (this.major === v.major) {
             if (this.minor > v.minor) {
                 // log('this.minor > v.minor');
                 return true;
-            }
-            // log('this.minor <= v.minor');
+            } 
+                // log('this.minor <= v.minor');
+            
 
             if (this.minor === v.minor) {
                 if (this.patch > v.patch) {
@@ -626,6 +628,10 @@ export class Backup extends Version {
                 const confirmed = await confirm(
                     'Are you sure you want to restore backup from a different branch?'
                 );
+                if (!confirmed)
+                    throw new Error(
+                        'Cannot restore backup from a different branch'
+                    );
                 if (!confirmed)
                     throw new Error(
                         'Cannot restore backup from a different branch'
