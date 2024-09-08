@@ -1,7 +1,7 @@
 import { Backup } from '../server/utilities/databases';
 
 const main = async () => {
-    const [,,backup] = process.argv;
+    const [, , backup] = process.argv;
 
     if (!backup) {
         console.error('No backup file provided');
@@ -13,7 +13,6 @@ const main = async () => {
     console.log('Database restored');
     process.exit(0);
 };
-
 
 if (require.main === module) {
     main().catch(console.error);
