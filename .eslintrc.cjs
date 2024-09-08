@@ -139,7 +139,7 @@ module.exports = {
         'svelte/no-svelte-internal': 'error',
         'svelte/no-unused-svelte-ignore': 'warn',
         'svelte/no-useless-mustaches': 'warn',
-        'svelte/prefer-destructured-store-props': 'error',
+        'svelte/prefer-destructured-store-props': 'warn',
         'svelte/require-each-key': 'warn', // should probably be error
         'svelte/require-event-dispatcher-types': 'warn', // I'll eventually want this to be an error
         'svelte/require-optimized-style-attribute': 'error',
@@ -150,7 +150,12 @@ module.exports = {
         'svelte/html-closing-bracket-spacing': 'warn',
         // 'svelte/html-quotes': 'warn' // commented out because the formatter automatically puts double quotes currently
         'svelte/html-self-closing': 'warn',
-        'svelte/indent': 'warn',
+        'svelte/indent': [
+            'warn',
+            {
+                indent: 4
+            }
+        ],
         'svelte/max-attributes-per-line': [
             'warn',
             {

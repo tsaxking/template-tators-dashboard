@@ -12,6 +12,7 @@
         "init": "ts-node ./scripts/init.ts",
         "dev": "concurrently --kill-others \"npm run start\" \"npm run build:watch\"",
         "backup": "ts-node ./scripts/backup-db.ts",
+        "restore": "ts-node ./scripts/restore-db.ts",
         "fix-gal-issue": "ts-node ./scripts/fix-gal-issue.ts"
     },
     "devDependencies": {

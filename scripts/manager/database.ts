@@ -203,7 +203,7 @@ export const reset = async () => {
                 'Error resetting database: ' + reset.error.message
             );
         }
-        return backToMain('Database reset and updated to latest version.');
+        return backToMain('Database reset.');
     }
     return backToMain('Reset cancelled');
 };
