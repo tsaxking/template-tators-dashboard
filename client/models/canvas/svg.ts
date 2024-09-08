@@ -55,7 +55,7 @@ export class SVG extends Drawable<SVG> {
         }
 
         if (this.properties.text.font) {
-            console.warn('You can\'t set the font of an SVG');
+            console.warn("You can't set the font of an SVG");
         }
 
         const center = this.reflect(this.center);

@@ -490,17 +490,15 @@ export class Version {
         if (this.major > v.major) {
             // log('this.major > v.major');
             return true;
-        } 
-            // log('this.major <= v.major');
-        
+        }
+        // log('this.major <= v.major');
 
         if (this.major === v.major) {
             if (this.minor > v.minor) {
                 // log('this.minor > v.minor');
                 return true;
-            } 
-                // log('this.minor <= v.minor');
-            
+            }
+            // log('this.minor <= v.minor');
 
             if (this.minor === v.minor) {
                 if (this.patch > v.patch) {
