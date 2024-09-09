@@ -42,7 +42,7 @@
             </tr>
         </thead>
         <tbody>
-            {#each Object.entries(auto) as [k, v]}
+            {#each Object.entries(auto) as [k, v] (k)}
                 <tr>
                     <td>{k}</td>
                     <td>{v}</td>

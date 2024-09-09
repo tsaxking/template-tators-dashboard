@@ -16,7 +16,7 @@
     $: pullVideos(match);
 </script>
 
-{#each matchVideos as video}
+{#each matchVideos as video (video)}
     <div class="card p-0">
         <div class="card-header">
             <h5 class="card-title">Match Video {match?.number}</h5>

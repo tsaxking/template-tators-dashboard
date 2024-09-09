@@ -26,8 +26,7 @@
 
     let search = '';
 
-    const fns = {
-        parse: async (c: TeamComment[]) => {
+        const parse = async (c: TeamComment[]) => {
             const accounts = await Account.get(c.map(c => c.accountId));
 
             parsed = (
@@ -58,8 +57,8 @@
                             _c => _c.comment === c.comment && c.time === _c.time
                         ) === i
                 );
-        },
-        addComment: async () => {
+        }; const
+        addComment = async () => {
             if (!team) return alert('No team selected');
             const types = [
                 'General',
@@ -78,8 +77,8 @@
             if (comment === null) return;
 
             team.addComment(types[type], comment);
-        },
-        filterComments: (search: string, comments: C[]) => {
+        }; const
+        filterComments = (search: string, comments: C[]) => {
             if (search === '') return comments;
             const s = search.toLowerCase();
             const filtered = fuzzySearch(
@@ -87,17 +86,16 @@
                 comments.map(c => c.comment + ' ' + c.type + ' ' + c.account)
             );
             return comments.filter((_, i) => filtered.includes(i));
-        },
-        onSet(comments: C[]) {
+        }; const
+        onSet = (comments: C[]) => {
             jQuery(() => {
                 jQuery('[data-bs-toggle="tooltip"]').tooltip();
             });
-        }
-    };
+        };
 
-    $: filteredComments = fns.filterComments(search, parsed);
-    $: fns.onSet(filteredComments);
-    $: fns.parse(comments);
+    $: filteredComments = filterComments(search, parsed);
+    $: onSet(filteredComments);
+    $: parse(comments);
 </script>
 
 <div class="container">
@@ -115,7 +113,7 @@
             {#if canAdd}
                 <button
                     class="btn btn-primary w-100"
-                    on:click="{fns.addComment}"
+                    on:click="{addComment}"
                 >
                     <i class="material-icons">add</i>
                 </button>
