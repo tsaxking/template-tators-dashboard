@@ -33,9 +33,9 @@ export class Potato extends Cache {
                     lastAccessed: Date.now()
                 });
                 return p;
-            } else {
+            } 
                 return (await this.build(accountId)).unwrap();
-            }
+            
         });
     }
 

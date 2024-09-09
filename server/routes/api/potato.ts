@@ -19,6 +19,8 @@ router.post('/init', async (req, res) => {
 
     const p = (await Potato.fromAccount(a.id)).unwrap();
     res.json((await p.toObject()).unwrap());
+
+    req.io.emit('potato:new', p);
 });
 
 router.post('/leaderboard', async (req, res) => {
@@ -70,6 +72,8 @@ router.post<{
         });
 
         res.sendStatus('potato:updated');
+
+        req.io.emit('potato:update', p);
     }
 );
 
