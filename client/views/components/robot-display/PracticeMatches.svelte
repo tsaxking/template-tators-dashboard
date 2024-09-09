@@ -11,44 +11,42 @@
 
     let matches: MatchScouting[] = [];
 
-    const fns = {
-        set: async (team?: FIRSTTeam) => {
-            if (!team) return;
-            matches = [];
-            const res = preScouting
-                ? await team.getPreScouting()
-                : await team.getPracticeMatches();
+    const set = async (team?: FIRSTTeam) => {
+        if (!team) return;
+        matches = [];
+        const res = preScouting
+            ? await team.getPreScouting()
+            : await team.getPracticeMatches();
 
-            if (res.isErr()) return console.error(res.error);
+        if (res.isErr()) return console.error(res.error);
 
-            matches = res.value;
-        },
-        viewMatch: async (match: MatchScouting) => {
-            if (!team) return alert('No team selected');
-            const modal = new Modal();
-            modal.setTitle(`Practice Match ${match.matchNumber} Details`);
-            modal.size = 'lg';
+        matches = res.value;
+    }; 
+    const viewMatch = async (match: MatchScouting) => {
+        if (!team) return alert('No team selected');
+        const modal = new Modal();
+        modal.setTitle(`Practice Match ${match.matchNumber} Details`);
+        modal.size = 'lg';
 
-            const viewer = new MatchViewer({
-                target: modal.target.querySelector('.modal-body') as HTMLElement,
-                props: {
-                    team,
-                    match
-                }
-            });
+        const viewer = new MatchViewer({
+            target: modal.target.querySelector('.modal-body') as HTMLElement,
+            props: {
+                team,
+                match
+            }
+        });
 
-            modal.show();
+        modal.show();
 
-            modal.on('hide', () => {
-                modal.destroy();
-                viewer.$destroy();
-            });
-        }
+        modal.on('hide', () => {
+            modal.destroy();
+            viewer.$destroy();
+        });
     };
 
-    $: fns.set(team);
+    $: set(team);
 
-    onMount(() => fns.set(team));
+    onMount(() => set(team));
 </script>
 
 <div class="container-fluid">
@@ -68,10 +66,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {#each matches as match}
+                    {#each matches as match (match.id)}
                         <tr
                             class="cursor-pointer"
-                            on:click="{() => fns.viewMatch(match)}"
+                            on:click="{() => viewMatch(match)}"
                         >
                             <td>{match.matchNumber}</td>
                             <td>{dateTime(match.time)}</td>
