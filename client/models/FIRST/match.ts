@@ -32,7 +32,7 @@ import { FIRSTWhiteboard } from './whiteboard';
  * @typedef {FIRSTMatchEventData}
  */
 type FIRSTMatchEventData = {
-    strategy: Strategy[];
+    'new-strategy': Strategy;
     'match-scouting': RetrievedMatchScouting;
 };
 

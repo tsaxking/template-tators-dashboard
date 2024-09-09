@@ -11,6 +11,7 @@ import { CompLevel } from '../../../shared/submodules/tatorscout-calculations/tb
 
 type CustomMatchEventData = {
     update: CustomMatch;
+    'new-strategy': Strategy;
 };
 
 type Updates = {
