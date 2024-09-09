@@ -1,5 +1,6 @@
-import { DB } from '../server/utilities/databases';
-(async () => {
-    const v = await DB.getVersion();
-    console.log('Database version:', v.join('.'));
-})();
+import { Version, DB } from '../server/utilities/databases';
+
+DB.em.on('connect', async () => {
+    const v = (await Version.current()).unwrap();
+    console.log('Database version:', v.serialize('.'));
+});

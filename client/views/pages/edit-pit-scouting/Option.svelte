@@ -1,8 +1,8 @@
 <script lang="ts">
-import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
 
-const d = createEventDispatcher();
-export let text: string = '';
+    const d = createEventDispatcher();
+    export let text: string = '';
 </script>
 
 <div class="card">
@@ -16,9 +16,9 @@ export let text: string = '';
             <div class="row mb-3">
                 <label for="text">Option Text</label>
                 <input
-                    type="text"
-                    class="form-control"
                     id="text"
+                    class="form-control"
+                    type="text"
                     bind:value="{text}"
                     on:change="{() => d('update', { text })}"
                 />

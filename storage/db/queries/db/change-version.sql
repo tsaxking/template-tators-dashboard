@@ -1,9 +1,13 @@
 INSERT INTO Version (
     major,
     minor,
-    patch
+    patch,
+    gitBranch,
+    gitCommit
 ) VALUES (
     :major,
     :minor,
-    :patch
+    :patch,
+    :gitBranch,
+    :gitCommit
 );

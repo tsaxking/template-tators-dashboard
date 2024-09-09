@@ -1,100 +1,100 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { Account } from '../../models/account';
-import type { Role as R } from '../../../shared/db-types';
-import type { Permission as P } from '../../../shared/permissions';
-import { confirm, select } from '../../utilities/notifications';
-import { Role } from '../../models/roles';
-import RoleBadge from '../components/accounts/RoleBadge.svelte';
+    import { onMount } from 'svelte';
+    import { Account } from '../../models/account';
+    import type { Permission as P } from '../../../shared/permissions';
+    import { confirm, select } from '../../utilities/notifications';
+    import { Role } from '../../models/roles';
+    import RoleBadge from '../components/accounts/RoleBadge.svelte';
+    import { prompt } from '../../utilities/notifications';
 
-let accounts: Account[] = [];
+    let accounts: Account[] = [];
 
-let accountObjs: {
-    id: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    verified: 0 | 1;
-    created: number;
-    phoneNumber: string;
-    picture?: string;
-    roles: Role[];
-    permissions: P[];
-}[] = [];
+    let accountObjs: {
+        id: string;
+        username: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        verified: 0 | 1;
+        created: number;
+        phoneNumber: string;
+        picture?: string;
+        roles: Role[];
+        permissions: P[];
+    }[] = [];
 
-const setAccounts = async (newAccounts: Account[]) => {
-    accountObjs = (
-        await Promise.all(
-            newAccounts.map(async a => {
-                const [roles, permissions] = await Promise.all([
-                    a.getRoles(true).then(r => {
-                        if (r.isOk()) {
-                            return r.value;
-                        } else {
+    const setAccounts = async (newAccounts: Account[]) => {
+        accountObjs = (
+            await Promise.all(
+                newAccounts.map(async a => {
+                    const [roles, permissions] = await Promise.all([
+                        a.getRoles(true).then(r => {
+                            if (r.isOk()) {
+                                return r.value;
+                            }
                             // console.error('Failed to get roles: ', r.error);
                             return [];
-                        }
-                    }),
-                    a.getPermissions(true).then(p => {
-                        if (p.isOk()) {
-                            return p.value;
-                        } else {
+                        }),
+                        a.getPermissions(true).then(p => {
+                            if (p.isOk()) {
+                                return p.value;
+                            }
                             // console.error('Failed to get permissions: ', p.error);
                             return [];
-                        }
-                    })
-                ]);
+                        })
+                    ]);
 
-                return {
-                    id: a.id,
-                    username: a.username,
-                    firstName: a.firstName,
-                    lastName: a.lastName,
-                    email: a.email,
-                    verified: a.verified,
-                    created: a.created,
-                    phoneNumber: a.phoneNumber,
-                    picture: a.picture,
-                    roles,
-                    permissions: permissions.map(p => p.permission) as P[]
-                };
-            })
-        )
-    ).filter(a => a.username !== 'guest');
-};
+                    return {
+                        id: a.id,
+                        username: a.username,
+                        firstName: a.firstName,
+                        lastName: a.lastName,
+                        email: a.email,
+                        verified: a.verified,
+                        created: a.created,
+                        phoneNumber: a.phoneNumber,
+                        picture: a.picture,
+                        roles,
+                        permissions: permissions.map(p => p.permission) as P[]
+                    };
+                })
+            )
+        ).filter(a => a.username !== 'guest');
+    };
 
-const set = async () => {
-    const res = await Account.all();
+    let div: HTMLDivElement;
 
-    if (res.isOk()) {
-        accounts = res.value;
-    } else {
-        console.error('Failed to get accounts: ', res.error);
-    }
+    const set = async () => {
+        const res = await Account.all();
 
-    document
-        .querySelectorAll('.tooltip.bs-tooltip-auto')
-        .forEach(e => e.remove());
+        if (res.isOk()) {
+            accounts = res.value;
+        } else {
+            console.error('Failed to get accounts: ', res.error);
+        }
 
-    jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
+        document
+            .querySelectorAll('.tooltip.bs-tooltip-auto')
+            .forEach(e => e.remove());
+
+        jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
     // jQuery(div).dataTable();
-};
+    };
 
-let div: HTMLDivElement;
+    onMount(set);
 
-onMount(set);
+    $: setAccounts(accounts);
+    $: console.log(accountObjs);
 
-$: setAccounts(accounts);
-$: console.log(accountObjs);
-
-Account.on('new', set);
-Account.on('update', set);
-Account.on('delete', set);
+    Account.on('new', set);
+    Account.on('update', set);
+    Account.on('delete', set);
 </script>
 
 <div class="table-responsive">
-    <table class="table table-striped table-hover" bind:this="{div}">
+    <table
+        bind:this="{div}"
+        class="table table-striped table-hover">
         <thead>
             <tr>
                 <th scope="col">Name</th>
@@ -105,7 +105,7 @@ Account.on('delete', set);
             </tr>
         </thead>
         <tbody>
-            {#each accountObjs as account}
+            {#each accountObjs as account (account.id)}
                 <tr>
                     <td>
                         {account.firstName}
@@ -116,18 +116,18 @@ Account.on('delete', set);
                         {#if account.verified}
                             <span
                                 class="text-success cursor-help"
+                                data-placement="top"
                                 data-toggle="tooltip"
                                 title="Verified"
-                                data-placement="top"
                             >
                                 <i class="material-icons">verified</i>
                             </span>
                         {:else}
                             <span
                                 class="text-warning cursor-help"
+                                data-placement="top"
                                 data-toggle="tooltip"
                                 title="Not Verified"
-                                data-placement="top"
                             >
                                 <i class="material-icons">dangerous</i>
                             </span>
@@ -135,24 +135,24 @@ Account.on('delete', set);
                     </td>
                     <td>{account.email}</td>
                     <td>
-                        {#each account.roles as role}
+                        {#each account.roles as role (role.id)}
                             <RoleBadge
-                                {role}
                                 account="{accounts.find(
                                     a => a.id === account.id
                                 )}"
                                 deletable="{true}"
+                                {role}
                             />
                         {/each}
                     </td>
                     <td>
                         <div class="btn-group">
                             <button
-                                type="button"
                                 class="btn btn-primary"
+                                data-placement="top"
                                 data-toggle="tooltip"
                                 data-tooltip="Add Role"
-                                data-placement="top"
+                                type="button"
                                 on:click="{async () => {
                                     const res = await Role.all();
                                     if (res.isOk()) {
@@ -166,7 +166,7 @@ Account.on('delete', set);
                                                             !account.roles.some(
                                                                 ar =>
                                                                     ar.id ===
-                                                                    r.id
+                                                                        r.id
                                                             )
                                                     )
                                                     .map(r => r.name),
@@ -193,7 +193,7 @@ Account.on('delete', set);
                                                         const a = accounts.find(
                                                             a =>
                                                                 a.id ===
-                                                                account.id
+                                                                    account.id
                                                         );
                                                         a?.addRole(r.value);
                                                     } else {
@@ -229,11 +229,11 @@ Account.on('delete', set);
                             </button>
                             {#if account.verified}
                                 <button
-                                    type="button"
                                     class="btn btn-warning"
+                                    data-placement="top"
                                     data-toggle="tooltip"
                                     data-tooltip="Unverify Account"
-                                    data-placement="top"
+                                    type="button"
                                     on:click="{async () => {
                                         const res = await confirm(
                                             'Are you sure you want to unverify this account?'
@@ -250,11 +250,11 @@ Account.on('delete', set);
                                 </button>
                             {:else}
                                 <button
-                                    type="button"
                                     class="btn btn-success"
+                                    data-placement="top"
                                     data-toggle="tooltip"
                                     data-tooltip="Verify Account"
-                                    data-placement="top"
+                                    type="button"
                                     on:click="{async () => {
                                         const res = await confirm(
                                             'Are you sure you want to verify this account?'
@@ -271,11 +271,11 @@ Account.on('delete', set);
                                 </button>
                             {/if}
                             <button
-                                type="button"
                                 class="btn btn-danger"
+                                data-placement="top"
                                 data-toggle="tooltip"
                                 data-tooltip="Delete Account"
-                                data-placement="top"
+                                type="button"
                                 on:click="{async () => {
                                     const res = await confirm(
                                         'Are you sure you want to delete this account?'

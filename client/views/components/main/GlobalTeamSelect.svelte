@@ -1,15 +1,14 @@
 <script lang="ts">
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import { FIRSTEvent } from '../../../models/FIRST/event';
-import Select from '../bootstrap/Select.svelte';
+    import { FIRSTTeam } from '../../../models/FIRST/team';
+    import { FIRSTEvent } from '../../../models/FIRST/event';
+    import Select from '../bootstrap/Select.svelte';
 
-let options: string[] = [];
-let values: string[] = [];
-let value: string | undefined = FIRSTTeam.current?.number.toString();
-let event: FIRSTEvent | null = FIRSTEvent.current;
+    let options: string[] = [];
+    let values: string[] = [];
+    let value: string | undefined = FIRSTTeam.current?.number.toString();
+    let event: FIRSTEvent | undefined = FIRSTEvent.current;
 
-const fns = {
-    setOptions: async (event: FIRSTEvent | null) => {
+    const setOptions = async (event: FIRSTEvent | undefined) => {
         if (!event) {
             options = [];
             values = [];
@@ -24,8 +23,8 @@ const fns = {
             values = [];
             options = [];
         }
-    },
-    handleChange: async (e: any) => {
+    };
+    const handleChange = async (e: CustomEvent) => {
         const { detail: teamNumber } = e;
         const res = await FIRSTEvent.current?.getTeams();
         if (!res) return;
@@ -34,21 +33,24 @@ const fns = {
         const team = teams.find(t => t.number === +teamNumber);
         if (team) team.select();
         else console.error(`Team ${teamNumber} not found`);
+    };
+
+    FIRSTTeam.on('select', (team: FIRSTTeam | undefined) => {
+        if (!team) return (value = undefined);
+        value = team.number.toString();
+    });
+
+    $: {
+        setOptions(event);
     }
-};
 
-FIRSTTeam.on('select', (team: FIRSTTeam | undefined) => {
-    if (!team) return (value = undefined);
-    value = team.number.toString();
-});
-
-$: {
-    fns.setOptions(event);
-}
-
-FIRSTEvent.on('select', e => {
-    event = e;
-});
+    FIRSTEvent.on('select', e => {
+        event = e;
+    });
 </script>
 
-<Select bind:options bind:value bind:values on:change="{fns.handleChange}" />
+<Select
+    bind:options
+    bind:value
+    bind:values
+    on:change="{handleChange}" />

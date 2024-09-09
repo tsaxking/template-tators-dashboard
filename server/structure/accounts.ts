@@ -181,7 +181,7 @@ export default class Account<
             });
             if (res.isOk()) {
                 if (res.value) return new Account<AccountCustomData>(res.value);
-                else return undefined;
+                return undefined;
             }
             return undefined;
         });
@@ -310,10 +310,9 @@ export default class Account<
                 )
             ) {
                 return next();
-            } else {
-                const s = Status.from('permissions:unauthorized', req);
-                return s.send(res);
             }
+            const s = Status.from('permissions:unauthorized', req);
+            return s.send(res);
         };
     }
 
@@ -332,9 +331,8 @@ export default class Account<
 
         if (!account) {
             return res.sendStatus('account:not-logged-in');
-        } else {
-            next();
         }
+        next();
     }
 
     /**
@@ -476,7 +474,7 @@ export default class Account<
             ':',
             ';',
             '"',
-            "'",
+            '\'',
             '<',
             '>',
             '?',

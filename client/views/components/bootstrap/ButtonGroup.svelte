@@ -1,12 +1,13 @@
 <script lang="ts">
-export let size: 'sm' | 'lg' = 'sm';
-export let vertical: boolean = false;
+    export let size: 'sm' | 'lg' = 'sm';
+    export let vertical: boolean = false;
 </script>
 
 <div
-    class="btn-group btn-group-{size} {vertical ? 'btn-group-vertical' : ''}"
-    role="group"
+    class="btn-group btn-group-{size}"
+    class:btn-group-vertical="{vertical}"
     aria-label="Basic example"
+    role="group"
 >
     <slot />
 </div>

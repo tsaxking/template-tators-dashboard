@@ -1,35 +1,35 @@
 <script lang="ts">
-import Password from '../components/Password.svelte';
-import { ServerRequest } from '../../utilities/requests';
+    import Password from '../components/Password.svelte';
+    import { ServerRequest } from '../../utilities/requests';
 
-export let title: string = 'My App';
+    export let title: string = 'My App';
 
-const submit = () => {
-    if (i.value) return;
-    ServerRequest.post('/account/reset-password', {
-        password,
-        confirmPassword,
-        key: window.location.pathname.split('/').pop()
-    });
-};
+    const submit = () => {
+        if (i.value) return;
+        ServerRequest.post('/account/reset-password', {
+            password,
+            confirmPassword,
+            key: window.location.pathname.split('/').pop()
+        });
+    };
 
-const isPasswordValid = (password: string): string[] => {
-    const output = [];
-    if (password.length < 8) output.push('8 characters long');
-    if (!password.match(/[a-z]/)) output.push('1 lowercase letter');
-    if (!password.match(/[A-Z]/)) output.push('1 uppercase letter');
-    if (!password.match(/[0-9]/)) output.push('1 number');
-    if (!password.match(/[^a-zA-Z\d]/)) output.push('1 special character');
-    return output;
-};
+    const isPasswordValid = (password: string): string[] => {
+        const output = [];
+        if (password.length < 8) output.push('8 characters long');
+        if (!password.match(/[a-z]/)) output.push('1 lowercase letter');
+        if (!password.match(/[A-Z]/)) output.push('1 uppercase letter');
+        if (!password.match(/[0-9]/)) output.push('1 number');
+        if (!password.match(/[^a-zA-Z\d]/)) output.push('1 special character');
+        return output;
+    };
 
-let valid = false;
-let password = '';
-let confirmPassword = '';
-let i: HTMLInputElement;
+    let valid = false;
+    let password = '';
+    let confirmPassword = '';
+    let i: HTMLInputElement;
 
-$: valid =
-    isPasswordValid(password).length === 0 && password === confirmPassword;
+    $: valid =
+        isPasswordValid(password).length === 0 && password === confirmPassword;
 </script>
 
 <div class="container pt-5">
@@ -42,21 +42,23 @@ $: valid =
             </div>
 
             <div class="row mb-3">
-                <a href="/account/sign-in" class="link-primary nav-link"
-                    >Sign In</a
+                <a
+                    class="link-primary nav-link"
+                    href="/account/sign-in"
+                >Sign In</a
                 >
             </div>
             <form on:submit|preventDefault="{submit}">
                 <Password
-                    bind:value="{password}"
-                    placeholder="Password"
                     label="Password"
+                    placeholder="Password"
+                    bind:value="{password}"
                 />
                 {#if isPasswordValid(password).length > 0}
                     <small class="text-danger">
                         Password must have the following properties:
                         <ul>
-                            {#each isPasswordValid(password) as property}
+                            {#each isPasswordValid(password) as property (property)}
                                 <li>{property}</li>
                             {/each}
                         </ul>
@@ -66,9 +68,9 @@ $: valid =
                 {/if}
 
                 <Password
-                    bind:value="{confirmPassword}"
-                    placeholder="Confirm Password"
                     label="Confirm Password"
+                    placeholder="Confirm Password"
+                    bind:value="{confirmPassword}"
                 />
                 {#if password.length > 0}
                     {#if password !== confirmPassword}
@@ -83,19 +85,19 @@ $: valid =
                 <hr />
 
                 <input
-                    type="submit"
                     class="btn btn-primary"
                     disabled="{!valid}"
+                    type="submit"
                     value="Submit"
                     on:click|preventDefault="{submit}"
                 />
 
                 <input
-                    type="text"
-                    name="confirm-email"
-                    id="email"
-                    class="d-none"
                     bind:this="{i}"
+                    id="email"
+                    name="confirm-email"
+                    class="d-none"
+                    type="text"
                 />
             </form>
         </div>

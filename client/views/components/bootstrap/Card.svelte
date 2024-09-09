@@ -1,14 +1,14 @@
 <script lang="ts">
-import Button from './Button.svelte';
+    import Button from './Button.svelte';
 
-export let picture: string | undefined = undefined;
-export let title: string;
-export let footer: boolean = false;
-export let classes: string = '';
+    export let picture: string | undefined = undefined;
+    export let title: string;
+    export let footer: boolean = false;
+    export let classes: string = '';
 
-export let hidable: boolean = false;
+    export let hidable: boolean = false;
 
-export let hidden: boolean = false;
+    export let hidden: boolean = false;
 </script>
 
 <div class="card {classes}">
@@ -38,7 +38,10 @@ export let hidden: boolean = false;
         </div>
     </div>
     {#if picture && !hidden}
-        <img src="{picture}" class="card-img-top" alt="..." />
+        <img
+            class="card-img-top"
+            alt="..."
+            src="{picture}" />
     {/if}
     {#if !hidden}
         <div class="card-body">

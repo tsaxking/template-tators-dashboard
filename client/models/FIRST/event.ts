@@ -53,7 +53,14 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
     public static emit = FIRSTEvent.emitter.emit.bind(FIRSTEvent.emitter);
     public static once = FIRSTEvent.emitter.once.bind(FIRSTEvent.emitter);
 
-    public static current: FIRSTEvent | null = null;
+    public static current: FIRSTEvent | undefined = undefined;
+
+    public static retrieve(event: TBAEvent) {
+        if (FIRSTEvent.cache.has(event.key)) {
+            return FIRSTEvent.cache.get(event.key) as FIRSTEvent;
+        }
+        return new FIRSTEvent(event);
+    }
 
     /**
      * Map of all FIRSTEvent objects
@@ -262,7 +269,7 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
                         ...(() => {
                             if (t.cache.has('pictures'))
                                 return t.cache.get('pictures') as TeamPicture[];
-                            else return [];
+                            return [];
                         })(),
                         p
                     ].filter(
@@ -278,7 +285,8 @@ export class FIRSTEvent extends Cache<FIRSTEventData> {
         const teams = await this.getTeams();
         if (teams.isOk()) {
             return teams.value.find(t => t.tba.team_number === teamNumber);
-        } else return undefined;
+        }
+        return undefined;
     }
 
     /**

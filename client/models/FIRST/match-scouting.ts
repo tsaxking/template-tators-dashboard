@@ -60,7 +60,7 @@ export class MatchScouting extends Cache<MatchScoutingEvents> {
             if (cached) return cached;
 
             const res = await ServerRequest.post<MatchScoutingObj | undefined>(
-                `/api/match-scouting/from-id`,
+                '/api/match-scouting/from-id',
                 {
                     id
                 }

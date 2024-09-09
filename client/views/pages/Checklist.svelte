@@ -1,41 +1,57 @@
 <script lang="ts">
-import MatchScouting from '../components/checklist/MatchScouting.svelte';
-import TeamChecklist from '../components/checklist/TeamChecklist.svelte';
-import { FIRSTTeam } from '../../models/FIRST/team';
-import { FIRSTEvent } from '../../models/FIRST/event';
+    import MatchScouting from '../components/checklist/MatchScouting.svelte';
+    import TeamChecklist from '../components/checklist/TeamChecklist.svelte';
+    import { FIRSTTeam } from '../../models/FIRST/team';
+    import { FIRSTEvent } from '../../models/FIRST/event';
+    import { onMount } from 'svelte';
 
-let teams: {
-    team: FIRSTTeam;
-    pit: string[];
-    pictures: boolean;
-}[] = [];
+    export let loading: boolean;
 
-let matchScouting: {
-    teams: {
-        team: number;
-        scouted: boolean;
-    }[];
-    number: number;
-    compLevel: string;
-}[] = [];
+    let teams: {
+        team: FIRSTTeam;
+        pit: string[];
+        pictures: boolean;
+    }[] = [];
 
-FIRSTEvent.on('select', async e => {
-    const [statusRes, teamsRes] = await Promise.all([
-        e.getStatus(),
-        e.getTeams()
-    ]);
-    if (statusRes.isErr()) return console.error(statusRes.error);
-    if (teamsRes.isErr()) return console.error(teamsRes.error);
+    let matchScouting: {
+        teams: {
+            team: number;
+            scouted: boolean;
+        }[];
+        number: number;
+        compLevel: string;
+    }[] = [];
 
-    const { pictures, questions } = statusRes.value;
-    const teamsInfo = teamsRes.value;
+    const select = async (e?: FIRSTEvent) => {
+        if (!e) return (loading = false);
+        const [statusRes, teamsRes] = await Promise.all([
+            e.getStatus(),
+            e.getTeams()
+        ]);
+        if (statusRes.isErr()) return console.error(statusRes.error);
+        if (teamsRes.isErr()) return console.error(teamsRes.error);
 
-    teams = teamsInfo.map(t => ({
-        team: t,
-        pit: questions.find(q => q.team === t.number)?.questions || [],
-        pictures: pictures.find(p => p === t.number) ? true : false
-    }));
-});
+        const { pictures, questions } = statusRes.value;
+        const teamsInfo = teamsRes.value;
+
+        teams = teamsInfo.map(t => ({
+            team: t,
+            pit: questions.find(q => q.team === t.number)?.questions || [],
+            pictures: pictures.find(p => p === t.number) ? true : false
+        }));
+        loading = false;
+    };
+
+    FIRSTEvent.on('select', select);
+
+    onMount(() => {
+        select(FIRSTEvent.current);
+        return () => {
+            teams = [];
+            matchScouting = [];
+            loading = true;
+        };
+    });
 </script>
 
 <TeamChecklist {teams} />

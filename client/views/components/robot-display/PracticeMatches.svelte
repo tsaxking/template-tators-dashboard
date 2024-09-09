@@ -1,54 +1,54 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import { MatchScouting } from '../../../models/FIRST/match-scouting';
-import { dateTime } from '../../../../shared/clock';
-import { Modal } from '../../../utilities/modals';
-import MatchViewer from './MatchViewer.svelte';
+    import { onMount } from 'svelte';
+    import { FIRSTTeam } from '../../../models/FIRST/team';
+    import { MatchScouting } from '../../../models/FIRST/match-scouting';
+    import { dateTime } from '../../../../shared/clock';
+    import { Modal } from '../../../utilities/modals';
+    import MatchViewer from './MatchViewer.svelte';
 
-export let team: FIRSTTeam | undefined = undefined;
-export let preScouting: boolean = false;
+    export let team: FIRSTTeam | undefined = undefined;
+    export let preScouting: boolean = false;
 
-let matches: MatchScouting[] = [];
+    let matches: MatchScouting[] = [];
 
-const fns = {
-    set: async (team?: FIRSTTeam) => {
-        if (!team) return;
-        matches = [];
-        const res = preScouting
-            ? await team.getPreScouting()
-            : await team.getPracticeMatches();
+    const fns = {
+        set: async (team?: FIRSTTeam) => {
+            if (!team) return;
+            matches = [];
+            const res = preScouting
+                ? await team.getPreScouting()
+                : await team.getPracticeMatches();
 
-        if (res.isErr()) return console.error(res.error);
+            if (res.isErr()) return console.error(res.error);
 
-        matches = res.value;
-    },
-    viewMatch: async (match: MatchScouting) => {
-        if (!team) return alert('No team selected');
-        const modal = new Modal();
-        modal.setTitle(`Practice Match ${match.matchNumber} Details`);
-        modal.size = 'lg';
+            matches = res.value;
+        },
+        viewMatch: async (match: MatchScouting) => {
+            if (!team) return alert('No team selected');
+            const modal = new Modal();
+            modal.setTitle(`Practice Match ${match.matchNumber} Details`);
+            modal.size = 'lg';
 
-        const viewer = new MatchViewer({
-            target: modal.target.querySelector('.modal-body') as HTMLElement,
-            props: {
-                team,
-                match
-            }
-        });
+            const viewer = new MatchViewer({
+                target: modal.target.querySelector('.modal-body') as HTMLElement,
+                props: {
+                    team,
+                    match
+                }
+            });
 
-        modal.show();
+            modal.show();
 
-        modal.on('hide', () => {
-            modal.destroy();
-            viewer.$destroy();
-        });
-    }
-};
+            modal.on('hide', () => {
+                modal.destroy();
+                viewer.$destroy();
+            });
+        }
+    };
 
-$: fns.set(team);
+    $: fns.set(team);
 
-onMount(() => fns.set(team));
+    onMount(() => fns.set(team));
 </script>
 
 <div class="container-fluid">

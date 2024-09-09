@@ -1,29 +1,29 @@
 <script lang="ts">
-import { Bar } from 'svelte-chartjs';
-import { FIRSTEvent } from '../../models/FIRST/event';
-import { FIRSTTeam } from '../../models/FIRST/team';
-import { Color } from '../../submodules/colors/color';
-import { onMount } from 'svelte';
+    import { Bar } from 'svelte-chartjs';
+    import { FIRSTEvent } from '../../models/FIRST/event';
+    import { FIRSTTeam } from '../../models/FIRST/team';
+    import { Color } from '../../submodules/colors/color';
+    import { onMount } from 'svelte';
 
-const colors = Array.from({ length: 10 }, () =>
-    Color.random().toString('rgba')
-);
+    const colors = Array.from({ length: 10 }, () =>
+        Color.random().toString('rgba')
+    );
 
-export let event: FIRSTEvent;
+    export let event: FIRSTEvent;
+    export let loading: boolean;
 
-let data: {
-    title: string;
-    labels: string[];
-    data: {
-        [key: number]: number[];
-    };
-}[] = [];
+    let data: {
+        title: string;
+        labels: string[];
+        data: {
+            [key: number]: number[];
+        };
+    }[] = [];
 
-let filteredTeams: number[] = [];
-let teams: FIRSTTeam[] = [];
+    let filteredTeams: number[] = [];
+    let teams: FIRSTTeam[] = [];
 
-const fns = {
-    pullData: async (e?: FIRSTEvent) => {
+    const pullData = async (e?: FIRSTEvent) => {
         if (!e) return;
         const [eventSummary, teamsRes] = await Promise.all([
             e.getEventSummary(),
@@ -34,21 +34,22 @@ const fns = {
         data = eventSummary.value;
         teams = teamsRes.value;
         filteredTeams = teams.map(t => t.number);
-    }
-};
-
-onMount(() => {
-    fns.pullData(event);
-    return () => {
-        data = [];
-        teams = [];
-        filteredTeams = [];
+        loading = false;
     };
-});
 
-FIRSTEvent.on('select', (e: FIRSTEvent) => {
-    fns.pullData(e);
-});
+    onMount(() => {
+        pullData(event);
+        return () => {
+            data = [];
+            teams = [];
+            filteredTeams = [];
+            loading = true;
+        };
+    });
+
+    FIRSTEvent.on('select', (e: FIRSTEvent) => {
+        pullData(e);
+    });
 </script>
 
 <div class="container-fluid">
@@ -60,10 +61,12 @@ FIRSTEvent.on('select', (e: FIRSTEvent) => {
                     <input
                         class="form-check"
                         type="checkbox"
-                        bind:group="{filteredTeams}"
                         value="{team.number}"
+                        bind:group="{filteredTeams}"
                     />
-                    <label class="form-check" for="flexCheckDefault">
+                    <label
+                        class="form-check"
+                        for="flexCheckDefault">
                         {team.number}
                     </label>
                 </div>

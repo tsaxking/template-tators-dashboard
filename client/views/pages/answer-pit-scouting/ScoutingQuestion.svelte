@@ -1,66 +1,70 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { Question } from '../../../models/FIRST/question-scouting/question';
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import { FIRSTEvent } from '../../../models/FIRST/event';
-import { Answer } from '../../../models/FIRST/question-scouting/answer';
-import { dateTime } from '../../../../shared/clock';
-// import { createEventDispatcher } from 'svelte';
+    import { onMount } from 'svelte';
+    import { Question } from '../../../models/FIRST/question-scouting/question';
+    import { FIRSTTeam } from '../../../models/FIRST/team';
+    import { FIRSTEvent } from '../../../models/FIRST/event';
+    import { Answer } from '../../../models/FIRST/question-scouting/answer';
+    import { dateTime } from '../../../../shared/clock';
+    // import { createEventDispatcher } from 'svelte';
 
-export let question: Question;
-export let value: string[] = [];
-export let team: FIRSTTeam | undefined = undefined;
-let answer: Answer | undefined = undefined;
+    export let question: Question;
+    export let value: string[] = [];
+    export let team: FIRSTTeam | undefined = undefined;
+    let answer: Answer | undefined = undefined;
 
-let changed = true,
-    disabled = false,
-    me: HTMLDivElement;
+    let changed = true,
+        disabled = false,
+        me: HTMLDivElement;
 
-// TODO: Restructure all of these functions to make more sense
+    // TODO: Restructure all of these functions to make more sense
 
-const fns = {
-    // submits the answer to the server
-    saveValue: async () => {
-        if (!team) return;
-        const result = await question.saveAnswer(team, value);
-        if (result.isOk()) changed = false;
-    },
-    // sets the changed variable to true
-    change: () => {
-        changed = true;
-    },
-    // gets the value of the question, if it exists
-    getValue: async (team: FIRSTTeam | undefined, question: Question) => {
-        if (!team) return;
-        const answer = await question.getAnswer(team, team.event);
-        if (answer.isOk()) {
-            if (answer.value) {
-                value = answer.value.answer;
-                changed = false;
-            } else {
-                value = [];
-                changed = true;
+    const fns = {
+        // submits the answer to the server
+        saveValue: async () => {
+            if (!team) return;
+            const result = await question.saveAnswer(team, value);
+            if (result.isOk()) changed = false;
+        },
+        // sets the changed variable to true
+        change: () => {
+            changed = true;
+        },
+        // gets the value of the question, if it exists
+        getValue: async (team: FIRSTTeam | undefined, question: Question) => {
+            if (!team) return;
+            const answer = await question.getAnswer(team, team.event);
+            if (answer.isOk()) {
+                if (answer.value) {
+                    value = answer.value.answer;
+                    changed = false;
+                } else {
+                    value = [];
+                    changed = true;
+                }
             }
+        },
+        // sets the disabled variable to true if the team is undefined
+        setDisable: (team: FIRSTTeam | undefined) => {
+            disabled = !team;
         }
-    },
-    // sets the disabled variable to true if the team is undefined
-    setDisable: (team: FIRSTTeam | undefined) => {
-        disabled = !team;
-    }
-};
+    };
 
-FIRSTTeam.on('select', t => {
-    team = t;
-});
+    FIRSTTeam.on('select', t => {
+        team = t;
+    });
 
-$: fns.getValue(team, question);
-$: fns.setDisable(team);
+    $: fns.getValue(team, question);
+    $: fns.setDisable(team);
 
 // const dispatch = createEventDispatcher();
 </script>
 
-<div class="mb-3" bind:this="{me}">
-    <label for="q-{question.id}" class="mb-3">
+<div
+    bind:this="{me}"
+    class="mb-3">
+    <label
+        class="mb-3"
+        for="q-{question.id}">
         {question.question}
     </label>
 
@@ -69,49 +73,51 @@ $: fns.setDisable(team);
             <div class="col-lg-11 col-md-10 col-sm-9 col-8">
                 {#if question.type === 'text'}
                     <input
-                        type="text"
                         id="q-{question.id}"
                         class="form-control"
+                        {disabled}
+                        type="text"
+                        value="{value[0] || ''}"
                         on:change="{event => {
                             value = [event.currentTarget.value];
                             fns.saveValue();
                         }}"
-                        {disabled}
                         on:input="{fns.change}"
-                        value="{value[0] || ''}"
                     />
                 {:else if question.type === 'textarea'}
                     <textarea
                         id="q-{question.id}"
                         class="form-control"
+                        {disabled}
+                        value="{value[0] || ''}"
                         on:change="{event => {
                             value = [event.currentTarget.value];
                             fns.saveValue();
                         }}"
-                        {disabled}
                         on:input="{fns.change}"
-                        value="{value[0] || ''}"
-                    ></textarea>
+                    />
                 {:else if question.type === 'number'}
                     <input
-                        type="number"
                         id="q-{question.id}"
                         class="form-control"
+                        {disabled}
+                        type="number"
+                        value="{value[0] || ''}"
                         on:change="{event => {
                             value = [event.currentTarget.value];
                             fns.saveValue();
                         }}"
-                        {disabled}
                         on:input="{fns.change}"
-                        value="{value[0] || ''}"
                     />
                 {:else if question.type === 'checkbox'}
                     {#each question.options.checkbox || [] as option, i}
                         <div class="form-check">
                             <input
-                                type="checkbox"
                                 id="q-{question.id}-{i}"
                                 class="form-check-input"
+                                checked="{value.includes(option)}"
+                                {disabled}
+                                type="checkbox"
                                 value="{option}"
                                 on:change="{event => {
                                     if (event.currentTarget.checked) {
@@ -121,13 +127,11 @@ $: fns.setDisable(team);
                                     }
                                     fns.saveValue();
                                 }}"
-                                {disabled}
                                 on:input="{fns.change}"
-                                checked="{value.includes(option)}"
                             />
                             <label
-                                for="q-{question.id}-{i}"
                                 class="form-check-label"
+                                for="q-{question.id}-{i}"
                             >
                                 {option}
                             </label>
@@ -137,24 +141,24 @@ $: fns.setDisable(team);
                     {#each question.options.radio || [] as option, i}
                         <div
                             class="form-check
-                            form-check-inline"
+                                form-check-inline"
                         >
                             <input
-                                type="radio"
                                 id="q-{question.id}-{i}"
                                 class="form-check-input"
+                                checked="{value[0] === option}"
+                                {disabled}
+                                type="radio"
                                 value="{option}"
                                 on:change="{event => {
                                     value = [option];
                                     fns.saveValue();
                                 }}"
-                                {disabled}
                                 on:input="{fns.change}"
-                                checked="{value[0] === option}"
                             />
                             <label
-                                for="q-{question.id}-{i}"
                                 class="form-check-label"
+                                for="q-{question.id}-{i}"
                             >
                                 {option}
                             </label>
@@ -164,13 +168,13 @@ $: fns.setDisable(team);
                     <select
                         id="q-{question.id}"
                         class="form-control"
+                        {disabled}
+                        value="{value[0] || ''}"
                         on:change="{event => {
                             value = [event.currentTarget.value];
                             fns.saveValue();
                         }}"
-                        {disabled}
                         on:input="{fns.change}"
-                        value="{value[0] || ''}"
                     >
                         {#each question.options.select || [] as option}
                             <option value="{option}">
@@ -182,50 +186,49 @@ $: fns.setDisable(team);
                     <!-- Radio buttons -->
                     <div class="form-check">
                         <input
-                            type="radio"
                             id="q-{question.id}-true"
                             class="form-check-input"
+                            checked="{value[0] === 'true'}"
+                            {disabled}
+                            type="radio"
                             value="true"
                             on:change="{event => {
                                 value = ['true'];
                                 fns.saveValue();
                             }}"
-                            {disabled}
                             on:input="{fns.change}"
-                            checked="{value[0] === 'true'}"
                         />
                         <label
-                            for="q-{question.id}-true"
                             class="form-check-label"
+                            for="q-{question.id}-true"
                         >
                             Yes
                         </label>
                     </div>
                     <div class="form-check">
                         <input
-                            type="radio"
                             id="q-{question.id}-false"
                             class="form-check-input"
+                            checked="{value[0] === 'false'}"
+                            {disabled}
+                            type="radio"
                             value="false"
                             on:change="{event => {
                                 value = ['false'];
                                 fns.saveValue();
                             }}"
-                            {disabled}
                             on:input="{fns.change}"
-                            checked="{value[0] === 'false'}"
                         />
                         <label
-                            for="q-{question.id}-false"
                             class="form-check-label"
+                            for="q-{question.id}-false"
                         >
                             No
                         </label>
                     </div>
                 {/if}
             </div>
-            <div
-                class="col-lg-1 col-md-2 col-sm-3 col-4 d-flex justify-content-between align-items-center"
+            <div class="col-lg-1 col-md-2 col-sm-3 col-4 d-flex justify-content-between align-items-center"
             >
                 {#if disabled}
                     <i

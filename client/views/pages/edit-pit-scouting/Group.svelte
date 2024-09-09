@@ -1,81 +1,81 @@
 <script lang="ts">
-import { Group } from '../../../models/FIRST/question-scouting/group';
-import { Question } from '../../../models/FIRST/question-scouting/question';
-import Q from './Question.svelte';
-import { alert, confirm } from '../../../utilities/notifications';
+    import { Group } from '../../../models/FIRST/question-scouting/group';
+    import { Question } from '../../../models/FIRST/question-scouting/question';
+    import Q from './Question.svelte';
+    import { alert, confirm } from '../../../utilities/notifications';
 
-export let group: Group | undefined = undefined;
-export let index: number;
+    export let group: Group | undefined = undefined;
+    export let index: number;
 
-let questions: Question[] = [];
+    let questions: Question[] = [];
 
-const fns = {
-    update: (name: string) => {
-        if (!group) return;
-        group.name = name;
-        group.update();
-    },
-    addQuestion: async () => {
-        if (!group) return alert('Cannot add question to undefined group');
-        const res = await group.addQuestion({
-            question: 'New Question',
-            type: 'text',
-            key: 'key-' + Math.random().toString(36).substring(2, 15),
-            options: {},
-            description: ''
-        });
+    const fns = {
+        update: (name: string) => {
+            if (!group) return;
+            group.name = name;
+            group.update();
+        },
+        addQuestion: async () => {
+            if (!group) return alert('Cannot add question to undefined group');
+            const res = await group.addQuestion({
+                question: 'New Question',
+                type: 'text',
+                key: 'key-' + Math.random().toString(36).substring(2, 15),
+                options: {},
+                description: ''
+            });
 
-        if (res.isOk()) {
-            questions = [...questions, res.value];
+            if (res.isOk()) {
+                questions = [...questions, res.value];
+            }
+        },
+        getQuestions: async (g: Group | undefined) => {
+            if (!g) return;
+            const res = await g.getQuestions();
+            if (res.isOk()) {
+                questions = res.value;
+            } else {
+                console.error(res.error);
+            }
+
+            console.log(questions);
+
+            const update = () => {
+                group = g;
+                g.off('new-question', update);
+                g.off('delete-question', update);
+                g.off('update', update);
+            };
+
+            g.on('new-question', update);
+            g.on('delete-question', update);
+            g.on('update', update);
+        },
+        delete: async () => {
+            if (!group) return;
+
+            const doDelete = await confirm(
+                'Are you sure you want to delete this group?'
+            );
+            if (doDelete) group.delete();
         }
-    },
-    getQuestions: async (g: Group | undefined) => {
-        if (!g) return;
-        const res = await g.getQuestions();
-        if (res.isOk()) {
-            questions = res.value;
-        } else {
-            console.error(res.error);
-        }
+    };
 
-        console.log(questions);
+    Question.on('delete', () => {
+        fns.getQuestions(group);
+    });
 
-        const update = () => {
-            group = g;
-            g.off('new-question', update);
-            g.off('delete-question', update);
-            g.off('update', update);
-        };
+    Question.on('new', () => {
+        fns.getQuestions(group);
+    });
 
-        g.on('new-question', update);
-        g.on('delete-question', update);
-        g.on('update', update);
-    },
-    delete: async () => {
-        if (!group) return;
+    Question.on('update', () => {
+        fns.getQuestions(group);
+    });
 
-        const doDelete = await confirm(
-            'Are you sure you want to delete this group?'
-        );
-        if (doDelete) group.delete();
+    $: {
+        fns.getQuestions(group);
     }
-};
-
-Question.on('delete', () => {
-    fns.getQuestions(group);
-});
-
-Question.on('new', () => {
-    fns.getQuestions(group);
-});
-
-Question.on('update', () => {
-    fns.getQuestions(group);
-});
-
-$: {
-    fns.getQuestions(group);
-}
 </script>
 
 {#if group}
@@ -85,10 +85,10 @@ $: {
                 <div class="d-flex justify-content-between">
                     <div class="form-floating">
                         <input
-                            type="text"
-                            name="name"
                             id="name-{group.id}"
+                            name="name"
                             class="form-control"
+                            type="text"
                             value="{group.name}"
                             on:change="{e => fns.update(e.currentTarget.value)}"
                         />
@@ -113,7 +113,9 @@ $: {
             </div>
         </div>
         <div class="card-footer">
-            <button class="btn btn-outline-light" on:click="{fns.addQuestion}">
+            <button
+                class="btn btn-outline-light"
+                on:click="{fns.addQuestion}">
                 <i class="material-icons">add</i> Question
             </button>
         </div>
