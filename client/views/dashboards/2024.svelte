@@ -112,8 +112,9 @@
     <Page
         {active}
         {domain}
+        loading={false}
         title="event-summary"
-        bind:loading>
+    >
         {#if currentEvent}
             <EventSummary
                 event="{currentEvent}"
@@ -124,48 +125,49 @@
         {active}
         {domain}
         title="matches"
-        bind:loading>
+        loading={false}>
         <MatchSchedule bind:loading />
     </Page>
     <Page
         {active}
         {domain}
         title="robot-display"
-        bind:loading>
+        loading={false}>
         <RobotDisplay bind:loading />
     </Page>
     <Page
         {active}
         {domain}
         title="answer-scouting-questions"
-        bind:loading>
+        loading={false}>
         <AnswerPitScouting bind:loading />
     </Page>
     <Page
         {active}
         {domain}
         title="scouting-checklist"
-        bind:loading>
+        loading={false}>
         <Checklist bind:loading />
     </Page>
     <Page
         {active}
         {domain}
         title="quiz"
-        bind:loading>
+        loading={false}>
         <Quiz bind:loading />
     </Page>
     <Page
         {active}
         {domain}
         title="strategy"
-        bind:loading>
+        loading={false}>
         <Strategy bind:loading />
     </Page>
     <Page
         {active}
         {domain}
-        title="leaderboard">
+        title="leaderboard"
+        loading={false}>
         <Leaderboard bind:loading />
     </Page>
 </Main>
