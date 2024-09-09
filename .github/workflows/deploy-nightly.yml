@@ -13,34 +13,15 @@ jobs:
           submodules: 'true'
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Configure SSH
-        run:
-          mkdir -p ~/.ssh
-          echo "${{ secrets.KEY }}" > ~/.ssh/staging.key
-          chmod 600 ~/.ssh/staging.key
-          cat >>~/.ssh/config <<END
-          Host staging
-            HostName ${{ secrets.HOST }}
-            User ${{ secrets.USERNAME }}
-            IdentityFile ~/.ssh/staging.key
-            StrictHostKeyChecking no
-          END
-
-      - name: Deploy to Development Environment
-        run: |
-          ssh staging "sh gh-actions/tatorscout/nightly.sh"
-
-
-      # - name: pull latest from deploy branch
-        # uses: appleboy/ssh-action@v1.0.3
-        # env:
-        #   PROJECT: /root/tators-dashboard
-
-        # with:
-        #   host: ${{ secrets.HOST }}
-        #   username: ${{ secrets.USERNAME }}
-        #   key: ${{ secrets.KEY }}
-        #   port: ${{ secrets.PORT }}
-        #   envs: PROJECT
-        #   script: |
-        #     sh gh-actions/tatorscout/nightly.sh
+      - name: pull latest from deploy branch
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          PROJECT: /root/tators-dashboard
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          envs: PROJECT
+          script: |
+            sh gh-actions/tatorscout/nightly.sh
