@@ -1,7 +1,7 @@
 import { backToMain, main, selectFile } from '../manager';
 import { __root } from '../../server/utilities/env';
 import { addQuery, merge, parseSql } from '../parse-sql';
-import { DB } from '../../server/utilities/databases';
+import { DB, Version, Backup } from '../../server/utilities/databases';
 import { confirm, repeatPrompt, search, select } from '../prompt';
 import { readDir, readFile, saveFileSync } from '../../server/utilities/files';
 import cliSelect from 'cli-select';
@@ -16,32 +16,54 @@ export const buildQueries = async () => {
 };
 
 export const versionInfo = async () => {
-    const [current, latest] = await Promise.all([
-        DB.getVersion(),
-        DB.latestVersion()
+    const [currentRes, latestRes] = await Promise.all([
+        Version.current(),
+        Version.latest()
     ]);
 
-    await select(`Current: ${current.join('.')}\nLatest: ${latest.join('.')}`, [
-        '[Back]'
-    ]);
+    if (currentRes.isErr()) {
+        return backToMain('Error getting current version: ' + currentRes.error);
+    }
+
+    if (latestRes.isErr()) {
+        return backToMain('Error getting latest version: ' + latestRes.error);
+    }
+
+    const current = currentRes.value;
+    const latest = latestRes.value;
+
+    await select(
+        `Current: ${current.serialize('.')}\nLatest: ${latest?.serialize('.')}`,
+        ['[Back]']
+    );
     return main();
 };
 
 export const newVersion = async () => {
-    const minor = repeatPrompt(
+    const minor = await repeatPrompt(
         'Minor version (1.x.0)',
         undefined,
         d => !isNaN(+d),
         false
     );
-    const patch = repeatPrompt(
+    const patch = await repeatPrompt(
         `Patch version (1.${minor}.x)`,
         undefined,
         d => !isNaN(+d),
         false
     );
 
-    if (await DB.hasVersion([1, +minor, +patch])) {
+    if (
+        await Version.hasVersion(
+            new Version({
+                major: 1,
+                minor: +minor,
+                patch: +patch,
+                gitBranch: '',
+                gitCommit: ''
+            })
+        )
+    ) {
         return backToMain('Version already exists');
     }
 
@@ -95,12 +117,10 @@ export const viewTables = async () => {
                 exit: true
             });
             return main();
-        } else {
-            return backToMain('Error getting data: ' + data.error.message);
         }
-    } else {
-        backToMain('Error getting tables: ' + tables.error.message);
+        return backToMain('Error getting data: ' + data.error.message);
     }
+    backToMain('Error getting tables: ' + tables.error.message);
 };
 
 export const mergeQueries = async () => {
@@ -172,25 +192,24 @@ export const reset = async () => {
     );
 
     if (doReset) {
-        const backup = await DB.makeBackup();
+        const backup = await Backup.makeBackup();
         if (backup.isErr()) {
             return backToMain('Error making backup: ' + backup.error.message);
         }
 
-        const reset = await DB.reset();
+        const reset = await Version.reset();
         if (reset.isErr()) {
             return backToMain(
                 'Error resetting database: ' + reset.error.message
             );
         }
-        return backToMain('Database reset and updated to latest version.');
-    } else {
-        return backToMain('Reset cancelled');
+        return backToMain('Database reset.');
     }
+    return backToMain('Reset cancelled');
 };
 
 export const runUpdates = async () => {
-    await DB.runAllUpdates();
+    await Version.runAllUpdates();
     return backToMain('Ran all available updates');
 };
 
@@ -226,8 +245,12 @@ export const restoreBackup = async () => {
         return backToMain('Error reading backups: ' + backups.error);
     }
 
+    const latest = await Backup.latest();
+    let latestBackup = '';
+    if (latest.isOk()) latestBackup = latest.value?.serialize() || '';
+
     const backup = await search(
-        'Search for a backup to restore',
+        `Search for a backup to restore (${latestBackup})`,
         backups.value.map(b => ({
             name: b,
             value: b
@@ -241,18 +264,25 @@ export const restoreBackup = async () => {
         return backToMain('Error selecting backup: ' + backup.error);
     }
 
-    const res = await DB.restoreBackup(backup.value);
+    const b = Backup.from(backup.value);
+    if (b.isErr()) {
+        return backToMain('Error parsing backup: ' + b.error.message);
+    }
+
+    const res = await Backup.restoreBackup(b.value);
+    console.log({ res });
     if (res.isOk()) {
         backToMain('Backup restored');
     } else {
-        backToMain('Error restoring backup: ' + res.error.message);
+        // console.error(res.error);
+        backToMain('Error restoring backup: ' + res.error);
     }
 };
 
 export const backup = async () => {
-    const res = await DB.makeBackup();
+    const res = await Backup.makeBackup();
     if (res.isOk()) {
-        backToMain(`Backup created: ${res.value}`);
+        backToMain(`Backup created: ${res.value.serialize()}`);
     } else {
         backToMain('Error creating backup: ' + res.error.message);
     }

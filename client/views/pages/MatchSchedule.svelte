@@ -1,19 +1,20 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { dateTime } from '../../../shared/clock';
-import { FIRSTEvent } from '../../models/FIRST/event';
-import { FIRSTMatch } from '../../models/FIRST/match';
+    import { onMount } from 'svelte';
+    import { dateTime } from '../../../shared/clock';
+    import { FIRSTEvent } from '../../models/FIRST/event';
+    import { FIRSTMatch } from '../../models/FIRST/match';
 
-let matchScouting: {
-    teams: {
-        team: number;
-        scouted: boolean;
-    }[];
-    match?: FIRSTMatch;
-}[] = [];
+    export let loading: boolean;
 
-onMount(() => {
-    const fn = async (e: FIRSTEvent) => {
+    let matchScouting: {
+        teams: {
+            team: number;
+            scouted: boolean;
+        }[];
+        match?: FIRSTMatch;
+    }[] = [];
+
+    const init = async (e: FIRSTEvent) => {
         const [statusRes, matchesRes] = await Promise.all([
             e.getStatus(),
             e.getMatches()
@@ -29,9 +30,7 @@ onMount(() => {
             await Promise.all(
                 matchesRes.value.map(async m => {
                     const match = matches.find(
-                        _m =>
-                            _m.match === m.number &&
-                            _m.compLevel === m.compLevel
+                        _m => _m.match === m.number && _m.compLevel === m.compLevel
                     );
                     if (!match) {
                         return {
@@ -60,25 +59,28 @@ onMount(() => {
             if (!a.match || !b.match) return 0;
             if (a.match.compLevel === b.match.compLevel) {
                 return a.match.number - b.match.number;
-            } else {
-                return (
-                    levels.indexOf(a.match.compLevel) -
-                    levels.indexOf(b.match.compLevel)
-                );
             }
+            return (
+                levels.indexOf(a.match.compLevel) -
+                levels.indexOf(b.match.compLevel)
+            );
         });
+
+        loading = false;
     };
 
-    FIRSTEvent.on('select', fn);
+    onMount(() => {
+        FIRSTEvent.on('select', init);
 
-    if (FIRSTEvent.current) {
-        fn(FIRSTEvent.current);
-    }
+        if (FIRSTEvent.current) {
+            init(FIRSTEvent.current);
+        }
 
-    return () => {
-        FIRSTEvent.off('select', fn);
-    };
-});
+        return () => {
+            FIRSTEvent.off('select', init);
+            loading = true;
+        };
+    });
 </script>
 
 <div class="table-responsive">
@@ -103,9 +105,9 @@ onMount(() => {
                     <td>{match.match?.number}</td>
                     <td>{match.match?.compLevel}</td>
                     <td
-                        >{dateTime(
-                            Number(match.match?.tba.predicted_time) * 1000
-                        )}</td
+                    >{dateTime(
+                        Number(match.match?.tba.predicted_time) * 1000
+                    )}</td
                     >
                     {#each match.teams as team, i}
                         {#if i > 2}
@@ -134,10 +136,10 @@ onMount(() => {
                         <a
                             href="https://www.thebluealliance.com/match/{match
                                 .match?.tba.key}"
-                            target="_blank"
                             rel="noopener noreferrer"
+                            target="_blank"
                         >
-                            <i class="bi bi-box-arrow-up-right"></i>
+                            <i class="bi bi-box-arrow-up-right" />
                         </a>
                     </td>
                 </tr>

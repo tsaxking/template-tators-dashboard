@@ -1,33 +1,33 @@
 <script lang="ts">
-import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
 
-export let type: 'text' | 'textarea' | 'select' = 'text';
-export let placeholder: string = '';
-export let label: string;
-export let value: any;
+    export let type: 'text' | 'textarea' | 'select' = 'text';
+    export let placeholder: string = '';
+    export let label: string;
+    export let value: string;
 
-const id =
-    'input-' +
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15);
+    const id =
+        'input-' +
+            Math.random().toString(36).substring(2, 15) +
+            Math.random().toString(36).substring(2, 15);
 
-const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher();
 </script>
 
 <div class="form-floating">
     {#if type === 'textarea'}
         <textarea
-            class="form-control"
             {id}
+            class="form-control"
             {placeholder}
             bind:value
             on:input="{() => dispatch('input', value)}"
             on:change="{() => dispatch('change', value)}"
-        ></textarea>
+        />
     {:else if type === 'text'}
         <input
-            class="form-control"
             {id}
+            class="form-control"
             {placeholder}
             bind:value
             on:input="{() => dispatch('input', value)}"
@@ -35,8 +35,8 @@ const dispatch = createEventDispatcher();
         />
     {:else if type === 'select'}
         <select
-            class="form-select"
             {id}
+            class="form-select"
             bind:value
             on:input="{() => dispatch('input', value)}"
             on:change="{() => dispatch('change', value)}"

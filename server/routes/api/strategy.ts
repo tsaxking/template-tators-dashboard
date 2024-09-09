@@ -1,25 +1,130 @@
-import { validate } from '../../middleware/data-type';
 import { Route } from '../../structure/app/app';
-import { DB } from '../../utilities/databases';
+import { validate } from '../../middleware/data-type';
+import { Strategy } from '../../structure/cache/strategy';
+import { CompLevel } from '../../../shared/db-types-extended';
 
 export const router = new Route();
 
 router.post<{
-    whiteboardId: string;
+    name: string;
+    matchId: string | undefined;
+    customMatchId: string | undefined;
 }>(
-    '/whiteboards',
+    '/new',
+    validate(
+        {
+            name: 'string',
+            matchId: v => typeof v === 'string' || v === undefined,
+            customMatchId: v => typeof v === 'string' || v === undefined
+        },
+        {
+            log: true
+        }
+    ),
+    async (req, res) => {
+        const { name, matchId, customMatchId } = req.body;
+
+        if (customMatchId && matchId) return res.sendStatus('strategy:invalid');
+
+        const { accountId } = req.session;
+        if (!accountId) return res.sendStatus('account:not-logged-in');
+
+        const s = (
+            await Strategy.new({
+                name,
+                time: Date.now(),
+                matchId,
+                customMatchId,
+                comment: '',
+                checks: JSON.stringify([]),
+                createdBy: accountId
+            })
+        ).unwrap();
+
+        res.sendStatus('strategy:new');
+
+        req.io.emit('strategy:new', s);
+    }
+);
+
+router.post<{
+    id: string;
+}>(
+    '/from-id',
     validate({
-        whiteboardId: 'string'
+        id: 'string'
     }),
     async (req, res) => {
-        const { whiteboardId } = req.body;
+        const { id } = req.body;
 
-        const whiteboards = await DB.all('whiteboards/from-id', {
-            id: whiteboardId
+        const s = (await Strategy.fromId(id)).unwrap();
+
+        if (!s) return res.sendStatus('strategy:not-found');
+
+        return res.json(s);
+    }
+);
+
+router.post<{
+    eventKey: string;
+    matchNumber: number;
+    compLevel: CompLevel;
+}>(
+    '/from-match',
+    validate({
+        eventKey: 'string',
+        matchNumber: 'number',
+        compLevel: 'string'
+    }),
+    async (req, res) => {
+        const { eventKey, matchNumber, compLevel } = req.body;
+
+        const s = (
+            await Strategy.fromMatch(eventKey, matchNumber, compLevel)
+        ).unwrap();
+
+        return res.json(s);
+    }
+);
+
+router.post<{
+    id: string;
+    name: string;
+    time: number;
+    matchId: string | undefined;
+    customMatchId: string | undefined;
+    comment: string;
+    checks: string[];
+}>(
+    '/update',
+    validate({
+        id: 'string',
+        name: 'string',
+        time: 'number',
+        matchId: v => typeof v === 'string' || v === undefined || v === null,
+        customMatchId: v =>
+            typeof v === 'string' || v === undefined || v === null,
+        comment: 'string',
+        checks: (v: unknown) =>
+            Array.isArray(v) && v.every(val => typeof val === 'string')
+    }),
+    async (req, res) => {
+        const { id, name, time, matchId, customMatchId, comment, checks } =
+            req.body;
+        const s = (await Strategy.fromId(id)).unwrap();
+        if (!s) return res.sendStatus('strategy:not-found');
+
+        await s.update({
+            name,
+            time,
+            matchId,
+            customMatchId,
+            comment,
+            checks: JSON.stringify(checks)
         });
 
-        if (whiteboards.isErr()) return res.sendStatus('unknown:error');
+        res.sendStatus('strategy:updated');
 
-        res.stream(whiteboards.value.map(s => JSON.stringify(s)));
+        req.io.emit('strategy:update', s);
     }
 );

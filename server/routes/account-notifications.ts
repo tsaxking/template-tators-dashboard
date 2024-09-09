@@ -5,13 +5,13 @@ import { AccountNotification } from '../structure/cache/account-notifications';
 export const router = new Route();
 
 router.post('/get', async (req, res) => {
-    const notifs = (await AccountNotification.random()).unwrap();
-    res.json(notifs);
-    // const a = (await req.session.getAccount()).unwrap();
-    // if (!a) return res.sendStatus('account:not-logged-in');
-
-    // const notifs = (await a.getNotifications()).unwrap();
+    // const notifs = (await AccountNotification.random()).unwrap();
     // res.json(notifs);
+    const a = (await req.session.getAccount()).unwrap();
+    if (!a) return res.sendStatus('account:not-logged-in');
+
+    const notifs = (await a.getNotifications()).unwrap();
+    res.json(notifs);
 });
 
 router.post<{ id: string; read: boolean }>(

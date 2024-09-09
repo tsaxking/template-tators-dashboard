@@ -71,9 +71,7 @@ export type StatusMessage = {
     redirect?: string;
 };
 
-export const messages: {
-    [key in StatusId]: StatusMessage;
-} = {
+export const messages: Record<string, StatusMessage> = {
     'account:already-logged-in': {
         message: 'You are already logged in.',
         color: 'danger',
@@ -361,6 +359,18 @@ export const messages: {
         message: 'Invalid key',
         color: 'danger',
         code: 400,
+        instructions: ''
+    },
+    'custom-match:created': {
+        message: 'Custom match created',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'custom-match:not-found': {
+        message: 'Custom match not found',
+        color: 'danger',
+        code: 404,
         instructions: ''
     },
     'discord:account-linked': {
@@ -834,7 +844,7 @@ export const messages: {
         instructions: ''
     },
     'server:not-implemented': {
-        message: "This request's handler has not been implemented yet.",
+        message: 'This request\'s handler has not been implemented yet.',
         color: 'warning',
         code: 501,
         instructions: ''
@@ -894,8 +904,26 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'strategy:invalid': {
+        message: 'Invalid Strategy',
+        color: 'danger',
+        code: 409,
+        instructions: ''
+    },
     'strategy:new': {
         message: 'Strategy submitted',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'strategy:not-found': {
+        message: 'Strategy not found',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'strategy:updated': {
+        message: 'Strategy updated',
         color: 'success',
         code: 200,
         instructions: ''
@@ -920,7 +948,7 @@ export const messages: {
         instructions: ''
     },
     'teams:pictures-uploaded': {
-        message: "Team's picture was uploaded successfully",
+        message: 'Team\'s picture was uploaded successfully',
         color: 'success',
         code: 200,
         instructions: ''
@@ -997,174 +1025,23 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: ''
+    },
+    'whiteboard:state-added': {
+        message: 'State added to whiteboard',
+        color: 'success',
+        code: 200,
+        instructions: ''
     }
 };
 
-export type StatusId =
-    | 'account-notification:deleted'
-    | 'account-notification:mark-read'
-    | 'account-notification:mark-unread'
-    | 'account-notification:not-found'
-    | 'account-notification:not-owner'
-    | 'account:already-logged-in'
-    | 'account:cannot-edit-other-account'
-    | 'account:cannot-edit-self'
-    | 'account:cannot-reject-verified'
-    | 'account:cannot-reset-guest'
-    | 'account:check-email'
-    | 'account:created'
-    | 'account:email-change-expired'
-    | 'account:email-taken'
-    | 'account:has-role'
-    | 'account:incorrect-username-or-password'
-    | 'account:insufficient-permissions'
-    | 'account:invalid-email'
-    | 'account:invalid-first-name'
-    | 'account:invalid-last-name'
-    | 'account:invalid-password'
-    | 'account:invalid-password-reset-key'
-    | 'account:invalid-settings'
-    | 'account:invalid-username'
-    | 'account:invalid-verification-key'
-    | 'account:logged-in'
-    | 'account:logged-out'
-    | 'account:no-role'
-    | 'account:not-found'
-    | 'account:not-logged-in'
-    | 'account:not-verified'
-    | 'account:password-mismatch'
-    | 'account:password-reset-request'
-    | 'account:password-reset-success'
-    | 'account:picture-updated'
-    | 'account:please-change-password'
-    | 'account:removed'
-    | 'account:role-added'
-    | 'account:role-removed'
-    | 'account:server-error'
-    | 'account:settings-set'
-    | 'account:unverified'
-    | 'account:updated'
-    | 'account:username-changed'
-    | 'account:username-taken'
-    | 'account:verified'
-    | 'admin:invalid-key'
-    | 'account-notification:deleted'
-    | 'account-notification:mark-read'
-    | 'account-notification:mark-unread'
-    | 'account-notification:not-found'
-    | 'account-notification:not-owner'
-    | 'admin:invalid-key'
-    | 'discord:account-linked'
-    | 'discord:invalid-link'
-    | 'discord:link-expired'
-    | 'event:invalid-key'
-    | 'event:update-properties'
-    | 'files:invalid'
-    | 'files:invalid-extension'
-    | 'files:no-files'
-    | 'files:too-large'
-    | 'files:too-many-files'
-    | 'files:unknown-error'
-    | 'files:uploaded'
-    | 'match-comments:delete'
-    | 'match-comments:new'
-    | 'match-scouting:delete'
-    | 'match-scouting:new'
-    | 'match:not-found'
-    | 'member:accepted'
-    | 'member:add-skill'
-    | 'member:already-member'
-    | 'member:cannot-manage'
-    | 'member:invalid-request'
-    | 'member:membership-responded'
-    | 'member:not-found'
-    | 'member:not-member'
-    | 'member:rejected'
-    | 'member:remove-skill'
-    | 'member:request-sent'
-    | 'member:revoked'
-    | 'member:status-updated'
-    | 'member:update-bio'
-    | 'member:update-resume'
-    | 'member:update-title'
-    | 'page:not-found'
-    | 'permissions:added'
-    | 'permissions:error'
-    | 'permissions:forbidden'
-    | 'permissions:invalid'
-    | 'permissions:not-found'
-    | 'permissions:removed'
-    | 'permissions:unauthorized'
-    | 'pit-scouting:delete'
-    | 'pit-scouting:new'
-    | 'potato:cannot-update-self'
-    | 'potato:not-allowed'
-    | 'potato:not-enough-chips'
-    | 'potato:updated'
-    | 'profanity:detected'
-    | 'role:not-found'
-    | 'roles:added'
-    | 'roles:added-permission'
-    | 'roles:already-exists'
-    | 'roles:cannot-edit-admin'
-    | 'roles:deleted'
-    | 'roles:invalid-role'
-    | 'roles:new'
-    | 'roles:not-found'
-    | 'roles:removed'
-    | 'roles:removed-permission'
-    | 'roles:updated'
-    | 'scouting-question:answer-deleted'
-    | 'scouting-question:answer-not-found'
-    | 'scouting-question:group-deleted'
-    | 'scouting-question:group-updated'
-    | 'scouting-question:new-answer'
-    | 'scouting-question:new-group'
-    | 'scouting-question:new-question'
-    | 'scouting-question:new-section'
-    | 'scouting-question:question-deleted'
-    | 'scouting-question:question-not-found'
-    | 'scouting-question:question-updated'
-    | 'scouting-question:questions-already-exist'
-    | 'scouting-question:questions-copied'
-    | 'scouting-question:section-deleted'
-    | 'scouting-question:update-answer'
-    | 'scouting-question:update-section'
-    | 'scouting-question:updated-answer'
-    | 'server:invalid-data'
-    | 'server:not-implemented'
-    | 'server:unknown-server-error'
-    | 'session:rate-limited'
-    | 'skills:added'
-    | 'skills:has-skill'
-    | 'skills:invalid-skill'
-    | 'skills:not-found'
-    | 'skills:removed'
-    | 'spam:detected'
-    | 'strategy:delete'
-    | 'strategy:new'
-    | 'tba:invalid-path'
-    | 'tba:not-updated'
-    | 'team-comment:new'
-    | 'teams:pictures-uploaded'
-    | 'test:fail'
-    | 'test:success'
-    | 'trace:year-not-supported'
-    | 'unknown:error'
-    | 'webhook:invalid-url'
-    | 'webhook:not-found'
-    | 'webhook:rate-limit'
-    | 'whiteboard:created'
-    | 'whiteboard:deleted'
-    | 'whiteboard:match-not-found'
-    | 'whiteboard:not-found'
-    | 'whiteboard:update';
+export type StatusId = keyof typeof messages;
 
 export type AccountStatusId =
     | 'already-logged-in'
     | 'cannot-edit-other-account'
     | 'cannot-edit-self'
     | 'cannot-reject-verified'
+    | 'cannot-reset-guest'
     | 'check-email'
     | 'created'
     | 'email-change-expired'
@@ -1200,10 +1077,18 @@ export type AccountStatusId =
     | 'updated'
     | 'username-changed'
     | 'username-taken'
-    | 'verified'
-    | 'cannot-reset-guest';
+    | 'verified';
+
+export type AccountNotificationStatusId =
+    | 'deleted'
+    | 'mark-read'
+    | 'mark-unread'
+    | 'not-found'
+    | 'not-owner';
 
 export type AdminStatusId = 'invalid-key';
+
+export type CustomMatchStatusId = 'created' | 'not-found';
 
 export type DiscordStatusId =
     | 'account-linked'
@@ -1315,7 +1200,12 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
-export type StrategyStatusId = 'delete' | 'new';
+export type StrategyStatusId =
+    | 'delete'
+    | 'new'
+    | 'not-found'
+    | 'updated'
+    | 'invalid';
 
 export type TbaStatusId = 'invalid-path' | 'not-updated';
 
@@ -1336,4 +1226,5 @@ export type WhiteboardStatusId =
     | 'deleted'
     | 'match-not-found'
     | 'not-found'
-    | 'update';
+    | 'update'
+    | 'state-added';

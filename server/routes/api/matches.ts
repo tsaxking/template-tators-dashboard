@@ -1,34 +1,9 @@
 import { validate } from '../../middleware/data-type';
 import { Route } from '../../structure/app/app';
+import { Match } from '../../structure/cache/matches';
 import { DB } from '../../utilities/databases';
 
 export const router = new Route();
-
-router.post<{
-    eventKey: string;
-    matchNumber: number;
-    compLevel: 'qm' | 'qf' | 'sf' | 'f';
-}>(
-    '/strategy',
-    validate({
-        eventKey: 'string',
-        matchNumber: 'number',
-        compLevel: ['qm', 'qf', 'sf', 'f']
-    }),
-    async (req, res) => {
-        const { eventKey, matchNumber, compLevel } = req.body;
-
-        const result = await DB.all('strategy/from-match', {
-            eventKey,
-            matchNumber,
-            compLevel
-        });
-
-        if (result.isErr()) return res.sendStatus('unknown:error');
-
-        res.json(result.value);
-    }
-);
 
 router.post<{
     eventKey: string;
@@ -40,13 +15,9 @@ router.post<{
     async (req, res) => {
         const { eventKey } = req.body;
 
-        const matchesRes = await DB.all('matches/from-event', {
-            eventKey
-        });
+        const matches = (await Match.fromEvent(eventKey)).unwrap();
 
-        if (matchesRes.isErr()) return res.sendStatus('unknown:error');
-
-        res.json(matchesRes.value);
+        res.json(matches);
     }
 );
 
@@ -64,13 +35,9 @@ router.post<{
     async (req, res) => {
         const { eventKey, matchNumber, compLevel } = req.body;
 
-        const matches = await DB.all('matches/from-event', {
-            eventKey
-        });
+        const matches = (await Match.fromEvent(eventKey)).unwrap();
 
-        if (matches.isErr()) return res.sendStatus('unknown:error');
-
-        const match = matches.value.find(
+        const match = matches.find(
             m => m.matchNumber === matchNumber && m.compLevel === compLevel
         );
 
@@ -79,3 +46,12 @@ router.post<{
         res.json(match);
     }
 );
+
+router.post<{
+    id: string;
+}>('/from-id', validate({ id: 'string' }), async (req, res) => {
+    const { id } = req.body;
+
+    const match = (await Match.fromId(id)).unwrap();
+    res.json(match);
+});

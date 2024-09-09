@@ -1,33 +1,35 @@
 <script lang="ts">
-import { Random } from '../../../shared/math';
-import { FIRSTEvent } from '../../models/FIRST/event';
-import { FIRSTTeam } from '../../models/FIRST/team';
-import { alert } from '../../utilities/notifications';
+    import { onMount } from 'svelte';
+    import { Random } from '../../../shared/math';
+    import { FIRSTEvent } from '../../models/FIRST/event';
+    import { FIRSTTeam } from '../../models/FIRST/team';
+    import { alert } from '../../utilities/notifications';
 
-// deal with this later
-let difficulty: 'easy' | 'medium' | 'hard' = 'easy';
+    export let loading: boolean;
 
-let numIncorrect = 0;
-let type: 'number' | 'name' = 'number';
+    // deal with this later
+    let difficulty: 'easy' | 'medium' | 'hard' = 'easy';
 
-let event: FIRSTEvent | undefined = undefined;
-let teams: FIRSTTeam[] = [];
-let isPlaying = false;
+    let numIncorrect = 0;
+    let type: 'number' | 'name' = 'number';
 
-const fns = {
-    getTeams: async (event: FIRSTEvent | undefined) => {
+    let event: FIRSTEvent | null = null;
+    let teams: FIRSTTeam[] = [];
+    let isPlaying = false;
+
+    const getTeams = async (event: FIRSTEvent | null) => {
         if (!event) return (teams = []);
 
         const res = await event.getTeams();
         if (res.isErr()) return console.error(res.error);
 
         teams = Random.shuffle(res.value);
-    },
-    play: () => {
+    };
+    const play = () => {
         isPlaying = true;
-        fns.chooseTeam();
-    },
-    chooseTeam: async () => {
+        chooseTeam();
+    };
+    const chooseTeam = async () => {
         const availableTeams = teams.filter(t => !chosen.includes(t));
 
         if (availableTeams.length === 0) {
@@ -40,7 +42,7 @@ const fns = {
 
             numIncorrect = 0;
             chosen = [];
-            fns.getTeams(event);
+            getTeams(event);
             currentTeam = undefined;
             return (isPlaying = false);
         }
@@ -50,8 +52,8 @@ const fns = {
         teams = availableTeams;
         type = Random.choose(['number', 'name']);
         currentTeam = Random.choose(teams);
-    },
-    next: async (success: boolean) => {
+    };
+    const next = async (success: boolean) => {
         if (!currentTeam) return;
         if (success) chosen.push(currentTeam);
 
@@ -59,24 +61,34 @@ const fns = {
             success
                 ? 'Correct!'
                 : 'Incorrect! The correct answer was ' +
-                      currentTeam.name +
-                      ' | ' +
-                      currentTeam.number
+                    currentTeam.name +
+                    ' | ' +
+                    currentTeam.number
         );
 
-        fns.chooseTeam();
-    }
-};
+        chooseTeam();
+    };
 
-$: fns.getTeams(event);
+    let chosen: FIRSTTeam[] = [];
+    let currentTeam: FIRSTTeam | undefined;
 
-let chosen: FIRSTTeam[] = [];
-let currentTeam: FIRSTTeam | undefined;
+    FIRSTEvent.on('select', getTeams);
 
-FIRSTEvent.on('select', e => (event = e));
+    let name: string | undefined;
+    let number: string | undefined;
 
-let name: string | undefined;
-let number: string | undefined;
+    onMount(() => {
+        if (FIRSTEvent.current) {
+            event = FIRSTEvent.current;
+            getTeams(event).then(() => {
+                loading = false;
+            });
+        }
+
+        return () => {
+            loading = true;
+        };
+    });
 </script>
 
 {#if isPlaying}
@@ -90,13 +102,16 @@ let number: string | undefined;
             <div class="row">
                 <div class="col">
                     <select
-                        name="teamNumber"
                         id="teamNumber"
+                        name="teamNumber"
                         class="form-control"
                         bind:value="{number}"
                     >
-                        <option value="default" disabled selected
-                            >Please select a value</option
+                        <option
+                            disabled
+                            selected
+                            value="default"
+                        >Please select a value</option
                         >
                         {#each teams.sort((a, b) => a.number - b.number) as team}
                             <option value="{team.number}">{team.number}</option>
@@ -107,7 +122,7 @@ let number: string | undefined;
                     <button
                         class="btn btn-success"
                         on:click="{e => {
-                            fns.next(Number(number) === currentTeam?.number);
+                            next(Number(number) === currentTeam?.number);
                         }}">Submit</button
                     >
                 </div>
@@ -123,13 +138,16 @@ let number: string | undefined;
             <div class="row">
                 <div class="col">
                     <select
-                        name="teamName"
                         id="teamName"
+                        name="teamName"
                         class="form-select"
                         bind:value="{name}"
                     >
-                        <option value="default" disabled selected
-                            >Please select a value</option
+                        <option
+                            disabled
+                            selected
+                            value="default"
+                        >Please select a value</option
                         >
                         {#each teams.sort( (a, b) => a.name.localeCompare(b.name) ) as team}
                             <option value="{team.name}">{team.name}</option>
@@ -140,7 +158,7 @@ let number: string | undefined;
                     <button
                         class="btn btn-success"
                         on:click="{e => {
-                            fns.next(name === currentTeam?.name);
+                            next(name === currentTeam?.name);
                         }}">Submit</button
                     >
                 </div>
@@ -154,8 +172,8 @@ let number: string | undefined;
                 <div class="d-flex justify-content-middle">
                     <button
                         class="btn btn-success"
-                        on:click="{fns.play}"
-                        disabled="{!teams.length}">Play!</button
+                        disabled="{!teams.length}"
+                        on:click="{play}">Play!</button
                     >
                 </div>
             </div>

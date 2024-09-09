@@ -1,83 +1,89 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { Section } from '../../../models/FIRST/question-scouting/section';
-import NavTabs from '../../components/bootstrap/NavTabs.svelte';
-import S from './Section.svelte';
-import { FIRSTEvent } from '../../../models/FIRST/event';
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import GlobalTeamSelect from '../../components/main/GlobalTeamSelect.svelte';
+    import { onMount } from 'svelte';
+    import { Section } from '../../../models/FIRST/question-scouting/section';
+    import NavTabs from '../../components/bootstrap/NavTabs.svelte';
+    import S from './Section.svelte';
+    import { FIRSTEvent } from '../../../models/FIRST/event';
+    import { FIRSTTeam } from '../../../models/FIRST/team';
+    import GlobalTeamSelect from '../../components/main/GlobalTeamSelect.svelte';
 
-export let sections: Section[] = [];
-let team: FIRSTTeam | undefined = undefined;
+    export let loading: boolean;
+    export let sections: Section[] = [];
+    let team: FIRSTTeam | undefined = undefined;
 
-onMount(async () => {
-    sections = await Section.all();
-});
+    const init = async () => {
+        sections = await Section.all();
+        team = FIRSTTeam.current;
+        loading = false;
+    };
 
-Section.on('new', s => {
-    sections = [...sections, s];
-});
+    onMount(() => {
+        init();
+        return () => (loading = true);
+    });
 
-let open: Section | undefined = undefined;
+    Section.on('new', s => {
+        sections = [...sections, s];
+    });
 
-let tabs: string[] = [],
-    active: string = '';
-$: {
-    fns.setSections(sections, active);
-}
+    let open: Section | undefined = undefined;
 
-Section.on('new', async s => {
-    sections = await Section.all();
-});
+    let tabs: string[] = [],
+        active: string = '';
+    $: {
+        setSections(sections, active);
+    }
 
-Section.on('update', async () => {
-    sections = await Section.all();
-});
+    Section.on('new', async s => {
+        sections = await Section.all();
+    });
 
-FIRSTEvent.on('select', async () => {
-    sections = await Section.all();
-    const s = sections[0];
-    if (s) active = s.name;
-});
+    Section.on('update', async () => {
+        sections = await Section.all();
+    });
 
-FIRSTTeam.on('select', t => {
-    team = t;
-    fns.setSections(sections, active);
-});
+    FIRSTEvent.on('select', async () => {
+        sections = await Section.all();
+        const s = sections[0];
+        if (s) active = s.name;
+    });
 
-const fns = {
-    setSections(sections: Section[], active: string) {
+    FIRSTTeam.on('select', t => {
+        team = t;
+        setSections(sections, active);
+    });
+
+    const setSections = (sections: Section[], active: string) => {
         tabs = sections.map(s => s.name);
         open = sections.find(s => s.name === active);
-    }
-    // save: async () => {
-    //     if (!team) return alert('Please select a team');
-    //     if (!open) return alert('Please select a section');
+    };
+// save: async () => {
+//     if (!team) return alert('Please select a team');
+//     if (!open) return alert('Please select a section');
 
-    //     const groups = await open.getGroups(FIRSTEvent.current);
-    //     if (groups.isOk()) {
-    //         const results = await Promise.all(
-    //             groups.value.map(async g => {
-    //                 const questions = await g.getQuestions();
-    //                 if (questions.isOk()) {
-    //                     return Promise.all(
-    //                         questions.value.map(q => {
-    //                             return q.saveAnswer(team);
-    //                         })
-    //                     );
-    //                 }
-    //             })
-    //         )
-    //     }
-    // }
-};
+//     const groups = await open.getGroups(FIRSTEvent.current);
+//     if (groups.isOk()) {
+//         const results = await Promise.all(
+//             groups.value.map(async g => {
+//                 const questions = await g.getQuestions();
+//                 if (questions.isOk()) {
+//                     return Promise.all(
+//                         questions.value.map(q => {
+//                             return q.saveAnswer(team);
+//                         })
+//                     );
+//                 }
+//             })
+//         )
+//     }
+// }
 </script>
 
 <div class="container">
     <div class="row mb-3">
         <NavTabs
-            {tabs}
             {active}
+            {tabs}
             on:change="{e => {
                 active = e.detail;
             }}"
@@ -102,7 +108,9 @@ const fns = {
             </div> -->
         </div>
         <div class="row mb-3">
-            <S bind:section="{open}" {team} />
+            <S
+                {team}
+                bind:section="{open}" />
         </div>
     {/if}
 </div>

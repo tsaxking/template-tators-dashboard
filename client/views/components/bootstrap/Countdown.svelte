@@ -1,34 +1,43 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { Loop } from '../../../../shared/loop';
+    import { onMount } from 'svelte';
+    import { Loop } from '../../../../shared/loop';
+    import { writable } from 'svelte/store';
 
-export let targetTime: number;
-export let onFinish: () => void | undefined;
+    let w = writable([]);
+    $w.length;
 
-let loop: Loop;
+    export let targetTime: number;
+    export let onFinish: () => void | undefined;
 
-let timeLeft: number;
+    let loop: Loop;
 
-const updateCountdown = () => {
-    const now = Date.now();
-    const remaining = targetTime - now;
-    timeLeft = Math.max(remaining, 0);
+    let timeLeft: number;
 
-    if (remaining <= 0) {
-        loop.stop();
-        onFinish?.();
-    }
-};
+    const updateCountdown = () => {
+        const now = Date.now();
+        const remaining = targetTime - now;
+        timeLeft = Math.max(remaining, 0);
 
-onMount(() => {
-    updateCountdown();
-    loop = new Loop(updateCountdown, 1000);
-    loop.start();
-
-    return () => {
-        loop.stop();
+        if (remaining <= 0) {
+            loop.stop();
+            onFinish?.();
+        }
     };
-});
+
+    onMount(() => {
+        if (Date.now() > targetTime) {
+            console.warn('Countdown target time is in the past');
+            onFinish?.();
+            return;
+        }
+        updateCountdown();
+        loop = new Loop(updateCountdown, 1000);
+        loop.start();
+
+        return () => {
+            loop.stop();
+        };
+    });
 </script>
 
 <div class="d-flex flex-column align-items-center">

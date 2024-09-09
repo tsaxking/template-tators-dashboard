@@ -100,12 +100,31 @@ export const parseObject = (
     return newObj;
 };
 
+export const fmtNumber = (num: number | string): string => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
 export const cost = (amount: number | string): string => {
     return +amount >= 0
         ? `$${fmtNumber((+amount).toFixed(2))}`
         : `-$${Math.abs(+amount).toFixed(2)}`;
 };
 
-export const fmtNumber = (num: number | string): string => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+export const merge = (a: string, b: string): string => {
+    // merge two strings together
+
+    const common = (a: string, b: string) => {
+        let i = 0;
+        while (i < a.length && i < b.length && a[i] === b[i]) i++;
+        return a.substring(0, i);
+    };
+    const c = common(a, b);
+
+    a = a.substring(c.length);
+    b = b.substring(c.length);
+
+    if (a.length === 0 && b.length === 0) return c;
+    if (a.length === 0) return c + b;
+    if (b.length === 0) return c + a;
+    return c;
 };

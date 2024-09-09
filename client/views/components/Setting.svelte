@@ -1,64 +1,65 @@
 <script lang="ts">
-import { createEventDispatcher, onMount } from 'svelte';
-import { Settings, type SettingsType } from '../../models/settings';
+    import { createEventDispatcher, onMount } from 'svelte';
+    import { Settings, type SettingsType } from '../../models/settings';
 
-const dispatch = createEventDispatcher();
-type Types = 'range' | 'switch' | 'select';
+    const dispatch = createEventDispatcher();
+    type Types = 'range' | 'switch' | 'select';
 
-const ids = {
-    select: 'select-' + Math.random().toString(36).substring(7),
-    range: 'range-' + Math.random().toString(36).substring(7),
-    switch: 'switch-' + Math.random().toString(36).substring(7)
-};
+    const ids = {
+        select: 'select-' + Math.random().toString(36).substring(7),
+        range: 'range-' + Math.random().toString(36).substring(7),
+        switch: 'switch-' + Math.random().toString(36).substring(7)
+    };
 
-export let name: SettingsType['name'] = '';
-export let type: SettingsType['type'] = 'switch';
-export let options: SettingsType['options'] = [];
-export let labelwidth = 3;
-export let inputWidth = 9;
-export let bindTo: string = '';
-export let value: any = undefined;
+    export let name: SettingsType['name'] = '';
+    export let type: SettingsType['type'] = 'switch';
+    export let options: SettingsType['options'] = [];
+    export let labelwidth = 3;
+    export let inputWidth = 9;
+    export let bindTo: string = '';
+    export let value: unknown = undefined;
 
-onMount(() => {
-    if (bindTo) {
-        Settings.on('set', ([setting, v]) => {
-            if (setting === bindTo) {
-                value = v;
-            }
-        });
+    onMount(() => {
+        if (bindTo) {
+            Settings.on('set', ([setting, v]) => {
+                if (setting === bindTo) {
+                    value = v;
+                }
+            });
+        }
+    });
+
+    const init = (type: Types) => {
+        switch (type) {
+            case 'range':
+                return 0;
+            case 'switch':
+                return false;
+            case 'select':
+                return '';
+        }
+    };
+
+    $: {
+        value = init(type);
     }
-});
 
-const init = (type: Types) => {
-    switch (type) {
-        case 'range':
-            return 0;
-        case 'switch':
-            return false;
-        case 'select':
-            return '';
-    }
-};
-
-$: {
-    value = init(type);
-}
-
-const onChange = (v: any) => {
-    value = v;
-    dispatch('change', value);
-    if (bindTo) {
-        Settings.set(bindTo, value);
-    }
-};
+    const onChange = (v: unknown) => {
+        value = v;
+        dispatch('change', value);
+        if (bindTo) {
+            Settings.set(bindTo, value);
+        }
+    };
 </script>
 
 <div class="row">
     {#if type === 'range'}
-        <div
-            class="col-{labelwidth} d-flex justify-content-center align-items-center"
+        <div class="col-{labelwidth} d-flex justify-content-center align-items-center"
         >
-            <label for="{ids.range}" class="form-label m-0">
+            <label
+                class="form-label m-0"
+                for="{ids.range}">
                 {name}
                 <slot />
                 <!-- <span class="badge bg-secondary ms-2">{value !== undefined ? value : ''}</span> -->
@@ -66,11 +67,11 @@ const onChange = (v: any) => {
         </div>
         <div class="col-{inputWidth}">
             <input
-                type="range"
-                min="{options[0] || 0}"
-                max="{options[1] || 100}"
-                class="form-range"
                 id="{ids.range}"
+                class="form-range"
+                max="{options[1] || 100}"
+                min="{options[0] || 0}"
+                type="range"
                 bind:value
                 on:change="{e => {
                     onChange(e.currentTarget.value);
@@ -78,10 +79,11 @@ const onChange = (v: any) => {
             />
         </div>
     {:else if type === 'switch'}
-        <div
-            class="col-{labelwidth} d-flex justify-content-center align-items-center"
+        <div class="col-{labelwidth} d-flex justify-content-center align-items-center"
         >
-            <label class="form-check-label m-0" for="{ids.switch}">{name}</label
+            <label
+                class="form-check-label m-0"
+                for="{ids.switch}">{name}</label
             >
             <slot />
             <!-- <span class="badge bg-secondary ms-2">{value !== undefined ? value : ''}</span> -->
@@ -89,10 +91,10 @@ const onChange = (v: any) => {
         <div class="col-{inputWidth}">
             <div class="form-check form-switch">
                 <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
                     id="{ids.switch}"
+                    class="form-check-input"
+                    role="switch"
+                    type="checkbox"
                     bind:checked="{value}"
                     on:change="{e => {
                         onChange(e.currentTarget.checked);
@@ -101,21 +103,22 @@ const onChange = (v: any) => {
             </div>
         </div>
     {:else if type === 'select'}
-        <div
-            class="col-{labelwidth} d-flex justify-content-center align-items-center"
+        <div class="col-{labelwidth} d-flex justify-content-center align-items-center"
         >
             <slot />
-            <label for="{ids.select}" class="form-label m-0">{name}</label>
+            <label
+                class="form-label m-0"
+                for="{ids.select}">{name}</label>
             <!-- <span class="badge bg-secondary ms-2">{value !== undefined ? value : ''}</span> -->
         </div>
         <div class="col-{inputWidth}">
             <select
                 id="{ids.select}"
+                class="form-select"
                 bind:value
                 on:change="{e => {
                     onChange(e.currentTarget.value);
                 }}"
-                class="form-select"
             >
                 {#each options as option}
                     <option value="{option}">{option}</option>
