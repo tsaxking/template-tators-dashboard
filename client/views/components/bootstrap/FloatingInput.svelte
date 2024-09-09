@@ -1,17 +1,17 @@
 <script lang="ts">
-import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
 
-export let type: 'text' | 'textarea' | 'select' = 'text';
-export let placeholder: string = '';
-export let label: string;
-export let value: string;
+    export let type: 'text' | 'textarea' | 'select' = 'text';
+    export let placeholder: string = '';
+    export let label: string;
+    export let value: string;
 
-const id =
-    'input-' +
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15);
+    const id =
+        'input-' +
+            Math.random().toString(36).substring(2, 15) +
+            Math.random().toString(36).substring(2, 15);
 
-const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher();
 </script>
 
 <div class="form-floating">
@@ -23,7 +23,7 @@ const dispatch = createEventDispatcher();
             bind:value
             on:input="{() => dispatch('input', value)}"
             on:change="{() => dispatch('change', value)}"
-        ></textarea>
+        />
     {:else if type === 'text'}
         <input
             {id}

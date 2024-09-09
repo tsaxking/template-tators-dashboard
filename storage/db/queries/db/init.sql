@@ -169,11 +169,12 @@ CREATE TABLE IF NOT EXISTS CustomMatches (
 
 CREATE TABLE IF NOT EXISTS Whiteboards (
     id TEXT PRIMARY KEY,
-    eventKey TEXT NOT NULL,
+    eventKey TEXT NOT NULL, -- removed in 1.4.4
     name TEXT NOT NULL,
-    matchId TEXT, -- NULL if no match (custom whiteboard)
-    customMatchId TEXT, -- NULL if no custom match (match whiteboard)
+    matchId TEXT, -- NULL if no match (custom whiteboard) (removed in 1.4.4)
+    customMatchId TEXT, -- NULL if no custom match (match whiteboard) (removed in 1.4.4)
     board TEXT NOT NULL DEFAULT '[]' -- JSON array of objects for canvas
+    -- added strategyId in 1.4.4
 );
 
 

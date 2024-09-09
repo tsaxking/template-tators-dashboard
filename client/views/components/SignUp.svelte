@@ -1,78 +1,78 @@
 <script lang="ts">
-import { ServerRequest } from '../../utilities/requests';
-import Password from './Password.svelte';
-import Recaptcha from './Recaptcha.svelte';
+    import { ServerRequest } from '../../utilities/requests';
+    import Password from './Password.svelte';
+    import Recaptcha from './Recaptcha.svelte';
 
-export let title: string;
-document.title = title + ': Sign up';
-export let username: string = '';
-export let password: string = '';
-export let confirmPassword: string = '';
-export let email: string = '';
-export let firstName: string = '';
-export let lastName: string = '';
+    export let title: string;
+    document.title = title + ': Sign up';
+    export let username: string = '';
+    export let password: string = '';
+    export let confirmPassword: string = '';
+    export let email: string = '';
+    export let firstName: string = '';
+    export let lastName: string = '';
 
-let i: HTMLInputElement,
-    recaptcha = false;
-const submit = () => {
-    // if (i.value || !recaptcha) {
+    let i: HTMLInputElement,
+        recaptcha = false;
+    const submit = () => {
+        // if (i.value || !recaptcha) {
     //     return;
     // }
-    if (i.value) return;
-    if (!valid) {
-        console.log('Is not valid');
-    }
+        if (i.value) return;
+        if (!valid) {
+            console.log('Is not valid');
+        }
 
-    ServerRequest.post('/account/sign-up', {
-        username: username.trim(),
-        password: password.trim(),
-        confirmPassword: confirmPassword.trim(),
-        email: email.trim(),
-        firstName: firstName.trim(),
-        lastName: lastName.trim()
-    });
-};
+        ServerRequest.post('/account/sign-up', {
+            username: username.trim(),
+            password: password.trim(),
+            confirmPassword: confirmPassword.trim(),
+            email: email.trim(),
+            firstName: firstName.trim(),
+            lastName: lastName.trim()
+        });
+    };
 
-const isValid = (
-    username: string,
-    password: string,
-    confirmPassword: string
-) => {
-    return (
-        isUsernameValid(username) &&
-        isPasswordValid(password).length === 0 &&
-        password === confirmPassword
-    );
-};
-
-const isUsernameValid = (username: string): boolean => {
-    if (username.includes('@')) {
-        return !!(
-            username.split('@')[1]?.split('.')[0]?.length &&
-            username.split('@')[1]?.split('.')[1]?.length &&
-            username.split('@')[1]?.split('.')[
-                username.split('@')[1]?.split('.').length - 1
-            ]?.length
+    const isValid = (
+        username: string,
+        password: string,
+        confirmPassword: string
+    ) => {
+        return (
+            isUsernameValid(username) &&
+            isPasswordValid(password).length === 0 &&
+            password === confirmPassword
         );
-    }
-    return username.length > 5;
-};
+    };
 
-let valid = false;
+    const isUsernameValid = (username: string): boolean => {
+        if (username.includes('@')) {
+            return !!(
+                username.split('@')[1]?.split('.')[0]?.length &&
+                username.split('@')[1]?.split('.')[1]?.length &&
+                username.split('@')[1]?.split('.')[
+                    username.split('@')[1]?.split('.').length - 1
+                ]?.length
+            );
+        }
+        return username.length > 5;
+    };
 
-const onInput = () => {
-    valid = isValid(username, password, confirmPassword);
-};
+    let valid = false;
 
-const isPasswordValid = (password: string): string[] => {
-    const output = [];
-    if (password.length < 8) output.push('8 characters long');
-    if (!password.match(/[a-z]/)) output.push('1 lowercase letter');
-    if (!password.match(/[A-Z]/)) output.push('1 uppercase letter');
-    if (!password.match(/[0-9]/)) output.push('1 number');
-    if (!password.match(/[^a-zA-Z\d]/)) output.push('1 special character');
-    return output;
-};
+    const onInput = () => {
+        valid = isValid(username, password, confirmPassword);
+    };
+
+    const isPasswordValid = (password: string): string[] => {
+        const output = [];
+        if (password.length < 8) output.push('8 characters long');
+        if (!password.match(/[a-z]/)) output.push('1 lowercase letter');
+        if (!password.match(/[A-Z]/)) output.push('1 uppercase letter');
+        if (!password.match(/[0-9]/)) output.push('1 number');
+        if (!password.match(/[^a-zA-Z\d]/)) output.push('1 special character');
+        return output;
+    };
 </script>
 
 <main>
@@ -86,8 +86,10 @@ const isPasswordValid = (password: string): string[] => {
                 </div>
 
                 <div class="row mb-3">
-                    <a class="link-primary nav-link" href="/account/sign-in"
-                        >Sign In</a
+                    <a
+                        class="link-primary nav-link"
+                        href="/account/sign-in"
+                    >Sign In</a
                     >
                 </div>
                 <form on:submit|preventDefault="{submit}">
@@ -101,7 +103,9 @@ const isPasswordValid = (password: string): string[] => {
                             bind:value="{username}"
                             on:input="{onInput}"
                         />
-                        <label class="form-label" for="username">Username</label
+                        <label
+                            class="form-label"
+                            for="username">Username</label
                         >
                         {#if username.length > 0}
                             {#if !isUsernameValid(username)}
@@ -122,7 +126,9 @@ const isPasswordValid = (password: string): string[] => {
                             bind:value="{email}"
                             on:input="{onInput}"
                         />
-                        <label class="form-label" for="email">Email</label>
+                        <label
+                            class="form-label"
+                            for="email">Email</label>
                         {#if email.length > 0}
                             {#if email.includes('@')}
                                 {#if email.split('@')[1]?.split('.')[0]?.length}
@@ -160,8 +166,10 @@ const isPasswordValid = (password: string): string[] => {
                             bind:value="{firstName}"
                             on:input="{onInput}"
                         />
-                        <label class="form-label" for="firstName"
-                            >First Name</label
+                        <label
+                            class="form-label"
+                            for="firstName"
+                        >First Name</label
                         >
                     </div>
                     <div class="mb-3 form-floating">
@@ -174,8 +182,10 @@ const isPasswordValid = (password: string): string[] => {
                             bind:value="{lastName}"
                             on:input="{onInput}"
                         />
-                        <label class="form-label" for="lastName"
-                            >Last Name</label
+                        <label
+                            class="form-label"
+                            for="lastName"
+                        >Last Name</label
                         >
                     </div>
                     <div class="mb-3 form-floating">

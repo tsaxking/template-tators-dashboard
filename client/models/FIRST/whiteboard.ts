@@ -1,109 +1,187 @@
-import { Whiteboard as WhiteboardObj } from '../../../shared/db-types-extended';
-import { Cache } from '../cache';
-import { Whiteboard as WB, WhiteboardState } from '../whiteboard/whiteboard';
+import { attemptAsync } from '../../../shared/check';
+import { ServerRequest } from '../../utilities/requests';
+import { Whiteboards as W } from '../../../server/utilities/tables';
+import { Board } from '../whiteboard/board';
+import { Canvas } from '../canvas/canvas';
+import { Img } from '../canvas/image';
+import { Strategy } from './strategy';
 import { socket } from '../../utilities/socket';
+import { BoardState, WhiteboardState } from '../whiteboard/board-state';
+import { Cache } from '../cache';
 import { EventEmitter } from '../../../shared/event-emitter';
 
-/**
- * Events that are emitted by a {@link FIRSTWhiteboard} object
- * @date 10/9/2023 - 6:58:43 PM
- *
- * @typedef {WhiteboardUpdateData}
- */
-type WhiteboardUpdateData = {
-    update: WhiteboardState[];
+type WhiteboardEvents = {
+    updated: undefined;
 };
 
-type Updates = {
-    select: FIRSTWhiteboard;
-};
+type GlobalWhiteboardEvents = {
+    'new': FIRSTWhiteboard;
+}
 
-/**
- * Represents a FIRST whiteboard
- * @date 10/9/2023 - 6:58:43 PM
- *
- * @export
- * @class Whiteboard
- * @typedef {FIRSTWhiteboard}
- * @implements {FIRST}
- */
-export class FIRSTWhiteboard extends Cache<WhiteboardUpdateData> {
-    private static readonly emitter = new EventEmitter<Updates>();
+export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
+    public static readonly cache = new Map<string, FIRSTWhiteboard>();
+
+    public static readonly emitter = new EventEmitter<GlobalWhiteboardEvents>();
 
     public static on = FIRSTWhiteboard.emitter.on.bind(FIRSTWhiteboard.emitter);
-    public static off = FIRSTWhiteboard.emitter.off.bind(
-        FIRSTWhiteboard.emitter
-    );
-    public static emit = FIRSTWhiteboard.emitter.emit.bind(
-        FIRSTWhiteboard.emitter
-    );
-    public static once = FIRSTWhiteboard.emitter.once.bind(
-        FIRSTWhiteboard.emitter
-    );
+    public static off = FIRSTWhiteboard.emitter.off.bind(FIRSTWhiteboard.emitter);
+    public static emit = FIRSTWhiteboard.emitter.emit.bind(FIRSTWhiteboard.emitter);
+    public static once = FIRSTWhiteboard.emitter.once.bind(FIRSTWhiteboard.emitter.once.bind(FIRSTWhiteboard.emitter));
 
-    public static retrieve(data: WhiteboardObj, ctx: CanvasRenderingContext2D) {
-        if (FIRSTWhiteboard.cache.has(data.id))
-            return FIRSTWhiteboard.cache.get(data.id) as FIRSTWhiteboard;
-        return new FIRSTWhiteboard(data, ctx);
+    public static fromStrategy(strategyId: string) {
+        return attemptAsync(async () => {
+            const boards = (
+                await ServerRequest.post<W[]>(
+                    '/api/whiteboards/from-strategy',
+                    {
+                        strategyId
+                    }
+                )
+            ).unwrap();
+
+            return boards.map(FIRSTWhiteboard.retrieve);
+        });
     }
 
-    public static current?: FIRSTWhiteboard = undefined;
+    public static new(name: string, strategy: Strategy) {
+        return attemptAsync(async () => {
+            (
+                await ServerRequest.post('/api/whiteboards/new', {
+                    name,
+                    strategyId: strategy.id
+                })
+            ).unwrap();
+        });
+    }
 
-    /**
-     * Cache for all {@link FIRSTWhiteboard} objects
-     * @date 10/9/2023 - 6:58:43 PM
-     *
-     * @public
-     * @static
-     * @readonly
-     * @type {Map<string, FIRSTWhiteboard>}
-     */
-    public static readonly cache: Map<string, FIRSTWhiteboard> = new Map<
-        string,
-        FIRSTWhiteboard
-    >();
+    public static retrieve(w: W) {
+        if (FIRSTWhiteboard.cache.has(w.id))
+            return FIRSTWhiteboard.cache.get(w.id) as FIRSTWhiteboard;
+        return new FIRSTWhiteboard(w);
+    }
 
-    public readonly board: WB;
+    public readonly id: string;
+    public name: string;
+    public strategyId: string;
+    public archived: boolean;
+    public readonly board: Board;
 
-    /**
-     * Creates an instance of Whiteboard.
-     * @date 10/9/2023 - 6:58:43 PM
-     *
-     * @constructor
-     * @param {WhiteboardObj} data
-     */
-    constructor(
-        public readonly data: WhiteboardObj,
-        public readonly ctx: CanvasRenderingContext2D
-    ) {
+    constructor(data: W) {
         super();
-        if (!FIRSTWhiteboard.cache.has(data.id)) {
-            FIRSTWhiteboard.cache.set(data.id, this);
-        }
+        this.id = data.id;
+        this.name = data.name;
+        this.strategyId = data.strategyId;
+        this.archived = data.archived;
+        this.board = new Board(JSON.parse(data.board), this);
 
-        const b = JSON.parse(data.board) as WhiteboardState[];
-        this.board = WB.build(b, ctx);
+        if (!FIRSTWhiteboard.cache.has(this.id))
+            FIRSTWhiteboard.cache.set(this.id, this);
     }
 
-    /**
-     * Destroys this object, including all event listeners and cache
-     * @date 10/9/2023 - 6:58:43 PM
-     *
-     * @public
-     */
-    public destroy() {
-        FIRSTWhiteboard.cache.delete(this.data.id);
-        super.destroy();
+    buildCanvas(ctx: CanvasRenderingContext2D, year: number) {
+        const img = new Img(`/public/pictures/${year}field.png`);
+        img.width = 1;
+        img.height = 1;
+        const c = new Canvas(ctx, {
+            events: [
+                'mousedown',
+                'mousemove',
+                'mouseup',
+                'touchstart',
+                'touchmove',
+                'touchend',
+                'touchcancel',
+                'click'
+            ]
+        });
+        c.adaptable = true;
+        c.ratio = 2;
+        c.add(img, this.board);
+        return c;
     }
 
-    public select(): void {
-        FIRSTWhiteboard.current = this;
-        FIRSTWhiteboard.emit('select', this);
+    update(data: Partial<Omit<W, 'id' | 'archived' | 'board'>>) {
+        return attemptAsync(async () => {
+            return (
+                await ServerRequest.post('/api/whiteboards/update', {
+                    id: this.id,
+                    archived: this.archived,
+                    strategyId: data.strategyId ?? this.strategyId,
+                    name: data.name ?? this.name
+                })
+            ).unwrap();
+        });
+    }
+
+    addState(state: BoardState, index: number) {
+        return attemptAsync(async () => {
+            return (
+                await ServerRequest.post('/api/whiteboards/add-state', {
+                    id: this.id,
+                    state: JSON.stringify(state.serialize()),
+                    index
+                })
+            ).unwrap();
+        });
+    }
+
+    archive() {
+        return ServerRequest.post('/api/whiteboards/archive', {
+            id: this.id
+        });
+    }
+
+    restore() {
+        return ServerRequest.post('/api/whiteboards/restore', {
+            id: this.id
+        });
+    }
+
+    getStrategy() {
+        return Strategy.fromId(this.strategyId);
     }
 }
 
-socket.on('whiteboard:update', (data: WhiteboardObj) => {});
+socket.on('whiteboard:created', async (data: W) => {
+    const wb = FIRSTWhiteboard.retrieve(data);
 
-socket.on('whiteboard:created', (data: WhiteboardObj) => {});
+    FIRSTWhiteboard.emit('new', wb);
 
-socket.on('whiteboard:deleted', (id: string) => {});
+    const s = await wb.getStrategy();
+    if (s.isErr()) return console.log(s.error);
+
+    s.value.emit('new-whiteboard', wb);
+});
+
+socket.on('whiteboard:update', (data: W) => {
+    const wb = FIRSTWhiteboard.cache.get(data.id);
+    if (!wb) return;
+
+    wb.name = data.name;
+    wb.archived = data.archived;
+    wb.strategyId = data.strategyId;
+
+    wb.emit('updated', undefined);
+});
+
+socket.on(
+    'whiteboard:state-added',
+    (data: { id: string; state: string; index: number }) => {
+        const wb = FIRSTWhiteboard.cache.get(data.id);
+        if (!wb) return;
+
+        const state = JSON.parse(data.state) as WhiteboardState;
+
+        const states = wb.board.states;
+        const exists = states.find(
+            s => JSON.stringify(s.serialize()) === data.state
+        );
+        if (exists) return console.log('State already exists');
+
+        const parsedState = BoardState.deserialize(state, wb.board).unwrap();
+        states.splice(data.index, 0, parsedState);
+        wb.board.currentIndex++;
+
+        wb.emit('updated', undefined);
+    }
+);

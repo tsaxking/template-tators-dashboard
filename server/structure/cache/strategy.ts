@@ -4,6 +4,7 @@ import { Strategy as S } from '../../utilities/tables';
 import { attemptAsync } from '../../../shared/check';
 import { CompLevel } from '../../../shared/db-types-extended';
 import { uuid } from '../../utilities/uuid';
+import { FIRSTWhiteboard } from './whiteboards';
 
 export class Strategy extends Cache {
     public static fromId(id: string) {
@@ -76,5 +77,9 @@ export class Strategy extends Cache {
             (await DB.run('strategy/update', { ...this, ...data })).unwrap();
             Object.assign(this, data);
         });
+    }
+
+    getWhiteboards() {
+        return FIRSTWhiteboard.fromStrategy(this.id);
     }
 }

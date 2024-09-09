@@ -1,45 +1,45 @@
 <script lang="ts">
-import { Random } from '../../../../shared/math';
-import { abbreviate } from '../../../../shared/text';
-import { createEventDispatcher } from 'svelte';
-import type { Picture } from '../../../utilities/general-types';
+    import { Random } from '../../../../shared/math';
+    import { abbreviate } from '../../../../shared/text';
+    import { createEventDispatcher } from 'svelte';
+    import type { Picture } from '../../../utilities/general-types';
 
-const id = 'input-' + Random.uuid();
-let input: HTMLInputElement;
-export let multiple: boolean = true;
+    const id = 'input-' + Random.uuid();
+    let input: HTMLInputElement;
+    export let multiple: boolean = true;
 
-let pictures: Picture[] = [];
+    let pictures: Picture[] = [];
 
-const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher();
 
-$: dispatch('change', pictures);
+    $: dispatch('change', pictures);
 
-const onInput = async (e: Event) => {
-    const { files } = input;
-    if (files) {
-        pictures = [
-            ...(multiple ? pictures : []),
-            ...(await Promise.all(
-                Array.from(files).map(
-                    f =>
-                        new Promise<Picture>((res, rej) => {
-                            const reader = new FileReader();
-                            reader.onload = async () =>
-                                res({
-                                    url: reader.result as string,
-                                    file: f
-                                });
-                            reader.onerror = rej;
-                            reader.readAsDataURL(f);
-                        })
-                )
-            ))
-        ];
-    }
-};
-const remove = (p: Picture) => {
-    pictures = pictures.filter(p2 => p2 !== p);
-};
+    const onInput = async (e: Event) => {
+        const { files } = input;
+        if (files) {
+            pictures = [
+                ...(multiple ? pictures : []),
+                ...(await Promise.all(
+                    Array.from(files).map(
+                        f =>
+                            new Promise<Picture>((res, rej) => {
+                                const reader = new FileReader();
+                                reader.onload = async () =>
+                                    res({
+                                        url: reader.result as string,
+                                        file: f
+                                    });
+                                reader.onerror = rej;
+                                reader.readAsDataURL(f);
+                            })
+                    )
+                ))
+            ];
+        }
+    };
+    const remove = (p: Picture) => {
+        pictures = pictures.filter(p2 => p2 !== p);
+    };
 </script>
 
 <div class="container-fluid">
@@ -58,8 +58,7 @@ const remove = (p: Picture) => {
     <div class="row">
         {#each pictures as picture, i}
             <div class="col-sm-4 col-md-3 col-lg-2 m-1 no-select">
-                <div
-                    class="d-flex justify-content-between align-items-center py-1"
+                <div class="d-flex justify-content-between align-items-center py-1"
                 >
                     <p class="p-0 m-0">
                         {abbreviate(picture.file.name, 20)}

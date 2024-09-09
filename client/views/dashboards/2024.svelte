@@ -1,96 +1,96 @@
 <script lang="ts">
-import Main from '../components/main/Main.svelte';
-import Page from '../components/main/Page.svelte';
-import RobotDisplay from '../pages/RobotDisplay.svelte';
-import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
-import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
-import Checklist from '../pages/Checklist.svelte';
-import { type PageGroup } from '../../utilities/general-types';
-import { getOpenPage } from '../../utilities/page';
-import Quiz from '../pages/Quiz.svelte';
-import EventSummary from '../pages/EventSummary.svelte';
-import { FIRSTEvent } from '../../models/FIRST/event';
-import MatchSchedule from '../pages/MatchSchedule.svelte';
-import Strategy from '../pages/strategy/Strategy.svelte';
+    import Main from '../components/main/Main.svelte';
+    import Page from '../components/main/Page.svelte';
+    import RobotDisplay from '../pages/RobotDisplay.svelte';
+    import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
+    import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
+    import Checklist from '../pages/Checklist.svelte';
+    import { type PageGroup } from '../../utilities/general-types';
+    import { getOpenPage } from '../../utilities/page';
+    import Quiz from '../pages/Quiz.svelte';
+    import EventSummary from '../pages/EventSummary.svelte';
+    import { FIRSTEvent } from '../../models/FIRST/event';
+    import MatchSchedule from '../pages/MatchSchedule.svelte';
+    import Strategy from '../pages/strategy/Strategy.svelte';
 
-const groups: PageGroup[] = [
-    {
-        name: 'overview',
-        pages: [
-            {
-                name: 'event-summary',
-                icon: 'event',
-                iconType: 'material'
-            },
-            {
-                name: 'matches',
-                icon: 'list',
-                iconType: 'material'
-            },
-            {
-                name: 'robot-display',
-                icon: 'home',
-                iconType: 'material'
-            },
-            {
-                name: 'strategy',
-                icon: 'strategy',
-                iconType: 'symbols'
-            }
-        ]
-    },
-    {
-        name: 'scouting',
-        pages: [
-            // {
+    const groups: PageGroup[] = [
+        {
+            name: 'overview',
+            pages: [
+                {
+                    name: 'event-summary',
+                    icon: 'event',
+                    iconType: 'material'
+                },
+                {
+                    name: 'matches',
+                    icon: 'list',
+                    iconType: 'material'
+                },
+                {
+                    name: 'robot-display',
+                    icon: 'home',
+                    iconType: 'material'
+                },
+                {
+                    name: 'strategy',
+                    icon: 'strategy',
+                    iconType: 'symbols'
+                }
+            ]
+        },
+        {
+            name: 'scouting',
+            pages: [
+                // {
             //     name: 'create-scouting-questions',
             //     icon: 'fact_check'
             // },
-            {
-                name: 'scouting-checklist',
-                icon: 'checklist',
-                iconType: 'material'
-            },
-            {
-                name: 'answer-scouting-questions',
-                icon: 'question_answer',
-                iconType: 'material'
-            }
-        ]
-    },
-    {
-        name: 'other',
-        pages: [
-            {
-                name: 'quiz',
-                icon: 'quiz',
-                iconType: 'material'
-            }
-        ]
-    }
-];
+                {
+                    name: 'scouting-checklist',
+                    icon: 'checklist',
+                    iconType: 'material'
+                },
+                {
+                    name: 'answer-scouting-questions',
+                    icon: 'question_answer',
+                    iconType: 'material'
+                }
+            ]
+        },
+        {
+            name: 'other',
+            pages: [
+                {
+                    name: 'quiz',
+                    icon: 'quiz',
+                    iconType: 'material'
+                }
+            ]
+        }
+    ];
 
-let active = getOpenPage() || 'event-summary';
+    let active = getOpenPage() || 'event-summary';
 
-const domain = 'tatorscout.org';
+    const domain = 'tatorscout.org';
 
-const navItems: string[] = [
+    const navItems: string[] = [
     // 'app'
-];
+    ];
 
-const accountLinks: string[] = [
+    const accountLinks: string[] = [
     // 'account',
     // 'contact',
     // null
-];
+    ];
 
-let currentEvent: FIRSTEvent | null = null;
+    let currentEvent: FIRSTEvent | null = null;
 
-FIRSTEvent.on('select', e => {
-    currentEvent = e;
-});
+    FIRSTEvent.on('select', e => {
+        currentEvent = e;
+    });
 
-let loading = true;
+    let loading = true;
 </script>
 
 <Main
@@ -103,27 +103,57 @@ let loading = true;
         active = e.detail;
     }}"
 >
-    <Page {active} {domain} title="event-summary" bind:loading>
+    <Page
+        {active}
+        {domain}
+        title="event-summary"
+        bind:loading>
         {#if currentEvent}
-            <EventSummary event="{currentEvent}" bind:loading />
+            <EventSummary
+                event="{currentEvent}"
+                bind:loading />
         {/if}
     </Page>
-    <Page {active} {domain} title="matches" bind:loading>
+    <Page
+        {active}
+        {domain}
+        title="matches"
+        bind:loading>
         <MatchSchedule bind:loading />
     </Page>
-    <Page {active} {domain} title="robot-display" bind:loading>
+    <Page
+        {active}
+        {domain}
+        title="robot-display"
+        bind:loading>
         <RobotDisplay bind:loading />
     </Page>
-    <Page {active} {domain} title="answer-scouting-questions" bind:loading>
+    <Page
+        {active}
+        {domain}
+        title="answer-scouting-questions"
+        bind:loading>
         <AnswerPitScouting bind:loading />
     </Page>
-    <Page {active} {domain} title="scouting-checklist" bind:loading>
+    <Page
+        {active}
+        {domain}
+        title="scouting-checklist"
+        bind:loading>
         <Checklist bind:loading />
     </Page>
-    <Page {active} {domain} title="quiz" bind:loading>
+    <Page
+        {active}
+        {domain}
+        title="quiz"
+        bind:loading>
         <Quiz bind:loading />
     </Page>
-    <Page {active} {domain} title="strategy" bind:loading>
+    <Page
+        {active}
+        {domain}
+        title="strategy"
+        bind:loading>
         <Strategy bind:loading />
     </Page>
 </Main>

@@ -1,51 +1,51 @@
 <script lang="ts">
-import Button from '../bootstrap/Button.svelte';
-import GroupCard from './GroupCard.svelte';
-import { Section } from '../../../models/FIRST/question-scouting/section';
-import { Group } from '../../../models/FIRST/question-scouting/group';
-import { onMount } from 'svelte';
-import { Random } from '../../../../shared/math';
-import { FIRSTEvent } from '../../../models/FIRST/event';
+    import Button from '../bootstrap/Button.svelte';
+    import GroupCard from './GroupCard.svelte';
+    import { Section } from '../../../models/FIRST/question-scouting/section';
+    import { Group } from '../../../models/FIRST/question-scouting/group';
+    import { onMount } from 'svelte';
+    import { Random } from '../../../../shared/math';
+    import { FIRSTEvent } from '../../../models/FIRST/event';
 
-export let section: Section;
+    export let section: Section;
 
-let groups: Group[] = [];
+    let groups: Group[] = [];
 
-onMount(() => {
-    section.on('update', async s => {
-        section = s;
+    onMount(() => {
+        section.on('update', async s => {
+            section = s;
+        });
+
+        section.on('new-group', async g => {
+            groups = [...groups, g];
+        });
+
+        section.on('delete-group', async id => {
+            groups = groups.filter(group => group.id !== id);
+        });
     });
 
-    section.on('new-group', async g => {
-        groups = [...groups, g];
-    });
+    const addGroup = async (name: string) => {
+        const eventKey = FIRSTEvent.current?.tba.key;
+        if (!eventKey) return;
 
-    section.on('delete-group', async id => {
-        groups = groups.filter(group => group.id !== id);
-    });
-});
+        const res = await section.addGroup({
+            name,
+            eventKey: eventKey
+        });
 
-const addGroup = async (name: string) => {
-    const eventKey = FIRSTEvent.current?.tba.key;
-    if (!eventKey) return;
+        if (res.isOk()) {
+            groups = [...groups, res.value];
+        }
+    };
 
-    const res = await section.addGroup({
-        name,
-        eventKey: eventKey
-    });
+    const removeGroup = async (id: string) => {
+        const res = await section.removeGroup(id);
 
-    if (res.isOk()) {
-        groups = [...groups, res.value];
-    }
-};
-
-const removeGroup = async (id: string) => {
-    const res = await section.removeGroup(id);
-
-    if (res.isOk()) {
-        groups = groups.filter(group => group.id !== id);
-    }
-};
+        if (res.isOk()) {
+            groups = groups.filter(group => group.id !== id);
+        }
+    };
 </script>
 
 <div class="container">

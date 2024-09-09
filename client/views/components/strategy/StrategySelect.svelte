@@ -1,43 +1,59 @@
 <script lang="ts">
-import { FIRSTEvent } from '../../../models/FIRST/event';
-import { type MatchInterface } from '../../../models/FIRST/interfaces/match';
-import { FIRSTMatch } from '../../../models/FIRST/match';
-import { Strategy } from '../../../models/FIRST/strategy';
-import Select from '../bootstrap/Select.svelte';
-import { createEventDispatcher, onMount } from 'svelte';
+    import { type MatchInterface } from '../../../models/FIRST/interfaces/match';
+    import { Strategy } from '../../../models/FIRST/strategy';
+    import Select from '../bootstrap/Select.svelte';
+    import { onMount, createEventDispatcher } from 'svelte';
 
-const d = createEventDispatcher();
+    const d = createEventDispatcher();
 
-export let match: MatchInterface;
+    export let match: MatchInterface;
 
-let strategies: Strategy[] = [];
+    let strategies: Strategy[] = [];
 
-$: getStrategies(match);
+    $: getStrategies(match);
 
-const getStrategies = async (match: MatchInterface) => {
-    const res = await match.getStrategies();
-    if (res.isErr()) {
-        return console.error(res.error);
-    }
+    const getStrategies = async (match: MatchInterface) => {
+        const res = await match.getStrategies();
+        if (res.isErr()) {
+            return console.error(res.error);
+        }
 
-    strategies = res.value;
-};
+        strategies = res.value;
+    };
 
-let options: string[] = [];
-let value: string | undefined = strategies[0]?.name;
+    let options: string[] = [];
+    let values: string[] = [];
+    let value: string;
 
-$: options = strategies.map(s => s.name);
-$: value = strategies[0]?.name;
+    $: options = strategies.map(s => s.name);
+    $: values = strategies.map(s => s.id);
 
-if (strategies[0]) d('select', strategies[0]);
+    const handleChange = async (e: CustomEvent) => {
+        const { detail: strategyId } = e;
+        const s = strategies.find(s => s.id === strategyId);
+        value = strategyId;
+        d('select', s);
+    };
 
-const handleChange = async (e: CustomEvent) => {
-    const { detail: strategyName } = e;
-    const strategy = strategies.find(s => s.name === strategyName);
-    if (strategy) d('select', strategy);
-};
+    const onNewSelect = async (s: Strategy) => {
+        const info = await match.getInfo();
+        if (info.isErr()) return console.error(info.error);
+        if (info.value.id !== s.matchId && info.value.id !== s.customMatchId) return;
+        strategies = [s, ...strategies];
+    };
 
-onMount(() => {});
+    onMount(() => {
+        Strategy.on('new', onNewSelect);
+        return () => {
+            Strategy.off('new', onNewSelect);
+        };
+    });
 </script>
 
-<Select bind:options bind:value on:change="{handleChange}" />
+<Select
+    defaultValue="Select a strategy"
+    bind:options
+    bind:value
+    bind:values
+    on:change="{handleChange}"
+/>

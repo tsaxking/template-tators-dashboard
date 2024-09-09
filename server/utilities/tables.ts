@@ -394,8 +394,8 @@ export type Whiteboards = {
     id: string;
     name: string;
     board: string;
-    archive: 0 | 1;
     strategyId: string;
+    archived: boolean;
 };
 
 export type MatchScouting = {

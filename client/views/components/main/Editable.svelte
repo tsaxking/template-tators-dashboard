@@ -1,13 +1,13 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { Stack } from '../../../utilities/stack';
+    import { onMount } from 'svelte';
+    import { Stack } from '../../../utilities/stack';
 
-export let value: string | number;
-export let classes = '';
-export let stack: Stack;
+    export let value: string | number;
+    export let classes = '';
+    export let stack: Stack;
 
-let focus = false;
-let input: HTMLInputElement;
+    let focus = false;
+    let input: HTMLInputElement;
 </script>
 
 <input
