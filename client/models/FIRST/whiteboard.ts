@@ -8,13 +8,25 @@ import { Strategy } from './strategy';
 import { socket } from '../../utilities/socket';
 import { BoardState, WhiteboardState } from '../whiteboard/board-state';
 import { Cache } from '../cache';
+import { EventEmitter } from '../../../shared/event-emitter';
 
 type WhiteboardEvents = {
     updated: undefined;
 };
 
+type GlobalWhiteboardEvents = {
+    'new': FIRSTWhiteboard;
+}
+
 export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
     public static readonly cache = new Map<string, FIRSTWhiteboard>();
+
+    public static readonly emitter = new EventEmitter<GlobalWhiteboardEvents>();
+
+    public static on = FIRSTWhiteboard.emitter.on.bind(FIRSTWhiteboard.emitter);
+    public static off = FIRSTWhiteboard.emitter.off.bind(FIRSTWhiteboard.emitter);
+    public static emit = FIRSTWhiteboard.emitter.emit.bind(FIRSTWhiteboard.emitter);
+    public static once = FIRSTWhiteboard.emitter.once.bind(FIRSTWhiteboard.emitter.once.bind(FIRSTWhiteboard.emitter));
 
     public static fromStrategy(strategyId: string) {
         return attemptAsync(async () => {
@@ -124,7 +136,22 @@ export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
             id: this.id
         });
     }
+
+    getStrategy() {
+        return Strategy.fromId(this.strategyId);
+    }
 }
+
+socket.on('whiteboard:created', async (data: W) => {
+    const wb = FIRSTWhiteboard.retrieve(data);
+
+    FIRSTWhiteboard.emit('new', wb);
+
+    const s = await wb.getStrategy();
+    if (s.isErr()) return console.log(s.error);
+
+    s.value.emit('new-whiteboard', wb);
+});
 
 socket.on('whiteboard:update', (data: W) => {
     const wb = FIRSTWhiteboard.cache.get(data.id);

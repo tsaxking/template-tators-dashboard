@@ -6,12 +6,14 @@
 
     let comment: string = '';
 
+    $: comment = strategy.comment;
+
     const update = () => {
     // if (before === comment) comment = strategy.comment;
     };
 
     const submit = (comment: string) => {
-        console.log('Submitting strategy comment...');
+        // console.log('Submitting strategy comment...');
         if (comment === strategy.comment) return; // no changes
         strategy.update({ comment });
     };
@@ -43,6 +45,7 @@
             <small class="text-danger">Unsaved changes</small>
             <button
                 class="btn btn-primary mt-3"
+                type="button"
                 on:click="{() => submit(comment)}"
             >
                 Save

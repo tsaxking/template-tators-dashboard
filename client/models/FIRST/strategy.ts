@@ -5,6 +5,7 @@ import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
 import { Cache } from '../cache';
 import { CustomMatch } from './custom-match';
+import { MatchInterface } from './interfaces/match';
 import { FIRSTMatch } from './match';
 import { FIRSTWhiteboard } from './whiteboard';
 
@@ -16,6 +17,7 @@ import { FIRSTWhiteboard } from './whiteboard';
  */
 type StrategyUpdateData = {
     update: unknown;
+    'new-whiteboard': FIRSTWhiteboard;
 };
 
 type Updates = {
@@ -154,7 +156,7 @@ export class Strategy extends Cache<StrategyUpdateData> {
         });
     }
 
-    getMatch() {
+    getMatch(): Promise<Result<MatchInterface>> {
         return attemptAsync(async () => {
             if (this.matchId)
                 return (await FIRSTMatch.fromId(this.matchId)).unwrap();
@@ -196,7 +198,6 @@ export class Check extends EventEmitter<CheckEvents> {
                 .map(t => t.number);
             const checks = data.map(d => d.split(':') as [string, string]);
 
-            console.log('Check.from:', data, teams);
             return teams.map(t => {
                 const c = checks.filter(c => +c[0] === t).map(c => c[1]);
                 return new Check(t, c, strategy);
@@ -252,9 +253,12 @@ export class Check extends EventEmitter<CheckEvents> {
     }
 }
 
-socket.on('strategy:new', (data: S) => {
+socket.on('strategy:new', async (data: S) => {
     const s = Strategy.retrieve(data);
     Strategy.emit('new', s);
+    const m = await s.getMatch();
+    if (m.isErr()) return console.error(m.error);
+    m.value.emit('new-strategy', s);
 });
 
 socket.on('strategy:update', (data: S) => {
