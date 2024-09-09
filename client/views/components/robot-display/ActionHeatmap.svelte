@@ -45,8 +45,7 @@
         height: 1
     });
 
-    const fns = {
-        generate: async (team?: FIRSTTeam) => {
+        const generate = async (team?: FIRSTTeam) => {
             if (!team) return;
 
             checks = [];
@@ -68,6 +67,8 @@
                 c = new Canvas(ctx);
                 c.adaptable = true;
                 c.ratio = 2;
+                c.height = 500;
+                c.width = 1000;
             }
             c.clearDrawables();
 
@@ -142,18 +143,17 @@
             } else {
                 return console.error(scouting.error);
             }
-        },
-        filter: (trace: TraceArray) => {
+        };
+        const filter = (trace: TraceArray) => {
             container.filter(
                 (c, i) =>
                     checks.filter(Boolean).find(c => c.key === trace[i][3])
                         ?.enabled ?? true
             );
-        }
-    };
+        };
 
-    $: fns.generate(team);
-    $: fns.filter(traceArray);
+    $: generate(team);
+    $: filter(traceArray);
 </script>
 
 <div class="container-fluid">
@@ -162,7 +162,7 @@
             class="btn-group"
             aria-label="Select actions"
             role="group">
-            {#each checks as check}
+            {#each checks as check (check)}
                 <input
                     id="action-{check.key}"
                     name="action-{check.key}"
@@ -176,7 +176,7 @@
                                 ? { ...c, enabled: e.currentTarget.checked }
                                 : c
                         );
-                        fns.filter(traceArray);
+                        filter(traceArray);
                     }}"
                 />
                 <label

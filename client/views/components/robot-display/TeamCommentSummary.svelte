@@ -8,17 +8,15 @@
 
     let comments: TeamComment[] = [];
 
-    const fns = {
-        get: async (team?: FIRSTTeam) => {
-            if (!team) return;
-            comments = [];
-            comments = await team.getComments();
-        }
+    const get = async (team?: FIRSTTeam) => {
+        if (!team) return;
+        comments = [];
+        comments = await team.getComments();
     };
 
-    $: fns.get(team);
+    $: get(team);
 
-    onMount(() => fns.get(team));
+    onMount(() => get(team));
 </script>
 
 <CommentViewer

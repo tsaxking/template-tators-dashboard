@@ -10,57 +10,53 @@
 
     let me: HTMLDivElement;
 
-    onMount(() => {});
+    const open = () => {
+        if (!team) return alert('No team selected!');
 
-    const fns = {
-        open: () => {
-            if (!team) return alert('No team selected!');
+        const m = new Modal();
+        const upload = new UploadPicture({
+            target: m.target.querySelector('.modal-body') as HTMLElement
+        });
 
-            const m = new Modal();
-            const upload = new UploadPicture({
-                target: m.target.querySelector('.modal-body') as HTMLElement
-            });
+        upload.$on('change', (e: CustomEvent) => {
+            fileList = e.detail.fileList;
+        });
 
-            upload.$on('change', (e: CustomEvent) => {
-                fileList = e.detail.fileList;
-            });
+        m.show();
 
-            m.show();
+        const close = document.createElement('button');
+        close.classList.add('btn', 'btn-secondary');
+        close.textContent = 'Close';
+        close.addEventListener('click', () => m.hide());
 
-            const close = document.createElement('button');
-            close.classList.add('btn', 'btn-secondary');
-            close.textContent = 'Close';
-            close.addEventListener('click', () => m.hide());
+        const submit = document.createElement('button');
+        submit.classList.add('btn', 'btn-success');
+        submit.textContent = 'Submit';
+        submit.addEventListener('click', () => {
+            if (fileList.length === 0) return;
+            if (!team) return console.error('No team');
+            team.savePictures(fileList);
+            m.hide();
+        });
 
-            const submit = document.createElement('button');
-            submit.classList.add('btn', 'btn-success');
-            submit.textContent = 'Submit';
-            submit.addEventListener('click', () => {
-                if (fileList.length === 0) return;
-                if (!team) return console.error('No team');
-                team.savePictures(fileList);
-                m.hide();
-            });
+        const group = document.createElement('div');
+        group.classList.add('btn-group', 'd-flex', 'justify-content-between');
+        group.appendChild(close);
+        group.appendChild(submit);
 
-            const group = document.createElement('div');
-            group.classList.add('btn-group', 'd-flex', 'justify-content-between');
-            group.appendChild(close);
-            group.appendChild(submit);
+        m.setFooter(group);
 
-            m.setFooter(group);
-
-            m.on('hide', () => {
-                m.destroy();
-                upload.$destroy();
-            });
-        }
+        m.on('hide', () => {
+            m.destroy();
+            upload.$destroy();
+        });
     };
 </script>
 
 <div bind:this="{me}">
     <button
         class="btn btn-primary"
-        on:click="{fns.open}"
-    >Upload Pictures</button
-    >
+        type="button"
+        on:click="{open}"
+    >Upload Pictures</button>
 </div>
