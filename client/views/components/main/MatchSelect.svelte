@@ -39,6 +39,7 @@
 </script>
 
 <Select
+    defaultValue="Select Match"
     bind:options
     bind:value
     on:change="{handleChange}" />
