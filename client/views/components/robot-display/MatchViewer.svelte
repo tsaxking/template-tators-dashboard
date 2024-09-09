@@ -101,8 +101,10 @@
         canvas = new Canvas(ctx);
         canvas.ratio = 2;
         canvas.adaptable = true;
+        canvas.height = 500;
+        canvas.width = 1000;
 
-        fns.getTrace(match);
+        getTrace(match);
 
         return () => {
             canvas.clearDrawables();
@@ -112,134 +114,130 @@
 
     let stop = () => {};
 
-    const fns = {
-        getAlliance: (team: FIRSTTeam, match: FIRSTMatch) => {},
-        animate: (trace: TraceArray) => {
-            if (!canvas) return;
-            canvas.clearDrawables();
-            stop();
+    const getAlliance = (team: FIRSTTeam, match: FIRSTMatch) => {};
+    const animate = (trace: TraceArray) => {
+        if (!canvas) return;
+        canvas.clearDrawables();
+        stop();
 
-            const img = new Img(`/public/pictures/${team.event.tba.year}field.png`);
-            img.options.height = 1;
-            img.options.width = 1;
-            img.options.x = 0;
-            img.options.y = 0;
+        const img = new Img(`/public/pictures/${team.event.tba.year}field.png`);
+        img.options.height = 1;
+        img.options.width = 1;
+        img.options.x = 0;
+        img.options.y = 0;
 
-            const container = new Container();
-            container.children = trace.map((p, i, a) => {
-                const [_i, x, y, action] = p;
+        const container = new Container();
+        container.children = trace.map((p, i, a) => {
+            const [_i, x, y, action] = p;
 
-                if (action) {
-                    let color = actionColors[action as keyof typeof actionColors];
-                    if (!color) color = Color.fromName('black');
+            if (action) {
+                let color = actionColors[action as keyof typeof actionColors];
+                if (!color) color = Color.fromName('black');
 
-                    const foundKey = keys.find(k => k.action === action);
-                    if (!foundKey) {
-                        keys.push({
-                            action: action as keyof typeof actions,
-                            color: color.clone(),
-                            textColor:
-                                color.detectContrast(Color.fromBootstrap('dark')) >
-                                    color.detectContrast(Color.fromBootstrap('light'))
-                                    ? Color.fromBootstrap('dark')
-                                    : Color.fromBootstrap('light')
-                        });
-                        keys = keys;
-                    }
-
-                    const size = 0.05;
-                    const cir = new Circle([x, y], size);
-                    cir.properties.fill = {
-                        color: color.toString('rgba')
-                    };
-                    cir.properties.line = {
-                        color: 'transparent'
-                    };
-                    const a = icons[action as keyof typeof icons]?.clone();
-                    if (a instanceof SVG) {
-                        a.center = [x, y];
-                        if (!a.properties.text) a.properties.text = {};
-                        a.properties.text!.height = size;
-                        a.properties.text!.width = size;
-                        a.properties.text!.color =
-                            Color.fromBootstrap('light').toString('rgba');
-                    }
-                    if (a instanceof Icon) {
-                        a.x = x;
-                        a.y = y;
-                        a.size = size;
-                        a.color = Color.fromBootstrap('light').toString('rgba');
-                    }
-                    if (a instanceof Img) {
-                        a.options.x = x - size / 2;
-                        a.options.y = y - size;
-                        a.options.width = size;
-                        a.options.height = size * 2;
-                    }
-                    const cont = new Container(cir, a || null);
-                    return cont;
+                const foundKey = keys.find(k => k.action === action);
+                if (!foundKey) {
+                    keys.push({
+                        action: action as keyof typeof actions,
+                        color: color.clone(),
+                        textColor:
+                            color.detectContrast(Color.fromBootstrap('dark')) >
+                                color.detectContrast(Color.fromBootstrap('light'))
+                                ? Color.fromBootstrap('dark')
+                                : Color.fromBootstrap('light')
+                    });
+                    keys = keys;
                 }
-                if (a[i - 1]) {
-                    const color = sectionColors[Trace.getSection(p)];
-                    const path = new Path([
-                        [a[i - 1][1], a[i - 1][2]],
-                        [x, y]
-                    ]);
-                    path.properties.line = {
-                        color: color.toString('rgba'),
-                        width: 0.5
-                    };
-                    return path;
+
+                const size = 0.05;
+                const cir = new Circle([x, y], size);
+                cir.properties.fill = {
+                    color: color.toString('rgba')
+                };
+                cir.properties.line = {
+                    color: 'transparent'
+                };
+                const a = icons[action as keyof typeof icons]?.clone();
+                if (a instanceof SVG) {
+                    a.center = [x, y];
+                    if (!a.properties.text) a.properties.text = {};
+                    a.properties.text!.height = size;
+                    a.properties.text!.width = size;
+                    a.properties.text!.color =
+                        Color.fromBootstrap('light').toString('rgba');
                 }
-                return null;
+                if (a instanceof Icon) {
+                    a.x = x;
+                    a.y = y;
+                    a.size = size;
+                    a.color = Color.fromBootstrap('light').toString('rgba');
+                }
+                if (a instanceof Img) {
+                    a.options.x = x - size / 2;
+                    a.options.y = y - size;
+                    a.options.width = size;
+                    a.options.height = size * 2;
+                }
+                const cont = new Container(cir, a || null);
+                return cont;
+            }
+            if (a[i - 1]) {
+                const color = sectionColors[Trace.getSection(p)];
+                const path = new Path([
+                    [a[i - 1][1], a[i - 1][2]],
+                    [x, y]
+                ]);
+                path.properties.line = {
+                    color: color.toString('rgba'),
+                    width: 3
+                };
+                return path;
+            }
+            return null;
+        });
+
+        const from = 0;
+        const to = trace.length - 1;
+
+        const filter = (from: number, to: number) => {
+            container.filter((_, i) => i >= from && i <= to);
+        };
+
+        filter(from, to);
+
+        canvas.add(img, container);
+
+        stop = canvas.animate();
+
+        setTimeout(() => {
+            jQuery(`#match-slider-${id}`).slider({
+                range: true,
+                min: 0,
+                max: trace.length - 1,
+                values: [from, to],
+                slide: (_, ui) => {
+                    const [from, to] = ui.values as [number, number];
+                    filter(from, to);
+                }
             });
+        }, 200);
+    }; 
+    const getTrace = async (m: MatchScouting) => {
+        if (!m) return;
+        trace = m.trace;
+        animate(trace);
+        checks = m.checks;
+        scout = m.scoutName;
+        comments = m.comments;
 
-            const from = 0;
-            const to = trace.length - 1;
-
-            const filter = (from: number, to: number) => {
-                container.filter((_, i) => i >= from && i <= to);
-            };
-
-            filter(from, to);
-
-            canvas.add(img, container);
-
-            stop = canvas.animate();
-
-            setTimeout(() => {
-                jQuery(`#match-slider-${id}`).slider({
-                    range: true,
-                    min: 0,
-                    max: trace.length - 1,
-                    values: [from, to],
-                    slide: (_, ui) => {
-                        const [from, to] = ui.values as [number, number];
-                        filter(from, to);
-                    }
-                });
-            }, 200);
-        },
-        getTrace: async (m: MatchScouting) => {
-            if (!m) return;
-            trace = m.trace;
-            fns.animate(trace);
-            checks = m.checks;
-            scout = m.scoutName;
-            comments = m.comments;
-
-            const eventMatches = await FIRSTEvent.current?.getMatches();
-            if (!eventMatches) return;
-            if (eventMatches.isErr()) return console.error(eventMatches.error);
-            firstMatch = eventMatches.value.find(
-                _m => m.matchNumber === _m.number && m.compLevel === _m.compLevel
-            );
-        }
+        const eventMatches = await FIRSTEvent.current?.getMatches();
+        if (!eventMatches) return;
+        if (eventMatches.isErr()) return console.error(eventMatches.error);
+        firstMatch = eventMatches.value.find(
+            _m => m.matchNumber === _m.number && m.compLevel === _m.compLevel
+        );
     };
 
-    $: {
-        fns.getTrace(match);
-    }
+    $: getTrace(match);
 </script>
 
 <div class="container-fluid">
@@ -251,7 +249,7 @@
     <div class="row mb-3">
         <h5 class="text-center">Trace</h5>
         <p>
-            {#each keys as key}
+            {#each keys as key (key)}
                 <span
                     style:background-color="{key.color.toString('rgb')}"
                     style:color="{key.textColor.toString('rgb')}"
@@ -284,7 +282,7 @@
     <div class="row mb-3">
         <h5 class="text-center">Checks</h5>
         <ul class="list-group">
-            {#each checks as check}
+            {#each checks as check (check)}
                 <li class="list-group-item text-{checkColors[check]}">
                     {capitalize(fromCamelCase(check))}
                 </li>
