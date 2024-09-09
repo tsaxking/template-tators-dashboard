@@ -1,1 +1,1 @@
-UPDATE Whiteboards SET archived = 1 WHERE id = :id;
+UPDATE Whiteboards SET archived = true WHERE id = :id;

@@ -1,124 +1,124 @@
 <script lang="ts">
-import { Question } from '../../../models/FIRST/question-scouting/question';
-import type {
-    QuestionOptions,
-    QuestionType
-} from '../../../../shared/db-types-extended';
-import { alert, confirm } from '../../../utilities/notifications';
-import O from './Option.svelte';
+    import { Question } from '../../../models/FIRST/question-scouting/question';
+    import type {
+        QuestionOptions,
+        QuestionType
+    } from '../../../../shared/db-types-extended';
+    import { alert, confirm } from '../../../utilities/notifications';
+    import O from './Option.svelte';
 
-export let question: Question;
+    export let question: Question;
 
-let type: QuestionType,
-    options: QuestionOptions,
-    description: string,
-    key: string,
-    questionText: string,
-    optionsData: string[] = []; //,
-// isEdited = false
-$: {
-    fns.setQuestion(question);
+    let type: QuestionType,
+        options: QuestionOptions,
+        description: string,
+        key: string,
+        questionText: string,
+        optionsData: string[] = []; //,
+    // isEdited = false
+    $: {
+        fns.setQuestion(question);
     // isEdited = question?.type === type &&
     //     question?.description === description &&
     //     question?.key === key &&
     //     question?.question === questionText &&
     //     JSON.stringify(question?.options) === JSON.stringify(options);
-}
+    }
 
-// to not have svelte complain about too many variables
-const fns = {
-    update: async () => {
-        console.log('updating...');
-        question.type = type;
-        question.description = description.trim();
-        question.options.checkbox = options.checkbox;
-        question.options.radio = options.radio;
-        question.options.select = options.select;
-        question.key = key.trim();
-        question.question = questionText.trim();
+    // to not have svelte complain about too many variables
+    const fns = {
+        update: async () => {
+            console.log('updating...');
+            question.type = type;
+            question.description = description.trim();
+            question.options.checkbox = options.checkbox;
+            question.options.radio = options.radio;
+            question.options.select = options.select;
+            question.key = key.trim();
+            question.question = questionText.trim();
 
-        const res = await question.update();
-        if (res.isErr()) console.error(res.error);
-    },
-    addOption: () => {
-        if (type === 'select') {
-            options.select = [...(options.select || []), ''];
-            optionsData = options.select;
-        }
-
-        if (type === 'checkbox') {
-            options.checkbox = [...(options.checkbox || []), ''];
-            optionsData = options.checkbox;
-        }
-
-        if (type === 'radio') {
-            options.radio = [...(options.radio || []), ''];
-            optionsData = options.radio;
-        }
-
-        // reassign to trigger svelte reactivity
-        options = options;
-    },
-    deleteOption: () => {
-        if (type === 'select') {
-            options.select = options.select.slice(0, options.select.length - 1);
-        }
-
-        if (type === 'checkbox') {
-            options.checkbox = options.checkbox.slice(
-                0,
-                options.checkbox.length - 1
-            );
-        }
-
-        if (type === 'radio') {
-            options.radio = options.radio.slice(0, options.radio.length - 1);
-        }
-
-        // reassign to trigger svelte reactivity
-        options = options;
-    },
-    delete: async () => {
-        if (!question) return alert('Cannot delete undefined question');
-
-        const doDelete = await confirm(
-            'Are you sure you want to delete this question?'
-        );
-        if (!doDelete) return;
-
-        const res = await question.delete();
-        if (res.isOk()) {
-            question = undefined;
-        }
-
-        if (res.isErr()) {
-            alert(res.error.message);
-        }
-    },
-    setQuestion: (q: Question | undefined) => {
-        if (q) {
-            type = question.type;
-            options = question.options;
-            description = question.description.trim();
-            key = question.key.trim();
-            questionText = question.question.trim();
-
+            const res = await question.update();
+            if (res.isErr()) console.error(res.error);
+        },
+        addOption: () => {
             if (type === 'select') {
-                optionsData = options.select?.map(o => o.trim()) || [];
+                options.select = [...(options.select || []), ''];
+                optionsData = options.select;
             }
 
             if (type === 'checkbox') {
-                optionsData = options.checkbox?.map(o => o.trim()) || [];
+                options.checkbox = [...(options.checkbox || []), ''];
+                optionsData = options.checkbox;
             }
 
             if (type === 'radio') {
-                optionsData = options.radio?.map(o => o.trim()) || [];
+                options.radio = [...(options.radio || []), ''];
+                optionsData = options.radio;
             }
 
+            // reassign to trigger svelte reactivity
+            options = options;
+        },
+        deleteOption: () => {
+            if (type === 'select') {
+                options.select = options.select.slice(0, options.select.length - 1);
+            }
+
+            if (type === 'checkbox') {
+                options.checkbox = options.checkbox.slice(
+                    0,
+                    options.checkbox.length - 1
+                );
+            }
+
+            if (type === 'radio') {
+                options.radio = options.radio.slice(0, options.radio.length - 1);
+            }
+
+            // reassign to trigger svelte reactivity
+            options = options;
+        },
+        delete: async () => {
+            if (!question) return alert('Cannot delete undefined question');
+
+            const doDelete = await confirm(
+                'Are you sure you want to delete this question?'
+            );
+            if (!doDelete) return;
+
+            const res = await question.delete();
+            if (res.isOk()) {
+                question = undefined;
+            }
+
+            if (res.isErr()) {
+                alert(res.error.message);
+            }
+        },
+        setQuestion: (q: Question | undefined) => {
+            if (q) {
+                type = question.type;
+                options = question.options;
+                description = question.description.trim();
+                key = question.key.trim();
+                questionText = question.question.trim();
+
+                if (type === 'select') {
+                    optionsData = options.select?.map(o => o.trim()) || [];
+                }
+
+                if (type === 'checkbox') {
+                    optionsData = options.checkbox?.map(o => o.trim()) || [];
+                }
+
+                if (type === 'radio') {
+                    optionsData = options.radio?.map(o => o.trim()) || [];
+                }
+
             // q.on('update', () => {})
+            }
         }
-    }
-};
+    };
 </script>
 
 <div class="card">
@@ -158,7 +158,7 @@ const fns = {
             </div>
             <div class="row mb-3">
                 <label for="{question.id}-description"
-                    >Question Description</label
+                >Question Description</label
                 >
                 <small class="mb-2">
                     In case of any confusion, please write a description of the
@@ -170,7 +170,7 @@ const fns = {
                     class="form-control"
                     bind:value="{description}"
                     on:change="{fns.update}"
-                ></textarea>
+                />
             </div>
             <div class="row mb-3">
                 <label for="{question.id}-type">Question Type</label>
@@ -213,18 +213,24 @@ const fns = {
                     />
                 {/each}
                 <div class="row mb-3">
-                    <button class="btn btn-primary" on:click="{fns.addOption}">
+                    <button
+                        class="btn btn-primary"
+                        on:click="{fns.addOption}">
                         Add Option
                     </button>
                 </div>
             {/if}
             <div class="btn-group">
                 <!-- {#if isEdited} -->
-                <button class="btn btn-success" on:click="{fns.update}">
+                <button
+                    class="btn btn-success"
+                    on:click="{fns.update}">
                     Save <i class="material-icons"> save </i>
                 </button>
                 <!-- {/if} -->
-                <button class="btn btn-danger" on:click="{fns.delete}">
+                <button
+                    class="btn btn-danger"
+                    on:click="{fns.delete}">
                     Delete Question <i class="material-icons"> delete </i>
                 </button>
             </div>

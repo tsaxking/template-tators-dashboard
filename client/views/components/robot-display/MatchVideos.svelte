@@ -1,19 +1,19 @@
 <script lang="ts">
-import { FIRSTMatch } from '../../../models/FIRST/match';
-export let match: FIRSTMatch | undefined;
-let matchVideos: string[] = [];
+    import { FIRSTMatch } from '../../../models/FIRST/match';
+    export let match: FIRSTMatch | undefined;
+    let matchVideos: string[] = [];
 
-const pullVideos = (m: FIRSTMatch | undefined) => {
-    if (m) {
-        matchVideos = m.tba.videos
-            .filter(v => v.type === 'youtube') // I'm guessing with this, you'll likely have to log it to see
-            .map(v => v.key);
-    } else {
-        matchVideos = [];
-    }
-};
+    const pullVideos = (m: FIRSTMatch | undefined) => {
+        if (m) {
+            matchVideos = m.tba.videos
+                .filter(v => v.type === 'youtube') // I'm guessing with this, you'll likely have to log it to see
+                .map(v => v.key);
+        } else {
+            matchVideos = [];
+        }
+    };
 
-$: pullVideos(match);
+    $: pullVideos(match);
 </script>
 
 {#each matchVideos as video}
@@ -30,7 +30,7 @@ $: pullVideos(match);
                 referrerpolicy="strict-origin-when-cross-origin"
                 src="https://www.youtube.com/embed/{video}"
                 title="YouTube video player"
-            ></iframe>
+            />
         </div>
     </div>
 {/each}

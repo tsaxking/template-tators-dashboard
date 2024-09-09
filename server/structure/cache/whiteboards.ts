@@ -1,16 +1,32 @@
 import { Cache } from './cache';
 import { DB } from '../../utilities/databases';
 import { Whiteboards as W } from '../../utilities/tables';
-import { attemptAsync } from '../../../shared/check';
+import { attemptAsync, parseJSON } from '../../../shared/check';
 import { uuid } from '../../utilities/uuid';
+import { Strategy } from './strategy';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 
-export class Whiteboard extends Cache {
+export class FIRSTWhiteboard extends Cache {
     public static fromStrategy(strategyId: string) {
         return attemptAsync(async () => {
             const boards = (
                 await DB.all('whiteboards/from-strategy', { strategyId })
             ).unwrap();
-            return boards.map(b => new Whiteboard(b));
+            return boards.map(b => new FIRSTWhiteboard(b));
+        });
+    }
+
+    public static all() {
+        return attemptAsync(async () => {
+            const boards = (await DB.all('whiteboards/all')).unwrap();
+            return boards.map(b => new FIRSTWhiteboard(b));
+        });
+    }
+
+    public static archived() {
+        return attemptAsync(async () => {
+            const boards = (await DB.all('whiteboards/archived')).unwrap();
+            return boards.map(b => new FIRSTWhiteboard(b));
         });
     }
 
@@ -19,22 +35,22 @@ export class Whiteboard extends Cache {
             const board = (
                 await DB.get('whiteboards/from-id', { id })
             ).unwrap();
-            return board ? new Whiteboard(board) : undefined;
+            return board ? new FIRSTWhiteboard(board) : undefined;
         });
     }
 
-    public static new(data: Omit<W, 'id'>) {
+    public static new(data: Omit<W, 'id' | 'archived'>) {
         return attemptAsync(async () => {
             const id = uuid();
             await DB.run('whiteboards/new', { ...data, id });
-            return new Whiteboard({ ...data, id });
+            return new FIRSTWhiteboard({ ...data, id, archived: false });
         });
     }
 
     public readonly id: string;
     public name: string;
     public board: string;
-    public archive: 0 | 1;
+    public archived: boolean;
     public strategyId: string;
     constructor(data: W) {
         super();
@@ -42,14 +58,44 @@ export class Whiteboard extends Cache {
         this.id = data.id;
         this.name = data.name;
         this.board = data.board;
-        this.archive = data.archive;
+        this.archived = data.archived;
         this.strategyId = data.strategyId;
     }
 
-    update(data: Partial<Omit<W, 'id'>>) {
+    update(data: Partial<Omit<W, 'id' | 'archived'>>) {
         return attemptAsync(async () => {
             await DB.run('whiteboards/update', { ...this, ...data });
             Object.assign(this, data);
+        });
+    }
+
+    delete() {
+        return DB.run('whiteboards/delete', { id: this.id });
+    }
+
+    restore() {
+        return DB.run('whiteboards/restore', { id: this.id });
+    }
+
+    getStrategy() {
+        return Strategy.fromId(this.strategyId);
+    }
+
+    addState(state: string, index: number) {
+        return attemptAsync(async () => {
+            const s = JSON.parse(state) as {
+                color: string;
+                points: Point2D[];
+            };
+            const states = JSON.parse(this.board) as {
+                color: string;
+                points: Point2D[];
+            }[];
+            // remove all states after and including index
+            states.splice(index);
+            states.push(s);
+            this.board = JSON.stringify(states);
+            return (await this.update({ board: this.board })).unwrap();
         });
     }
 }

@@ -107,7 +107,7 @@ export const addStatus = (data: {
     )
         .map((key: StatusId) => {
             return `    '${key}': {
-    message: '${messages[key].message.replace(/'/g, "\\'")}',
+    message: '${messages[key].message.replace(/'/g, '\\\'')}',
     color: '${messages[key].color}',
     code: ${messages[key].code},
     instructions: '${messages[key].instructions}',${

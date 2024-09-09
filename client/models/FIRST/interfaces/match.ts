@@ -3,7 +3,6 @@ import { CompLevel } from '../../../../shared/submodules/tatorscout-calculations
 import { FIRSTAlliance, Alliance as TeamArray } from '../alliance';
 import { Matches } from '../../../../server/utilities/tables';
 import { Strategy } from '../strategy';
-import { FIRSTWhiteboard } from '../whiteboard';
 
 export interface MatchInterface {
     getTeams(): Promise<Result<[...TeamArray, ...TeamArray]>>;
@@ -18,4 +17,8 @@ export interface MatchInterface {
     number: number;
     compLevel: CompLevel;
     eventKey: string;
+
+    on(event: 'new-strategy', listener: (strategy: Strategy) => void): void;
+    off(event: 'new-strategy', listener: (strategy: Strategy) => void): void;
+    emit(event: 'new-strategy', strategy: Strategy): void;
 }

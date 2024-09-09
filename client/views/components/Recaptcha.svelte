@@ -1,38 +1,38 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { createEventDispatcher } from 'svelte';
+    import { onMount } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
 
-const d = createEventDispatcher();
+    const d = createEventDispatcher();
 
-let div: HTMLDivElement;
+    let div: HTMLDivElement;
 
-const onloadCallback = () => {
-    d('loaded', div);
-};
+    const onloadCallback = () => {
+        d('loaded', div);
+    };
 
-const onSuccess = (token: string) => {
-    d('success', token);
-};
+    const onSuccess = (token: string) => {
+        d('success', token);
+    };
 
-const onExpire = () => {
-    d('expired');
-};
+    const onExpire = () => {
+        d('expired');
+    };
 
-window.onloadCallback = onloadCallback;
+    window.onloadCallback = onloadCallback;
 
-onMount(() => {
-    document.addEventListener('DOMContentLoaded', e => {
-        const script = document.createElement('script');
-        script.src = 'https://www.google.com/recaptcha/api.js';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+    onMount(() => {
+        document.addEventListener('DOMContentLoaded', e => {
+            const script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
 
-        return () => {
-            document.head.removeChild(script);
-        };
+            return () => {
+                document.head.removeChild(script);
+            };
+        });
     });
-});
 </script>
 
 <div
@@ -40,4 +40,4 @@ onMount(() => {
     class="g-recaptcha p-3"
     data-callback="onloadCallback"
     data-sitekey="{RECAPTCHA_SITE_KEY}"
-></div>
+/>

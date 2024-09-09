@@ -820,7 +820,7 @@ export const messages: Record<string, StatusMessage> = {
         instructions: ''
     },
     'server:not-implemented': {
-        message: "This request's handler has not been implemented yet.",
+        message: 'This request\'s handler has not been implemented yet.',
         color: 'warning',
         code: 501,
         instructions: ''
@@ -924,7 +924,7 @@ export const messages: Record<string, StatusMessage> = {
         instructions: ''
     },
     'teams:pictures-uploaded': {
-        message: "Team's picture was uploaded successfully",
+        message: 'Team\'s picture was uploaded successfully',
         color: 'success',
         code: 200,
         instructions: ''
@@ -998,6 +998,12 @@ export const messages: Record<string, StatusMessage> = {
     },
     'whiteboard:update': {
         message: 'Whiteboard updated successfully',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'whiteboard:state-added': {
+        message: 'State added to whiteboard',
         color: 'success',
         code: 200,
         instructions: ''
@@ -1191,4 +1197,5 @@ export type WhiteboardStatusId =
     | 'deleted'
     | 'match-not-found'
     | 'not-found'
-    | 'update';
+    | 'update'
+    | 'state-added';

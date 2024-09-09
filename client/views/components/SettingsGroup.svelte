@@ -1,14 +1,14 @@
 <script lang="ts">
-import Setting from './Setting.svelte';
-import type { SettingsType } from '../../models/settings';
-import { createEventDispatcher } from 'svelte';
+    import Setting from './Setting.svelte';
+    import type { SettingsType } from '../../models/settings';
+    import { createEventDispatcher } from 'svelte';
 
-const dispatch = createEventDispatcher();
-export let settings: SettingsType[] = [];
+    const dispatch = createEventDispatcher();
+    export let settings: SettingsType[] = [];
 
-const onChange = (setting: string, value: unknown) => {
-    dispatch('change', { setting, value });
-};
+    const onChange = (setting: string, value: unknown) => {
+        dispatch('change', { setting, value });
+    };
 </script>
 
 <div class="container-fluid">
