@@ -5,6 +5,8 @@
     import { prompt } from '../../../utilities/notifications';
 import { alert } from '../../../utilities/notifications';
 
+export let loading: boolean;
+
     let potatoes: Potato[] = [];
     let self: Potato | undefined;
     let actions = false;
@@ -15,6 +17,7 @@ import { alert } from '../../../utilities/notifications';
         const s = await Potato.getSelf();
         if (s.isErr()) return console.error(s.error);
         self = s.value;
+        loading = false;
     };
 
     const isAdmin = async () => {
@@ -36,6 +39,7 @@ import { alert } from '../../../utilities/notifications';
             actions = false;
             Potato.off('new', getLeaderboard);
             Potato.off('update', getLeaderboard);
+            loading = true;
         };
     });
 </script>
