@@ -1,1 +1,1 @@
-SELECT * FROM CustomTBARequests WHERE url = :url;
+SELECT * FROM CustomTbaRequests WHERE url = :url;

@@ -1,100 +1,98 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { Account } from '../../models/account';
-    import type { Permission as P } from '../../../shared/permissions';
-    import { confirm, select } from '../../utilities/notifications';
-    import { Role } from '../../models/roles';
-    import RoleBadge from '../components/accounts/RoleBadge.svelte';
-    import { prompt } from '../../utilities/notifications';
+import { onMount } from 'svelte';
+import { Account } from '../../models/account';
+import type { Permission as P } from '../../../shared/permissions';
+import { confirm, select } from '../../utilities/notifications';
+import { Role } from '../../models/roles';
+import RoleBadge from '../components/accounts/RoleBadge.svelte';
+import { prompt } from '../../utilities/notifications';
 
-    let accounts: Account[] = [];
+let accounts: Account[] = [];
 
-    let accountObjs: {
-        id: string;
-        username: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-        verified: 0 | 1;
-        created: number;
-        phoneNumber: string;
-        picture?: string;
-        roles: Role[];
-        permissions: P[];
-    }[] = [];
+let accountObjs: {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    verified: 0 | 1;
+    created: number;
+    phoneNumber: string;
+    picture?: string;
+    roles: Role[];
+    permissions: P[];
+}[] = [];
 
-    const setAccounts = async (newAccounts: Account[]) => {
-        accountObjs = (
-            await Promise.all(
-                newAccounts.map(async a => {
-                    const [roles, permissions] = await Promise.all([
-                        a.getRoles(true).then(r => {
-                            if (r.isOk()) {
-                                return r.value;
-                            }
-                            // console.error('Failed to get roles: ', r.error);
-                            return [];
-                        }),
-                        a.getPermissions(true).then(p => {
-                            if (p.isOk()) {
-                                return p.value;
-                            }
-                            // console.error('Failed to get permissions: ', p.error);
-                            return [];
-                        })
-                    ]);
+const setAccounts = async (newAccounts: Account[]) => {
+    accountObjs = (
+        await Promise.all(
+            newAccounts.map(async a => {
+                const [roles, permissions] = await Promise.all([
+                    a.getRoles(true).then(r => {
+                        if (r.isOk()) {
+                            return r.value;
+                        }
+                        // console.error('Failed to get roles: ', r.error);
+                        return [];
+                    }),
+                    a.getPermissions(true).then(p => {
+                        if (p.isOk()) {
+                            return p.value;
+                        }
+                        // console.error('Failed to get permissions: ', p.error);
+                        return [];
+                    })
+                ]);
 
-                    return {
-                        id: a.id,
-                        username: a.username,
-                        firstName: a.firstName,
-                        lastName: a.lastName,
-                        email: a.email,
-                        verified: a.verified,
-                        created: a.created,
-                        phoneNumber: a.phoneNumber,
-                        picture: a.picture,
-                        roles,
-                        permissions: permissions.map(p => p.permission) as P[]
-                    };
-                })
-            )
-        ).filter(a => a.username !== 'guest');
-    };
+                return {
+                    id: a.id,
+                    username: a.username,
+                    firstName: a.firstName,
+                    lastName: a.lastName,
+                    email: a.email,
+                    verified: a.verified,
+                    created: a.created,
+                    phoneNumber: a.phoneNumber,
+                    picture: a.picture,
+                    roles,
+                    permissions: permissions.map(p => p.permission) as P[]
+                };
+            })
+        )
+    ).filter(a => a.username !== 'guest');
+};
 
-    let div: HTMLDivElement;
+let div: HTMLDivElement;
 
-    const set = async () => {
-        const res = await Account.all();
+const set = async () => {
+    const res = await Account.all();
 
-        if (res.isOk()) {
-            accounts = res.value;
-        } else {
-            console.error('Failed to get accounts: ', res.error);
-        }
+    if (res.isOk()) {
+        accounts = res.value;
+    } else {
+        console.error('Failed to get accounts: ', res.error);
+    }
 
-        document
-            .querySelectorAll('.tooltip.bs-tooltip-auto')
-            .forEach(e => e.remove());
+    document
+        .querySelectorAll('.tooltip.bs-tooltip-auto')
+        .forEach(e => e.remove());
 
-        jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
+    jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
     // jQuery(div).dataTable();
-    };
+};
 
-    onMount(set);
+onMount(set);
 
-    $: setAccounts(accounts);
-    $: console.log(accountObjs);
+$: setAccounts(accounts);
+$: console.log(accountObjs);
 
-    Account.on('new', set);
-    Account.on('update', set);
-    Account.on('delete', set);
+Account.on('new', set);
+Account.on('update', set);
+Account.on('delete', set);
 </script>
 
 <div class="table-responsive">
-    <table
-        bind:this="{div}"
-        class="table table-striped table-hover">
+    <table bind:this="{div}" class="table table-striped table-hover">
         <thead>
             <tr>
                 <th scope="col">Name</th>
@@ -166,7 +164,7 @@
                                                             !account.roles.some(
                                                                 ar =>
                                                                     ar.id ===
-                                                                        r.id
+                                                                    r.id
                                                             )
                                                     )
                                                     .map(r => r.name),
@@ -193,7 +191,7 @@
                                                         const a = accounts.find(
                                                             a =>
                                                                 a.id ===
-                                                                    account.id
+                                                                account.id
                                                         );
                                                         a?.addRole(r.value);
                                                     } else {

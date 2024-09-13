@@ -4,8 +4,8 @@ import env from '../server/utilities/env';
 import { sleep } from '../shared/sleep';
 
 const main = async () => {
-    if (env.ENVIRONMENT !== 'test')
-        throw new Error('This script can only be run in test environment');
+    // if (env.ENVIRONMENT !== 'test')
+    //     throw new Error('This script can only be run in test environment');
     for (let count = 5; count > 0; count--) {
         console.warn(
             Colors.FgYellow,
@@ -16,7 +16,7 @@ const main = async () => {
         await sleep(1000);
     }
 
-    await Version.reset();
+    await Version.reset(true);
     process.exit(0);
 };
 

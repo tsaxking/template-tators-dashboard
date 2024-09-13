@@ -1,111 +1,110 @@
 <script lang="ts">
-    import { FIRSTMatch } from '../../../models/FIRST/match';
-    import { Check, Strategy } from '../../../models/FIRST/strategy';
-    import { onMount } from 'svelte';
-    import { alert, prompt, select } from '../../../utilities/notifications';
-    import { FIRSTAlliance } from '../../../models/FIRST/alliance';
-    import Alliance from '../../components/strategy/2024Alliance.svelte';
-    import { type MatchInterface } from '../../../models/FIRST/interfaces/match';
-    // import { dateString } from '../../../../shared/clock';
+import { FIRSTMatch } from '../../../models/FIRST/match';
+import { Check, Strategy } from '../../../models/FIRST/strategy';
+import { onMount } from 'svelte';
+import { alert, prompt, select } from '../../../utilities/notifications';
+import { FIRSTAlliance } from '../../../models/FIRST/alliance';
+import Alliance from '../../components/strategy/2024Alliance.svelte';
+import { type MatchInterface } from '../../../models/FIRST/interfaces/match';
+// import { dateString } from '../../../../shared/clock';
 // import { Loop } from '../../../../shared/loop';
-    import Checks from '../../components/strategy/Checks.svelte';
-    import Comment from '../../components/strategy/Comment.svelte';
-    import MatchSelect from '../../components/main/MatchSelect.svelte';
-    import StrategySelect from '../../components/strategy/StrategySelect.svelte';
-    import WhiteboardContainer from '../../components/whiteboard/WhiteboardContainer.svelte';
+import Checks from '../../components/strategy/Checks.svelte';
+import Comment from '../../components/strategy/Comment.svelte';
+import MatchSelect from '../../components/main/MatchSelect.svelte';
+import StrategySelect from '../../components/strategy/StrategySelect.svelte';
+import WhiteboardContainer from '../../components/whiteboard/WhiteboardContainer.svelte';
 
-    export let loading: boolean;
+export let loading: boolean;
 
-    // move ../Strategy.svelte into this director
+// move ../Strategy.svelte into this director
 // Use that Strategy.svelte in pit and main dashboard, so you don't have to write the code twice
 // Move RobotCard into view/components/strategy
 // Utilize the components folder and separate the components into their own files
 // Build a countdown timer component in /view/components/bootstrap then gimme the code
 
 // const date = dateString('MM/DD/YYYY hh:mm:ss AM');
-    // let matches: FIRSTMatch[] = [];
-    let strategy: Strategy | undefined;
-    let red: FIRSTAlliance | undefined;
-    let blue: FIRSTAlliance | undefined;
-    let match: MatchInterface | undefined;
-    let checks: Check[] = [];
+// let matches: FIRSTMatch[] = [];
+let strategy: Strategy | undefined;
+let red: FIRSTAlliance | undefined;
+let blue: FIRSTAlliance | undefined;
+let match: MatchInterface | undefined;
+let checks: Check[] = [];
 
-    // let currentTime = date();
+// let currentTime = date();
 
-    // const getMatches = async (event: FIRSTEvent) => {
-    //     const res = await event.getMatches();
-    //     if (res.isErr()) {
-    //         return console.error(res.error);
-    //     }
-    //     loading = false;
+// const getMatches = async (event: FIRSTEvent) => {
+//     const res = await event.getMatches();
+//     if (res.isErr()) {
+//         return console.error(res.error);
+//     }
+//     loading = false;
 
-    //     matches = res.value;
-    // };
+//     matches = res.value;
+// };
 
-    const newStrategy = async () => {
-        if (!match)
-            return alert(
-                'Match not selected! You cannot make a new strategy without selecting a match.'
-            );
-        let name = await prompt('Strategy Name');
-        if (!name) return;
-        // use prompt to get the strategy name
+const newStrategy = async () => {
+    if (!match)
+        return alert(
+            'Match not selected! You cannot make a new strategy without selecting a match.'
+        );
+    let name = await prompt('Strategy Name');
+    if (!name) return;
+    // use prompt to get the strategy name
     // use Strategy.new();
-        const info = await match.getInfo();
-        if (info.isErr()) {
-            return console.error(info.error);
-        }
+    const info = await match.getInfo();
+    if (info.isErr()) {
+        return console.error(info.error);
+    }
 
-        const isMatch = match instanceof FIRSTMatch;
+    const isMatch = match instanceof FIRSTMatch;
 
-        Strategy.new({
-            matchId: isMatch ? info.value.id : undefined,
-            customMatchId: isMatch ? undefined : info.value.id,
-            name
-        });
-    };
-
-
-    const onMatchSelect = async (m: MatchInterface) => {
-        match = m;
-        red = undefined;
-        blue = undefined;
-        const alliances = await match.getAlliances();
-
-        if (alliances.isErr()) {
-            return console.error(alliances.error);
-        }
-
-        const { red: r, blue: b } = alliances.value;
-        red = r;
-        blue = b;
-    };
-
-    const selectStrategy = async (s: Strategy) => {
-        if (!match) return console.error('Strategy: match not selected');
-        strategy = s;
-        // s.select();
-
-        const c = await s.getChecks();
-        if (c.isErr()) {
-            return console.error(c.error);
-        }
-
-        checks = c.value;
-    };
-
-    onMount(() => {
-        loading = false;
-        // FIRSTEvent.on('select', getMatches);
-        // if (FIRSTEvent.current) getMatches(FIRSTEvent.current);
-
-        return () => {
-        // FIRSTEvent.off('select', getMatches);
-        };
+    Strategy.new({
+        matchId: isMatch ? info.value.id : undefined,
+        customMatchId: isMatch ? undefined : info.value.id,
+        name
     });
+};
+
+const onMatchSelect = async (m: MatchInterface) => {
+    match = m;
+    red = undefined;
+    blue = undefined;
+    const alliances = await match.getAlliances();
+
+    if (alliances.isErr()) {
+        return console.error(alliances.error);
+    }
+
+    const { red: r, blue: b } = alliances.value;
+    red = r;
+    blue = b;
+};
+
+const selectStrategy = async (s: Strategy) => {
+    if (!match) return console.error('Strategy: match not selected');
+    strategy = s;
+    // s.select();
+
+    const c = await s.getChecks();
+    if (c.isErr()) {
+        return console.error(c.error);
+    }
+
+    checks = c.value;
+};
+
+onMount(() => {
+    loading = false;
+    // FIRSTEvent.on('select', getMatches);
+    // if (FIRSTEvent.current) getMatches(FIRSTEvent.current);
+
+    return () => {
+        // FIRSTEvent.off('select', getMatches);
+    };
+});
 </script>
 
-<div class="d-flex flex-row mb-3" />
+<div class="d-flex flex-row mb-3"></div>
 
 <div class="container-fluid">
     <div class="row mb-3">

@@ -1,12 +1,12 @@
 <script lang="ts">
-    export let matchScouting: {
-        teams: {
-            team: number;
-            scouted: boolean;
-        }[];
-        number: number;
-        compLevel: string;
-    }[] = [];
+export let matchScouting: {
+    teams: {
+        team: number;
+        scouted: boolean;
+    }[];
+    number: number;
+    compLevel: string;
+}[] = [];
 </script>
 
 <div class="table-responsive">

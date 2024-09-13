@@ -1,9 +1,13 @@
-import { attemptAsync, resolveAll } from "../../../shared/check";
-import { TBA } from "./tba";
-import { DB } from "../databases";
-import { TBAEvent, TBAMatch, TBATeam } from "../../../shared/submodules/tatorscout-calculations/tba";
-import { validate } from "../../middleware/data-type";
-import { ServerFunction } from "../../structure/app/app";
+import { attemptAsync, resolveAll } from '../../../shared/check';
+import { TBA } from './tba';
+import { DB } from '../databases';
+import {
+    TBAEvent,
+    TBAMatch,
+    TBATeam
+} from '../../../shared/submodules/tatorscout-calculations/tba';
+import { validate } from '../../middleware/data-type';
+import { ServerFunction } from '../../structure/app/app';
 
 // const multiValidate = <T extends Record<string, unknown>>(data: {
 //     [K in keyof T]: ServerFunction<T[K]>;
@@ -23,13 +27,12 @@ import { ServerFunction } from "../../structure/app/app";
 //     };
 // }
 
-
 const insert = (url: string, response: unknown) => {
     return DB.run('tba/custom-new', {
         url,
         update: 0,
         response: JSON.stringify(response),
-        updated: Date.now(),
+        updated: Date.now()
     });
 };
 
@@ -50,11 +53,11 @@ export type Match = {
         red: {
             score: number;
             team_keys: [string, string, string];
-        },
+        };
         blue: {
             score: number;
             team_keys: [string, string, string];
-        }
+        };
     };
     winningAlliance: string;
     eventKey: string;
@@ -70,13 +73,13 @@ export type Match = {
         type: string;
     }[];
     time: number;
-}
+};
 
 export type Team = {
     key: string;
     teamNumber: number;
     nickname: string;
-}
+};
 
 export type TeamEvent = {
     eventKey: string;
@@ -88,7 +91,7 @@ export const validateEvent = validate<Event>({
     name: 'string',
     startDate: 'string',
     endDate: 'string',
-    year: 'number',
+    year: 'number'
 });
 
 export const validateMatch = validate<Match>({
@@ -111,7 +114,7 @@ export const validateMatch = validate<Match>({
         if (!Array.isArray(red.team_keys)) return false;
         if (red.team_keys.length !== 3) return false;
         if (!red.team_keys.every(k => typeof k === 'string')) return false;
-        
+
         if (typeof blue !== 'object') return false;
         if (blue === null) return false;
         if (!('score' in blue)) return false;
@@ -153,13 +156,13 @@ export const validateMatch = validate<Match>({
 
         return true;
     },
-    time: 'number',
+    time: 'number'
 });
 
 export const validateTeam = validate<Team>({
     key: 'string',
     teamNumber: 'number',
-    nickname: 'string',
+    nickname: 'string'
 });
 
 export const validateTeamEvent = validate<TeamEvent>({
@@ -189,7 +192,7 @@ const typeEvent = (e: Event): TBAEvent => ({
         abbreviation: '',
         display_name: '',
         key: '',
-        year: 0,
+        year: 0
     },
     event_code: '',
     event_type: 0,
@@ -206,12 +209,12 @@ const typeMatch = (m: Match): TBAMatch => ({
     alliances: {
         red: {
             score: m.alliances.red.score,
-            team_keys: m.alliances.red.team_keys,
+            team_keys: m.alliances.red.team_keys
         },
         blue: {
             score: m.alliances.blue.score,
-            team_keys: m.alliances.blue.team_keys,
-        },
+            team_keys: m.alliances.blue.team_keys
+        }
     },
     winning_alliance: m.winningAlliance,
     event_key: m.eventKey,
@@ -220,7 +223,7 @@ const typeMatch = (m: Match): TBAMatch => ({
     post_result_time: m.postResultTime,
     score_breakdown: m.scoreBreakdown,
     videos: m.videos,
-    time: m.time,
+    time: m.time
 });
 
 const typeTeam = (t: Team): TBATeam => ({
@@ -245,17 +248,19 @@ const typeTeam = (t: Team): TBATeam => ({
         key: '',
         year: 0,
         event_code: '',
-        division_keys: [],
-    },
+        division_keys: []
+    }
 });
 
 export const createEvent = (event: Event) => {
     return attemptAsync(async () => {
         const e = JSON.stringify(typeEvent(event));
         TBA_EVENT_ARRAY: {
-            const currentEvents = (await DB.get('tba/custom-from-url', {
-                url: '/team/frc2122/events/' + event.year,
-            })).unwrap();
+            const currentEvents = (
+                await DB.get('tba/custom-from-url', {
+                    url: '/team/frc2122/events/' + event.year
+                })
+            ).unwrap();
 
             if (currentEvents && currentEvents.response) {
                 const res = JSON.parse(currentEvents.response) as TBAEvent[];
@@ -263,19 +268,23 @@ export const createEvent = (event: Event) => {
                     break TBA_EVENT_ARRAY;
                 }
 
-                (await DB.run('tba/custom-new', {
-                    url: '/team/frc2122/events/' + event.year,
-                    update: 0,
-                    response: JSON.stringify([...res, typeEvent(event)]),
-                    updated: Date.now(),
-                })).unwrap();
+                (
+                    await DB.run('tba/custom-new', {
+                        url: '/team/frc2122/events/' + event.year,
+                        update: 0,
+                        response: JSON.stringify([...res, typeEvent(event)]),
+                        updated: Date.now()
+                    })
+                ).unwrap();
             }
         }
 
         EVENT_KEY_ARRAY: {
-            const currentEvents = (await DB.get('tba/custom-from-url', {
-                url: '/team/frc2122/events/' + event.year + '/keys',
-            })).unwrap();
+            const currentEvents = (
+                await DB.get('tba/custom-from-url', {
+                    url: '/team/frc2122/events/' + event.year + '/keys'
+                })
+            ).unwrap();
 
             if (currentEvents && currentEvents.response) {
                 const res = JSON.parse(currentEvents.response) as string[];
@@ -283,21 +292,25 @@ export const createEvent = (event: Event) => {
                     break EVENT_KEY_ARRAY;
                 }
 
-                (await DB.run('tba/custom-new', {
-                    url: '/team/frc2122/events/' + event.year + '/keys',
-                    update: 0,
-                    response: JSON.stringify([...res, event.key]),
-                    updated: Date.now(),
-                })).unwrap();
+                (
+                    await DB.run('tba/custom-new', {
+                        url: '/team/frc2122/events/' + event.year + '/keys',
+                        update: 0,
+                        response: JSON.stringify([...res, event.key]),
+                        updated: Date.now()
+                    })
+                ).unwrap();
             }
         }
 
-        (await DB.run('tba/custom-new', {
-            url: '/event/' + event.key,
-            update: 0,
-            response: e,
-            updated: Date.now(),
-        })).unwrap();
+        (
+            await DB.run('tba/custom-new', {
+                url: '/event/' + event.key,
+                update: 0,
+                response: e,
+                updated: Date.now()
+            })
+        ).unwrap();
     });
 };
 
@@ -306,9 +319,11 @@ export const createMatch = (match: Match) => {
         const m = JSON.stringify(typeMatch(match));
 
         MATCH_ARRAY: {
-            const currentMatches = (await DB.get('tba/custom-from-url', {
-                url: '/event/' + match.eventKey + '/matches',
-            })).unwrap();
+            const currentMatches = (
+                await DB.get('tba/custom-from-url', {
+                    url: '/event/' + match.eventKey + '/matches'
+                })
+            ).unwrap();
 
             if (currentMatches && currentMatches.response) {
                 const res = JSON.parse(currentMatches.response) as TBAMatch[];
@@ -316,99 +331,102 @@ export const createMatch = (match: Match) => {
                     break MATCH_ARRAY;
                 }
 
-                (await insert(
-                    '/event/' + match.eventKey + '/matches',
-                    [...res, typeMatch(match)]
-                )).unwrap();
+                (
+                    await insert('/event/' + match.eventKey + '/matches', [
+                        ...res,
+                        typeMatch(match)
+                    ])
+                ).unwrap();
             } else {
-                (await insert(
-                    '/event/' + match.eventKey + '/matches',
-                    [typeMatch(match)]
-                )).unwrap();
+                (
+                    await insert('/event/' + match.eventKey + '/matches', [
+                        typeMatch(match)
+                    ])
+                ).unwrap();
             }
         }
 
-        (await insert(
-            '/match/' + match.key,
-            typeMatch(match)
-        )).unwrap();
+        (await insert('/match/' + match.key, typeMatch(match))).unwrap();
     });
-}
+};
 
 export const createTeam = (team: Team) => {
     return attemptAsync(async () => {
         const t = JSON.stringify(typeTeam(team));
 
-        (await insert(
-            '/team/' + team.key,
-            typeTeam(team)
-        )).unwrap();
-    }); 
-}
+        (await insert('/team/' + team.key, typeTeam(team))).unwrap();
+    });
+};
 
 export const createEventTeams = async (eventKey: string, teams: Team[]) => {
     return attemptAsync(async () => {
         resolveAll(await Promise.all(teams.map(createTeam))).unwrap();
 
-        const currentTeams = (await DB.get('tba/custom-from-url', {
-            url: '/event/' + eventKey + '/teams',
-        })).unwrap();
+        const currentTeams = (
+            await DB.get('tba/custom-from-url', {
+                url: '/event/' + eventKey + '/teams'
+            })
+        ).unwrap();
 
         if (currentTeams && currentTeams.response) {
             const res = JSON.parse(currentTeams.response) as TBATeam[];
             const teamKeys = teams.map(t => t.key);
 
-            (await insert(
-                '/event/' + eventKey + '/teams',
-                [...res, ...teamKeys]
-            )).unwrap();
+            (
+                await insert('/event/' + eventKey + '/teams', [
+                    ...res,
+                    ...teamKeys
+                ])
+            ).unwrap();
         } else {
-            (await insert(
-                '/event/' + eventKey + '/teams',
-                teams.map(t => t.key)
-            )).unwrap();
+            (
+                await insert(
+                    '/event/' + eventKey + '/teams',
+                    teams.map(t => t.key)
+                )
+            ).unwrap();
         }
     });
 };
-
-
-
-
-
 
 export const deleteEvent = (eventKey: string) => {
     return attemptAsync(async () => {
         const year = +eventKey.replace(/[^0-9]/g, '');
 
-        (await insert(
-            '/event/' + eventKey,
-            null
-        )).unwrap();
+        (await insert('/event/' + eventKey, null)).unwrap();
 
-        const currentEvents = (await DB.get('tba/custom-from-url', {
-            url: '/team/frc2122/events/' + year,
-        })).unwrap();
+        const currentEvents = (
+            await DB.get('tba/custom-from-url', {
+                url: '/team/frc2122/events/' + year
+            })
+        ).unwrap();
 
         if (currentEvents && currentEvents.response) {
             const res = JSON.parse(currentEvents.response) as TBAEvent[];
 
-            (await insert(
-                '/team/frc2122/events/' + year,
-                res.filter(r => r.key !== eventKey)
-            )).unwrap();
+            (
+                await insert(
+                    '/team/frc2122/events/' + year,
+                    res.filter(r => r.key !== eventKey)
+                )
+            ).unwrap();
         }
 
-        const currentEventKeys = (await DB.get('tba/custom-from-url', {
-            url: '/team/frc2122/events/' + year + '/keys',
-        })).unwrap();
+        const currentEventKeys = (
+            await DB.get('tba/custom-from-url', {
+                url: '/team/frc2122/events/' + year + '/keys'
+            })
+        ).unwrap();
 
         if (currentEventKeys && currentEventKeys.response) {
             const res = JSON.parse(currentEventKeys.response) as string[];
 
-            (await insert(
-                '/team/frc2122/events/' + year + '/keys',
-                res.filter(r => r !== eventKey)
-            )).unwrap();
+            (
+                await insert(
+                    '/team/frc2122/events/' + year + '/keys',
+                    res.filter(r => r !== eventKey)
+                )
+            ).unwrap();
         }
     });
 };
@@ -417,44 +435,46 @@ export const deleteMatch = (matchKey: string) => {
     return attemptAsync(async () => {
         const eventKey = matchKey.split('_')[0];
 
-        (await insert(
-            '/match/' + matchKey,
-            null
-        )).unwrap();
+        (await insert('/match/' + matchKey, null)).unwrap();
 
-        const currentMatches = (await DB.get('tba/custom-from-url', {
-            url: '/event/' + eventKey + '/matches',
-        })).unwrap();
+        const currentMatches = (
+            await DB.get('tba/custom-from-url', {
+                url: '/event/' + eventKey + '/matches'
+            })
+        ).unwrap();
 
         if (currentMatches && currentMatches.response) {
             const res = JSON.parse(currentMatches.response) as TBAMatch[];
 
-            (await insert(
-                '/event/' + eventKey + '/matches',
-                res.filter(r => r.key !== matchKey)
-            )).unwrap();
+            (
+                await insert(
+                    '/event/' + eventKey + '/matches',
+                    res.filter(r => r.key !== matchKey)
+                )
+            ).unwrap();
         }
 
-        const currentMatchKeys = (await DB.get('tba/custom-from-url', {
-            url: '/event/' + eventKey + '/matches/keys',
-        })).unwrap();
+        const currentMatchKeys = (
+            await DB.get('tba/custom-from-url', {
+                url: '/event/' + eventKey + '/matches/keys'
+            })
+        ).unwrap();
 
         if (currentMatchKeys && currentMatchKeys.response) {
             const res = JSON.parse(currentMatchKeys.response) as string[];
 
-            (await insert(
-                '/event/' + eventKey + '/matches/keys',
-                res.filter(r => r !== matchKey)
-            )).unwrap();
+            (
+                await insert(
+                    '/event/' + eventKey + '/matches/keys',
+                    res.filter(r => r !== matchKey)
+                )
+            ).unwrap();
         }
     });
 };
 
 export const deleteTeam = (teamKey: string) => {
     return attemptAsync(async () => {
-        (await insert(
-            '/team/' + teamKey,
-            null
-        )).unwrap();
+        (await insert('/team/' + teamKey, null)).unwrap();
     });
 };

@@ -127,10 +127,10 @@ export class TBA {
                     const d = await ServerRequest.get<T>('/api/tba' + path);
                     if (d.isErr()) return null;
                     return d.value as T;
-                }
+                };
 
                 if (path.startsWith('--')) {
-                        return fromSelf();
+                    return fromSelf();
                 }
 
                 try {

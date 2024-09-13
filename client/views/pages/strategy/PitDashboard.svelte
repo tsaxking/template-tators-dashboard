@@ -1,138 +1,136 @@
 <script lang="ts">
-    import { dateString, dateTime } from './../../../../shared/clock';
-    import { FIRSTEvent } from './../../../models/FIRST/event';
-    import { FIRSTMatch } from './../../../models/FIRST/match';
-    import { onMount } from 'svelte';
-    import RobotCard from '../../components/strategy/RobotCard.svelte';
-    import { Color } from '../../../submodules/colors/color';
-    import { FIRSTTeam } from '../../../models/FIRST/team';
-    import { Ok } from '../../../../shared/check';
-    import { fade } from 'svelte/transition';
-    import Countdown from '../../components/bootstrap/Countdown.svelte';
+import { dateString, dateTime } from './../../../../shared/clock';
+import { FIRSTEvent } from './../../../models/FIRST/event';
+import { FIRSTMatch } from './../../../models/FIRST/match';
+import { onMount } from 'svelte';
+import RobotCard from '../../components/strategy/RobotCard.svelte';
+import { Color } from '../../../submodules/colors/color';
+import { FIRSTTeam } from '../../../models/FIRST/team';
+import { Ok } from '../../../../shared/check';
+import { fade } from 'svelte/transition';
+import Countdown from '../../components/bootstrap/Countdown.svelte';
 
-    interface MatchScouting {
-        teams: { team: number; scouted: boolean }[];
-        match?: FIRSTMatch;
+interface MatchScouting {
+    teams: { team: number; scouted: boolean }[];
+    match?: FIRSTMatch;
+}
+
+const dateTimeSeconds = dateString('MM/DD/YYYY hh:mm:ss AM');
+
+let matchScouting: MatchScouting[] = [];
+let selectedMatch = 0;
+let redTeams: FIRSTTeam[] = [];
+let blueTeams: FIRSTTeam[] = [];
+let minutes = 0;
+let closestMatch: FIRSTMatch | undefined;
+let loading = true;
+let matchtime: string;
+let currentTime = Date.now();
+
+const updateMatchScouting = async (e: FIRSTEvent) => {
+    loading = true;
+    const [statusRes, matchesRes] = await Promise.all([
+        e.getStatus(),
+        e.getMatches()
+    ]);
+
+    loading = false;
+
+    if (statusRes.isErr()) return console.error(statusRes.error);
+    if (matchesRes.isErr()) return console.error(matchesRes.error);
+
+    const { matches } = statusRes.value;
+    matchScouting = await Promise.all(
+        matchesRes.value.map(async m => {
+            const match = matches.find(
+                _m => _m.match === m.number && _m.compLevel === m.compLevel
+            );
+            if (!match) return { teams: [] };
+
+            const unScouted = match.teams;
+            const teamsResult = await m.getTeams();
+            if (teamsResult.isErr()) return { teams: [] };
+
+            return {
+                teams: teamsResult.value.filter(Boolean).map(t => ({
+                    team: t.number,
+                    scouted: !unScouted.includes(t.number)
+                })),
+                match: m
+            };
+        })
+    );
+
+    loading = false;
+};
+
+onMount(() => {
+    FIRSTEvent.on('select', updateMatchScouting);
+    if (FIRSTEvent.current) updateMatchScouting(FIRSTEvent.current);
+
+    return () => {
+        FIRSTEvent.off('select', updateMatchScouting);
+    };
+});
+
+const fetchTeamsData = async (match: FIRSTMatch) => {
+    const teamsResult = await match.getTeams();
+    if (teamsResult.isErr()) {
+        console.error(teamsResult.error);
+        return [];
+    }
+    return teamsResult.value.filter(Boolean);
+};
+
+setInterval(() => {
+    currentTime = Date.now();
+}, 1000);
+
+const updateTeams = async (match: FIRSTMatch) => {
+    const teams = await fetchTeamsData(match);
+    redTeams = teams.slice(0, 3);
+    blueTeams = teams.slice(3, 6);
+};
+
+$: {
+    const match = matchScouting[selectedMatch]?.match;
+    if (match) {
+        updateTeams(match);
     }
 
-    const dateTimeSeconds = dateString('MM/DD/YYYY hh:mm:ss AM');
-
-    let matchScouting: MatchScouting[] = [];
-    let selectedMatch = 0;
-    let redTeams: FIRSTTeam[] = [];
-    let blueTeams: FIRSTTeam[] = [];
-    let minutes = 0;
-    let closestMatch: FIRSTMatch | undefined;
-    let loading = true;
-    let matchtime: string;
-    let currentTime = Date.now();
-
-    const updateMatchScouting = async (e: FIRSTEvent) => {
-        loading = true;
-        const [statusRes, matchesRes] = await Promise.all([
-            e.getStatus(),
-            e.getMatches()
-        ]);
-
-        loading = false;
-
-        if (statusRes.isErr()) return console.error(statusRes.error);
-        if (matchesRes.isErr()) return console.error(matchesRes.error);
-
-        const { matches } = statusRes.value;
-        matchScouting = await Promise.all(
-            matchesRes.value.map(async m => {
-                const match = matches.find(
-                    _m => _m.match === m.number && _m.compLevel === m.compLevel
-                );
-                if (!match) return { teams: [] };
-
-                const unScouted = match.teams;
-                const teamsResult = await m.getTeams();
-                if (teamsResult.isErr()) return { teams: [] };
-
-                return {
-                    teams: teamsResult.value.filter(Boolean).map(t => ({
-                        team: t.number,
-                        scouted: !unScouted.includes(t.number)
-                    })),
-                    match: m
-                };
-            })
-        );
-
-        loading = false;
-    };
-
-    onMount(() => {
-        FIRSTEvent.on('select', updateMatchScouting);
-        if (FIRSTEvent.current) updateMatchScouting(FIRSTEvent.current);
-
-        return () => {
-            FIRSTEvent.off('select', updateMatchScouting);
-        };
-    });
-
-    const fetchTeamsData = async (match: FIRSTMatch) => {
-        const teamsResult = await match.getTeams();
-        if (teamsResult.isErr()) {
-            console.error(teamsResult.error);
-            return [];
+    const selectedMatchTime =
+        matchScouting[selectedMatch]?.match?.tba.predicted_time || 0;
+    closestMatch = matchScouting.reduce(
+        (closest, { match }) => {
+            if (!match) return closest;
+            const matchTime = match.tba.predicted_time;
+            const diff = Math.abs(matchTime - selectedMatchTime);
+            return diff < (closest?.diff || Infinity)
+                ? { match, diff }
+                : closest;
+        },
+        { match: undefined, diff: Infinity } as {
+            match?: FIRSTMatch;
+            diff: number;
         }
-        return teamsResult.value.filter(Boolean);
-    };
-
-    setInterval(() => {
-        currentTime = Date.now();
-    }, 1000);
-
-    const updateTeams = async (match: FIRSTMatch) => {
-        const teams = await fetchTeamsData(match);
-        redTeams = teams.slice(0, 3);
-        blueTeams = teams.slice(3, 6);
-    };
-
-    $: {
-        const match = matchScouting[selectedMatch]?.match;
-        if (match) {
-            updateTeams(match);
-        }
-
-        const selectedMatchTime =
-            matchScouting[selectedMatch]?.match?.tba.predicted_time || 0;
-        closestMatch = matchScouting.reduce(
-            (closest, { match }) => {
-                if (!match) return closest;
-                const matchTime = match.tba.predicted_time;
-                const diff = Math.abs(matchTime - selectedMatchTime);
-                return diff < (closest?.diff || Infinity)
-                    ? { match, diff }
-                    : closest;
-            },
-            { match: undefined, diff: Infinity } as {
-                match?: FIRSTMatch;
-                diff: number;
-            }
-        ).match;
-        minutes = Math.floor((selectedMatchTime * 1000 - Date.now()) / 60000);
-        matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
-    }
+    ).match;
+    minutes = Math.floor((selectedMatchTime * 1000 - Date.now()) / 60000);
+    matchtime = dateTime(Number(closestMatch?.tba.predicted_time) * 1000);
+}
 </script>
 
-<div class="vh-display vw-100 container-fluid position-relative no-scroll no-select"
+<div
+    class="vh-display vw-100 container-fluid position-relative no-scroll no-select"
 >
     <div class="row h-100">
         <div class="col-md-6 bg-danger">
-            <div class="d-flex flex-column h-100 justify-content-between align-items-start p-3"
+            <div
+                class="d-flex flex-column h-100 justify-content-between align-items-start p-3"
             >
                 {#if loading}
-                    <div
-                        class="loading"
-                        transition:fade>
+                    <div class="loading" transition:fade>
                         <div class="text-center">
-                            <div
-                                class="spinner-border"
-                                role="status">
+                            <div class="spinner-border" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
                             <p>Loading teams</p>
@@ -140,23 +138,20 @@
                     </div>
                 {:else}
                     {#each redTeams as team}
-                        <RobotCard
-                            alignment="end"
-                            {team} />
+                        <RobotCard alignment="end" {team} />
                     {/each}
                 {/if}
             </div>
         </div>
         <div class="col-md-6 bg-primary">
-            <div class="d-flex flex-column h-100 justify-content-between align-items-end p-3"
+            <div
+                class="d-flex flex-column h-100 justify-content-between align-items-end p-3"
             >
                 {#if loading}
                     <div class="text-center text-white">Loading...</div>
                 {:else}
                     {#each blueTeams as team}
-                        <RobotCard
-                            alignment="start"
-                            {team} />
+                        <RobotCard alignment="start" {team} />
                     {/each}
                 {/if}
             </div>
@@ -167,12 +162,11 @@
         style:top="calc(1%)"
         class="container h-auto w-auto bg-gray-light rounded position-absolute start-50 translate-middle-x z-3"
     >
-        <div class="d-flex flex-column justify-content-center align-items-center h-100"
+        <div
+            class="d-flex flex-column justify-content-center align-items-center h-100"
         >
             <div class="d-flex align-items-center">
-                <p
-                    style:font-size="200%"
-                    class="display-1 text-black">
+                <p style:font-size="200%" class="display-1 text-black">
                     {dateTimeSeconds(currentTime)}
                 </p>
             </div>
@@ -180,9 +174,11 @@
     </div>
 
     <!-- Dark gray square overlay for match info -->
-    <div class="container h-50 w-25 bg-gray-light rounded position-absolute top-50 start-50 translate-middle z-3"
+    <div
+        class="container h-50 w-25 bg-gray-light rounded position-absolute top-50 start-50 translate-middle z-3"
     >
-        <div class="d-flex flex-column justify-content-center align-items-center h-100 my-2"
+        <div
+            class="d-flex flex-column justify-content-center align-items-center h-100 my-2"
         >
             <h4 class="text-black">
                 Match {selectedMatch + 1} is in
@@ -215,11 +211,9 @@
                     class="btn btn-primary me-2"
                     on:click="{() =>
                         (selectedMatch = Math.max(0, selectedMatch - 1))}"
-                >-</button
+                    >-</button
                 >
-                <select
-                    class="form-select"
-                    bind:value="{selectedMatch}">
+                <select class="form-select" bind:value="{selectedMatch}">
                     {#each matchScouting as { match }, index}
                         {#if match}
                             <option value="{index}">
@@ -253,7 +247,8 @@
             class="container h-auto w-auto bg-gray-light rounded position-absolute start-50 translate-middle-x z-3 fs-1"
             transition:fade
         >
-            <div class="d-flex flex-column justify-content-center align-items-center h-100 text-bold"
+            <div
+                class="d-flex flex-column justify-content-center align-items-center h-100 text-bold"
             >
                 <div class="d-flex align-items-center">
                     {#if blueTeams.some(team => team.tba.team_number === 2122)}

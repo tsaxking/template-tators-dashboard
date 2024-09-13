@@ -1,34 +1,34 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { Strategy } from '../../../models/FIRST/strategy';
+import { onMount } from 'svelte';
+import { Strategy } from '../../../models/FIRST/strategy';
 
-    export let strategy: Strategy;
+export let strategy: Strategy;
 
-    let comment: string = '';
+let comment: string = '';
 
-    $: comment = strategy.comment;
+$: comment = strategy.comment;
 
-    const update = () => {
+const update = () => {
     // if (before === comment) comment = strategy.comment;
+};
+
+const submit = (comment: string) => {
+    // console.log('Submitting strategy comment...');
+    if (comment === strategy.comment) return; // no changes
+    strategy.update({ comment });
+};
+
+onMount(() => {
+    strategy.on('update', update);
+
+    return () => {
+        strategy.off('update', update);
     };
+});
 
-    const submit = (comment: string) => {
-        // console.log('Submitting strategy comment...');
-        if (comment === strategy.comment) return; // no changes
-        strategy.update({ comment });
-    };
-
-    onMount(() => {
-        strategy.on('update', update);
-
-        return () => {
-            strategy.off('update', update);
-        };
-    });
-
-    onMount(() => {
-        comment = strategy.comment;
-    });
+onMount(() => {
+    comment = strategy.comment;
+});
 </script>
 
 <div class="mb-3 bg-gray-light flex-fill p-3 rounded w-75 position-relative">
