@@ -8,7 +8,10 @@ import {
     Insert_account_notifications_new,
     Select_account_notifications_from_account,
     Select_account_notifications_from_id,
-    Update_account_notifications_mark_read
+    Update_account_notifications_mark_read,
+    CustomTBARequests,
+    Insert_tba_custom_new,
+    Select_tba_custom_from_url
 } from './tables';
 import { Select_whiteboards_from_strategy } from './tables';
 import { Members } from './tables';
@@ -572,6 +575,8 @@ export type Queries = {
     ];
     'tba/from-url': [[Select_tba_from_url], TBARequests];
     'tba/new': [[Insert_tba_new], unknown];
+    'tba/custom-from-url': [[Select_tba_custom_from_url], CustomTBARequests];
+    'tba/custom-new': [[Insert_tba_custom_new], unknown];
     'discord/insert': [[Insert_discord_insert], unknown];
     'discord/delete': [[Delete_discord_delete], unknown];
     'discord/get': [[Select_discord_get], DiscordAccount];

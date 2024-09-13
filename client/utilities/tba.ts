@@ -123,6 +123,16 @@ export class TBA {
                 //     return d.value;
                 // }
 
+                const fromSelf = async () => {
+                    const d = await ServerRequest.get<T>('/api/tba' + path);
+                    if (d.isErr()) return null;
+                    return d.value as T;
+                }
+
+                if (path.startsWith('--')) {
+                        return fromSelf();
+                }
+
                 try {
                     return (await fetch(
                         'https://www.thebluealliance.com/api/v3' + path,
@@ -136,10 +146,7 @@ export class TBA {
                         }
                     ).then(data => data.json())) as Promise<T>;
                 } catch {
-                    const d = await ServerRequest.get<T>(`/api/tba${path}`);
-
-                    if (d.isErr()) return null;
-                    return d.value;
+                    return fromSelf();
                 }
             };
 

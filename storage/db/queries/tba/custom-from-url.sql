@@ -1,0 +1,1 @@
+SELECT * FROM CustomTBARequests WHERE url = :url;
