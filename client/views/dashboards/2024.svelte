@@ -98,7 +98,7 @@
     {active}
     {groups}
     {navItems}
-    title="Team Tators"
+    title="Team Tators Dashboard"
     on:openPage="{e => {
         active = e.detail;
     }}"
