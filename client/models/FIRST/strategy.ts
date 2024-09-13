@@ -187,7 +187,18 @@ type CheckEvents = {
 };
 
 export class Check extends EventEmitter<CheckEvents> {
-    public static checks = ['a', 'b', 'c', 'd', 'e'];
+    public static readonly checks = [
+        'Start: Amp',
+        'Start: Center',
+        'Start: Source',
+        'Auto: 3 Close Note',
+        'Auto: 1 Close, 3 centerline',
+        'Defense',
+        'Finisher',
+        'Lobber',
+        'Amper',
+        'Trap'
+    ];
 
     public static from(strategy: Strategy) {
         return attemptAsync(async () => {
@@ -199,7 +210,7 @@ export class Check extends EventEmitter<CheckEvents> {
             const checks = data.map(d => d.split(':') as [string, string]);
 
             return teams.map(t => {
-                const c = checks.filter(c => +c[0] === t).map(c => c[1]);
+                const c = checks.filter(c => +c[0] === t).map(c => c.slice(1).join(':'));
                 return new Check(t, c, strategy);
             }) as [Check, Check, Check, Check, Check, Check];
         });
