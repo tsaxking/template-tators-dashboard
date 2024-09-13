@@ -10,7 +10,7 @@ import {
     log as csv,
     removeFile
 } from './files';
-import { attempt, attemptAsync, resolveAll, Result } from '../../shared/check';
+import { attempt, attemptAsync, Ok, resolveAll, Result } from '../../shared/check';
 import {
     capitalize,
     fromCamelCase,
@@ -347,21 +347,24 @@ export class Version {
      * @async
      * @returns {Promise<Result<string>>}
      */
-    static async reset() {
+    static async reset(force?: boolean) {
         return attemptAsync(async () => {
-            let b = await Backup.makeBackup();
-            if (b.isErr()) {
-                if (b.error.message.includes('not initialized')) {
-                    b = b.handle(Backup.zero);
-                } else {
-                    throw b.error;
+            let b: Ok<Backup> = new Ok(Backup.zero);
+            if (!force) {
+                let b = await Backup.makeBackup();
+                if (b.isErr()) {
+                    if (b.error.message.includes('not initialized')) {
+                        b = b.handle(Backup.zero);
+                    } else {
+                        throw b.error;
+                    }
                 }
             }
 
             const tables = (await DB.getTables()).unwrap();
             resolveAll(
                 await Promise.all(
-                    tables.map(table => DB.unsafe.run(`DROP TABLE ${table};`))
+                    tables.map(table => DB.unsafe.run(`DROP TABLE IF EXISTS ${table};`))
                 )
             ).unwrap();
 
@@ -490,17 +493,15 @@ export class Version {
         if (this.major > v.major) {
             // log('this.major > v.major');
             return true;
-        } 
-            // log('this.major <= v.major');
-        
+        }
+        // log('this.major <= v.major');
 
         if (this.major === v.major) {
             if (this.minor > v.minor) {
                 // log('this.minor > v.minor');
                 return true;
-            } 
-                // log('this.minor <= v.minor');
-            
+            }
+            // log('this.minor <= v.minor');
 
             if (this.minor === v.minor) {
                 if (this.patch > v.patch) {

@@ -1,4 +1,4 @@
-INSERT INTO CustomTBARequests (
+INSERT INTO CustomTbaRequests (
     url,
     response,
     updated,
