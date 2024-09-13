@@ -68,6 +68,17 @@ export class TBA {
                 );
             }
 
+            if (path.startsWith('--')) {
+                path = path.slice(2);
+                if (!path.startsWith('/')) path = '/' + path;
+
+                const data = (await DB.get('tba/custom-from-url', {
+                    url: path
+                })).unwrap()?.response;
+                if (data) return JSON.parse(data) as T;
+                else return null;
+            }
+
             if (!path.startsWith('/')) path = '/' + path;
 
             // if (options?.cached) {

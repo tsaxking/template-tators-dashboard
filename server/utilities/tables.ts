@@ -470,6 +470,13 @@ export type TBARequests = {
     update: number;
 };
 
+export type CustomTBARequests = {
+    url: string;
+    response: string | undefined;
+    updated: number;
+    update: number;
+};
+
 export type Checklists = {
     id: string;
     name: string;
@@ -868,6 +875,17 @@ export type Select_tba_from_url = {
 };
 
 export type Insert_tba_new = {
+    url: string;
+    response: string | undefined;
+    updated: number;
+    update: number;
+};
+
+export type Select_tba_custom_from_url = {
+    url: string;
+};
+
+export type Insert_tba_custom_new = {
     url: string;
     response: string | undefined;
     updated: number;
