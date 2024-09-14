@@ -335,7 +335,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         window.history.pushState({}, '', url.toString());
     }
 
-    public async savePictures(files: FileList): Promise<Result<void>> {
+    public async savePictures(files: FileList, onProgress: (progress: number) => void): Promise<Result<void>> {
         return attemptAsync(async () => {
             return new Promise((res, rej) => {
                 const stream = ServerRequest.streamFiles(
@@ -347,8 +347,22 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                     }
                 );
 
-                stream.on('error', rej);
-                stream.on('complete', () => res());
+                stream.on('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const progress = (e.loaded / e.total) * 100;
+                        onProgress(progress);
+                    }
+                });
+
+                stream.on('complete', () => {
+                    console.log('All files uploaded successfully');
+                    res();
+                });
+
+                stream.on('error', (e) => {
+                    console.error('Error uploading files:', e);
+                    rej(e);
+                });
             });
         });
     }
