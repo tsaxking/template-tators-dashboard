@@ -1,126 +1,129 @@
-<script lang="ts">
-    import { FIRSTEvent } from './../../../models/FIRST/event';
-    import { FIRSTMatch } from './../../../models/FIRST/match';
-    import { Strategy } from '../../../models/FIRST/strategy';
-    import { onMount } from 'svelte';
-    import { fade } from 'svelte/transition';
-    import { alert, prompt } from '../../../utilities/notifications';
-    import { FIRSTTeam } from '../../../models/FIRST/team';
+<!-- <script lang="ts">
 
-    let loading: boolean = true;
+// replaced with strategy dashboard
 
-    let matches: FIRSTMatch[] = [];
-    let match: FIRSTMatch | undefined;
-    let strategies: Strategy[] = [];
-    let strategy: Strategy | undefined;
-    let blueTeams: { team: FIRSTTeam; checks: boolean[] }[] = [];
-    let redTeams: { team: FIRSTTeam; checks: boolean[] }[] = [];
+import { FIRSTEvent } from './../../../models/FIRST/event';
+import { FIRSTMatch } from './../../../models/FIRST/match';
+import { Strategy } from '../../../models/FIRST/strategy';
+import { onMount } from 'svelte';
+import { fade } from 'svelte/transition';
+import { alert, prompt } from '../../../utilities/notifications';
+import { FIRSTTeam } from '../../../models/FIRST/team';
 
-    let checks = ['Check 1', 'Check 2', 'Check 3', 'Check 4', 'Check 5'];
+let loading: boolean = true;
 
-    const getMatches = async (event: FIRSTEvent) => {
-        const res = await event.getMatches();
-        if (res.isErr()) {
-            console.error(res.error);
-            return;
-        }
+let matches: FIRSTMatch[] = [];
+let match: FIRSTMatch | undefined;
+let strategies: Strategy[] = [];
+let strategy: Strategy | undefined;
+let blueTeams: { team: FIRSTTeam; checks: boolean[] }[] = [];
+let redTeams: { team: FIRSTTeam; checks: boolean[] }[] = [];
 
-        matches = res.value;
-        if (matches.length > 0) {
-            match = matches.find(m => m.hasTeam(2122)); // Set the first match as the default selected
-            if (!match) match = matches[0]; // this should never happen
-            await Promise.all([updateTeams(match), getStrategies(match)]);
-        }
-        loading = false;
-    };
+let checks = ['Check 1', 'Check 2', 'Check 3', 'Check 4', 'Check 5'];
 
-    const updateTeams = async (match: FIRSTMatch | undefined) => {
-        if (!match) return;
-        const teamsResult = await match.getTeams();
-        if (teamsResult.isErr()) {
-            console.error(teamsResult.error);
-            return;
-        }
-        const teams = teamsResult.value.filter(Boolean);
-        redTeams = teams
-            .slice(0, 3)
-            .map(team => ({ team, checks: checks.map(() => false) }));
-        blueTeams = teams
-            .slice(3, 6)
-            .map(team => ({ team, checks: checks.map(() => false) }));
-    };
+const getMatches = async (event: FIRSTEvent) => {
+    const res = await event.getMatches();
+    if (res.isErr()) {
+        console.error(res.error);
+        return;
+    }
 
-    const newStrategy = async () => {
-        if (!match) return alert('No match selected');
-        let name = await prompt('Strategy Name');
-        if (!name) return;
+    matches = res.value;
+    if (matches.length > 0) {
+        match = matches.find(m => m.hasTeam(2122)); // Set the first match as the default selected
+        if (!match) match = matches[0]; // this should never happen
+        await Promise.all([updateTeams(match), getStrategies(match)]);
+    }
+    loading = false;
+};
 
-        const info = await match.getInfo();
-        if (info.isErr()) return console.error(info.error);
+const updateTeams = async (match: FIRSTMatch | undefined) => {
+    if (!match) return;
+    const teamsResult = await match.getTeams();
+    if (teamsResult.isErr()) {
+        console.error(teamsResult.error);
+        return;
+    }
+    const teams = teamsResult.value.filter(Boolean);
+    redTeams = teams
+        .slice(0, 3)
+        .map(team => ({ team, checks: checks.map(() => false) }));
+    blueTeams = teams
+        .slice(3, 6)
+        .map(team => ({ team, checks: checks.map(() => false) }));
+};
 
-        Strategy.new({
-            name,
-            matchId: info.value.id,
-            customMatchId: undefined
-        });
-    };
+const newStrategy = async () => {
+    if (!match) return alert('No match selected');
+    let name = await prompt('Strategy Name');
+    if (!name) return;
 
-    const getStrategies = async (match: FIRSTMatch) => {
-        const res = await match.getStrategies();
-        if (res.isErr()) {
-            console.error(res.error);
-            return;
-        }
+    const info = await match.getInfo();
+    if (info.isErr()) return console.error(info.error);
 
-        strategies = res.value;
-    };
-
-    // Add a new check
-    const addCheck = async () => {
-        const newCheck = await prompt('Enter the name of the new check:');
-        if (newCheck && !checks.includes(newCheck)) {
-            checks = [...checks, newCheck];
-            redTeams = redTeams.map(team => ({
-                ...team,
-                checks: [...team.checks, false]
-            }));
-            blueTeams = blueTeams.map(team => ({
-                ...team,
-                checks: [...team.checks, false]
-            }));
-        }
-    };
-
-    // Remove an existing check
-    const removeCheck = async (checkToRemove: string) => {
-        const index = checks.indexOf(checkToRemove);
-        if (index > -1) {
-            checks = checks.filter(check => check !== checkToRemove);
-            redTeams = redTeams.map(team => ({
-                ...team,
-                checks: team.checks.filter((_, i) => i !== index)
-            }));
-            blueTeams = blueTeams.map(team => ({
-                ...team,
-                checks: team.checks.filter((_, i) => i !== index)
-            }));
-        }
-    };
-
-    onMount(() => {
-        FIRSTEvent.on('select', getMatches);
-
-        if (FIRSTEvent.current) {
-            getMatches(FIRSTEvent.current);
-        }
-
-        return () => {
-            FIRSTEvent.off('select', getMatches);
-        };
+    Strategy.new({
+        name,
+        matchId: info.value.id,
+        customMatchId: undefined
     });
-</script>
+};
 
-{#if loading}
+const getStrategies = async (match: FIRSTMatch) => {
+    const res = await match.getStrategies();
+    if (res.isErr()) {
+        console.error(res.error);
+        return;
+    }
+
+    strategies = res.value;
+};
+
+// Add a new check
+const addCheck = async () => {
+    const newCheck = await prompt('Enter the name of the new check:');
+    if (newCheck && !checks.includes(newCheck)) {
+        checks = [...checks, newCheck];
+        redTeams = redTeams.map(team => ({
+            ...team,
+            checks: [...team.checks, false]
+        }));
+        blueTeams = blueTeams.map(team => ({
+            ...team,
+            checks: [...team.checks, false]
+        }));
+    }
+};
+
+// Remove an existing check
+const removeCheck = async (checkToRemove: string) => {
+    const index = checks.indexOf(checkToRemove);
+    if (index > -1) {
+        checks = checks.filter(check => check !== checkToRemove);
+        redTeams = redTeams.map(team => ({
+            ...team,
+            checks: team.checks.filter((_, i) => i !== index)
+        }));
+        blueTeams = blueTeams.map(team => ({
+            ...team,
+            checks: team.checks.filter((_, i) => i !== index)
+        }));
+    }
+};
+
+onMount(() => {
+    FIRSTEvent.on('select', getMatches);
+
+    if (FIRSTEvent.current) {
+        getMatches(FIRSTEvent.current);
+    }
+
+    return () => {
+        FIRSTEvent.off('select', getMatches);
+    };
+});
+</script> -->
+
+<!-- {#if loading}
     <div
         class="loading"
         transition:fade>
@@ -135,7 +138,6 @@
     </div>
 {:else}
     <div class="container-fluid vh-100">
-        <!-- Control bar -->
         <div class="row mb-3">
             <div class="col-md-3">
                 <select
@@ -173,7 +175,6 @@
             </div>
         </div>
 
-        <!-- Teams -->
         <div class="row mb-3 mx-1 h-auto">
             <div class="col-md-6 bg-danger border rounded">
                 <div class="d-flex flex-column h-100 p-3">
@@ -204,7 +205,6 @@
             </div>
         </div>
 
-        <!-- Add/Remove Checks Section -->
         <div class="row mb-3 mx-1">
             <div class="col-md-12 border rounded border-light-subtle p-3">
                 <h1>Manage Checks</h1>
@@ -229,7 +229,6 @@
             </div>
         </div>
 
-        <!-- Checks -->
         <div class="row mb-3 mx-1">
             <div class="col-md-6 bg-dark border rounded p-3">
                 <div class="d-flex flex-column">
@@ -306,4 +305,4 @@
     color: #fff;
     z-index: 9999;
 }
-</style>
+</style> -->
