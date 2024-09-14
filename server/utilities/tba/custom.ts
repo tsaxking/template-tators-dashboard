@@ -52,11 +52,11 @@ export type Match = {
     alliances: {
         red: {
             score: number;
-            team_keys: [string, string, string];
+            teamKeys: [string, string, string];
         };
         blue: {
             score: number;
-            team_keys: [string, string, string];
+            teamKeys: [string, string, string];
         };
     };
     winningAlliance: string;
@@ -64,10 +64,6 @@ export type Match = {
     actualTime: number;
     predictedTime: number;
     postResultTime: number;
-    scoreBreakdown: {
-        red: unknown;
-        blue: unknown;
-    };
     videos: {
         key: string;
         type: string;
@@ -110,18 +106,18 @@ export const validateMatch = validate<Match>({
         if (typeof red !== 'object') return false;
         if (red === null) return false;
         if (!('score' in red)) return false;
-        if (!('team_keys' in red)) return false;
-        if (!Array.isArray(red.team_keys)) return false;
-        if (red.team_keys.length !== 3) return false;
-        if (!red.team_keys.every(k => typeof k === 'string')) return false;
+        if (!('teamKeys' in red)) return false;
+        if (!Array.isArray(red.teamKeys)) return false;
+        if (red.teamKeys.length !== 3) return false;
+        if (!red.teamKeys.every(k => typeof k === 'string')) return false;
 
         if (typeof blue !== 'object') return false;
         if (blue === null) return false;
         if (!('score' in blue)) return false;
-        if (!('team_keys' in blue)) return false;
-        if (!Array.isArray(blue.team_keys)) return false;
-        if (blue.team_keys.length !== 3) return false;
-        if (!blue.team_keys.every(k => typeof k === 'string')) return false;
+        if (!('teamKeys' in blue)) return false;
+        if (!Array.isArray(blue.teamKeys)) return false;
+        if (blue.teamKeys.length !== 3) return false;
+        if (!blue.teamKeys.every(k => typeof k === 'string')) return false;
 
         return true;
     },
@@ -130,21 +126,21 @@ export const validateMatch = validate<Match>({
     actualTime: 'number',
     predictedTime: 'number',
     postResultTime: 'number',
-    scoreBreakdown: (v: unknown) => {
-        if (typeof v !== 'object') return false;
-        if (v === null) return false;
+    // scoreBreakdown: (v: unknown) => {
+    //     if (typeof v !== 'object') return false;
+    //     if (v === null) return false;
 
-        if (!('red' in v)) return false;
-        if (!('blue' in v)) return false;
+    //     if (!('red' in v)) return false;
+    //     if (!('blue' in v)) return false;
 
-        const { red, blue } = v;
-        if (typeof red !== 'object') return false;
-        if (red === null) return false;
-        if (typeof blue !== 'object') return false;
-        if (blue === null) return false;
+    //     const { red, blue } = v;
+    //     if (typeof red !== 'object') return false;
+    //     if (red === null) return false;
+    //     if (typeof blue !== 'object') return false;
+    //     if (blue === null) return false;
 
-        return true;
-    },
+    //     return true;
+    // },
     videos: (v: unknown) => {
         if (!Array.isArray(v)) return false;
         if (!v.every(e => typeof e === 'object')) return false;
@@ -209,11 +205,11 @@ const typeMatch = (m: Match): TBAMatch => ({
     alliances: {
         red: {
             score: m.alliances.red.score,
-            team_keys: m.alliances.red.team_keys
+            team_keys: m.alliances.red.teamKeys
         },
         blue: {
             score: m.alliances.blue.score,
-            team_keys: m.alliances.blue.team_keys
+            team_keys: m.alliances.blue.teamKeys
         }
     },
     winning_alliance: m.winningAlliance,
@@ -221,7 +217,10 @@ const typeMatch = (m: Match): TBAMatch => ({
     actual_time: m.actualTime,
     predicted_time: m.predictedTime,
     post_result_time: m.postResultTime,
-    score_breakdown: m.scoreBreakdown,
+    score_breakdown: {
+        red: {},
+        blue: {}
+    },
     videos: m.videos,
     time: m.time
 });

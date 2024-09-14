@@ -8,11 +8,12 @@ export const router = new Route();
 
 const customAuth = App.headerAuth(
     'x-custom-tba-auth',
-    env.CUSTOM_TBA_AUTH || ''
+    env.CUSTOM_TBA_AUTH || 'abcd'
 );
 
 router.post('/test', customAuth, async (req, res) => {
     console.log('test successful', req.body);
+    res.json({ success: true });
 });
 
 router.post<cTBA.Event>(
