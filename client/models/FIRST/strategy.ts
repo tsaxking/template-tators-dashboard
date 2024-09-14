@@ -248,6 +248,7 @@ export class Check extends EventEmitter<CheckEvents> {
 
     remove(check: string) {
         this.checks = this.checks.filter(c => c !== check);
+        this.strategy.checks = this.strategy.checks.filter(c => c !== `${this.team}:${check}`);
         this.emit('remove-check', check);
         return this.change();
     }
