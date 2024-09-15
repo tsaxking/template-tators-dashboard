@@ -8,7 +8,13 @@ import {
     Insert_account_notifications_new,
     Select_account_notifications_from_account,
     Select_account_notifications_from_id,
-    Update_account_notifications_mark_read
+    Update_account_notifications_mark_read,
+    Select_strategy_configs_from_id,
+    StrategyConfigs,
+    Select_strategy_configs_from_strategy,
+    Insert_strategy_configs_new,
+    Update_strategy_configs_update,
+    Delete_strategy_configs_delete
 } from './tables';
 import { Select_whiteboards_from_strategy } from './tables';
 import { Members } from './tables';
@@ -631,6 +637,11 @@ export type Queries = {
     'strategy/update': [[Update_strategy_update], unknown];
     'strategy/new': [[Insert_strategy_new], unknown];
     'strategy/from-id': [[Select_strategy_from_id], Strategy];
+    'strategy-configs/from-id': [[Select_strategy_configs_from_id], StrategyConfigs];
+    'strategy-configs/from-strategy': [[Select_strategy_configs_from_strategy], StrategyConfigs];
+    'strategy-configs/new': [[Insert_strategy_configs_new], unknown];
+    'strategy-configs/update': [[Update_strategy_configs_update], unknown];
+    'strategy-configs/delete': [[Delete_strategy_configs_delete], unknown];
     'whiteboards/delete': [[Delete_whiteboards_delete], unknown];
     'whiteboards/new': [[Insert_whiteboards_new], unknown];
     'whiteboards/from-id': [[Select_whiteboards_from_id], Whiteboards];

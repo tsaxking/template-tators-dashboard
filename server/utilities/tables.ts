@@ -90,6 +90,14 @@ export type AccountNotifications = {
     title: string;
 };
 
+export type StrategyConfigs = {
+    id: string;
+    strategyId: string;
+    team: number;
+    type: string;
+    value: string;
+};
+
 export type Select_permissions_all = undefined;
 
 export type Select_roles_from_name = {
@@ -1107,5 +1115,32 @@ export type Insert_account_notifications_new = {
 };
 
 export type Select_account_notifications_from_id = {
+    id: string;
+};
+
+export type Delete_strategy_configs_delete = {
+    id: string;
+};
+
+export type Insert_strategy_configs_new = {
+    id: string;
+    strategyId: string;
+    team: number;
+    type: string;
+    value: string;
+};
+
+export type Select_strategy_configs_from_strategy = {
+    strategyId: string;
+};
+
+export type Select_strategy_configs_from_id = {
+    id: string;
+};
+
+export type Update_strategy_configs_update = {
+    team: number;
+    type: string;
+    value: string;
     id: string;
 };
