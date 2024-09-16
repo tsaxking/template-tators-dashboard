@@ -6,7 +6,7 @@ import { DB } from '../../utilities/databases';
 import { Strategy } from './strategy';
 
 
-export class StrategyConfigs extends Cache {
+export class StrategyConfig extends Cache {
     public static new(config: Omit<SC, 'id'>) {
         return attemptAsync(async () => {
             const id = uuid();
@@ -15,7 +15,7 @@ export class StrategyConfigs extends Cache {
                 id
             })).unwrap();
 
-            return new StrategyConfigs({
+            return new StrategyConfig({
                 id,
                 ...config
             });
@@ -25,14 +25,14 @@ export class StrategyConfigs extends Cache {
     public static fromId(id: string) {
         return attemptAsync(async () => {
             const config = (await DB.run('strategy-configs/from-id', { id })).unwrap();
-            return new StrategyConfigs(config);
+            return new StrategyConfig(config);
         });
     }
 
     public static fromStrategyId(strategyId: string) {
         return attemptAsync(async () => {
             const configs = (await DB.all('strategy-configs/from-strategy', { strategyId })).unwrap();
-            return configs.map(config => new StrategyConfigs(config));
+            return configs.map(config => new StrategyConfig(config));
         });
     }
     

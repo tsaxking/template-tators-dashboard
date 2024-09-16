@@ -2,6 +2,7 @@ import { Route } from '../../structure/app/app';
 import { validate } from '../../middleware/data-type';
 import { Strategy } from '../../structure/cache/strategy';
 import { CompLevel } from '../../../shared/db-types-extended';
+import { StrategyConfig } from '../../structure/cache/strategy-configs';
 
 export const router = new Route();
 
@@ -128,3 +129,74 @@ router.post<{
         req.io.emit('strategy:update', s);
     }
 );
+
+router.post<{
+    strategyId: string;
+    team: number;
+    type: string;
+    value: string;
+}>('/new-config', validate({
+    strategyId: 'string',
+    team: 'number',
+    type: 'string',
+    value: 'string'
+}), async (req, res) => {
+    const { strategyId, team, type, value } = req.body;
+    const strategy = (await Strategy.fromId(strategyId)).unwrap();
+    if (!strategy) return res.sendStatus('strategy:not-found');
+
+    const config = (await strategy.newConfig({ team, type, value })).unwrap();
+
+    res.sendStatus('strategy-config:new');
+    req.io.emit('strategy-config:new', config);
+});
+
+router.post<{
+    id: string;
+    team: number;
+    type: string;
+    value: string;
+}>('/update-config', validate({
+    id: 'string',
+    team: 'number',
+    type: 'string',
+    value: 'string'
+}), async (req, res) => {
+    const { id, team, type, value } = req.body;
+    const config = (await StrategyConfig.fromId(id)).unwrap();
+    if (!config) return res.sendStatus('strategy-config:not-found');
+
+    await config.update({ team, type, value });
+
+    res.sendStatus('strategy-config:updated');
+    req.io.emit('strategy-config:update', config);
+});
+
+router.post<{
+    id: string;
+}>('/delete-config', validate({
+    id: 'string',
+}), async (req, res) => {
+    const { id } = req.body;
+    const config = (await StrategyConfig.fromId(id)).unwrap();
+    if (!config) return res.sendStatus('strategy-config:not-found');
+
+    await config.delete();
+
+    res.sendStatus('strategy-config:deleted');
+    req.io.emit('strategy-config:delete', config);
+});
+
+router.post<{
+    strategyId: string;
+}>('/get-configs', validate({
+    strategyId: 'string',
+}), async (req, res) => {
+    const { strategyId } = req.body;
+    const strategy = (await Strategy.fromId(strategyId)).unwrap();
+    if (!strategy) return res.sendStatus('strategy:not-found');
+
+    const configs = (await strategy.getConfigs()).unwrap();
+
+    res.json(configs);
+});
