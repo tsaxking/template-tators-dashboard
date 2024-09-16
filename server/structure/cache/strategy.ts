@@ -5,7 +5,8 @@ import { attemptAsync } from '../../../shared/check';
 import { CompLevel } from '../../../shared/db-types-extended';
 import { uuid } from '../../utilities/uuid';
 import { FIRSTWhiteboard } from './whiteboards';
-import { StrategyConfigs } from './strategy-configs';
+import { StrategyConfig } from './strategy-configs';
+import { StrategyConfigs as SC } from '../../utilities/tables';
 
 export class Strategy extends Cache {
     public static fromId(id: string) {
@@ -85,6 +86,11 @@ export class Strategy extends Cache {
     }
 
     getConfigs() {
-        return StrategyConfigs.fromStrategyId(this.id);
+        return StrategyConfig.fromStrategyId(this.id);
+    }
+
+
+    newConfig(data: Omit<SC, 'id' | 'strategyId'>) {
+        return StrategyConfig.new({ ...data, strategyId: this.id });
     }
 }
