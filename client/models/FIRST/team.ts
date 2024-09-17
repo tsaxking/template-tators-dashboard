@@ -335,7 +335,7 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
         window.history.pushState({}, '', url.toString());
     }
 
-    public async savePictures(files: FileList, onProgress: (progress: number) => void): Promise<Result<void>> {
+    public async savePictures(files: FileList, description: string, onProgress: (progress: number) => void): Promise<Result<void>> {
         return attemptAsync(async () => {
             return new Promise((res, rej) => {
                 const stream = ServerRequest.streamFiles(
@@ -343,7 +343,8 @@ export class FIRSTTeam extends Cache<FIRSTTeamEventData> {
                     files,
                     {
                         teamNumber: this.number,
-                        eventKey: this.event.key
+                        eventKey: this.event.key,
+                        description
                     }
                 );
 
@@ -585,7 +586,8 @@ socket.on('teams:pictures-uploaded', async (data: TeamPicture) => {
         time: data.time,
         accountId: data.accountId,
         eventKey: data.eventKey,
-        teamNumber: data.teamNumber
+        teamNumber: data.teamNumber,
+        description: data.description,
     });
 
     team.cache.set('pictures', pictures.value);

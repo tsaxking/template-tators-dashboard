@@ -406,4 +406,5 @@ export type TeamPicture = {
     picture: string;
     time: number;
     accountId: string;
+    description: string;
 };

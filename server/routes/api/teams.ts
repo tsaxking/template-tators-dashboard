@@ -128,11 +128,13 @@ router.post<{
 router.post<{
     eventKey: string;
     teamNumber: number;
+    description: string;
 }>(
     '/upload-pictures',
     validate({
         eventKey: 'string',
-        teamNumber: 'number'
+        teamNumber: 'number',
+        description: 'string',
     }),
     Account.allowPermissions('submitScoutingAnswers'),
     fileStream({
@@ -141,7 +143,7 @@ router.post<{
     }),
     async (req, res) => {
         const { files } = req;
-        const { eventKey, teamNumber } = req.body;
+        const { eventKey, teamNumber, description } = req.body;
         const { accountId } = req.session;
 
         if (!accountId) return res.sendStatus('unknown:error');
@@ -165,7 +167,8 @@ router.post<{
                     teamNumber,
                     picture: id,
                     accountId,
-                    time
+                    time,
+                    description
                 });
             })
         );

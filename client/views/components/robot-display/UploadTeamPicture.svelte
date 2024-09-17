@@ -29,6 +29,9 @@ const handleInit = async () => {
     console.log('FilePond has initialised');
 };
 
+// TODO: create prompt for picture description
+// Can you do it while the picture is uploading?
+
 const uploadFile = async (file: ActualFileObject) => {
     if (!team) {
         alert('No team selected!');
