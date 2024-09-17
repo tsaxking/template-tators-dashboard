@@ -546,6 +546,7 @@ export type TeamPictures = {
     picture: string;
     time: string;
     accountId: string;
+    description: string;
 };
 
 export type MatchScouting2022 = {

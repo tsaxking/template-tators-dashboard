@@ -593,6 +593,7 @@ export type Queries = {
                 picture: string;
                 time: number;
                 accountId: string;
+                description: string;
             }
         ],
         unknown

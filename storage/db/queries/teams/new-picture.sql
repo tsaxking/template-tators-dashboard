@@ -3,11 +3,13 @@ INSERT INTO TeamPictures (
     eventKey,
     picture,
     time,
-    accountId
+    accountId,
+    description
 ) VALUES (
     :teamNumber,
     :eventKey,
     :picture,
     :time,
-    :accountId
+    :accountId,
+    :description
 );
