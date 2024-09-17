@@ -21,7 +21,7 @@ export const pullEvents = async () => {
 
     if (!year) return backToMain('No year selected');
 
-    const events = await TBA.get<TBAEvent[]>(`/team/frc2122/events/${year}`);
+    const events = await TBA.get<TBAEvent[]>(`/team/frc2522/events/${year}`);
 
     if (events.isOk()) {
         if (!events.value) {

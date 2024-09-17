@@ -2,7 +2,8 @@ import { DB } from '../databases';
 import {
     TBAEvent,
     TBAMatch,
-    TBATeam
+    TBATeam,
+    teamsFromMatch
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { TBA } from './tba';
 import { attemptAsync, resolveAll } from '../../../shared/check';
@@ -40,15 +41,15 @@ export const pullEvent = async (eventKey: string) => {
 
         if (matches.isErr()) throw matches.error;
 
-        if (teams.value) {
-            const current = await DB.all('teams/from-event', {
-                eventKey: event.key
-            });
+        const current = (await DB.all('teams/from-event', {
+            eventKey: event.key
+        })).unwrap();
 
-            if (current.isErr()) throw current.error;
+
+        if (teams.value) {
 
             for (const team of teams.value) {
-                const has = current.value.find(
+                const has = current.find(
                     t => t.number === team.team_number
                 );
                 if (!has) {
@@ -61,6 +62,8 @@ export const pullEvent = async (eventKey: string) => {
                 }
             }
         }
+
+        let secondRobots: number[] = [];
 
         if (matches.value) {
             const current = await DB.all('matches/from-event', {
@@ -84,7 +87,28 @@ export const pullEvent = async (eventKey: string) => {
                         compLevel: match.comp_level,
                         id: uuid()
                     });
+
+                    const teams = teamsFromMatch(match);
+                    const secondary = teams.filter(Boolean).filter(t => t && t > 1000000);
+
+                    secondRobots.push(...secondary);
                 }
+            }
+        }
+
+        secondRobots = secondRobots.filter((v, i, a) => a.indexOf(v) === i);
+
+        for (const s of secondRobots) {
+            // eslint-disable-next-line no-await-in-loop
+            const has = current.find(t => t.number === s);
+
+            if (!has) {
+                console.log('Added team', s);
+                DB.run('teams/new', {
+                    eventKey: event.key,
+                    number: s,
+                    watchPriority: 0
+                });
             }
         }
     });

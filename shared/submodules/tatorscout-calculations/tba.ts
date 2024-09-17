@@ -1328,8 +1328,16 @@ export const teamsFromMatch = (match: TBAMatch): MatchTeams => {
 
     return red.concat(blue).map((key: string | null) => {
         if (!key) return null;
-        const num = key.match(/[0-9]/g)?.join('');
+        let num = key.match(/[0-9]/g)?.join('');
         if (!num) return null;
+        const [char] = key.split('').reverse();
+        if (isNaN(+char)) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const index = chars.indexOf(char);
+            if (index !== -1) {
+                num += index * 1000000;
+            }
+        }
         return parseInt(num);
     }) as MatchTeams;
 };
