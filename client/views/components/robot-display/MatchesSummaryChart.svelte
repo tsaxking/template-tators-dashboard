@@ -60,8 +60,7 @@
                 let alliance: 'red' | 'blue' = 'red';
                 if (foundM) {
                     const [, , , b1, b2, b3] = teamsFromMatch(foundM);
-                    if ([b1, b2, b3].find(r => team.number === r))
-                        alliance = 'red';
+                    if ([b1, b2, b3].find(r => team.number === r)) alliance = 'red';
                 }
                 return Trace.score.parse2024(m.trace, alliance);
             });
@@ -104,18 +103,14 @@
                                 0
                             ) / eventSummary.length,
                             // Max Teleop Speaker
-                            Math.max(
-                                ...eventSummary.map(val => val.teleop.spk)
-                            ),
+                            Math.max(...eventSummary.map(val => val.teleop.spk)),
                             // Average Teleop Amp
                             eventSummary.reduce(
                                 (acc, val) => acc + val.teleop.amp,
                                 0
                             ) / eventSummary.length,
                             // Max Teleop Amp
-                            Math.max(
-                                ...eventSummary.map(val => val.teleop.amp)
-                            ),
+                            Math.max(...eventSummary.map(val => val.teleop.amp)),
                             // Average Teleop Trap
                             eventSummary.reduce(
                                 (acc, val) => acc + val.teleop.trp,
