@@ -677,11 +677,14 @@ export class Backup extends Version {
 
             const tables = Object.keys(data);
 
-            const multibar = new cliProgress.MultiBar({
-                clearOnComplete: false,
-                hideCursor: true,
-                format: '{bar} | {percentage}% | {value}/{total} | {table}'
-            }, cliProgress.Presets.shades_classic);
+            const multibar = new cliProgress.MultiBar(
+                {
+                    clearOnComplete: false,
+                    hideCursor: true,
+                    format: '{bar} | {percentage}% | {value}/{total} | {table}'
+                },
+                cliProgress.Presets.shades_classic
+            );
 
             log('Inserting...', tables);
             const res = await Promise.all(
@@ -760,10 +763,11 @@ export class Backup extends Version {
         return equalTo ? this.date >= b.date : this.date > b.date;
     }
 
-    
     open() {
         return attemptAsync(async () => {
-            const res = await readFile(`storage/db/backups/${this.serialize()}.json`);
+            const res = await readFile(
+                `storage/db/backups/${this.serialize()}.json`
+            );
             if (res.isErr()) throw res.error;
             return JSON.parse(res.value);
         });
@@ -920,7 +924,6 @@ export class DB {
 
         return [deCamelCase(query), copied];
     }
-
 
     /**
      * Postgres doesn't like capitalized table names, so we convert them to snake case.

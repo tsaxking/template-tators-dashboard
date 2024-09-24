@@ -9,9 +9,9 @@ const main = async () => {
         iv: string;
         data: string;
         name: string;
-    }
+    };
 
-    const [,, ...args] = process.argv;
+    const [, , ...args] = process.argv;
     if (!args.length) {
         console.log('Usage: npm run encrypt-backup [new|open|uuid]');
         process.exit(1);
@@ -25,17 +25,26 @@ const main = async () => {
     if (args.includes('new')) {
         const backup = (await Backup.makeBackup()).unwrap();
         const data = (await backup.open()).unwrap();
-    
-        const hexKey = await prompt('Enter the key to encrypt the backup with: ');
+
+        const hexKey = await prompt(
+            'Enter the key to encrypt the backup with: '
+        );
         const key = Buffer.from(hexKey, 'hex');
         const iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
-        const encrypted = Buffer.concat([cipher.update(JSON.stringify(data)), cipher.final()]);
+        const cipher = crypto.createCipheriv(
+            'aes-256-cbc',
+            Buffer.from(key),
+            iv
+        );
+        const encrypted = Buffer.concat([
+            cipher.update(JSON.stringify(data)),
+            cipher.final()
+        ]);
 
         const b: BackupData = {
             iv: iv.toString('hex'),
             data: encrypted.toString('hex'),
-            name: backup.serialize(),
+            name: backup.serialize()
         };
 
         (await saveFile('./.backup', JSON.stringify(b))).unwrap();
@@ -45,9 +54,11 @@ const main = async () => {
 
     if (args.includes('open')) {
         console.clear();
-        const hexKey = await prompt('Enter the key to decrypt the backup with: ');
+        const hexKey = await prompt(
+            'Enter the key to decrypt the backup with: '
+        );
         const key = Buffer.from(hexKey, 'hex');
-        const backup = (await readFile('./.backup'));
+        const backup = await readFile('./.backup');
         if (backup.isErr()) {
             console.log('No backup file found.');
             process.exit(1);
@@ -55,7 +66,11 @@ const main = async () => {
 
         const d: BackupData = JSON.parse(backup.value);
 
-        if (!Object.keys(d).includes('iv') || !Object.keys(d).includes('data') || !Object.keys(d).includes('name')) {
+        if (
+            !Object.keys(d).includes('iv') ||
+            !Object.keys(d).includes('data') ||
+            !Object.keys(d).includes('name')
+        ) {
             console.log('Invalid backup file.');
             process.exit(1);
         }
@@ -66,8 +81,15 @@ const main = async () => {
 
         console.log('Generating backup file: ', name);
 
-        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
-        const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+        const decipher = crypto.createDecipheriv(
+            'aes-256-cbc',
+            Buffer.from(key),
+            iv
+        );
+        const decrypted = Buffer.concat([
+            decipher.update(encryptedText),
+            decipher.final()
+        ]);
         const data = decrypted.toString();
 
         (await saveFile(`./storage/db/backups/${name}.json`, data)).unwrap();
