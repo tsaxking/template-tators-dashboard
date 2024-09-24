@@ -92,7 +92,7 @@ export class SocketWrapper {
         // cb?: (socket: Socket) => void
     ) {
         io.on('connection', socket => {
-            if (socket.recovered) console.log('recovered connection');
+            // if (socket.recovered) console.log('recovered connection');
             if (env.ENVIRONMENT === 'dev') {
                 if (performance.now() < 10000) {
                     console.log('server recently started, reloading client...');
@@ -113,7 +113,7 @@ export class SocketWrapper {
             }
 
             socket.on('disconnect', () => {
-                console.log('disconnected');
+                // console.log('disconnected');
                 this.em.emit('disconnect', socket);
             });
         });
