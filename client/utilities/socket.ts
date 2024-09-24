@@ -188,9 +188,15 @@ class Socket {
         // on('touchleave', reset);
 
         this.socket.connect();
-        const events = this.listeners.entries();
-        for (let i = 0; i < this.listeners.size; i++) {
-            const [event, listeners] = events.next().value;
+        const events = Array.from(this.listeners.entries());
+        // for (let i = 0; i < this.listeners.size; i++) {
+        // const [event, listeners] = events.next().value;
+        // for (const listener of listeners) {
+        //     this.socket.on(event, listener);
+        // }
+        // }
+
+        for (const [event, listeners] of events) {
             for (const listener of listeners) {
                 this.socket.on(event, listener);
             }
