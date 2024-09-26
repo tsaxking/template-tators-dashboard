@@ -190,10 +190,10 @@ class Socket {
         this.socket.connect();
         const events = Array.from(this.listeners.entries());
         // for (let i = 0; i < this.listeners.size; i++) {
-            // const [event, listeners] = events.next().value;
-            // for (const listener of listeners) {
-            //     this.socket.on(event, listener);
-            // }
+        // const [event, listeners] = events.next().value;
+        // for (const listener of listeners) {
+        //     this.socket.on(event, listener);
+        // }
         // }
 
         for (const [event, listeners] of events) {
