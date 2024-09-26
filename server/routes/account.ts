@@ -590,7 +590,7 @@ router.post<{
                     .unwrap()
                     ?.getPermissions();
                 if (permissions) {
-                    return res.json(permissions);
+                    return res.json(permissions.unwrap());
                 }
                 return res.json([]);
             }
