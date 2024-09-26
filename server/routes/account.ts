@@ -608,17 +608,19 @@ router.post('/all', async (req, res) => {
 
     if (await account.hasPermission('editRoles')) {
         return res.json(
-            await Promise.all(
-                (await Account.getAll()).unwrap().map(a =>
-                    a.safe({
-                        roles: true,
-                        email: true,
-                        memberInfo: true,
-                        permissions: true,
-                        id: true
-                    })
+            resolveAll(
+                await Promise.all(
+                    (await Account.getAll()).unwrap().map(a =>
+                        a.safe({
+                            roles: true,
+                            email: true,
+                            memberInfo: true,
+                            permissions: true,
+                            id: true
+                        })
+                    )
                 )
-            )
+            ).unwrap()
         );
     }
 
