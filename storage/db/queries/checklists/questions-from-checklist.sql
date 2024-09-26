@@ -1,0 +1,1 @@
+SELECT * FROM ChecklistQuestions WHERE checklistId = :checklistId AND archived = 0;
