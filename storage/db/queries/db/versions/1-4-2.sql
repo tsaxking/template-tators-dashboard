@@ -1,0 +1,2 @@
+ALTER TABLE CustomMatches ADD COLUMN red4 TEXT;
+ALTER TABLE CustomMatches ADD COLUMN blue4 TEXT;
