@@ -201,7 +201,7 @@ router.post<{
                         },
                         'Account',
                         capitalize(status.split('-').join(' ')),
-                        JSON.stringify(req),
+                        JSON.stringify(req.body),
                         req
                     )
                 );
@@ -598,7 +598,7 @@ router.post<{
             return res.sendStatus('account:cannot-edit-other-account');
         }
 
-        res.json(await account.getPermissions());
+        res.json((await account.getPermissions()).unwrap());
     }
 );
 
