@@ -1,0 +1,1 @@
+ALTER TABLE MatchScouting ADD COLUMN scoutName TEXT NOT NULL;

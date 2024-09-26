@@ -1,0 +1,1 @@
+SELECT * FROM DiscordAccount WHERE key = :key;
