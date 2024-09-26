@@ -58,5 +58,6 @@
         class="btn btn-primary"
         type="button"
         on:click="{open}"
-    >Upload Pictures</button>
+    >Upload Pictures</button
+    >
 </div>

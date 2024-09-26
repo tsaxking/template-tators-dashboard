@@ -220,7 +220,7 @@
                 }
             });
         }, 200);
-    }; 
+    };
     const getTrace = async (m: MatchScouting) => {
         if (!m) return;
         trace = m.trace;
