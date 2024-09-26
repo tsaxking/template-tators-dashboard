@@ -1,0 +1,1 @@
+SELECT * FROM ScoutingQuestionGroups WHERE section = :section AND eventKey = :eventKey AND archived = false;
