@@ -8,6 +8,8 @@ import env from '../utilities/env';
 import { Req } from '../structure/app/req';
 import { Res } from '../structure/app/res';
 import { capitalize } from '../../shared/text';
+import { detect } from '../middleware/profanity-detection';
+import { resolveAll } from '../../shared/check';
 
 export const router = new Route();
 
@@ -92,15 +94,24 @@ router.post<{
 
         // send the same error for both username and password to prevent username enumeration
         if (!account) {
+            console.log('No account found');
             return res.sendStatus('account:incorrect-username-or-password');
         }
+        const result = await account.testPassword(password);
 
-        const hash = Account.hash(password, account.salt);
-        if (hash !== account.key) {
+        console.log({ result });
+
+        // const hash = Account.hash(password, account.salt);
+        if (result === null) {
+            return res.sendStatus('account:please-change-password');
+        }
+
+        if (!result) {
             return Status.from('account:incorrect-username-or-password', req, {
                 username: username
             }).send(res);
         }
+        console.log('Account Verification:', account.verified);
         if (!account.verified) {
             return res.sendStatus('account:not-verified', {
                 username
@@ -143,6 +154,7 @@ router.post<{
         firstName: 'string',
         lastName: 'string'
     }),
+    detect('username', 'password', 'email', 'firstName', 'lastName'),
     trimBody,
     async (req, res) => {
         const {
@@ -197,13 +209,13 @@ router.post<{
         }
 
         if (status === 'created') {
-            req.io.emit('account:created', username);
+            req.io.emit('account:created', Account.fromUsername(username));
         }
     }
 );
 
 router.get('/sign-out', async (req, res) => {
-    // console.log('Signing out');
+    console.log('Signing out');
     await req.session.signOut();
     // console.log(req.session);
     res.redirect('/home');
@@ -480,6 +492,9 @@ router.post<{
         ]);
 
         const a = u.unwrap() || e.unwrap();
+        if (username.toLocaleLowerCase() === 'tatorscoutguest') {
+            return res.sendStatus('account:cannot-reset-guest');
+        }
 
         if (!a) return res.sendStatus('account:not-found');
 
@@ -611,18 +626,31 @@ router.post('/all', async (req, res) => {
 });
 
 router.post<{
-    id: string;
+    ids: string[];
 }>(
     '/account-info',
     validate({
-        id: 'string'
+        ids: v => Array.isArray(v) && v.every(t => typeof t === 'string')
     }),
     async (req, res) => {
-        const { id } = req.body;
+        const { ids } = req.body;
 
-        const a = (await Account.fromId(id)).unwrap();
+        const accounts = resolveAll(
+            await Promise.all(ids.map(id => Account.fromId(id)))
+        ).unwrap();
 
-        if (a) res.json(await a.safe());
-        else res.sendStatus('account:not-found');
+        res.json(
+            await Promise.all(
+                accounts.map(async a =>
+                    a
+                        ? (
+                              await a.safe({
+                                  id: true
+                              })
+                          ).unwrap()
+                        : undefined
+                )
+            )
+        );
     }
 );

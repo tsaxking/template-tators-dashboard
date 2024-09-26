@@ -32,5 +32,5 @@ export type PageGroup = {
 export type PageObj = {
     name: string;
     icon: string;
-    iconType: 'material' | 'fontawesome' | 'bootstrap';
+    iconType: 'material' | 'fontawesome' | 'bootstrap' | 'symbols';
 };
