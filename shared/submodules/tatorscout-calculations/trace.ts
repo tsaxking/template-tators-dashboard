@@ -679,10 +679,10 @@ export class Trace {
                         },
                         {
                             title: 'Total Lobs',
-                            labels: ['Speaker', 'Lob']
+                            labels: ['Speaker', 'Lob'],
                             data: [
                                 traceData.map(t => t.teleop.lob)
-                            ].map(#Math.average)
+                            ].map($Math.average)
                         },
                         {
                             title: 'Endgame Points',
