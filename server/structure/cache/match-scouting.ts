@@ -35,7 +35,7 @@ export class MatchScouting extends Cache {
             scoutGroup: number;
             trace: string;
             checks: string;
-            preScouting: number | undefined;
+            preScouting: 0 | 1;
             eventKey: string;
             matchNumber: number;
             compLevel: string;
@@ -75,7 +75,7 @@ export class MatchScouting extends Cache {
                     scoutGroup: data.scoutGroup,
                     trace: data.trace,
                     checks: data.checks,
-                    preScouting: data.preScouting || 0,
+                    preScouting: data.preScouting,
                     time,
                     scoutName: account?.username || data.scoutId || ''
                 })
@@ -190,7 +190,7 @@ export class MatchScouting extends Cache {
     public scoutGroup: number;
     public trace: TraceArray;
     public checks: string[];
-    public preScouting: number | undefined;
+    public preScouting: 0 | 1;
     public time: number;
     public eventKey: string;
     public matchNumber: number;

@@ -18,6 +18,7 @@ import { CustomMatch } from '../../structure/cache/custom-matches';
 import { MatchScouting } from '../../structure/cache/match-scouting';
 import { Match } from '../../structure/cache/matches';
 import { TeamComment } from '../../structure/cache/team-comments';
+import { Potato } from '../../structure/cache/potato';
 
 export const router = new Route();
 
@@ -63,6 +64,11 @@ router.post<MatchObject>(
                 }
             });
 
+        // award 100 potato chips to the scout
+        const award = (tatorChips: number) => {
+            return Potato.award(scout, tatorChips);
+        };
+
         const account = (await Account.fromUsername(scout)).unwrap();
         const scoutId = account ? account.id : scout;
 
@@ -99,6 +105,8 @@ router.post<MatchObject>(
             });
 
             if (ms.isErr()) return res.status(500).json({ error: ms.error });
+
+            award(150);
 
             const c = await addComments(ms.value);
             if (c.isErr()) return res.status(500).json({ error: c.error });
@@ -141,6 +149,7 @@ router.post<MatchObject>(
             });
 
             if (ms.isErr()) return res.status(500).json({ error: ms.error });
+            award(50);
             const c = await addComments(ms.value);
             if (c.isErr()) return res.status(500).json({ error: c.error });
 
@@ -189,6 +198,7 @@ router.post<MatchObject>(
                 true
             );
             if (ms.isErr()) return res.status(500).json({ error: ms.error });
+            award(150);
             const c = await addComments(ms.value);
             if (c.isErr()) return res.status(500).json({ error: c.error });
 
@@ -212,6 +222,7 @@ router.post<MatchObject>(
         });
 
         if (ms.isErr()) return res.status(500).json({ error: ms.error });
+        award(100);
         const c = await addComments(ms.value);
         if (c.isErr()) return res.status(500).json({ error: c.error });
 

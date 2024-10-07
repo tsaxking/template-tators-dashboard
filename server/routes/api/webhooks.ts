@@ -103,7 +103,7 @@ router.post('/event/:eventKey/match-scouting', auth, async (req, res) => {
                 scoutId: string | undefined;
                 scoutGroup: number;
                 checks: string;
-                preScouting: number | undefined;
+                preScouting: 0 | 1;
                 time: number;
                 eventKey: string;
                 matchNumber: number;

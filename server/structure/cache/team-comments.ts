@@ -10,7 +10,7 @@ export class TeamComment extends Cache {
         team: number;
         comment: string;
         type: string;
-        matchScoutingId: string | undefined;
+        matchScoutingId: string;
         accountId: string | undefined;
         eventKey: string;
     }) {
