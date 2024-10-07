@@ -12,6 +12,7 @@
     import { FIRSTEvent } from '../../models/FIRST/event';
     import MatchSchedule from '../pages/MatchSchedule.svelte';
     import Strategy from '../pages/strategy/Strategy.svelte';
+    import Leaderboard from '../pages/potato/Leaderboard.svelte';
 
     const groups: PageGroup[] = [
         {
@@ -64,6 +65,11 @@
                 {
                     name: 'quiz',
                     icon: 'quiz',
+                    iconType: 'material'
+                },
+                {
+                    name: 'leaderboard',
+                    icon: 'leaderboard',
                     iconType: 'material'
                 }
             ]
@@ -155,5 +161,12 @@
         loading={false}
         title="strategy">
         <Strategy bind:loading />
+    </Page>
+    <Page
+        {active}
+        {domain}
+        title="leaderboard"
+        loading={false}>
+        <Leaderboard bind:loading />
     </Page>
 </Main>

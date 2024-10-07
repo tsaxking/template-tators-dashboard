@@ -633,6 +633,30 @@ export const messages: Record<string, StatusMessage> = {
         code: 200,
         instructions: ''
     },
+    'potato:cannot-update-self': {
+        message: 'you cannot edit your own potato',
+        color: 'danger',
+        code: 403,
+        instructions: ''
+    },
+    'potato:not-allowed': {
+        message: 'No potato allowed',
+        color: 'danger',
+        code: 401,
+        instructions: ''
+    },
+    'potato:not-enough-chips': {
+        message: 'You do not have enough chips for this action',
+        color: 'danger',
+        code: 401,
+        instructions: ''
+    },
+    'potato:updated': {
+        message: 'Potato Updated',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'profanity:detected': {
         message: 'Profanity detected',
         color: 'danger',
@@ -1119,6 +1143,12 @@ export type PermissionsStatusId =
 
 export type PitScoutingStatusId = 'delete' | 'new';
 
+export type PotatoStatusId =
+    | 'cannot-update-self'
+    | 'not-allowed'
+    | 'updated'
+    | 'not-enough-chips';
+
 export type ProfanityStatusId = 'detected';
 
 export type RoleStatusId = 'not-found';
@@ -1136,6 +1166,10 @@ export type RolesStatusId =
     | 'removed-permission'
     | 'updated';
 
+export type ServerStatusId =
+    | 'invalid-data'
+    | 'not-implemented'
+    | 'unknown-server-error';
 export type ScoutingQuestionStatusId =
     | 'answer-deleted'
     | 'answer-not-found'
@@ -1154,11 +1188,6 @@ export type ScoutingQuestionStatusId =
     | 'update-answer'
     | 'update-section'
     | 'updated-answer';
-
-export type ServerStatusId =
-    | 'invalid-data'
-    | 'not-implemented'
-    | 'unknown-server-error';
 
 export type SessionStatusId = 'rate-limited';
 

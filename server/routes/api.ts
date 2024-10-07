@@ -35,6 +35,9 @@ router.route('/match-scouting', matchScouting);
 import { router as teamComments } from './api/team-comments';
 router.route('/team-comments', teamComments);
 
+import { router as potato } from './api/potato';
+router.route('/potato', potato);
+
 import { router as customMatches } from './api/custom-matches';
 router.route('/custom-matches', customMatches);
 
