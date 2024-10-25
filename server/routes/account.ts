@@ -201,7 +201,7 @@ router.post<{
                         },
                         'Account',
                         capitalize(status.split('-').join(' ')),
-                        JSON.stringify(req),
+                        JSON.stringify(req.body),
                         req
                     )
                 );
@@ -590,7 +590,7 @@ router.post<{
                     .unwrap()
                     ?.getPermissions();
                 if (permissions) {
-                    return res.json(permissions);
+                    return res.json(permissions.unwrap());
                 }
                 return res.json([]);
             }
@@ -598,7 +598,7 @@ router.post<{
             return res.sendStatus('account:cannot-edit-other-account');
         }
 
-        res.json(await account.getPermissions());
+        res.json((await account.getPermissions()).unwrap());
     }
 );
 
@@ -608,17 +608,19 @@ router.post('/all', async (req, res) => {
 
     if (await account.hasPermission('editRoles')) {
         return res.json(
-            await Promise.all(
-                (await Account.getAll()).unwrap().map(a =>
-                    a.safe({
-                        roles: true,
-                        email: true,
-                        memberInfo: true,
-                        permissions: true,
-                        id: true
-                    })
+            resolveAll(
+                await Promise.all(
+                    (await Account.getAll()).unwrap().map(a =>
+                        a.safe({
+                            roles: true,
+                            email: true,
+                            memberInfo: true,
+                            permissions: true,
+                            id: true
+                        })
+                    )
                 )
-            )
+            ).unwrap()
         );
     }
 
