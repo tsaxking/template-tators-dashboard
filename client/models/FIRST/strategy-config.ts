@@ -1,6 +1,8 @@
 import { Cache } from "../cache";
 import { StrategyConfigs as SC } from "../../../server/utilities/tables";
 import { EventEmitter } from "../../../shared/event-emitter";
+import { attemptAsync } from "../../../shared/check";
+import { ServerRequest } from "../../utilities/requests";
 
 type StrategyConfigEvents = {
     update: undefined;
@@ -33,5 +35,23 @@ export class StrategyConfig extends Cache<StrategyConfigEvents> {
         this.team = config.team;
         this.type = config.type;
         this.value = config.value;
+    }
+
+    delete() {
+        return attemptAsync(async () => {
+            await ServerRequest.post('/api/strategy/delete-config', {
+                id: this.id
+            });
+        });
+    }
+
+    update(data: Partial<Omit<SC, 'id' | 'strategyId'>>) {
+        const { team, type, value } = data;
+        return ServerRequest.post('/api/strategy/update-config', {
+            id: this.id,
+            team,
+            type,
+            value
+        });
     }
 }

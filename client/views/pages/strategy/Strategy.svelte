@@ -1,6 +1,6 @@
 <script lang="ts">
     import { FIRSTMatch } from '../../../models/FIRST/match';
-    import { Check, Strategy } from '../../../models/FIRST/strategy';
+    import { Strategy } from '../../../models/FIRST/strategy';
     import { onMount } from 'svelte';
     import { alert, prompt, select } from '../../../utilities/notifications';
     import { FIRSTAlliance } from '../../../models/FIRST/alliance';
@@ -8,7 +8,6 @@
     import { type MatchInterface } from '../../../models/FIRST/interfaces/match';
     // import { dateString } from '../../../../shared/clock';
 // import { Loop } from '../../../../shared/loop';
-    import Checks from '../../components/strategy/Checks.svelte';
     import Comment from '../../components/strategy/Comment.svelte';
     import MatchSelect from '../../components/main/MatchSelect.svelte';
     import StrategySelect from '../../components/strategy/StrategySelect.svelte';
@@ -28,7 +27,6 @@
     let red: FIRSTAlliance | undefined;
     let blue: FIRSTAlliance | undefined;
     let match: MatchInterface | undefined;
-    let checks: Check[] = [];
 
     // let currentTime = date();
 
@@ -84,14 +82,6 @@
     const selectStrategy = async (s: Strategy) => {
         if (!match) return console.error('Strategy: match not selected');
         strategy = s;
-        // s.select();
-
-        const c = await s.getChecks();
-        if (c.isErr()) {
-            return console.error(c.error);
-        }
-
-        checks = c.value;
     };
 
     onMount(() => {
@@ -156,23 +146,6 @@
         {#if strategy}
             <div class="row mb-3">
                 <Comment bind:strategy />
-            </div>
-            <div class="row mb-3">
-                <!-- Checks -->
-                <div class="col-md-6">
-                    <Checks checks="{checks[0]}" />
-                    <hr />
-                    <Checks checks="{checks[1]}" />
-                    <hr />
-                    <Checks checks="{checks[2]}" />
-                </div>
-                <div class="col-md-6">
-                    <Checks checks="{checks[3]}" />
-                    <hr />
-                    <Checks checks="{checks[4]}" />
-                    <hr />
-                    <Checks checks="{checks[5]}" />
-                </div>
             </div>
         {:else}
             <p>No strategy selected</p>
