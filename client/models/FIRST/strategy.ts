@@ -166,11 +166,6 @@ export class Strategy extends Cache<StrategyUpdateData> {
         });
     }
 
-    getChecks() {
-        return attemptAsync(async () => {
-            return (await Check.from(this)).unwrap();
-        });
-    }
     select() {
         Strategy.current = this;
         Strategy.emit('select', this);
@@ -178,90 +173,6 @@ export class Strategy extends Cache<StrategyUpdateData> {
 
     getWhiteboards() {
         return FIRSTWhiteboard.fromStrategy(this.id);
-    }
-}
-
-type CheckEvents = {
-    'new-check': string;
-    'remove-check': string;
-};
-
-export class Check extends EventEmitter<CheckEvents> {
-    public static readonly checks = [
-        'Start: Amp',
-        'Start: Center',
-        'Start: Source',
-        'Auto: 3 Close Note',
-        'Auto: 1 Close, 3 centerline',
-        'Defense',
-        'Finisher',
-        'Lobber',
-        'Amper',
-        'Trap'
-    ];
-
-    public static from(strategy: Strategy) {
-        return attemptAsync(async () => {
-            const data = strategy.checks;
-            const teams = (await strategy.getTeams())
-                .unwrap()
-                .filter(Boolean)
-                .map(t => t.number);
-            const checks = data.map(d => d.split(':') as [string, string]);
-
-            return teams.map(t => {
-                const c = checks.filter(c => +c[0] === t).map(c => c.slice(1).join(':'));
-                return new Check(t, c, strategy);
-            }) as [Check, Check, Check, Check, Check, Check];
-        });
-    }
-
-    constructor(
-        public readonly team: number,
-        public checks: string[],
-        public readonly strategy: Strategy
-    ) {
-        super();
-    }
-
-    private change() {
-        return attemptAsync(async () => {
-            const data = this.serialize();
-            await this.strategy.update({
-                checks: [...data, ...this.strategy.checks]
-                    // Remove duplicates
-                    .filter((c, i, a) => a.indexOf(c) === i)
-            });
-        });
-    }
-
-    serialize(): string[] {
-        // ['2122:check']
-        return this.checks.map(c => `${this.team}:${c}`);
-    }
-
-    add(check: string) {
-        this.checks.push(check);
-        this.emit('new-check', check);
-        return this.change();
-    }
-
-    remove(check: string) {
-        this.checks = this.checks.filter(c => c !== check);
-        this.strategy.checks = this.strategy.checks.filter(c => c !== `${this.team}:${check}`);
-        this.emit('remove-check', check);
-        return this.change();
-    }
-
-    toggle(check: string) {
-        if (this.has(check)) {
-            return this.remove(check);
-        }
-        return this.add(check);
-    }
-
-    has(check: string) {
-        return this.checks.includes(check);
     }
 }
 
