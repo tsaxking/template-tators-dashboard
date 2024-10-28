@@ -20,15 +20,67 @@
 
     onMount(() => {
         strategy.on('update', update);
+        comment = strategy.comment;
+        if (!comment) defaultComment();
 
         return () => {
             strategy.off('update', update);
         };
     });
 
-    onMount(() => {
-        comment = strategy.comment;
-    });
+    const defaultComment = async () => {
+        const res = await strategy.getTeams();
+        if (res.isErr()) return console.error(res.error);
+        const teams = res.value.filter(Boolean);
+
+        const templates = [
+            'Auto Starting Location',
+            'Auto Routine',
+            'Main Teleop Role',
+            'Endgame',
+        ];
+
+        const red = teams.slice(0, 3);
+        const blue = teams.slice(3, 6);
+
+        let str: string;
+
+        if (red.some(t => t.number === 2122)) {
+            str = `Red Alliance:
+    ${red[0].number} - ${red[0].name}
+        ${templates.join(':\n        ')}:
+    ${red[1].number} - ${red[1].name}
+        ${templates.join(':\n        ')}:
+    ${red[2].number} - ${red[2].name}
+        ${templates.join(':\n        ')}:
+
+Blue Alliance:
+    ${blue[0].number} - ${blue[0].name}
+        ${templates.join(':\n        ')}:
+    ${blue[1].number} - ${blue[1].name}
+        ${templates.join(':\n        ')}:
+    ${blue[2].number} - ${blue[2].name}
+        ${templates.join(':\n        ')}:`;
+        } else {
+
+            str = `Blue Alliance:
+    ${blue[0].number} - ${blue[0].name}
+        ${templates.join(':\n        ')}:
+    ${blue[1].number} - ${blue[1].name}
+        ${templates.join(':\n        ')}:
+    ${blue[2].number} - ${blue[2].name}
+        ${templates.join(':\n        ')}:
+Red Alliance:
+    ${red[0].number} - ${red[0].name}
+        ${templates.join(':\n        ')}:
+    ${red[1].number} - ${red[1].name}
+        ${templates.join(':\n        ')}:
+    ${red[2].number} - ${red[2].name}
+        ${templates.join(':\n        ')}:`;
+        }
+
+        comment = str.trim();
+    };
 </script>
 
 <div class="mb-3 bg-gray-light flex-fill p-3 rounded w-75 position-relative">
@@ -36,7 +88,7 @@
         <h4 class="text-black">Comment</h4>
         <textarea
             class="form-control"
-            rows="5"
+            rows="30"
             on:input="{e => {
                 comment = e.currentTarget.value;
             }}">{comment}</textarea
