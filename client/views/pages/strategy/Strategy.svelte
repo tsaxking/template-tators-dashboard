@@ -157,8 +157,7 @@
             <div class="row mb-3">
                 <Comment bind:strategy />
             </div>
-            <div class="row mb-3">
-                <!-- Checks -->
+            <!-- <div class="row mb-3">
                 <div class="col-md-6">
                     <Checks checks="{checks[0]}" />
                     <hr />
@@ -173,7 +172,7 @@
                     <hr />
                     <Checks checks="{checks[5]}" />
                 </div>
-            </div>
+            </div> -->
         {:else}
             <p>No strategy selected</p>
         {/if}
