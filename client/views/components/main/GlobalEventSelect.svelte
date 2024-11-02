@@ -53,7 +53,7 @@
                 if (e) return new FIRSTEvent(e).select();
             }
 
-            const e = events.find(e => e.key === '2024gal');
+            const e = events.find(e => e.key === '2024cabl');
             if (e) new FIRSTEvent(e).select();
             else new FIRSTEvent(events[0]).select();
         }
