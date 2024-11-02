@@ -20,7 +20,7 @@
 
     onMount(() => {
         strategy.on('update', update);
-        comment = strategy.comment;
+        comment = strategy.comment.trim();
         if (!comment) defaultComment();
 
         return () => {
