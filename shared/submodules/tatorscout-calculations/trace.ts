@@ -543,6 +543,7 @@ export class Trace {
                         spk: 0,
                         amp: 0,
                         trp: 0,
+                        lob: 0,
                         total: 0
                     },
                     endgame: {
@@ -562,6 +563,7 @@ export class Trace {
                         if (!isInside([p[1], p[2]], autoZone))
                             score.auto.mobility = auto.mobility;
                     } else {
+                        if (p[3] === 'lob') score.teleop.lob++;
                         if (p[3] === 'spk') score.teleop.spk += teleop.spk;
                         if (p[3] === 'amp') score.teleop.amp += teleop.amp;
                         if (p[3] === 'clb') score.endgame.clb += teleop.clb;
