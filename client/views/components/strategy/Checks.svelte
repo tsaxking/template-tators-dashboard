@@ -11,7 +11,7 @@
         </h4>
         <div class="container-fluid">
             <div class="row p-0 m-0">
-                {#each Check.checks as c}
+                {#each Check.checks as c (c)}
                     <div class="col-md-6">
                         <div class="input-group mb-3">
                             <div class="input-group-text">
