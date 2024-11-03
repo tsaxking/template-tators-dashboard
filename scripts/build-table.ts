@@ -254,7 +254,7 @@ export class Table {
                             'Max Teleop Score',
                             'Average Endgame Score',
                             'Max Endgame Score',
-                            'Average Lobs per Match',
+                            'Average Lobs per Match'
                         ];
 
                         const res = await getMatchScouting(
@@ -319,7 +319,7 @@ export class Table {
                                     0
                                 ) / scores.length,
                                 Math.max(...scores.map(s => s.endgame.total)),
-                                Math.max(...scores.map(s => s.teleop.lob)),
+                                Math.max(...scores.map(s => s.teleop.lob))
                             ]
                         };
                     });
