@@ -188,14 +188,15 @@ router.post<MatchObject>(
                 },
                 true
             );
-            if (ms.isErr()) return res.status(500).json({ error: ms.error });
-            const c = await addComments(ms.value);
-            if (c.isErr()) return res.status(500).json({ error: c.error });
-
-            return res.json({
-                success: true,
-                overwrite: true
-            });
+            if (ms.isOk()) {
+                const c = await addComments(ms.value);
+                if (c.isErr()) return res.status(500).json({ error: c.error });
+                return res.json({
+                    success: true,
+                    overwrite: true
+                });
+            }
+            return res.status(500).json({ error: ms.error });
         }
 
         const ms = await MatchScouting.new({
@@ -211,15 +212,16 @@ router.post<MatchObject>(
             compLevel
         });
 
-        if (ms.isErr()) return res.status(500).json({ error: ms.error });
-        const c = await addComments(ms.value);
-        if (c.isErr()) return res.status(500).json({ error: c.error });
-
-        res.json({
-            success: true
-        });
-
-        req.io.emit('match-scouting:new', ms);
+        if (ms.isOk()) {
+            const c = await addComments(ms.value);
+            if (c.isErr()) return res.status(500).json({ error: c.error });
+            req.io.emit('match-scouting:new', ms);
+            return res.json({
+                success: true,
+                overwrite: true
+            });
+        }
+        return res.status(500).json({ error: ms.error });
     }
 );
 
