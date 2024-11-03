@@ -35,7 +35,8 @@ export const checkRanks: {
     problemsDriving: 2,
     groundPicks: 0,
     penalized: 3,
-    spectator: 3
+    spectator: 3,
+    lob: 0,
 };
 
 export const rankColor: {
