@@ -42,4 +42,5 @@
     defaultValue="Select Match"
     bind:options
     bind:value
-    on:change="{handleChange}" />
+    on:change="{handleChange}"
+/>
