@@ -11,6 +11,7 @@
         "fmt": "prettier . --write",
         "init": "ts-node ./scripts/init.ts",
         "dev": "concurrently --kill-others \"npm run start\" \"npm run build:watch\"",
+        "encrypt-backup": "ts-node ./scripts/encrypt-backup.ts",
         "backup": "ts-node ./scripts/backup-db.ts",
         "restore": "ts-node ./scripts/restore-db.ts",
         "fix-gal-issue": "ts-node ./scripts/fix-gal-issue.ts"
@@ -63,6 +64,7 @@
         "@neoxia-js/nodemailer-sendgrid-transport": "^0.1.1",
         "@putout/cli-choose": "^2.0.0",
         "@types/bootstrap": "^5.2.10",
+        "@types/cli-progress": "^3.11.6",
         "@types/jqueryui": "^1.12.21",
         "@types/nodemailer-sendgrid": "^1.0.3",
         "axios": "^1.6.7",
@@ -71,6 +73,7 @@
         "bootstrap-icons": "^1.11.3",
         "busboy": "^1.6.0",
         "chart.js": "^4.4.2",
+        "cli-progress": "^3.12.0",
         "cli-select": "^1.1.2",
         "cliffy": "^2.5.1",
         "compress-images": "^1.9.9",

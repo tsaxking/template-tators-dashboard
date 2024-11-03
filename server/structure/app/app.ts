@@ -5,9 +5,8 @@ import { Req } from './req';
 import { Res } from './res';
 import { SocketWrapper } from '../socket';
 import http from 'http';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { Session } from '../sessions';
-import session from 'express-session';
 
 /**
  * All file types that can be sent (can be expanded)
