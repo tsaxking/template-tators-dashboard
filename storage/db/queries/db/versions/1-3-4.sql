@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS dbTransfer (
+    date BIGINT NOT NULL
+);

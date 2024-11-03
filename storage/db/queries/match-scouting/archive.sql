@@ -1,0 +1,1 @@
+UPDATE MatchScouting SET archived = true WHERE id = :id;
