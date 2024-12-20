@@ -71,7 +71,13 @@ export type StatusMessage = {
     redirect?: string;
 };
 
+<<<<<<< HEAD
+export const messages: {
+    [key: string]: StatusMessage;
+} = {
+=======
 export const messages: Record<string, StatusMessage> = {
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
     'account:already-logged-in': {
         message: 'You are already logged in.',
         color: 'danger',
@@ -820,7 +826,7 @@ export const messages: Record<string, StatusMessage> = {
         instructions: ''
     },
     'server:not-implemented': {
-        message: 'This request\'s handler has not been implemented yet.',
+        message: "This request's handler has not been implemented yet.",
         color: 'warning',
         code: 501,
         instructions: ''

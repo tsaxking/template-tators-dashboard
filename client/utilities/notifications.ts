@@ -7,6 +7,7 @@ import { capitalize, fromCamelCase, fromSnakeCase } from '../../shared/text';
 import { Alert, Modal, Toast } from './modals';
 import { Color } from './modals';
 import { sleep } from '../../shared/sleep';
+import { attempt } from '../../shared/check';
 
 /**
  * Displays a toast notification to the user
@@ -349,13 +350,15 @@ export const choose = async <A extends string, B extends string>(
     });
 };
 
-Object.assign(window, {
-    notifs: {
-        alert,
-        confirm,
-        prompt,
-        select,
-        choose,
-        notify
-    }
+attempt(() => {
+    Object.assign(window, {
+        notifs: {
+            alert,
+            confirm,
+            prompt,
+            select,
+            choose,
+            notify
+        }
+    });
 });

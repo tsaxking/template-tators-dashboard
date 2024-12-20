@@ -4,9 +4,19 @@ import { EventEmitter } from '../../shared/event-emitter';
 import { StatusJson } from '../../shared/status';
 import { streamDelimiter } from '../../shared/text';
 import { uuid as _uuid } from '../../server/utilities/uuid';
-import { attemptAsync, Result } from '../../shared/check';
+import { attempt, attemptAsync, Result } from '../../shared/check';
 import { error, log, warn } from './logging';
 import { bigIntDecode } from '../../shared/objects';
+
+export interface Requester {
+    post: <T>(
+        url: string,
+        body?: unknown,
+        options?: RequestOptions
+    ) => Promise<Result<T>>;
+    get: <T>(url: string, options?: RequestOptions) => Promise<Result<T>>;
+    multiple: (requests: ServerRequest[]) => Promise<unknown[]>;
+}
 
 /**
  * These are optional options for a request
@@ -98,11 +108,28 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
      * @type {*}
      * @returns {Promise<T[]>}
      */
-    get promise() {
-        return new Promise<T[]>(res => {
-            if (this.completed) res(this.data);
-            else this.on('complete', res);
-        });
+    // get promise() {
+    //     return new Promise<T[]>(res => {
+    //         if (this.completed) res(this.data);
+    //         else this.on('complete', res);
+    //     });
+    // }
+
+    await(): Promise<Result<T[]>> {
+        return attemptAsync(
+            () =>
+                new Promise((res, rej) => {
+                    if (this.completed) res(this.data);
+                    else this.on('complete', () => res(this.data));
+                    this.on('error', rej);
+                })
+        );
+    }
+
+    pipe(fn: (data: T) => void) {
+        this.on('chunk', fn);
+        this.on('complete', () => this.off('chunk', fn));
+        this.on('error', () => this.off('chunk', fn));
     }
 }
 
@@ -504,54 +531,40 @@ export class ServerRequest<T = unknown> {
             body: JSON.stringify(body)
         })
             .then(res => {
-                const dataLength = parseInt(
-                    res.headers.get('x-data-length') || '0'
-                );
-
                 const reader = res.body?.getReader();
-                if (!reader) {
-                    return emitter.emit('error', new Error('No reader found'));
-                }
+                if (!reader) throw new Error('No reader');
 
-                let i = 0;
-                let last: string | undefined;
-                reader.read().then(async function process({
-                    done,
-                    value
-                }): Promise<ReadableStreamReadResult<Uint8Array> | undefined> {
+                let cache = '';
+
+                reader.read().then(({ done, value }) => {
+                    if (value) {
+                        const text = new TextDecoder().decode(value);
+                        const chunks = text.split(streamDelimiter);
+
+                        if (cache) {
+                            chunks[chunks.length - 1] += cache;
+                            cache = '';
+                        }
+                        if (!text.endsWith(streamDelimiter)) {
+                            cache = chunks.pop() || '';
+                        }
+
+                        for (const chunk of chunks) {
+                            const data = parser
+                                ? parser(chunk)
+                                : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                  (chunk as any);
+                            if (!data) continue;
+                            // console.log({ data });
+                            emitter.emit('chunk', data);
+                            output.push(data);
+                        }
+                    }
+
                     if (done) {
-                        console.log('Stream complete, received', i, 'chunks');
                         emitter.emit('complete', output);
                         return;
                     }
-
-                    if (value) {
-                        const d = new TextDecoder().decode(value);
-                        // log(done, d);
-                        const split = d.split(streamDelimiter);
-                        if (last) split[0] = last + split[0];
-                        last = split.pop();
-
-                        for (let s of split) {
-                            s = decodeURI(s);
-                            if (s) {
-                                i++;
-                                if (parser) {
-                                    output.push(parser(s));
-                                    emitter.emit('chunk', parser(s));
-                                } else {
-                                    output.push(s as K);
-                                    emitter.emit('chunk', s as K);
-                                }
-
-                                if (i >= dataLength) {
-                                    emitter.emit('complete', output);
-                                }
-                            }
-                        }
-                    }
-                    i++;
-                    return reader.read().then(process);
                 });
             })
             .catch(e => emitter.emit('error', new Error(e)));
@@ -719,13 +732,14 @@ export class ServerRequest<T = unknown> {
                     'Content-Type': 'application/json',
                     ...this.options?.headers,
                     // populate metadata
-                    ...Array.from(ServerRequest.metadata.entries()).reduce(
-                        (acc, cur) => {
-                            acc[cur[0]] = cur[1];
-                            return acc;
-                        },
-                        {} as { [key: string]: string }
-                    )
+                    // ...Array.from(ServerRequest.metadata.entries()).reduce(
+                    //     (acc, cur) => {
+                    //         acc[cur[0]] = cur[1];
+                    //         return acc;
+                    //     },
+                    //     {} as { [key: string]: string }
+                    // )
+                    'X-Metadata': JSON.stringify(ServerRequest.metadata)
                 },
                 body: JSON.stringify(this.body)
             })
@@ -784,4 +798,6 @@ export class ServerRequest<T = unknown> {
     }
 }
 
-Object.assign(window, { ServerRequest });
+attempt(() => {
+    Object.assign(window, { ServerRequest });
+});

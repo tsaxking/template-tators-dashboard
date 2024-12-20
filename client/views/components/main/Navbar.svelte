@@ -1,24 +1,19 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import { capitalize, fromSnakeCase } from '../../../../shared/text';
     import ThemeSwitch from '../ThemeSwitch.svelte';
     import EventSelect from './GlobalEventSelect.svelte';
     export let title: string;
     export let navItems: string[] = [];
-    import { Account } from '../../../models/account';
     import { Modal } from '../../../utilities/modals';
     import Settings from '../../pages/Settings.svelte';
-    import { AccountNotification } from '../../../models/account-notifications';
-    import AccountNotifications from './AccountNotifications.svelte';
+    import AccountNotifications from './Notifications/AccountNotifications.svelte';
+    import { Accounts } from '../../../models/account';
+    import NotificationIcon from './Notifications/NotificationIcon.svelte';
+
+    const myAccount = Accounts.self;
+    const self = $myAccount;
 
     export let active: string = '';
-
-    let account: Account = Account.guest;
-    let notifications: AccountNotification[] = [];
-    let showNotifications = false;
-    let unread: number;
-
-    $: unread = notifications.filter(n => !n.read).length;
 
     export let accountLinks: (string | null)[] = [];
 
@@ -36,6 +31,8 @@
         m.setBody(body);
         m.show();
     };
+<<<<<<< HEAD
+=======
 
     const initAccount = async () => {
         const a = await Account.getAccount();
@@ -52,6 +49,7 @@
         initAccount();
         jQuery('#report-issue').tooltip();
     });
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 </script>
 
 <nav
@@ -97,6 +95,55 @@
             <div class="form-inline my-2 my-lg-0">
                 <slot name="form" />
             </div>
+<<<<<<< HEAD
+        </div>
+    </div>
+
+    <div class="d-inline-flex p-0 align-items-center">
+        <a
+            id="navbarDropdown-link"
+            class="nav-link dropdown-toggle me-3"
+            aria-expanded="false"
+            data-bs-toggle="dropdown"
+            href="#navbarDropdown"
+            role="button"
+        >
+            Hello, {self.data.username}&nbsp;
+            {#if self.data.picture}
+                <img
+                    class="profile-pic mx-1"
+                    alt=""
+                    src="../uploads/${self.data.picture}"
+                />
+            {:else}
+                <span class="material-icons">person</span>
+            {/if}
+        </a>
+        <NotificationIcon account="{self}" />
+        <ul
+            id="navbarDropdown"
+            class="dropdown-menu dropdown-menu-end p-0"
+            aria-labelledby="navbarDropdown"
+        >
+            <li>
+                <a
+                    class="dropdown-item"
+                    href="javascript:void(0);"
+                    on:click="{openSettings}"
+                >
+                    <i class="material-icons">settings</i>&nbsp;Settings
+                </a>
+            </li>
+            {#each accountLinks as link}
+                {#if link}
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            href="{link}"
+                        >{capitalize(fromSnakeCase(link, '-'))}</a
+                        >
+                    </li>
+=======
             <EventSelect />
             <a
                 id="navbarDropdown-link"
@@ -113,6 +160,7 @@
                         alt=""
                         src="../uploads/${account.picture}"
                     />
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
                 {:else}
                     <span class="material-icons">person</span>
                 {/if}
@@ -190,4 +238,4 @@
     </div>
 </nav>
 
-<AccountNotifications {notifications} />
+<AccountNotifications />

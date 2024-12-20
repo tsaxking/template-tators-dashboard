@@ -2,8 +2,7 @@ import { backToMain, selectFile } from '../manager';
 import { repeatPrompt, select, confirm, prompt } from '../prompt';
 import { addEntry } from '../add-entry';
 import { __root } from '../../server/utilities/env';
-import { DB } from '../../server/utilities/databases';
-import Account from '../../server/structure/accounts';
+import { DB } from '../../server/utilities/database';
 import { uuid } from '../../server/utilities/uuid';
 import { dateTime } from '../../shared/clock';
 import { pullDeps } from '../pull-deps';
@@ -64,145 +63,145 @@ const createEntry = async () => {
     }
 };
 
-const blacklist = async () => {
-    const accountOrIp = await select<'Account' | 'IP'>(
-        'Do you want to blacklist an account or an IP?',
-        ['Account', 'IP', 'Remove']
-    );
+// const blacklist = async () => {
+//     const accountOrIp = await select<'Account' | 'IP'>(
+//         'Do you want to blacklist an account or an IP?',
+//         ['Account', 'IP', 'Remove']
+//     );
 
-    if (accountOrIp === 'Account') {
-        const accounts = (await Account.getAll()).unwrap();
-        const a = await select(
-            'Select an account to blacklist',
-            accounts.map(a => ({
-                name:
-                    a.username +
-                    ' - ' +
-                    a.email +
-                    ' - ' +
-                    a.firstName +
-                    ' ' +
-                    a.lastName,
-                value: a
-            }))
-        );
+//     if (accountOrIp === 'Account') {
+//         const accounts = (await Account.getAll()).unwrap();
+//         const a = await select(
+//             'Select an account to blacklist',
+//             accounts.map(a => ({
+//                 name:
+//                     a.username +
+//                     ' - ' +
+//                     a.email +
+//                     ' - ' +
+//                     a.firstName +
+//                     ' ' +
+//                     a.lastName,
+//                 value: a
+//             }))
+//         );
 
-        if (a) {
-            const doBlacklist = await confirm(
-                `Are you sure you want to blacklist ${a.username}?`
-            );
+//         if (a) {
+//             const doBlacklist = await confirm(
+//                 `Are you sure you want to blacklist ${a.username}?`
+//             );
 
-            if (doBlacklist) {
-                DB.run('blacklist/new', {
-                    id: uuid(),
-                    reason: 'Manually blacklisted',
-                    accountId: a.id,
-                    ip: '',
-                    created: Date.now()
-                });
-                return backToMain('Account blacklisted');
-            }
-            return backToMain('Blacklist cancelled');
-        }
-        return backToMain('No account selected');
-    } else if (accountOrIp === 'IP') {
-        const fromNew = await select<'new' | 'session'>(
-            'Is this a new IP or is currently attached to a session?',
-            ['new', 'session']
-        );
+//             if (doBlacklist) {
+//                 DB.run('blacklist/new', {
+//                     id: uuid(),
+//                     reason: 'Manually blacklisted',
+//                     accountId: a.id,
+//                     ip: '',
+//                     created: Date.now()
+//                 });
+//                 return backToMain('Account blacklisted');
+//             }
+//             return backToMain('Blacklist cancelled');
+//         }
+//         return backToMain('No account selected');
+//     } else if (accountOrIp === 'IP') {
+//         const fromNew = await select<'new' | 'session'>(
+//             'Is this a new IP or is currently attached to a session?',
+//             ['new', 'session']
+//         );
 
-        if (fromNew === 'new') {
-            const ip = await prompt('Enter the IP to blacklist');
-            if (!ip) return backToMain('No IP entered');
-            if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) {
-                const doBlacklist = await confirm(
-                    `Are you sure you want to blacklist ${ip}?`
-                );
+//         if (fromNew === 'new') {
+//             const ip = await prompt('Enter the IP to blacklist');
+//             if (!ip) return backToMain('No IP entered');
+//             if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) {
+//                 const doBlacklist = await confirm(
+//                     `Are you sure you want to blacklist ${ip}?`
+//                 );
 
-                if (doBlacklist) {
-                    DB.run('blacklist/new', {
-                        id: uuid(),
-                        reason: 'Manually blacklisted',
-                        accountId: '',
-                        ip,
-                        created: Date.now()
-                    });
-                    return backToMain('IP blacklisted');
-                }
-                return backToMain('Blacklist cancelled');
-            }
-            return backToMain('Invalid IP');
-        }
-        const sessions = await DB.all('sessions/all');
-        if (sessions.isErr()) return backToMain('Error fetching sessions');
+//                 if (doBlacklist) {
+//                     DB.run('blacklist/new', {
+//                         id: uuid(),
+//                         reason: 'Manually blacklisted',
+//                         accountId: '',
+//                         ip,
+//                         created: Date.now()
+//                     });
+//                     return backToMain('IP blacklisted');
+//                 }
+//                 return backToMain('Blacklist cancelled');
+//             }
+//             return backToMain('Invalid IP');
+//         }
+//         const sessions = await DB.all('sessions/all');
+//         if (sessions.isErr()) return backToMain('Error fetching sessions');
 
-        const s = await select(
-            'Select a session to blacklist',
-            sessions.value
-                .filter((s, i, a) => {
-                    const index = a.findIndex(x => x.ip === s.ip);
-                    return index === i;
-                })
-                .map(s => ({
-                    name: s.ip + ' - ' + dateTime(new Date(s.created)),
-                    value: s
-                }))
-        );
+//         const s = await select(
+//             'Select a session to blacklist',
+//             sessions.value
+//                 .filter((s, i, a) => {
+//                     const index = a.findIndex(x => x.ip === s.ip);
+//                     return index === i;
+//                 })
+//                 .map(s => ({
+//                     name: s.ip + ' - ' + dateTime(new Date(s.created)),
+//                     value: s
+//                 }))
+//         );
 
-        if (s) {
-            const doBlacklist = await confirm(
-                `Are you sure you want to blacklist ${s.ip}?`
-            );
+//         if (s) {
+//             const doBlacklist = await confirm(
+//                 `Are you sure you want to blacklist ${s.ip}?`
+//             );
 
-            if (doBlacklist) {
-                DB.run('blacklist/new', {
-                    id: uuid(),
-                    reason: 'Manually blacklisted',
-                    accountId: '',
-                    ip: s.ip || '',
-                    created: Date.now()
-                });
-                return backToMain('IP blacklisted');
-            }
-            return backToMain('Blacklist cancelled');
-        }
-    } else if (accountOrIp === 'Remove') {
-        const blacklists = await DB.all('blacklist/all');
-        if (blacklists.isErr()) return backToMain('Error fetching blacklists');
+//             if (doBlacklist) {
+//                 DB.run('blacklist/new', {
+//                     id: uuid(),
+//                     reason: 'Manually blacklisted',
+//                     accountId: '',
+//                     ip: s.ip || '',
+//                     created: Date.now()
+//                 });
+//                 return backToMain('IP blacklisted');
+//             }
+//             return backToMain('Blacklist cancelled');
+//         }
+//     } else if (accountOrIp === 'Remove') {
+//         const blacklists = await DB.all('blacklist/all');
+//         if (blacklists.isErr()) return backToMain('Error fetching blacklists');
 
-        const b = await select(
-            'Select a blacklist to remove',
-            blacklists.value.map(b => ({
-                name: b.ip + ' - ' + b.accountId,
-                value: b
-            }))
-        );
+//         const b = await select(
+//             'Select a blacklist to remove',
+//             blacklists.value.map(b => ({
+//                 name: b.ip + ' - ' + b.accountId,
+//                 value: b
+//             }))
+//         );
 
-        if (b) {
-            const doRemove = await confirm(
-                `Are you sure you want to remove ${
-                    b.ip ? b.ip : b.accountId
-                } from the blacklist?`
-            );
+//         if (b) {
+//             const doRemove = await confirm(
+//                 `Are you sure you want to remove ${
+//                     b.ip ? b.ip : b.accountId
+//                 } from the blacklist?`
+//             );
 
-            if (doRemove) {
-                DB.run('blacklist/delete', {
-                    id: b.id
-                });
-                const { ip, accountId } = b;
-                if (accountId) {
-                    DB.run('blacklist/delete-by-account', { accountId });
-                }
-                if (ip) DB.run('blacklist/delete-by-ip', { ip });
-                return backToMain('Blacklist removed');
-            }
-            return backToMain('Remove cancelled');
-        }
-        return backToMain('No blacklist selected');
-    } else {
-        return backToMain('No option selected');
-    }
-};
+//             if (doRemove) {
+//                 DB.run('blacklist/delete', {
+//                     id: b.id
+//                 });
+//                 const { ip, accountId } = b;
+//                 if (accountId) {
+//                     DB.run('blacklist/delete-by-account', { accountId });
+//                 }
+//                 if (ip) DB.run('blacklist/delete-by-ip', { ip });
+//                 return backToMain('Blacklist removed');
+//             }
+//             return backToMain('Remove cancelled');
+//         }
+//         return backToMain('No blacklist selected');
+//     } else {
+//         return backToMain('No option selected');
+//     }
+// };
 
 const getDependencies = async () => {
     const res = await pullDeps();
@@ -234,11 +233,11 @@ export const general = [
         value: createEntry,
         description: 'Create a new front end entry file'
     },
-    {
-        icon: '🚫',
-        value: blacklist,
-        description: 'Blacklist an account or IP'
-    },
+    // {
+    //     icon: '🚫',
+    //     value: blacklist,
+    //     description: 'Blacklist an account or IP'
+    // },
     {
         icon: '📦',
         value: getDependencies,

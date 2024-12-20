@@ -20,6 +20,8 @@ blocked-ips.json
 database.json
 .gitbranch
 
+**/temp/*
+
 # *.js
 # !require.js
 

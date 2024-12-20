@@ -1,6 +1,6 @@
-import { DB, Backup } from '../server/utilities/databases';
+import { DB } from '../server/utilities/database';
 
-DB.em.on('connect', async () => {
-    (await Backup.makeBackup()).unwrap();
-    process.exit(0);
+DB.connect().then(async () => {
+    const backup = (await DB.backup()).unwrap();
+    console.log(`Backup created: ${backup}`);
 });

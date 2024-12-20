@@ -110,6 +110,49 @@ export const cost = (amount: number | string): string => {
         : `-$${Math.abs(+amount).toFixed(2)}`;
 };
 
+<<<<<<< HEAD
+export const encode = (str: string) => {
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-=!@#$%^&*()_+[]{}|;:\'",.<>?/`~\\\n ';
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        result += chars.indexOf(char).toString().padStart(2, '0');
+    }
+
+    return result;
+};
+
+export const decode = (str: string) => {
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-=!@#$%^&*()_+[]{}|;:\'",.<>?/`~\\\n ';
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+        const char = str.slice(i, i + 2);
+        result += chars[parseInt(char)];
+        i++;
+    }
+
+    return result;
+};
+
+export const removeWhitespace = (str: string): string => {
+    const res = str
+        .replaceAll('  ', ' ')
+        .replaceAll('    ', ' ')
+        .replace('\n', ' ')
+        .replace(/\t/g, ' ');
+    if (res === str) return res;
+    return removeWhitespace(res);
+};
+
+export const toBinary = (num: number): string => {
+    return num.toString(2);
+};
+
+export const fromBinary = (bin: string): number => {
+    return parseInt(bin, 2);
+=======
 export const merge = (a: string, b: string): string => {
     // merge two strings together
 
@@ -127,4 +170,5 @@ export const merge = (a: string, b: string): string => {
     if (a.length === 0) return c + b;
     if (b.length === 0) return c + a;
     return c;
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 };

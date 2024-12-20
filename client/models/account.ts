@@ -1,107 +1,60 @@
+<<<<<<< HEAD
+import { read } from 'fs';
+=======
 import { EventEmitter } from '../../shared/event-emitter';
 import { Cache } from './cache';
 import { AccountSafe, Role as R, RolePermission } from '../../shared/db-types';
 import { attemptAsync, Result } from '../../shared/check';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 import { socket } from '../utilities/socket';
-import { AccountNotifications } from '../../server/utilities/tables';
-import { AccountNotification } from './account-notifications';
+import { Data, StructData, Struct, SingleWritable, Structable } from './struct';
+import { Blank } from '../../shared/struct';
+import { attemptAsync } from '../../shared/check';
+import { Writable } from 'svelte/store';
 
-/**
- * All account events
- * @date 2/1/2024 - 12:54:21 AM
- *
- * @typedef {Events}
- */
-type Events = {
-    new: Account;
-    update: Account;
-    delete: Account;
-    current: Account;
-};
-
-/**
- * All account specific events
- * @date 2/1/2024 - 12:54:21 AM
- *
- * @typedef {AccountEvents}
- */
-type AccountEvents = {
-    update: undefined;
-    delete: undefined;
-    'role-added': string;
-    'role-removed': string;
-    verified: Account;
-    unverified: Account;
-};
-
-/**
- * Account class used to manage account data
- * @date 2/1/2024 - 12:54:21 AM
- *
- * @export
- * @class Account
- * @typedef {Account}
- * @extends {Cache<AccountEvents>}
- */
-export class Account extends Cache<AccountEvents> {
-    /**
-     * Cache of all accounts
-     * @date 2/1/2024 - 12:54:21 AM
-     *
-     * @public
-     * @static
-     * @readonly
-     * @type {*}
-     */
-    public static readonly cache = new Map<string, Account>();
-    /**
-     * Guest account
-     * @date 2/8/2024 - 4:22:42 PM
-     *
-     * @public
-     * @static
-     * @readonly
-     * @type {Account}
-     */
-    public static readonly guest = new Account({
-        id: 'guest',
-        username: 'guest',
-        firstName: 'Guest',
-        lastName: 'User',
-        email: '',
-        verified: 0,
-        created: Date.now(),
-        phoneNumber: ''
+export namespace Accounts {
+    export const Account = new Struct({
+        name: 'Account',
+        socket,
+        structure: {
+            username: 'text',
+            key: 'text',
+            salt: 'text',
+            firstName: 'text',
+            lastName: 'text',
+            email: 'text',
+            picture: 'text',
+            verified: 'boolean',
+            verification: 'text'
+        }
     });
 
-    /**
-     * Current account, if any
-     * @date 2/1/2024 - 12:54:21 AM
-     *
-     * @public
-     * @static
-     * @type {?Account}
-     */
-    public static current?: Account;
+    export type AccountData = StructData<typeof Account.data.structure>;
 
-    public static async getAccount() {
-        return attemptAsync(async () => {
-            if (Account.current) return Account.current;
-            const res = await ServerRequest.post<AccountSafe>(
-                '/account/get-account'
-            );
-            if (res.isOk()) {
-                if (!res.value.id) return;
-                Account.current = new Account(res.value);
-                Account.emit('current', Account.current);
-                return Account.current;
-            }
-            throw res.error;
-        });
-    }
+    export const self = new SingleWritable(
+        Account.Generator({
+            username: 'guest',
+            firstName: 'Guest',
+            lastName: 'Guest',
+            key: '',
+            salt: '',
+            email: '',
+            picture: '',
+            verified: false,
+            verification: ''
+        })
+    );
 
+<<<<<<< HEAD
+    export const DiscordLink = new Struct({
+        name: 'DiscordLink',
+        socket,
+        structure: {
+            discordID: 'text',
+            account: 'text'
+=======
     private static requested: string[] = [];
 
     public static async get(
@@ -347,227 +300,131 @@ export class Account extends Cache<AccountEvents> {
 
         if (Account.cache.has(this.id)) {
             Account.cache.delete(this.id);
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
         }
+    });
 
-        Account.cache.set(this.id, this);
-    }
+    export const PasswordChange = new Struct({
+        name: 'PasswordChange',
+        socket,
+        structure: {
+            account: 'text',
+            key: 'text'
+        }
+    });
 
-    /**
-     * Retrieves all roles for the account
-     * @date 2/1/2024 - 12:54:20 AM
-     *
-     * @public
-     * @async
-     * @returns {Promise<Result<Role[]>>}
-     */
-    public async getRoles(force = false): Promise<Result<Role[]>> {
+    export const EmailChange = new Struct({
+        name: 'EmailChange',
+        socket,
+        structure: {
+            account: 'text',
+            email: 'text',
+            key: 'text',
+
+            expires: 'text'
+        }
+    });
+
+    export const Notification = new Struct({
+        name: 'Notification',
+        socket,
+        structure: {
+            accountId: 'text',
+            type: 'text',
+            data: 'text',
+            read: 'boolean',
+            message: 'text',
+            title: 'text'
+        }
+    });
+
+    export type NotificationData = StructData<
+        typeof Notification.data.structure
+    >;
+
+    export const Settings = new Struct({
+        name: 'Settings',
+        socket,
+        structure: {
+            accountId: 'text',
+            key: 'text',
+            value: 'text'
+        }
+    });
+
+    export type SettingsData = StructData<typeof Settings.data.structure>;
+
+    export const signIn = (username: string, password: string) => {
+        return Account.post('/sign-in', { username, password });
+    };
+
+    export const signUp = (data: {
+        username: string;
+        password: string;
+        confirmPassword: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        // phoneNumber: string;
+    }) => {
+        return Account.post('/sign-up', data);
+    };
+
+    export const signOut = () => {
         return attemptAsync(async () => {
-            if (this.cache.has('roles') && !force) {
-                const roles = this.cache.get('roles') as Role[];
-                if (roles.length) return roles;
-            }
-
-            const res = await ServerRequest.post<
-                (R & { permissions: RolePermission[] })[]
-            >('/account/get-roles', {
-                id: this.id
-            });
-
-            if (res.isOk()) {
-                const roles = res.value.map(r => new Role(r));
-                this.cache.set('roles', roles);
-                return roles;
-            }
-
-            throw res.error;
-        });
-    }
-
-    /**
-     * Retrieves all permissions for the account
-     * @date 2/1/2024 - 12:54:20 AM
-     *
-     * @public
-     * @async
-     * @returns {Promise<Result<P[]>>}
-     */
-    public async getPermissions(
-        force = false
-    ): Promise<Result<RolePermission[]>> {
-        return attemptAsync(async () => {
-            if (this.cache.has('permissions') && !force) {
-                return this.cache.get('permissions') as RolePermission[];
-            }
-
-            const res = await ServerRequest.post<RolePermission[]>(
-                '/account/get-permissions',
-                {
-                    id: this.id
-                }
+            (await Account.post('/sign-out', {})).unwrap();
+            self.set(
+                Account.Generator({
+                    username: 'guest',
+                    firstName: 'Guest',
+                    lastName: 'Guest',
+                    key: '',
+                    salt: '',
+                    email: '',
+                    picture: '',
+                    verified: false,
+                    verification: ''
+                })
             );
-
-            if (res.isOk()) {
-                const permissions = res.value;
-                this.cache.set('permissions', permissions);
-                return permissions;
-            }
-
-            throw res.error;
         });
-    }
+    };
 
-    /**
-     * Adds a role to the account (if permitted)
-     * @date 2/1/2024 - 12:54:20 AM
-     *
-     * @public
-     * @async
-     * @param {Role} role
-     * @returns {Promise<Result<void>>}
-     */
-    public async addRole(role: Role): Promise<Result<void>> {
+    export const getSelf = () => {
         return attemptAsync(async () => {
-            const res = await ServerRequest.post<void>('/account/add-role', {
-                accountId: this.id,
-                roleId: role.id
-            });
+            if (self.get().data.username !== 'guest') return self;
 
-            if (res.isOk()) {
-                return;
-            }
-
-            throw res.error;
-        });
-    }
-
-    /**
-     * Removes a role from the account (if permitted)
-     * @date 2/1/2024 - 12:54:20 AM
-     *
-     * @public
-     * @async
-     * @param {Role} role
-     * @returns {Promise<Result<void>>}
-     */
-    public async removeRole(role: Role): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            const res = await ServerRequest.post<void>('/account/remove-role', {
-                accountId: this.id,
-                roleId: role.id
-            });
-
-            if (res.isOk()) {
-                return;
-            }
-
-            throw res.error;
-        });
-    }
-
-    /**
-     * Verifies the account (if permitted)
-     * @date 2/1/2024 - 12:54:20 AM
-     *
-     * @public
-     * @async
-     * @returns {Promise<Result<void>>}
-     */
-    public async verify(): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            const res = await ServerRequest.post<void>('/account/verify', {
-                id: this.id
-            });
-
-            if (res.isOk()) {
-                this.verified = 1;
-                return;
-            }
-
-            throw res.error;
-        });
-    }
-
-    /**
-     * Unverifies the account (if permitted)
-     * @date 2/1/2024 - 12:54:20 AM
-     *
-     * @public
-     * @async
-     * @returns {Promise<Result<void>>}
-     */
-    public async unverify(): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            const res = await ServerRequest.post<void>('/account/unverify', {
-                id: this.id
-            });
-
-            if (res.isOk()) {
-                this.verified = 0;
-                return;
-            }
-
-            throw res.error;
-        });
-    }
-
-    /**
-     * Description placeholder
-     * @date 2/1/2024 - 12:54:20 AM
-     *
-     * @public
-     * @async
-     * @returns {Promise<Result<void>>}
-     */
-    public async reject(): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            const res = await ServerRequest.post<void>('/account/reject', {
-                id: this.id
-            });
-
-            if (res.isOk()) {
-                Account.cache.delete(this.id);
-                this.destroy();
-                return;
-            }
-
-            throw res.error;
-        });
-    }
-
-    /**
-     * Deletes the account (if permitted)
-     * @date 2/1/2024 - 12:54:20 AM
-     *
-     * @public
-     * @async
-     * @returns {Promise<Result<void>>}
-     */
-    public async delete(): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            const res = await ServerRequest.post<void>('/account/delete', {
-                id: this.id
-            });
-
-            if (res.isOk()) {
-                Account.cache.delete(this.id);
-                return;
-            }
-
-            throw res.error;
-        });
-    }
-
-    public async getNotifications() {
-        return attemptAsync(async () => {
-            const data = (
-                await ServerRequest.post<AccountNotifications[]>(
-                    '/account-notifications/get'
+            const a = (
+                await Account.post<Structable<typeof Account.data.structure>>(
+                    '/self',
+                    {}
                 )
             ).unwrap();
-            return data.map(AccountNotification.retrieve);
+            self.set(Account.Generator(a));
+
+            return self;
         });
-    }
+    };
+
+    export const requestPasswordReset = (username: string) => {
+        return Account.post('/request-password-reset', {
+            username
+        });
+    };
+
+    export const changePassword = (
+        password: string,
+        confirmPassword: string,
+        key: string
+    ) => {
+        return Account.post('/change-password', {
+            password,
+            confirmPassword,
+            key
+        });
+    };
 }
+<<<<<<< HEAD
+=======
 
 Object.assign(window, {
     Account
@@ -639,3 +496,4 @@ socket.on('account:unverified', (accountId: string) => {
         Account.emit('update', account);
     }
 });
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7

@@ -9,6 +9,7 @@ import render, { Constructor } from 'node-html-constructor/versions/v4';
 import { EventEmitter } from '../../../shared/event-emitter';
 import { getTemplateSync } from '../../utilities/files';
 import { ReadableStream } from 'stream/web';
+import { streamDelimiter } from '../../../shared/text';
 
 /**
  * The event types for the stream
@@ -22,6 +23,15 @@ type StreamEventData<T> = {
     cancel: undefined;
     chunk: T;
 };
+
+interface StreamInterface<T> {
+    on(event: 'error', listener: (error: Error) => void): void;
+    on(event: 'end', listener: () => void): void;
+    on(event: 'close', listener: () => void): void;
+    on(event: 'data', listener: (chunk: T) => void): void;
+
+    pipe(fn: (chunk: T, i: number) => void): void;
+}
 
 /**
  * Response class
@@ -161,15 +171,19 @@ export class Res {
      * Sends a static status message
      * @date 3/8/2024 - 6:19:36 AM
      *
-     * @param {StatusId} id
+     * @param {StatusId} status
      * @param {?unknown} [data]
      * @param {?string} [redirect]
      * @returns {*}
      */
-    sendStatus(id: StatusId, data?: unknown, redirect?: string) {
+    sendStatus(status: StatusId | Status, data?: unknown, redirect?: string) {
         return attempt(() => {
+            if (status instanceof Status) {
+                return status.send(this);
+            }
+
             const s = Status.from(
-                id,
+                status,
                 this.req,
                 JSON.stringify(bigIntEncode(data))
             );
@@ -212,23 +226,27 @@ export class Res {
      * @param {T[]} content
      * @returns {Result<EventEmitter<keyof StreamEventData<T>>>}
      */
-    stream<T = unknown>(
-        content: T[]
-    ): Result<EventEmitter<StreamEventData<T>>> {
-        return attempt(() => {
-            this.isFulfilled();
+    stream<T>(
+        streamer: StreamInterface<T> | T[],
+        pipe?: (chunk: T) => unknown
+    ) {
+        this.isFulfilled();
+        if (Array.isArray(streamer)) {
             const em = new EventEmitter<StreamEventData<T>>();
 
             const stream = new ReadableStream({
                 start: controller => {
-                    const send = (i: number) => {
-                        if (i < content.length) {
+                    const send = async (i: number) => {
+                        if (i < streamer.length) {
+                            const data = pipe
+                                ? await pipe(streamer[i])
+                                : streamer[i];
                             const buffer = new TextEncoder().encode(
-                                JSON.stringify(bigIntEncode(content[i]))
+                                JSON.stringify(data) + streamDelimiter
                             );
                             controller.enqueue(buffer);
                             setTimeout(() => send(i + 1), 100);
-                            em.emit('chunk', content[i]);
+                            em.emit('chunk', streamer[i]);
                         } else {
                             controller.close();
                             em.emit('end', undefined);
@@ -248,6 +266,83 @@ export class Res {
             this.res.write(stream);
 
             return em;
+        } // else {
+        // const stream = new ReadableStream({
+        //     start: c => {
+        //         // streamer.on('data', (chunk) => {
+        //         //     c.enqueue(new TextEncoder().encode(
+        //         //         JSON.stringify(bigIntEncode(chunk)),
+        //         //     ));
+        //         // });
+
+        //         // streamer.on('end', () => c.close());
+        //         // streamer.on('close', () => c.close());
+        //         // streamer.on('error', (error) => c.error(error));
+
+        //         streamer.pipe(async (chunk, i) => {
+        //             const res = pipe ? await pipe(chunk) : chunk;
+        //             if (!res) return; // skip empty chunks because there could be a pipe for filtering
+        //             c.enqueue(
+        //                 new TextEncoder().encode(
+        //                     JSON.stringify(
+        //                         bigIntEncode(res)
+        //                     )
+        //                 )
+        //             );
+        //         });
+        //     },
+
+        //     cancel: () => {},
+
+        //     type: 'bytes'
+        // });
+
+        // const cache = new Set<T>();
+        // let writing = true;
+
+        streamer.on('data', async chunk => {
+            // writing = this.res.write()
+            // log(chunk);
+            const res =
+                JSON.stringify(pipe ? await pipe(chunk) : chunk) +
+                streamDelimiter;
+            // log(res);
+            try {
+                this.res.write(res);
+            } catch (e) {
+                // error(e);
+            }
+        });
+
+        streamer.on('end', () => {
+            try {
+                this.isFulfilled();
+                this.res.end();
+            } catch (e) {
+                // error(e);
+            }
+        });
+        streamer.on('close', () => {
+            try {
+                this.isFulfilled();
+                this.res.end();
+            } catch (e) {
+                // error(e);
+            }
+        });
+        streamer.on('error', error => {
+            try {
+                this.isFulfilled();
+                this.res.end();
+            } catch {
+                // throw away
+            }
+        });
+    }
+
+    end() {
+        return attempt(() => {
+            if (!this.isFulfilled()) this.res.end();
         });
     }
 

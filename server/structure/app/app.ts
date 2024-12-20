@@ -1,12 +1,10 @@
 import express from 'express';
-// import { __root } from '../../utilities/env.ts';
 import { log } from '../../utilities/terminal-logging';
 import { Req } from './req';
 import { Res } from './res';
 import { SocketWrapper } from '../socket';
 import http from 'http';
 import { Server } from 'socket.io';
-import { Session } from '../sessions';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -411,19 +409,23 @@ export class App<
             })
         );
 
+        const session = import('../structs/session');
+
         this.server.use(async (req, res, next) => {
             const socketId = req.headers['socket-id'] as string | undefined;
             const socket = this.io.io.sockets.sockets.get(socketId || '');
-
-            const s = await Session.from<SessionCustomData, AccountCustomData>(
-                this as App,
-                req,
-                res
-            );
+            // const s = await Session.from<SessionCustomData, AccountCustomData>(
+            //     this as App,
+            //     req,
+            //     res
+            // );
+            const s = (
+                await (await session).Session.fromApp(this, req, res)
+            ).unwrap();
             const request = new Req<unknown, SessionCustomData>(
                 this as App,
                 req,
-                s,
+                s.id,
                 socket
             );
             req.request = request;

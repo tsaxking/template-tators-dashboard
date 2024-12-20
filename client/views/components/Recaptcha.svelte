@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import { onMount } from 'svelte';
     import { createEventDispatcher } from 'svelte';
 
@@ -40,4 +40,4 @@
     class="g-recaptcha p-3"
     data-callback="onloadCallback"
     data-sitekey="{RECAPTCHA_SITE_KEY}"
-/>
+/> -->

@@ -2,7 +2,6 @@ import nodemailer from 'nodemailer';
 import { sgTransport } from '@neoxia-js/nodemailer-sendgrid-transport';
 import { Constructor, FileError, getTemplateSync } from './files';
 import env from './env';
-import { error } from './terminal-logging';
 import { attemptAsync, Result } from '../../shared/check';
 
 /**

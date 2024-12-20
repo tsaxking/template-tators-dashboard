@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import { ServerRequest } from './requests';
 import { sleep } from '../../shared/sleep';
 import { alert } from './notifications';
-import { attemptAsync } from '../../shared/check';
+import { attempt, attemptAsync } from '../../shared/check';
 import { uptime } from '../../shared/clock';
 
 type SocketOptions = {
@@ -28,7 +28,7 @@ type SocketOptions = {
  * @class SocketWrapper
  * @typedef {Socket}
  */
-class Socket {
+export class Socket {
     // private cache: Cache[] = [];
     private id?: string;
     // public isActive = false;
@@ -188,15 +188,11 @@ class Socket {
         // on('touchleave', reset);
 
         this.socket.connect();
-        const events = Array.from(this.listeners.entries());
-        // for (let i = 0; i < this.listeners.size; i++) {
-        // const [event, listeners] = events.next().value;
-        // for (const listener of listeners) {
-        //     this.socket.on(event, listener);
-        // }
-        // }
-
-        for (const [event, listeners] of events) {
+        const events = this.listeners.entries();
+        for (let i = 0; i < this.listeners.size; i++) {
+            const res = events.next().value;
+            if (!res) continue;
+            const [event, listeners] = res;
             for (const listener of listeners) {
                 this.socket.on(event, listener);
             }
@@ -269,7 +265,9 @@ socket.on('disconnect', async () => {
     }
 });
 
-Object.assign(window, { socket });
+attempt(() => {
+    Object.assign(window, { socket });
+});
 
 // let changed = false;
 

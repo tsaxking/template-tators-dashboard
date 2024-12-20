@@ -1,12 +1,8 @@
 import { Next, Route } from '../structure/app/app';
-import Account from '../structure/accounts';
-import { Status } from '../utilities/status';
-import Role from '../structure/roles';
-import { messages, StatusId } from '../../shared/status-messages';
-import { trimBody, validate } from '../middleware/data-type';
 import env from '../utilities/env';
 import { Req } from '../structure/app/req';
 import { Res } from '../structure/app/res';
+import { Account } from '../structure/structs/account';
 import { capitalize } from '../../shared/text';
 import { detect } from '../middleware/profanity-detection';
 import { resolveAll } from '../../shared/check';
@@ -18,45 +14,22 @@ router.get('/*', (req, res, next) => {
     next();
 });
 
-const redirect = (req: Req, res: Res, next: Next) => {
-    if (!req.session.accountId) return next();
+const redirect = async (req: Req, res: Res, next: Next) => {
+    const s = (await req.getSession()).unwrap();
+    if (!s.data.accountId) return next();
 
-    res.redirect(req.session.prevUrl || '/');
+    res.redirect(s.data.prevUrl || '/');
 };
 
-// gets the account from the session
-router.post('/get-account', async (req, res) => {
-    const account = (await req.session.getAccount()).unwrap();
-    // const account = await Account.fromUsername('tsaxking');
-
-    if (account) {
-        const safe = (
-            await account.safe({
-                roles: true,
-                email: true,
-                memberInfo: true,
-                permissions: true,
-                id: true
-            })
-        ).unwrap();
-        res.json(safe);
-    } else res.status(404).json({ error: 'Not logged in' });
-});
-
-// gets all roles available
-router.post('/get-all-roles', (req, res) => {
-    res.json(Role.all());
-});
-
-router.get('/sign-in', redirect, (req, res, next) => {
-    if (req.session.accountId) return next();
+router.get('/sign-in', redirect, async (req, res, next) => {
+    if ((await req.getSession()).unwrap().data.accountId) return next();
     res.sendTemplate('entries/account/sign-in', {
         RECAPTCHA_SITE_KEY: env.RECAPTCHA_SITE_KEY
     });
 });
 
-router.get('/sign-up', redirect, (req, res, next) => {
-    if (req.session.accountId) return next();
+router.get('/sign-up', redirect, async (req, res, next) => {
+    if ((await req.getSession()).unwrap().data.accountId) return next();
     res.sendTemplate('entries/account/sign-up', {
         RECAPTCHA_SITE_KEY: env.RECAPTCHA_SITE_KEY
     });
@@ -69,6 +42,8 @@ router.get('/change-password/:key', async (req, res, next) => {
     if (!a) return res.sendStatus('account:invalid-password-reset-key');
     res.sendTemplate('entries/account/reset-password');
 });
+<<<<<<< HEAD
+=======
 
 router.post<{
     username: string;
@@ -656,3 +631,4 @@ router.post<{
         );
     }
 );
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7

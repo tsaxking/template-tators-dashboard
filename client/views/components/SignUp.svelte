@@ -1,7 +1,8 @@
 <script lang="ts">
+    import { Accounts } from '../../models/account';
     import { ServerRequest } from '../../utilities/requests';
     import Password from './Password.svelte';
-    import Recaptcha from './Recaptcha.svelte';
+    // import Recaptcha from './Recaptcha.svelte';
 
     export let title: string;
     document.title = title + ': Sign up';
@@ -23,6 +24,24 @@
             console.log('Is not valid');
         }
 
+<<<<<<< HEAD
+        // ServerRequest.post('/account/sign-up', {
+    //     username,
+    //     password,
+    //     confirmPassword,
+    //     email,
+    //     firstName,
+    //     lastName
+    // });
+
+        Accounts.signUp({
+            username,
+            password,
+            confirmPassword,
+            email,
+            firstName,
+            lastName
+=======
         ServerRequest.post('/account/sign-up', {
             username: username.trim(),
             password: password.trim(),
@@ -30,6 +49,7 @@
             email: email.trim(),
             firstName: firstName.trim(),
             lastName: lastName.trim()
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
         });
     };
 
