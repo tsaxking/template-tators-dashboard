@@ -24,6 +24,7 @@
             console.log('Is not valid');
         }
 
+<<<<<<< HEAD
         // ServerRequest.post('/account/sign-up', {
     //     username,
     //     password,
@@ -40,6 +41,15 @@
             email,
             firstName,
             lastName
+=======
+        ServerRequest.post('/account/sign-up', {
+            username: username.trim(),
+            password: password.trim(),
+            confirmPassword: confirmPassword.trim(),
+            email: email.trim(),
+            firstName: firstName.trim(),
+            lastName: lastName.trim()
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
         });
     };
 

@@ -71,9 +71,13 @@ export type StatusMessage = {
     redirect?: string;
 };
 
+<<<<<<< HEAD
 export const messages: {
     [key: string]: StatusMessage;
 } = {
+=======
+export const messages: Record<string, StatusMessage> = {
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
     'account:already-logged-in': {
         message: 'You are already logged in.',
         color: 'danger',
@@ -96,6 +100,12 @@ export const messages: {
         message: 'You cannot reject a verified account',
         color: 'danger',
         code: 403,
+        instructions: ''
+    },
+    'account:cannot-reset-guest': {
+        message: 'Cannot reset guest account information',
+        color: 'danger',
+        code: 401,
         instructions: ''
     },
     'account:check-email': {
@@ -175,9 +185,9 @@ export const messages: {
         instructions: 'Please try again.'
     },
     'account:invalid-settings': {
-        message: 'Your settings were invalid, please try again',
+        message: 'Your settings were invalid, please fix the data structure',
         color: 'danger',
-        code: 404,
+        code: 406,
         instructions: ''
     },
     'account:invalid-username': {
@@ -246,12 +256,19 @@ export const messages: {
         message: 'The password associated with this account has been updated',
         color: 'success',
         code: 200,
-        instructions: ''
+        instructions: '',
+        redirect: '/account/sign-in'
     },
     'account:picture-updated': {
         message: 'Added a picture to this account',
         color: 'success',
         code: 200,
+        instructions: ''
+    },
+    'account:please-change-password': {
+        message: 'Your password is out of date, please change it',
+        color: 'warning',
+        code: 400,
         instructions: ''
     },
     'account:removed': {
@@ -279,9 +296,9 @@ export const messages: {
         instructions: 'Please try again.'
     },
     'account:settings-set': {
-        message: 'Your settings have been saved',
+        message: 'Your settings have been successfully saved',
         color: 'success',
-        code: 200,
+        code: 202,
         instructions: ''
     },
     'account:unverified': {
@@ -350,6 +367,49 @@ export const messages: {
         code: 400,
         instructions: ''
     },
+    'custom-match:created': {
+        message: 'Custom match created',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'custom-match:not-found': {
+        message: 'Custom match not found',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'discord:account-linked': {
+        message: 'Your discord account has been linked to this account',
+        color: 'success',
+        code: 200,
+        instructions: 'you cannot use team tators discord commands'
+    },
+    'discord:invalid-link': {
+        message:
+            'This discord link is invalid. You must generate a valid link using /connect',
+        color: 'danger',
+        code: 400,
+        instructions: 'use connect in the discord server'
+    },
+    'discord:link-expired': {
+        message: 'This discord link has expired, please try again.',
+        color: 'danger',
+        code: 400,
+        instructions: 'please try again'
+    },
+    'event:invalid-key': {
+        message: 'Invalid event key',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'event:update-properties': {
+        message: 'Event properties updated',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'files:invalid': {
         message: 'Invalid file',
         color: 'danger',
@@ -388,6 +448,36 @@ export const messages: {
     },
     'files:uploaded': {
         message: 'File uploaded',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'match:not-found': {
+        message: 'Match was not found',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'match-comments:delete': {
+        message: 'Match comment deleted',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'match-comments:new': {
+        message: 'Match comment saved',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'match-scouting:delete': {
+        message: 'Deleted Match Scouting',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'match-scouting:new': {
+        message: 'Match scouting submitted',
         color: 'success',
         code: 200,
         instructions: ''
@@ -537,6 +627,18 @@ export const messages: {
         code: 401,
         instructions: ''
     },
+    'pit-scouting:delete': {
+        message: 'Pit Scouting Submission has been deleted',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'pit-scouting:new': {
+        message: 'Pit Scouting Submitted',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'profanity:detected': {
         message: 'Profanity detected',
         color: 'danger',
@@ -615,6 +717,108 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'scouting-question:answer-deleted': {
+        message: 'Answer has been archived',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:answer-not-found': {
+        message: 'Answer was not found, nothing was changed',
+        color: 'danger',
+        code: 404,
+        instructions: 'please ensure you have selected a valid answer to update'
+    },
+    'scouting-question:group-deleted': {
+        message: 'Group has been archived',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:group-updated': {
+        message: 'Group has been updated',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:new-answer': {
+        message: 'New answer submitted',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:new-group': {
+        message: 'New group created',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:new-question': {
+        message: 'New question created',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:new-section': {
+        message: 'Section was created',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:question-deleted': {
+        message: 'Question has been archived',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:question-not-found': {
+        message: 'The question was not found, please try again',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'scouting-question:question-updated': {
+        message: 'Question updated successfully',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:questions-already-exist': {
+        message: 'The questions have already been copied',
+        color: 'danger',
+        code: 412,
+        instructions: ''
+    },
+    'scouting-question:questions-copied': {
+        message: 'Questions copied from event',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:section-deleted': {
+        message: 'Section has been archived',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:update-answer': {
+        message: 'Answer Updated',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:update-section': {
+        message: 'Section updated',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'scouting-question:updated-answer': {
+        message: 'Answer updated',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'server:invalid-data': {
         message: 'Invalid data types received',
         color: 'danger',
@@ -676,6 +880,61 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.'
     },
+    'strategy:delete': {
+        message: 'Strategy deleted',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'strategy:invalid': {
+        message: 'Invalid Strategy',
+        color: 'danger',
+        code: 409,
+        instructions: ''
+    },
+    'strategy:new': {
+        message: 'Strategy submitted',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'strategy:not-found': {
+        message: 'Strategy not found',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'strategy:updated': {
+        message: 'Strategy updated',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'tba:invalid-path': {
+        message: 'Invalid path when accessing TBA data',
+        color: 'danger',
+        code: 400,
+        instructions: ''
+    },
+    'tba:not-updated': {
+        message:
+            'the blue alliance has not updated yet, please try again later',
+        color: 'warning',
+        code: 404,
+        instructions: ''
+    },
+    'team-comment:new': {
+        message: 'Created a new comment',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'teams:pictures-uploaded': {
+        message: 'Team\'s picture was uploaded successfully',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
     'test:fail': {
         message: 'This test failed',
         color: 'danger',
@@ -688,11 +947,72 @@ export const messages: {
         code: 200,
         instructions: ''
     },
+    'trace:year-not-supported': {
+        message: 'This year is not yet supported',
+        color: 'danger',
+        code: 400,
+        instructions: ''
+    },
     'unknown:error': {
         message: 'Unknown error',
         color: 'danger',
         code: 500,
         instructions: 'Please try again.'
+    },
+    'webhook:invalid-url': {
+        message: 'Invalid url for webhook',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'webhook:not-found': {
+        message: 'Webhook not found',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'webhook:rate-limit': {
+        message: 'Please do not send more than 1 request per minute',
+        color: 'danger',
+        code: 429,
+        instructions: ''
+    },
+    'whiteboard:created': {
+        message: 'Whiteboard created successfully',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'whiteboard:deleted': {
+        message: 'Whiteboard deleted successfully',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'whiteboard:match-not-found': {
+        message:
+            'The match for the selected whiteboard was not found, please try again using different parameters',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'whiteboard:not-found': {
+        message: 'Whiteboard was not found',
+        color: 'danger',
+        code: 404,
+        instructions: ''
+    },
+    'whiteboard:update': {
+        message: 'Whiteboard updated successfully',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
+    'whiteboard:state-added': {
+        message: 'State added to whiteboard',
+        color: 'success',
+        code: 200,
+        instructions: ''
     }
 };
 
@@ -703,6 +1023,7 @@ export type AccountStatusId =
     | 'cannot-edit-other-account'
     | 'cannot-edit-self'
     | 'cannot-reject-verified'
+    | 'cannot-reset-guest'
     | 'check-email'
     | 'created'
     | 'email-change-expired'
@@ -728,6 +1049,7 @@ export type AccountStatusId =
     | 'password-reset-request'
     | 'password-reset-success'
     | 'picture-updated'
+    | 'please-change-password'
     | 'removed'
     | 'role-added'
     | 'role-removed'
@@ -740,13 +1062,22 @@ export type AccountStatusId =
     | 'verified';
 
 export type AccountNotificationStatusId =
+    | 'deleted'
     | 'mark-read'
     | 'mark-unread'
     | 'not-found'
-    | 'not-owner'
-    | 'deleted';
+    | 'not-owner';
 
 export type AdminStatusId = 'invalid-key';
+
+export type CustomMatchStatusId = 'created' | 'not-found';
+
+export type DiscordStatusId =
+    | 'account-linked'
+    | 'invalid-link'
+    | 'link-expired';
+
+export type EventStatusId = 'invalid-key' | 'update-properties';
 
 export type FilesStatusId =
     | 'invalid'
@@ -756,6 +1087,12 @@ export type FilesStatusId =
     | 'too-many-files'
     | 'unknown-error'
     | 'uploaded';
+
+export type MatchStatusId = 'not-found';
+
+export type MatchCommentsStatusId = 'delete' | 'new';
+
+export type MatchScoutingStatusId = 'delete' | 'new';
 
 export type MemberStatusId =
     | 'accepted'
@@ -786,6 +1123,8 @@ export type PermissionsStatusId =
     | 'removed'
     | 'unauthorized';
 
+export type PitScoutingStatusId = 'delete' | 'new';
+
 export type ProfanityStatusId = 'detected';
 
 export type RoleStatusId = 'not-found';
@@ -803,6 +1142,25 @@ export type RolesStatusId =
     | 'removed-permission'
     | 'updated';
 
+export type ScoutingQuestionStatusId =
+    | 'answer-deleted'
+    | 'answer-not-found'
+    | 'group-deleted'
+    | 'group-updated'
+    | 'new-answer'
+    | 'new-group'
+    | 'new-question'
+    | 'new-section'
+    | 'question-deleted'
+    | 'question-not-found'
+    | 'question-updated'
+    | 'questions-already-exist'
+    | 'questions-copied'
+    | 'section-deleted'
+    | 'update-answer'
+    | 'update-section'
+    | 'updated-answer';
+
 export type ServerStatusId =
     | 'invalid-data'
     | 'not-implemented'
@@ -819,6 +1177,31 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
+export type StrategyStatusId =
+    | 'delete'
+    | 'new'
+    | 'not-found'
+    | 'updated'
+    | 'invalid';
+
+export type TbaStatusId = 'invalid-path' | 'not-updated';
+
+export type TeamCommentStatusId = 'new';
+
+export type TeamsStatusId = 'pictures-uploaded';
+
 export type TestStatusId = 'fail' | 'success';
 
+export type TraceStatusId = 'year-not-supported';
+
 export type UnknownStatusId = 'error';
+
+export type WebhookStatusId = 'invalid-url' | 'not-found' | 'rate-limit';
+
+export type WhiteboardStatusId =
+    | 'created'
+    | 'deleted'
+    | 'match-not-found'
+    | 'not-found'
+    | 'update'
+    | 'state-added';
