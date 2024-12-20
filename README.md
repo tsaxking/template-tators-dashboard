@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+[![Build](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/build.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/build.yml) [![Backend](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/backend.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/backend.yml) [![e2e](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/e2e.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/e2e.yml) [![Formatter](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/formatter.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/formatter.yml) [![Typescript](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/tsc.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/tsc.yml)
+
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 # Full-Stack Web Development Starter
 
 [![Build](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/build.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/build.yml) [![Backend](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/backend.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/backend.yml) [![e2e](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/e2e.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/e2e.yml) [![Formatter](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/formatter.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/formatter.yml) [![Typescript](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/tsc.yml/badge.svg)](https://github.com/tsaxking/template-tators-dashboard/actions/workflows/tsc.yml)
@@ -26,7 +31,14 @@ This includes a GitHub action to deploy documentation to GitHub Pages, and a Git
 
 ## Getting Started
 
+<<<<<<< HEAD
 [Svelte](./docs/svelte/index.md)
+=======
+```bash
+# fork the repository
+git clone https://github.com/tsaxking/template-tators-dashboard.git
+cd webpack-template
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 
 [Server](./docs/server/index.md)
 

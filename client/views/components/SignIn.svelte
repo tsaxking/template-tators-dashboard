@@ -26,12 +26,19 @@
             console.log('Is not valid');
         }
 
+<<<<<<< HEAD
         // ServerRequest.post('/account/sign-in', {
     //     username,
     //     password
     // });
 
         Accounts.signIn(username, password);
+=======
+        ServerRequest.post('/account/sign-in', {
+            username: username.trim(),
+            password: password.trim()
+        });
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
     };
 
     const isValid = (username: string, password: string) => {

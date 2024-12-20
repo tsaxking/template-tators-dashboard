@@ -33,6 +33,7 @@ export const addPermissions = async () => {
 
     const permission = await selectPermission();
 
+<<<<<<< HEAD
     if (
         permission === PropertyAction.Read ||
         permission === PropertyAction.Update
@@ -43,6 +44,22 @@ export const addPermissions = async () => {
             `Select properties to let ${role.data.name} ${permission}...}`,
             keys
         );
+=======
+        if (perm === '$$New$$') {
+            perm = (await repeatPrompt(
+                'Enter the permission name',
+                undefined,
+                data =>
+                    !perms.some(p => p.permission === data) &&
+                    !allPerms.some(p => p.permission === data),
+                false
+            )) as unknown as Permission;
+            const description = await repeatPrompt(
+                'Enter the permission description'
+            );
+            createPermission(perm, description);
+        }
+>>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 
         const dps = properties.map(
             p =>
