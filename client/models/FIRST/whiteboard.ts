@@ -15,8 +15,8 @@ type WhiteboardEvents = {
 };
 
 type GlobalWhiteboardEvents = {
-    'new': FIRSTWhiteboard;
-}
+    new: FIRSTWhiteboard;
+};
 
 export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
     public static readonly cache = new Map<string, FIRSTWhiteboard>();
@@ -24,9 +24,15 @@ export class FIRSTWhiteboard extends Cache<WhiteboardEvents> {
     public static readonly emitter = new EventEmitter<GlobalWhiteboardEvents>();
 
     public static on = FIRSTWhiteboard.emitter.on.bind(FIRSTWhiteboard.emitter);
-    public static off = FIRSTWhiteboard.emitter.off.bind(FIRSTWhiteboard.emitter);
-    public static emit = FIRSTWhiteboard.emitter.emit.bind(FIRSTWhiteboard.emitter);
-    public static once = FIRSTWhiteboard.emitter.once.bind(FIRSTWhiteboard.emitter.once.bind(FIRSTWhiteboard.emitter));
+    public static off = FIRSTWhiteboard.emitter.off.bind(
+        FIRSTWhiteboard.emitter
+    );
+    public static emit = FIRSTWhiteboard.emitter.emit.bind(
+        FIRSTWhiteboard.emitter
+    );
+    public static once = FIRSTWhiteboard.emitter.once.bind(
+        FIRSTWhiteboard.emitter.once.bind(FIRSTWhiteboard.emitter)
+    );
 
     public static fromStrategy(strategyId: string) {
         return attemptAsync(async () => {
