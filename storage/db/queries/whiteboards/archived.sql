@@ -1,0 +1,1 @@
+SELECT * FROM Whiteboards WHERE archived = true;
