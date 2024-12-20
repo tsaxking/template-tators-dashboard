@@ -1,0 +1,1 @@
+SELECT * FROM ScoutingAnswers WHERE id = :id;

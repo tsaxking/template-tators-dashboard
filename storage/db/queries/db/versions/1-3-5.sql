@@ -1,0 +1,1 @@
+ALTER TABLE Strategy ADD COLUMN checks TEXT DEFAULT '[]'; -- json array of names
