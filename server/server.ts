@@ -73,7 +73,7 @@ app.post('/test/get-socket', (req, res) => {
 });
 
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.resolve(__root, './public/pictures/logo-square.png'));
+    res.sendFile(path.resolve(__root, './public/pictures/logo-square.jpg'));
 });
 
 app.get('/robots.txt', (req, res) => {
@@ -122,6 +122,7 @@ function stripHtml(body: ReqBody) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
+    // log(`[${req.method}] ${req.url}`);
 
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
@@ -164,6 +165,10 @@ app.get('/test/:page', (req, res, next) => {
 });
 
 app.route('/API', Struct.router);
+app.get('/home', (_req, res) => {
+    res.sendTemplate('entries/home');
+});
+
 app.route('/api', api);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN || ''));
 
@@ -202,13 +207,28 @@ app.get(
     }
 );
 
+app.get(
+    '/dashboard/mentor',
+    Account.allowPermissions('mentor'),
+    (_req, res) => {
+        res.sendTemplate('entries/dashboard/mentor');
+    }
+);
+
 app.route('/admin', admin);
 
 app.get('/dashboard/:dashboard', (req, res) => {
     res.sendTemplate('entries/dashboard/' + req.params.dashboard);
 });
 
-app.get('/user/*', Account.isSignedIn, (req, res) => {
+// this is how the user will access the dashboard
+app.get('/dashboard/:year', (req, res) => {
+    const { year } = req.params;
+    if (!year) return res.redirect('/dashboard/' + new Date().getFullYear());
+    res.sendTemplate('entries/dashboard/' + year);
+});
+
+app.get('/user/*', (req, res) => {
     res.sendTemplate('entries/user');
 });
 

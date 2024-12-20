@@ -4,6 +4,7 @@ import { Req } from '../structure/app/req';
 import { Res } from '../structure/app/res';
 import { Account } from '../structure/structs/account';
 import { capitalize } from '../../shared/text';
+import { detect } from '../middleware/profanity-detection';
 import { resolveAll } from '../../shared/check';
 
 export const router = new Route();

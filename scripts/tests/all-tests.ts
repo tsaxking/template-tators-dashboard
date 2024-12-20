@@ -37,6 +37,16 @@ env.DATABASE_NAME = env.DATABASE_NAME || 'test';
 env.DATABASE_HOST = env.DATABASE_HOST || 'localhost';
 env.DATABASE_PASSWORD = env.DATABASE_PASSWORD || 'test';
 env.DATABASE_PORT = env.DATABASE_PORT || '5432';
+import assert from 'assert';
+import { getJSONSync } from '../../server/utilities/files';
+import {
+    TBAMatch,
+    TBATeam
+} from '../../shared/submodules/tatorscout-calculations/tba';
+import {
+    generateScoutGroups,
+    testAssignments
+} from '../../shared/submodules/tatorscout-calculations/scout-groups';
 
 const assertEquals = (a: unknown, b: unknown) => {
     try {
@@ -502,7 +512,32 @@ export const runTests = async (env: Env, database: Database) =>
                     );
                 });
             });
+        }),
+        test('Scout groups', async () => {
+            const eventKey = '2023cabl';
+            const regex = /^([0-9]{4}[a-z]{3,4})$/i;
+            if (!regex.test(eventKey)) throw new Error('Invalid event key');
+
+            const data = await getJSONSync<{
+                matches: TBAMatch[];
+                teams: TBATeam[];
+            }>('scout-group-test');
+
+            if (data.isOk()) {
+                const { matches, teams } = data.value;
+                const assignments = generateScoutGroups(teams, matches);
+                const result = testAssignments(assignments);
+
+                assertEquals(result.status, 'ok');
+            } else {
+                throw data.error;
+            }
         })
+        // if (!process.argv.includes('lite')) {
+        //     test('Database tests', async () => {
+        //         const { DB } = await import('../../server/utilities/databases');
+        //     });
+        // }
     ]);
 
 type Env = {
