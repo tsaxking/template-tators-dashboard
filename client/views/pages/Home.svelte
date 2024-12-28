@@ -1,7 +1,7 @@
 <script lang="ts">
     import { type BootstrapColor } from '../../submodules/colors/color';
     import { type Permission } from '../../../shared/permissions';
-    import { Account } from '../../models/account';
+    // import { Account } from '../../models/account';
     import Footer from '../components/main/Footer.svelte';
 
     let permissions: Permission[] = [];
@@ -72,11 +72,11 @@
         }
     ];
 
-    Account.getAccount().then(async a => {
-        if (!a) return;
-        const perms = (await (await a).unwrap()?.getPermissions())?.unwrap();
-        if (perms) permissions = perms.map(p => p.permission as Permission);
-    });
+    // Account.getAccount().then(async a => {
+    //     if (!a) return;
+    //     const perms = (await (await a).unwrap()?.getPermissions())?.unwrap();
+    //     if (perms) permissions = perms.map(p => p.permission as Permission);
+    // });
 </script>
 
 <main>

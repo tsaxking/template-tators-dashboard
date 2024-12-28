@@ -16,19 +16,19 @@ This includes a GitHub action to deploy documentation to GitHub Pages, and a Git
 
 ## Features
 
--   Front end: Svelte
--   Back end: Express (with some more features)
--   Database: Postgres (Will be adding more soon)
--   Front/Back end data structure communication: Custom built
-    -   This is a custom built system that allows for easy communication between the front and back end. It is built to be easy to use and easy to understand.
-    -   Front end state management implements svelte/store "writables" for reactive state management
-    -   Back end state management creates an abstracted state management system from the database
-    -   Permissions are built into the system to allow for easy access control (Role Based Access Control)
-    -   The system can create different "universes" which allow for data for different clients/"servers" to be stored in the same tables, but not be accessible to each other
-    -   Query streaming is built into the system to allow for low memory usage when querying large amounts of data and sending to the front end
-    -   Automatic updating is integrated through websockets (socket.io) to allow for real-time updates to the front end in the universe'
--   CLI: Custom built
-    -   The CLI (`npm run manager`) is a custom built CLI that allows for easy management of the whole project. It is fully scalable and can be used to manage the project at any size.
+- Front end: Svelte
+- Back end: Express (with some more features)
+- Database: Postgres (Will be adding more soon)
+- Front/Back end data structure communication: Custom built
+    - This is a custom built system that allows for easy communication between the front and back end. It is built to be easy to use and easy to understand.
+    - Front end state management implements svelte/store "writables" for reactive state management
+    - Back end state management creates an abstracted state management system from the database
+    - Permissions are built into the system to allow for easy access control (Role Based Access Control)
+    - The system can create different "universes" which allow for data for different clients/"servers" to be stored in the same tables, but not be accessible to each other
+    - Query streaming is built into the system to allow for low memory usage when querying large amounts of data and sending to the front end
+    - Automatic updating is integrated through websockets (socket.io) to allow for real-time updates to the front end in the universe'
+- CLI: Custom built
+    - The CLI (`npm run manager`) is a custom built CLI that allows for easy management of the whole project. It is fully scalable and can be used to manage the project at any size.
 
 ## Getting Started
 

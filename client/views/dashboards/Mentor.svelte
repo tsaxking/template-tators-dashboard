@@ -5,7 +5,7 @@
     import CreateScoutingQuestions from '../pages/edit-pit-scouting/CreateQuestions.svelte';
     import AnswerPitScouting from '../pages/answer-pit-scouting/AnswerPitScouting.svelte';
     import Accounts from '../pages/Accounts.svelte';
-    import Roles from '../pages/Roles.svelte';
+    // import Roles from '../pages/Roles.svelte';
     import { type PageGroup } from '../../utilities/general-types';
 
     const groups: PageGroup[] = [
@@ -73,10 +73,10 @@
         {active}
         {domain}
         title="accounts"><Accounts /></Page>
-    <Page
+    <!-- <Page
         {active}
         {domain}
-        title="roles"><Roles /></Page>
+        title="roles"><Roles /></Page> -->
     <!-- <Page {active} {domain} title="scouting-checklist">
             <ScoutingChecklist />
         </Page> -->
