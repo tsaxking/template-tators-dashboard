@@ -9,7 +9,7 @@ import {
 import { generateScoutGroups } from '../../../shared/submodules/tatorscout-calculations/scout-groups';
 import { attemptAsync } from '../../../shared/check';
 import { TBAEvent } from '../../../shared/submodules/tatorscout-calculations/tba';
-import Account from '../../structure/accounts';
+import { Account } from '../../structure/structs/account';
 import {
     Match as MatchObject,
     validateObj
@@ -290,7 +290,7 @@ router.post<{
         // account does not exist
         if (!a) return res.json(false);
 
-        res.json(a.testPassword(password));
+        res.json(Account.hash(password, a.data.salt).unwrap() === a.data.key);
     }
 );
 
@@ -299,6 +299,8 @@ router.post('/ping', auth, (_req, res) => {
 });
 
 router.post('/get-accounts', auth, async (req, res) => {
-    const accounts = (await Account.getVerifiedAccounts()).unwrap();
-    res.json(accounts.map(a => a.username));
+    const accounts = (
+        await Account.Account.fromProperty('verified', true, false)
+    ).unwrap();
+    res.json(accounts.map(a => a.data.username));
 });

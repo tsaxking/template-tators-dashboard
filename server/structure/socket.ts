@@ -2,9 +2,8 @@ import { App } from './app/app';
 import { EventEmitter } from '../../shared/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { parseCookie } from '../../shared/cookie';
-import { validate } from '../middleware/data-type';
-import { uuid } from '../utilities/uuid';
 import env from '../utilities/env';
+import { Loop } from '../../shared/loop';
 
 type Cache = {
     event: string;
@@ -41,6 +40,7 @@ class SocketSession {
         this.socket.to(this.id).emit(event, data);
     }
 }
+
 // let num = 0;
 /**
  * Wrapper class around the socket.io server
@@ -91,8 +91,18 @@ export class SocketWrapper {
         public readonly io: Server
         // cb?: (socket: Socket) => void
     ) {
-        io.on('connection', socket => {
-            // if (socket.recovered) console.log('recovered connection');
+        const getSession = async (socket: Socket) => {
+            const { Session } = await import('./structs/session');
+            return Session.Session.fromId(
+                parseCookie(socket.handshake.headers.cookie || '').ssid || ''
+            );
+        };
+
+        io.on('connection', async socket => {
+            const { Account } = await import('./structs/account');
+            const { Permissions } = await import('./structs/permissions');
+
+            if (socket.recovered) console.log('recovered connection');
             if (env.ENVIRONMENT === 'dev') {
                 if (performance.now() < 10000) {
                     console.log('server recently started, reloading client...');
@@ -103,12 +113,23 @@ export class SocketWrapper {
 
             socket.emit('init', socket.id);
 
-            const cookie = socket.handshake.headers.cookie;
-            if (cookie) {
-                const { ssid } = parseCookie(cookie);
+            const session = await (await getSession(socket)).unwrap();
 
-                if (ssid) {
-                    socket.join(ssid);
+            if (session) {
+                socket.join(session.id);
+
+                const a = (
+                    await Account.Account.fromId(session.data.accountId)
+                ).unwrap();
+
+                if (a) {
+                    socket.join([
+                        a.id,
+                        ...a.getUniverses().unwrap(),
+                        ...(await Permissions.getRoles(a))
+                            .unwrap()
+                            .map(r => r.id)
+                    ]);
                 }
             }
 
@@ -117,6 +138,46 @@ export class SocketWrapper {
                 this.em.emit('disconnect', socket);
             });
         });
+
+        new Loop(
+            async () => {
+                const { Account } = await import('./structs/account');
+                const { Permissions } = await import('./structs/permissions');
+
+                const sockets = io.sockets.sockets;
+                for (const s of sockets.values()) {
+                    if (s.connected) {
+                        // leave all rooms
+                        for (const room of s.rooms) {
+                            s.leave(room);
+                        }
+                    }
+
+                    const session = (await getSession(s)).unwrap();
+
+                    if (session) {
+                        s.join(session.id);
+
+                        const a = (
+                            await Account.Account.fromId(session.data.accountId)
+                        ).unwrap();
+
+                        if (a) {
+                            s.join([
+                                a.id,
+                                ...a.getUniverses().unwrap(),
+                                ...(await Permissions.getRoles(a))
+                                    .unwrap()
+                                    .map(r => r.id)
+                            ]);
+                        }
+
+                        s.emit('refresh');
+                    }
+                }
+            },
+            1000 * 60 * 10
+        ).start();
 
         // this.app.post<{
         //     cache: {
@@ -218,12 +279,17 @@ export class SocketWrapper {
 
     /**
      * Emits an event to a specific room
+     * If the room is empty, the emit function will be a no-op
      * @date 3/8/2024 - 6:04:16 AM
      *
      * @param {string} room
      * @returns {*}
      */
-    to(room: string) {
+    to(room: string | string[]) {
+        // if (!room.length)
+        //     return {
+        //         emit: this.io.emit.bind(this.io),
+        //     };
         // return {
         //     emit: (event: string, data?: unknown) => {
         //         num++;

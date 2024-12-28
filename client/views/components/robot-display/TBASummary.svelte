@@ -33,8 +33,7 @@
                 t.event.getPitScouting()
             ]);
         if (matches.isErr()) return reset() || console.error(matches.error);
-        if (pitScouting.isErr())
-            return reset() || console.error(pitScouting.error);
+        if (pitScouting.isErr()) return reset() || console.error(pitScouting.error);
         if (velocityData.isErr())
             return reset() || console.error(velocityData.error);
         if (stats.isErr()) return reset() || console.error(stats.error);

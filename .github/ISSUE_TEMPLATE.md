@@ -37,7 +37,7 @@ about: Template for creating well-documented issues
 
 ## Checklist
 
--   [ ] I have read the project's contributing guidelines.
--   [ ] I have searched for similar issues and confirmed that this is not a duplicate.
--   [ ] I have provided all the necessary information for the issue.
--   [ ] I have assigned the appropriate labels and milestone to the issue.
+- [ ] I have read the project's contributing guidelines.
+- [ ] I have searched for similar issues and confirmed that this is not a duplicate.
+- [ ] I have provided all the necessary information for the issue.
+- [ ] I have assigned the appropriate labels and milestone to the issue.

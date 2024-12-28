@@ -25,8 +25,10 @@
     {#if deletable}
         <i
             class="material-icons cursor-pointer text-sm"
-            on:click="{() => d('remove')}">close</i
+            on:click="{() => d('remove')}"
         >
+            close
+        </i>
     {/if}
     {text}
 </span>

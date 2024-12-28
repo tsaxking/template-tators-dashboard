@@ -1,9 +1,9 @@
-import Account from '../../structure/accounts';
 import { Route } from '../../structure/app/app';
 import { DB } from '../../utilities/databases';
 import { validate } from '../../middleware/data-type';
 import { uuid } from '../../utilities/uuid';
 import Filter from 'bad-words';
+import { Account } from '../../structure/structs/account';
 
 export const router = new Route();
 
@@ -16,17 +16,17 @@ router.post<{
     type: string;
 }>(
     '/new',
-    Account.allowPermissions('comment'),
+    // Account.allowPermissions('comment'),
     validate({
         teamNumber: 'number',
         eventKey: 'string',
         comment: 'string',
         type: 'string'
     }),
-    (req, res) => {
+    async (req, res) => {
         const time = Date.now().toString();
         const id = uuid();
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
         const { teamNumber, eventKey, comment, type } = req.body;
 
         const filter = new Filter();

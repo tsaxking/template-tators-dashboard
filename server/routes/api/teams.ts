@@ -2,8 +2,9 @@ import { validate } from '../../middleware/data-type';
 import { Route } from '../../structure/app/app';
 import { DB } from '../../utilities/databases';
 import { fileStream } from '../../middleware/stream';
-import Account from '../../structure/accounts';
 import { readDir } from '../../utilities/files';
+import { Account } from '../../structure/structs/account';
+
 export const router = new Route();
 
 router.post<{
@@ -134,7 +135,7 @@ router.post<{
         eventKey: 'string',
         teamNumber: 'number'
     }),
-    Account.allowPermissions('submitScoutingAnswers'),
+    // Account.allowPermissions('submitScoutingAnswers'),
     fileStream({
         maxFiles: 10,
         maxFileSize: 5 * 1024 * 1024 // 5MB
@@ -142,7 +143,7 @@ router.post<{
     async (req, res) => {
         const { files } = req;
         const { eventKey, teamNumber } = req.body;
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
 
         if (!accountId) return res.sendStatus('unknown:error');
 
