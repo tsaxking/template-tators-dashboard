@@ -1,6 +1,6 @@
 <script lang="ts">
     import Setting from './Setting.svelte';
-    import { Settings } from '../../models/settings';
+    // import { Settings } from '../../models/settings';
     import { onMount } from 'svelte';
 
     let theme: 'Light' | 'Dark' = Settings.get('theme') || 'Light';
@@ -25,11 +25,11 @@
     };
 
     onMount(() => {
-        Settings.on('set', ([k, v]) => {
-            if (k === 'theme') {
-                change(v as 'Light' | 'Dark');
-            }
-        });
+        // Settings.on('set', ([k, v]) => {
+        //     if (k === 'theme') {
+        //         change(v as 'Light' | 'Dark');
+        //     }
+        // });
     });
 
     $: {
@@ -41,7 +41,7 @@
     type="switch"
     value="{theme === 'Dark'}"
     on:change="{({ detail }) => {
-        Settings.set('theme', detail ? 'Dark' : 'Light');
+        // Settings.set('theme', detail ? 'Dark' : 'Light');
         change(detail ? 'Dark' : 'Light');
     }}"
 >

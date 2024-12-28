@@ -5,7 +5,6 @@
     export let title: string;
     export let navItems: string[] = [];
     import { Modal } from '../../../utilities/modals';
-    import Settings from '../../pages/Settings.svelte';
     import AccountNotifications from './Notifications/AccountNotifications.svelte';
     import { Accounts } from '../../../models/account';
     import NotificationIcon from './Notifications/NotificationIcon.svelte';
@@ -16,23 +15,6 @@
     export let active: string = '';
 
     export let accountLinks: (string | null)[] = [];
-
-    const openSettings = () => {
-        const m = new Modal();
-        const body = document.createElement('div');
-        new Settings({
-            target: body,
-            props: {
-                settings: []
-            }
-        });
-
-        m.setTitle('Settings');
-        m.setBody(body);
-        m.show();
-    };
-<<<<<<< HEAD
-=======
 
     const initAccount = async () => {
         const a = await Account.getAccount();
@@ -49,7 +31,6 @@
         initAccount();
         jQuery('#report-issue').tooltip();
     });
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 </script>
 
 <nav
@@ -95,7 +76,6 @@
             <div class="form-inline my-2 my-lg-0">
                 <slot name="form" />
             </div>
-<<<<<<< HEAD
         </div>
     </div>
 
@@ -125,7 +105,7 @@
             class="dropdown-menu dropdown-menu-end p-0"
             aria-labelledby="navbarDropdown"
         >
-            <li>
+            <!-- <li>
                 <a
                     class="dropdown-item"
                     href="javascript:void(0);"
@@ -133,7 +113,7 @@
                 >
                     <i class="material-icons">settings</i>&nbsp;Settings
                 </a>
-            </li>
+            </li> -->
             {#each accountLinks as link}
                 {#if link}
                     <li>
@@ -143,7 +123,8 @@
                         >{capitalize(fromSnakeCase(link, '-'))}</a
                         >
                     </li>
-=======
+                {/if}
+            {/each}
             <EventSelect />
             <a
                 id="navbarDropdown-link"
@@ -160,43 +141,15 @@
                         alt=""
                         src="../uploads/${account.picture}"
                     />
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
                 {:else}
                     <span class="material-icons">person</span>
                 {/if}
             </a>
-            <button
-                class="btn btn-primary position-relative p-2 me-5"
-                aria-controls="notifications-offcanvas"
-                data-bs-target="#notifications-offcanvas"
-                data-bs-toggle="offcanvas"
-                type="button"
-                on:click="{() => {
-                    showNotifications = !showNotifications;
-                }}"
-            >
-                <i class="material-icons"> notifications </i>
-                {#if !!unread}
-                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
-                    >
-                        {unread}
-                    </span>
-                {/if}
-            </button>
             <ul
                 id="navbarDropdown"
                 class="dropdown-menu dropdown-menu-end p-0"
                 aria-labelledby="navbarDropdown"
             >
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="javascript:void(0);"
-                        on:click="{openSettings}"
-                    >
-                        <i class="material-icons">settings</i>&nbsp;Settings
-                    </a>
-                </li>
                 {#each accountLinks as link}
                     {#if link}
                         <li>
@@ -224,7 +177,7 @@
                     >
                 </li>
             </ul>
-        </div>
+        </ul>
         <button
             class="btn btn-dark navbar-toggler border-0 h-100 text-light"
             aria-controls="nav-items"

@@ -16,6 +16,6 @@ Component files are the building blocks of the application. They should be as si
 
 ## Related pages
 
--   [Protocols](./protocols.md)
--   [Struct](../structs/index.md)
--   [Home](../../README.md)
+- [Protocols](./protocols.md)
+- [Struct](../structs/index.md)
+- [Home](../../README.md)
