@@ -82,12 +82,7 @@
         "cli-select": "^1.1.2",
         "cli-table": "^0.3.11",
         "cliffy": "^2.5.1",
-<<<<<<< HEAD
         "csv-parser": "^3.0.0",
-=======
-        "compress-images": "^1.9.9",
-        "cors": "^2.8.5",
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
         "deep-email-validator": "^0.1.21",
         "directory-tree": "^3.5.1",
         "discord.js": "^14.15.2",

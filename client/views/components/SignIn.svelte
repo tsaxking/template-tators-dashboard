@@ -89,10 +89,8 @@
                 </div>
 
                 <div class="row mb-3">
-                    <a
-                        class="link-primary nav-link"
-                        href="/account/sign-up"
-                    >Sign Up</a
+                    <a class="link-primary nav-link" href="/account/sign-up"
+                        >Sign Up</a
                     >
                 </div>
                 <form on:submit|preventDefault="{submit}">
@@ -106,10 +104,8 @@
                             bind:value="{username}"
                             on:input="{onInput}"
                         />
-                        <label
-                            class="form-label"
-                            for="username"
-                        >Username or Email</label
+                        <label class="form-label" for="username"
+                            >Username or Email</label
                         >
                         {#if username.includes('@')}
                             {#if username.split('@')[1]?.split('.')[0]?.length}

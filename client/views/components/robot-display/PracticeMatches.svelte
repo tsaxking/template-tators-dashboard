@@ -21,7 +21,7 @@
         if (res.isErr()) return console.error(res.error);
 
         matches = res.value;
-    }; 
+    };
     const viewMatch = async (match: MatchScouting) => {
         if (!team) return alert('No team selected');
         const modal = new Modal();

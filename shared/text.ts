@@ -110,7 +110,6 @@ export const cost = (amount: number | string): string => {
         : `-$${Math.abs(+amount).toFixed(2)}`;
 };
 
-<<<<<<< HEAD
 export const encode = (str: string) => {
     const chars =
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-=!@#$%^&*()_+[]{}|;:\'",.<>?/`~\\\n ';
@@ -152,7 +151,8 @@ export const toBinary = (num: number): string => {
 
 export const fromBinary = (bin: string): number => {
     return parseInt(bin, 2);
-=======
+};
+
 export const merge = (a: string, b: string): string => {
     // merge two strings together
 
@@ -170,5 +170,4 @@ export const merge = (a: string, b: string): string => {
     if (a.length === 0) return c + b;
     if (b.length === 0) return c + a;
     return c;
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 };

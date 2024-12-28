@@ -9,7 +9,6 @@ import { Res } from '../../server/structure/app/res';
 import { deepEqual } from 'assert';
 import { check, isValid, parseJSON } from '../../shared/check';
 import { match, matchInstance } from '../../shared/match';
-<<<<<<< HEAD
 import { Client } from 'pg';
 import env from '../../server/utilities/env';
 import {
@@ -38,7 +37,6 @@ env.DATABASE_NAME = env.DATABASE_NAME || 'test';
 env.DATABASE_HOST = env.DATABASE_HOST || 'localhost';
 env.DATABASE_PASSWORD = env.DATABASE_PASSWORD || 'test';
 env.DATABASE_PORT = env.DATABASE_PORT || '5432';
-=======
 import assert from 'assert';
 import { getJSONSync } from '../../server/utilities/files';
 import {
@@ -49,7 +47,6 @@ import {
     generateScoutGroups,
     testAssignments
 } from '../../shared/submodules/tatorscout-calculations/scout-groups';
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 
 const assertEquals = (a: unknown, b: unknown) => {
     try {
@@ -343,7 +340,6 @@ export const runTests = async (env: Env, database: Database) =>
             assertEquals(b, 'default');
             assertEquals(c, 'test');
         }),
-<<<<<<< HEAD
 
         test('Database Functionality', async () => {
             const qA = Query.build(`
@@ -516,7 +512,7 @@ export const runTests = async (env: Env, database: Database) =>
                     );
                 });
             });
-=======
+        }),
         test('Scout groups', async () => {
             const eventKey = '2023cabl';
             const regex = /^([0-9]{4}[a-z]{3,4})$/i;
@@ -536,7 +532,6 @@ export const runTests = async (env: Env, database: Database) =>
             } else {
                 throw data.error;
             }
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
         })
         // if (!process.argv.includes('lite')) {
         //     test('Database tests', async () => {

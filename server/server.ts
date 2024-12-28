@@ -164,26 +164,18 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
-<<<<<<< HEAD
 app.route('/API', Struct.router);
-=======
 app.get('/home', (_req, res) => {
     res.sendTemplate('entries/home');
 });
 
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
 app.route('/api', api);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN || ''));
 
 app.get('/*', async (req, res, next) => {
     if (env.ENVIRONMENT === 'test') return next();
-<<<<<<< HEAD
     const s = (await req.getSession()).unwrap();
     if (!s.data.accountId) {
-=======
-    // return next(); // TODO: THIS IS TEMPORARY FOR 3-1-2024
-    if (!req.session.accountId) {
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
         if (
             ![
                 '/account/sign-in',
@@ -217,7 +209,11 @@ app.get(
 
 app.get(
     '/dashboard/mentor',
-    Account.allowPermissions('mentor'),
+    Permissions.canAccess(async account => {
+        const roles = (await Permissions.getRoles(account)).unwrap();
+        return roles.some(r => r.data.name === 'mentor');
+    }),
+    // Account.allowPermissions('mentor'),
     (_req, res) => {
         res.sendTemplate('entries/dashboard/mentor');
     }
