@@ -373,7 +373,7 @@ export const parseJSON = <T extends Primitive | O | A>(
     return build(JSON.parse(data), obj);
 };
 
-type ReturnType<T> = T extends 'string'
+export type ReturnType<T> = T extends 'string'
     ? string
     : T extends 'number'
       ? number

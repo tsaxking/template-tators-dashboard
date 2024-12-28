@@ -1,8 +1,8 @@
 import express from 'express';
 import { App } from './app';
-import { Session } from '../sessions';
 import { FileUpload } from '../../middleware/stream';
 import { Socket } from 'socket.io';
+import { attemptAsync } from '../../../shared/check';
 
 /**
  * Body type
@@ -77,9 +77,21 @@ export class Req<
     constructor(
         public readonly app: App,
         public readonly req: express.Request,
-        public readonly session: Session<S, A>,
+        public readonly sessionId: string,
         public readonly socket?: Socket
     ) {}
+
+    async getSession() {
+        return attemptAsync(async () => {
+            const res = (
+                await (
+                    await import('../structs/session')
+                ).Session.Session.fromId(this.sessionId)
+            ).unwrap();
+            if (!res) throw new Error('Session not found');
+            return res;
+        });
+    }
 
     /**
      * Params of the request
@@ -273,5 +285,17 @@ export class Req<
      */
     public set files(files: FileUpload[]) {
         this.$files = files;
+    }
+
+    public get metadata(): Record<string, string | undefined> {
+        return JSON.parse(this.headers.get('X-Metadata') || '{}');
+    }
+
+    public get universe() {
+        return this.metadata.universe;
+    }
+
+    public set universe(value: string | undefined) {
+        this.metadata.universe = value;
     }
 }

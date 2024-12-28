@@ -1,9 +1,10 @@
 import { Route } from '../../structure/app/app';
-import Account from '../../structure/accounts';
 import { QuestionOptions } from '../../../shared/db-types-extended';
 import { validate } from '../../middleware/data-type';
 import { DB } from '../../utilities/databases';
 import { uuid } from '../../utilities/uuid';
+import { Account } from '../../structure/structs/account';
+import { Permissions } from '../../structure/structs/permissions';
 
 export const router = new Route();
 
@@ -112,7 +113,7 @@ router.post<{
     eventKey: string;
 }>(
     '/submit-answer',
-    Account.allowPermissions('submitScoutingAnswers'),
+    // Account.allowPermissions('submitScoutingAnswers'),
     validate({
         question: 'string',
         answer: value =>
@@ -123,7 +124,7 @@ router.post<{
     async (req, res) => {
         const { question, answer, team, eventKey } = req.body;
 
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
@@ -210,10 +211,10 @@ router.post<{
     answer: string;
 }>(
     '/update-answer',
-    Account.allowPermissions('submitScoutingAnswers'),
+    // Account.allowPermissions('submitScoutingAnswers'),
     async (req, res) => {
         const { answerId, answer } = req.body;
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
         const date = Date.now();
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
@@ -258,8 +259,6 @@ router.post<{
     }
 );
 
-const canEdit = Account.allowPermissions('editScoutingQuestions');
-
 // TODO: Add data to history
 // user must have permissions to update scouting questions
 
@@ -267,7 +266,7 @@ router.post<{
     id: string;
 }>(
     '/delete-section', // I don't think a user should be able to do this, but I'm implementing it anyway
-    canEdit,
+    // canEdit,
     validate({
         id: 'string'
     }),
@@ -289,7 +288,7 @@ router.post<{
     id: string;
 }>(
     '/delete-group',
-    canEdit,
+    // canEdit,
     validate({
         id: 'string'
     }),
@@ -311,7 +310,7 @@ router.post<{
     id: string;
 }>(
     '/delete-question',
-    canEdit,
+    // canEdit,
     validate({
         id: 'string'
     }),
@@ -333,7 +332,7 @@ router.post<{
     id: string;
 }>(
     '/delete-answer',
-    canEdit,
+    // canEdit,
     validate({
         id: 'string'
     }),
@@ -352,14 +351,14 @@ router.post<{
     multiple: boolean;
 }>(
     '/new-section',
-    canEdit,
+    // canEdit,
     validate({
         name: 'string',
         multiple: 'boolean'
     }),
-    (req, res) => {
+    async (req, res) => {
         const { name, multiple } = req.body;
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
@@ -398,15 +397,15 @@ router.post<{
     id: string;
 }>(
     '/update-section',
-    canEdit,
+    // canEdit,
     validate({
         name: 'string',
         multiple: [0, 1],
         id: 'string'
     }),
-    (req, res) => {
+    async (req, res) => {
         const { name, multiple, id } = req.body;
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
@@ -444,15 +443,15 @@ router.post<{
     section: string;
 }>(
     '/new-group',
-    canEdit,
+    // canEdit,
     validate({
         eventKey: 'string',
         section: 'string',
         name: 'string'
     }),
-    (req, res) => {
+    async (req, res) => {
         const { eventKey, section, name } = req.body;
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
         if (!accountId) return res.sendStatus('account:not-logged-in');
         const dateAdded = Date.now();
         const id = uuid();
@@ -492,7 +491,7 @@ router.post<{
     eventKey: string;
 }>(
     '/update-group',
-    canEdit,
+    // canEdit,
     validate({
         id: 'string',
         name: 'string',
@@ -500,7 +499,7 @@ router.post<{
     }),
     async (req, res) => {
         const { id, name, eventKey } = req.body;
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
         if (!accountId) return res.sendStatus('account:not-logged-in');
         const dateAdded = Date.now();
 
@@ -545,7 +544,7 @@ router.post<{
     options: QuestionOptions; // TODO: add type
 }>(
     '/new-question',
-    canEdit,
+    // canEdit,
     validate({
         question: 'string',
         type: [
@@ -563,11 +562,11 @@ router.post<{
         group: 'string',
         options: value => value !== undefined
     }),
-    (req, res) => {
+    async (req, res) => {
         const { question, type, section, key, description, group, options } =
             req.body;
 
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
         if (!accountId) return res.sendStatus('account:not-logged-in');
         const dateAdded = Date.now();
         const id = uuid();
@@ -630,7 +629,7 @@ router.post<{
     options: QuestionOptions;
 }>(
     '/update-question',
-    canEdit,
+    // canEdit,
     validate({
         id: 'string',
         question: 'string',
@@ -650,7 +649,7 @@ router.post<{
     async (req, res) => {
         const { id, question, type, key, description, options } = req.body;
 
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
         const dateAdded = Date.now();
@@ -842,7 +841,7 @@ router.post<{
     to: string;
 }>(
     '/copy-questions',
-    canEdit,
+    // canEdit,
     validate({
         from: 'string',
         to: 'string'
@@ -890,7 +889,7 @@ router.post<{
         }
 
         const dateAdded = Date.now();
-        const accountId = req.session.accountId;
+        const { accountId } = (await req.getSession()).unwrap().data;
 
         if (!accountId) return res.sendStatus('account:not-logged-in');
 

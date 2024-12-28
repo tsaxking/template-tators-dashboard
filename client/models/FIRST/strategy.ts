@@ -210,7 +210,9 @@ export class Check extends EventEmitter<CheckEvents> {
             const checks = data.map(d => d.split(':') as [string, string]);
 
             return teams.map(t => {
-                const c = checks.filter(c => +c[0] === t).map(c => c.slice(1).join(':'));
+                const c = checks
+                    .filter(c => +c[0] === t)
+                    .map(c => c.slice(1).join(':'));
                 return new Check(t, c, strategy);
             }) as [Check, Check, Check, Check, Check, Check];
         });
@@ -248,7 +250,9 @@ export class Check extends EventEmitter<CheckEvents> {
 
     remove(check: string) {
         this.checks = this.checks.filter(c => c !== check);
-        this.strategy.checks = this.strategy.checks.filter(c => c !== `${this.team}:${check}`);
+        this.strategy.checks = this.strategy.checks.filter(
+            c => c !== `${this.team}:${check}`
+        );
         this.emit('remove-check', check);
         return this.change();
     }

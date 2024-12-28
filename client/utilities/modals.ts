@@ -1,3 +1,4 @@
+import { attempt } from '../../shared/check';
 import { EventEmitter } from '../../shared/event-emitter';
 
 /**
@@ -277,7 +278,7 @@ export class Modal extends EventEmitter<EventTypes> {
  *
  * @type {*}
  */
-const container = (() => {
+const container = attempt(() => {
     const parent = document.createElement('div');
     parent.setAttribute('aria-live', 'polite');
     parent.setAttribute('aria-atomic', 'true');
@@ -305,7 +306,7 @@ const container = (() => {
     const int = setInterval(mount, 10);
 
     return parent;
-})();
+});
 
 /**
  * Bootstrap toast colors
@@ -384,7 +385,7 @@ export class Toast extends EventEmitter<EventTypes> {
 
         this.target.classList.add('notification');
 
-        container.appendChild(this.target);
+        container.unwrap().appendChild(this.target);
         this.__title = title;
         this.__body = body;
         this.__color = color;
@@ -563,7 +564,7 @@ export class Toast extends EventEmitter<EventTypes> {
         this.target.appendChild(header);
         this.target.appendChild(body);
 
-        container.firstChild?.appendChild(this.target);
+        container.unwrap().firstChild?.appendChild(this.target);
 
         this.show();
     }
@@ -651,7 +652,7 @@ export class Alert extends EventEmitter<EventTypes> {
             $(this.target).alert();
         });
         this.target.classList.add('notification');
-        container.appendChild(this.target);
+        container.unwrap().appendChild(this.target);
         this.title = title;
         this.color = color;
         this.message = message;

@@ -3,18 +3,22 @@ import { log } from './utilities/terminal-logging';
 import { App } from './structure/app/app';
 import { getJSON, log as serverLog } from './utilities/files';
 import { homeBuilder } from './utilities/page-builder';
-import Account from './structure/accounts';
 import { router as admin } from './routes/admin';
-import { router as account } from './routes/account';
 import { router as api } from './routes/api';
-import { router as role } from './routes/roles';
-import { router as notifications } from './routes/account-notifications';
 import { FileUpload } from './middleware/stream';
 import { ReqBody } from './structure/app/req';
 import { parseCookie } from '../shared/cookie';
 import path from 'path';
-import { DB } from './utilities/databases';
-import { Session } from './structure/sessions';
+import { DB } from './utilities/database';
+import { Struct } from './structure/structs/struct';
+import { Account } from './structure/structs/account';
+import { Permissions } from './structure/structs/permissions';
+
+import './structure/structs/account';
+import './structure/structs/permissions';
+import './structure/structs/session';
+import './structure/structs/email';
+import './structure/structs/test';
 
 if (process.argv.includes('--stats')) {
     const measure = () => {
@@ -29,10 +33,7 @@ if (process.argv.includes('--stats')) {
 
 const port = +(env.PORT || 3000);
 
-// add 2 generics to the App class to specify session.customData and account.customData types
 export const app = new App(port, env.DOMAIN || `http://localhost:${port}`);
-
-Session.setDeleteInterval(1000 * 60 * 10); // delete unused sessions every 10 minutes
 
 app.post('/env', (req, res) => {
     res.json({
@@ -54,6 +55,11 @@ app.use('/*', (req, res, next) => {
     // res.setHeader('Access-Control-Expose-Headers', '*');
     next();
 });
+
+// app.use('/*', Permissions.forceUniverse(async () => {
+//     const universes = (await Permissions.Universe.all(false)).unwrap();
+//     return universes.find(u => u.data.name === 'test');
+// }));
 
 app.static('/client', path.resolve(__root, './client'));
 app.static('/public', path.resolve(__root, './public'));
@@ -135,18 +141,7 @@ app.post('/*', (req, res, next) => {
     next();
 });
 
-// TODO: There is an error with the email validation middleware
-// app.post('/*', emailValidation(['email', 'confirmEmail'], {
-//     onspam: (req, res, next) => {
-//         res.sendStatus('spam:detected');
-//     },
-//     // onerror: (req, res, next) => {
-//     //     // res.sendStatus('unknown:error');
-//     //     next();
-//     // }
-// }));
-
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.redirect('/home');
 });
 
@@ -169,21 +164,18 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
+app.route('/API', Struct.router);
 app.get('/home', (_req, res) => {
     res.sendTemplate('entries/home');
 });
 
 app.route('/api', api);
-app.route('/account', account);
-app.route('/roles', role);
-app.route('/account-notifications', notifications);
+app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN || ''));
 
-app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
-
-app.get('/*', (req, res, next) => {
+app.get('/*', async (req, res, next) => {
     if (env.ENVIRONMENT === 'test') return next();
-    // return next(); // TODO: THIS IS TEMPORARY FOR 3-1-2024
-    if (!req.session.accountId) {
+    const s = (await req.getSession()).unwrap();
+    if (!s.data.accountId) {
         if (
             ![
                 '/account/sign-in',
@@ -193,7 +185,11 @@ app.get('/*', (req, res, next) => {
         ) {
             // only save the previous url if it's not a sign-in, sign-up, or forgot-password page
             // this is so that the user can be redirected back to the page they initially were trying to access
-            req.session.prevUrl = req.url;
+            (
+                await s.update({
+                    prevUrl: req.url
+                })
+            ).unwrap();
         }
         return res.redirect('/account/sign-in');
     }
@@ -201,13 +197,23 @@ app.get('/*', (req, res, next) => {
     next();
 });
 
-app.get('/dashboard/admin', Account.allowPermissions('admin'), (_req, res) => {
-    res.sendTemplate('entries/dashboard/admin');
-});
+app.get(
+    '/dashboard/admin',
+    Permissions.canAccess(async account => {
+        return (await Account.isAdmin(account)).unwrap();
+    }),
+    (_req, res) => {
+        res.sendTemplate('entries/dashboard/admin');
+    }
+);
 
 app.get(
     '/dashboard/mentor',
-    Account.allowPermissions('mentor'),
+    Permissions.canAccess(async account => {
+        const roles = (await Permissions.getRoles(account)).unwrap();
+        return roles.some(r => r.data.name === 'mentor');
+    }),
+    // Account.allowPermissions('mentor'),
     (_req, res) => {
         res.sendTemplate('entries/dashboard/mentor');
     }
@@ -240,14 +246,14 @@ app.final<{
     $$files?: FileUpload;
     password?: string;
     confirmPassword?: string;
-}>((req, res) => {
+}>(async (req, res) => {
     // req.session.save();
 
     if (res.fulfilled) {
         serverLog('request', {
             date: Date.now(),
             duration: Date.now() - req.start,
-            ip: req.session?.ip,
+            ip: (await req.getSession()).unwrap().data.ip,
             method: req.method,
             url: req.pathname,
             status: res._status,
@@ -276,4 +282,12 @@ app.final<{
     }
 });
 
-DB.em.on('connect', () => app.start());
+DB.connect().then(async res => {
+    res.unwrap();
+    (await DB.init()).unwrap();
+
+    Struct.buildAll(true).then(res => {
+        if (res.isErr()) throw res.error;
+        app.start();
+    });
+});
