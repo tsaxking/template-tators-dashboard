@@ -106,10 +106,8 @@
                 </div>
 
                 <div class="row mb-3">
-                    <a
-                        class="link-primary nav-link"
-                        href="/account/sign-in"
-                    >Sign In</a
+                    <a class="link-primary nav-link" href="/account/sign-in"
+                        >Sign In</a
                     >
                 </div>
                 <form on:submit|preventDefault="{submit}">
@@ -123,9 +121,7 @@
                             bind:value="{username}"
                             on:input="{onInput}"
                         />
-                        <label
-                            class="form-label"
-                            for="username">Username</label
+                        <label class="form-label" for="username">Username</label
                         >
                         {#if username.length > 0}
                             {#if !isUsernameValid(username)}
@@ -146,9 +142,7 @@
                             bind:value="{email}"
                             on:input="{onInput}"
                         />
-                        <label
-                            class="form-label"
-                            for="email">Email</label>
+                        <label class="form-label" for="email">Email</label>
                         {#if email.length > 0}
                             {#if email.includes('@')}
                                 {#if email.split('@')[1]?.split('.')[0]?.length}
@@ -186,10 +180,8 @@
                             bind:value="{firstName}"
                             on:input="{onInput}"
                         />
-                        <label
-                            class="form-label"
-                            for="firstName"
-                        >First Name</label
+                        <label class="form-label" for="firstName"
+                            >First Name</label
                         >
                     </div>
                     <div class="mb-3 form-floating">
@@ -202,10 +194,8 @@
                             bind:value="{lastName}"
                             on:input="{onInput}"
                         />
-                        <label
-                            class="form-label"
-                            for="lastName"
-                        >Last Name</label
+                        <label class="form-label" for="lastName"
+                            >Last Name</label
                         >
                     </div>
                     <div class="mb-3 form-floating">

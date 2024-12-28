@@ -26,7 +26,7 @@ router.post<{
 
         if (customMatchId && matchId) return res.sendStatus('strategy:invalid');
 
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
         const s = (

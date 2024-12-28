@@ -71,13 +71,9 @@ export type StatusMessage = {
     redirect?: string;
 };
 
-<<<<<<< HEAD
 export const messages: {
     [key: string]: StatusMessage;
 } = {
-=======
-export const messages: Record<string, StatusMessage> = {
->>>>>>> 048907bc93d45ebbcced368d851f649e5127a4a7
     'account:already-logged-in': {
         message: 'You are already logged in.',
         color: 'danger',
@@ -930,7 +926,7 @@ export const messages: Record<string, StatusMessage> = {
         instructions: ''
     },
     'teams:pictures-uploaded': {
-        message: 'Team\'s picture was uploaded successfully',
+        message: "Team's picture was uploaded successfully",
         color: 'success',
         code: 200,
         instructions: ''

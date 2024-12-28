@@ -38,7 +38,8 @@
     const onNewSelect = async (s: Strategy) => {
         const info = await match.getInfo();
         if (info.isErr()) return console.error(info.error);
-        if (info.value.id !== s.matchId && info.value.id !== s.customMatchId) return;
+        if (info.value.id !== s.matchId && info.value.id !== s.customMatchId)
+            return;
         strategies = [s, ...strategies];
     };
 

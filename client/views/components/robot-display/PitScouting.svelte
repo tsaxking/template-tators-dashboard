@@ -108,9 +108,7 @@
                                                         .join(', ');
                                                 case 'boolean':
                                                     return res.value.find(
-                                                        a =>
-                                                            a.questionId ===
-                                                                q.id
+                                                        a => a.questionId === q.id
                                                     )?.answer[0] === 'true'
                                                         ? 'Yes'
                                                         : 'No';
@@ -123,8 +121,7 @@
                                                 res.value.find(
                                                     a =>
                                                         a.questionId === q.id &&
-                                                            a.teamNumber ===
-                                                            t.number
+                                                            a.teamNumber === t.number
                                                 )?.accountId || ''
                                             ]?.name || 'Unknown'
                                     }))
@@ -142,7 +139,8 @@
     <DashboardCard
         id="section-{section.section}"
         expandable="{true}"
-        title="{section.section}">
+        title="{section.section}"
+    >
         <table class="table table-striped">
             {#each section.groups as group (group.name)}
                 <thead>
