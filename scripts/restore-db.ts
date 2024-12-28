@@ -1,4 +1,6 @@
-import { Backup } from '../server/utilities/databases';
+import path from 'path';
+import { DB } from '../server/utilities/database';
+import { TableBackup } from '../server/utilities/database/databases';
 
 const main = async () => {
     const [, , backup] = process.argv;
@@ -8,7 +10,12 @@ const main = async () => {
         process.exit(1);
     }
 
-    (await Backup.restoreBackup(Backup.from(backup).unwrap())).unwrap();
+    const b = new TableBackup(
+        path.resolve(__dirname, '../storage/db/backups', backup),
+        DB
+    );
+
+    (await b.restore()).unwrap();
 
     console.log('Database restored');
     process.exit(0);

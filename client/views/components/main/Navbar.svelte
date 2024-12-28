@@ -1,41 +1,20 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import { capitalize, fromSnakeCase } from '../../../../shared/text';
     import ThemeSwitch from '../ThemeSwitch.svelte';
     import EventSelect from './GlobalEventSelect.svelte';
     export let title: string;
     export let navItems: string[] = [];
-    import { Account } from '../../../models/account';
     import { Modal } from '../../../utilities/modals';
-    import Settings from '../../pages/Settings.svelte';
-    import { AccountNotification } from '../../../models/account-notifications';
-    import AccountNotifications from './AccountNotifications.svelte';
+    import AccountNotifications from './Notifications/AccountNotifications.svelte';
+    import { Accounts } from '../../../models/account';
+    import NotificationIcon from './Notifications/NotificationIcon.svelte';
+
+    const myAccount = Accounts.self;
+    const self = $myAccount;
 
     export let active: string = '';
 
-    let account: Account = Account.guest;
-    let notifications: AccountNotification[] = [];
-    let showNotifications = false;
-    let unread: number;
-
-    $: unread = notifications.filter(n => !n.read).length;
-
     export let accountLinks: (string | null)[] = [];
-
-    const openSettings = () => {
-        const m = new Modal();
-        const body = document.createElement('div');
-        new Settings({
-            target: body,
-            props: {
-                settings: []
-            }
-        });
-
-        m.setTitle('Settings');
-        m.setBody(body);
-        m.show();
-    };
 
     const initAccount = async () => {
         const a = await Account.getAccount();
@@ -97,6 +76,55 @@
             <div class="form-inline my-2 my-lg-0">
                 <slot name="form" />
             </div>
+        </div>
+    </div>
+
+    <div class="d-inline-flex p-0 align-items-center">
+        <a
+            id="navbarDropdown-link"
+            class="nav-link dropdown-toggle me-3"
+            aria-expanded="false"
+            data-bs-toggle="dropdown"
+            href="#navbarDropdown"
+            role="button"
+        >
+            Hello, {self.data.username}&nbsp;
+            {#if self.data.picture}
+                <img
+                    class="profile-pic mx-1"
+                    alt=""
+                    src="../uploads/${self.data.picture}"
+                />
+            {:else}
+                <span class="material-icons">person</span>
+            {/if}
+        </a>
+        <NotificationIcon account="{self}" />
+        <ul
+            id="navbarDropdown"
+            class="dropdown-menu dropdown-menu-end p-0"
+            aria-labelledby="navbarDropdown"
+        >
+            <!-- <li>
+                <a
+                    class="dropdown-item"
+                    href="javascript:void(0);"
+                    on:click="{openSettings}"
+                >
+                    <i class="material-icons">settings</i>&nbsp;Settings
+                </a>
+            </li> -->
+            {#each accountLinks as link}
+                {#if link}
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            href="{link}"
+                        >{capitalize(fromSnakeCase(link, '-'))}</a
+                        >
+                    </li>
+                {/if}
+            {/each}
             <EventSelect />
             <a
                 id="navbarDropdown-link"
@@ -117,38 +145,11 @@
                     <span class="material-icons">person</span>
                 {/if}
             </a>
-            <button
-                class="btn btn-primary position-relative p-2 me-5"
-                aria-controls="notifications-offcanvas"
-                data-bs-target="#notifications-offcanvas"
-                data-bs-toggle="offcanvas"
-                type="button"
-                on:click="{() => {
-                    showNotifications = !showNotifications;
-                }}"
-            >
-                <i class="material-icons"> notifications </i>
-                {#if !!unread}
-                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
-                    >
-                        {unread}
-                    </span>
-                {/if}
-            </button>
             <ul
                 id="navbarDropdown"
                 class="dropdown-menu dropdown-menu-end p-0"
                 aria-labelledby="navbarDropdown"
             >
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="javascript:void(0);"
-                        on:click="{openSettings}"
-                    >
-                        <i class="material-icons">settings</i>&nbsp;Settings
-                    </a>
-                </li>
                 {#each accountLinks as link}
                     {#if link}
                         <li>
@@ -176,7 +177,7 @@
                     >
                 </li>
             </ul>
-        </div>
+        </ul>
         <button
             class="btn btn-dark navbar-toggler border-0 h-100 text-light"
             aria-controls="nav-items"
@@ -190,4 +191,4 @@
     </div>
 </nav>
 
-<AccountNotifications {notifications} />
+<AccountNotifications />

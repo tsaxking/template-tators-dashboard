@@ -23,7 +23,7 @@ router.get('/link/:key', async (req, res) => {
                 key
             });
         }
-        const { accountId } = req.session;
+        const { accountId } = (await req.getSession()).unwrap().data;
         if (!accountId) return res.sendStatus('account:not-logged-in');
 
         DB.run('account/set-discord-id', {

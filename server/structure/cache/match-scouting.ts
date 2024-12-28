@@ -2,9 +2,10 @@ import { Cache } from './cache';
 import { RetrievedMatchScouting as M } from '../../utilities/tables';
 import { attemptAsync } from '../../../shared/check';
 import { DB } from '../../utilities/databases';
-import Account from '../accounts';
+// import Account from '../accounts';
 import { uuid } from '../../utilities/uuid';
 import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
+import { Account } from '../structs/account';
 
 export class MatchScouting extends Cache {
     public static filterDuplicates(m: M, i: number, a: M[]) {
@@ -62,7 +63,9 @@ export class MatchScouting extends Cache {
                 const ms = new MatchScouting(matchScouting);
                 (await ms.remove()).unwrap();
             }
-            const account = (await Account.fromId(data.scoutId || '')).unwrap();
+            const account = (
+                await Account.Account.fromId(data.scoutId || '')
+            ).unwrap();
             const id = uuid();
             const time = Date.now();
 
@@ -77,7 +80,7 @@ export class MatchScouting extends Cache {
                     checks: data.checks,
                     preScouting: data.preScouting || 0,
                     time,
-                    scoutName: account?.username || data.scoutId || ''
+                    scoutName: account?.data.username || data.scoutId || ''
                 })
             ).unwrap();
 
@@ -86,7 +89,7 @@ export class MatchScouting extends Cache {
                 time,
                 id,
                 archive: 0,
-                scoutName: account?.username || data.scoutId || ''
+                scoutName: account?.data.username || data.scoutId || ''
             });
         });
     }

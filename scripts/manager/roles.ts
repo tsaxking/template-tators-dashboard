@@ -1,246 +1,96 @@
 import { backToMain } from '../manager';
-import Role from '../../server/structure/roles';
-import { selectAccount } from './accounts';
-import { confirm, repeatPrompt, select } from '../prompt';
-import { attemptAsync, Result } from '../../shared/check';
+import { confirm } from '../prompt';
+import { resolveAll } from '../../shared/check';
 import { addPermissions, removePermissions } from './permissions';
-import { getJSON, saveJSON } from '../../server/utilities/files';
-import { RolePermission } from '../../shared/db-types';
-import { DB } from '../../server/utilities/databases';
-
-export const selectRole = async (
-    message = 'Select a role'
-): Promise<Result<Role>> => {
-    return attemptAsync(async () => {
-        const roles = (await Role.all()).unwrap();
-        if (!roles.length) {
-            throw new Error('no-role');
-        }
-
-        return await select<Role>(
-            message,
-            roles.map(role => ({
-                name: role.name,
-                value: role
-            }))
-        );
-    });
-};
+import { Permissions } from '../../server/structure/structs/permissions';
+import { selectData, structActions } from './structs';
+import { selectAccount } from './accounts';
 
 export const createRole = async () => {
-    const name = await repeatPrompt(
-        'Enter the new role name',
-        undefined,
-        data => !!Role.fromName(data),
-        false
-    );
-    const description = await repeatPrompt('Enter the role description');
-    const rank = Number(
-        await repeatPrompt(
-            'Enter the role rank',
-            undefined,
-            data => !isNaN(parseInt(data)),
-            false
-        )
-    );
+    return structActions.new(Permissions.Role);
+};
 
-    Role.new(name, description, rank);
-
-    backToMain(`Role ${name} created`);
+export const selectRole = async () => {
+    const roles = (await Permissions.Role.all(false)).unwrap();
+    return selectData(roles, 'Select a role...');
 };
 
 export const deleteRole = async () => {
-    const res = await selectRole();
-    if (res.isOk()) {
-        if (!res.value) {
-            return backToMain(
-                'Failure to find role (this is a bug, please report)'
-            );
-        }
-
-        const isGood = await confirm(
-            `Are you sure you want to delete the role ${res.value.name}?`
-        );
-
-        if (isGood) {
-            res.value.delete();
-            backToMain(`Role ${res.value.name} deleted`);
-        } else {
-            backToMain('Role not deleted');
-        }
+    const roles = (await Permissions.Role.all(false)).unwrap();
+    const role = await selectData(roles, 'Select a role to delete...');
+    if (!role) return backToMain('No role selected');
+    const isGood = await confirm(
+        `Are you sure you want to delete the role ${role.data.name}?`
+    );
+    if (isGood) {
+        (await role.delete()).unwrap();
+        backToMain(`Role ${role.data.name} deleted`);
     } else {
-        backToMain('No roles to delete');
+        backToMain('Role not deleted');
     }
 };
 
 export const addRoleToAccount = async () => {
-    const roleRes = await selectRole();
+    const selectedRole = await selectRole();
+    if (!selectedRole) return backToMain('No role selected');
 
-    if (roleRes.isOk()) {
-        const accountRes = await selectAccount();
-        if (accountRes.isOk()) {
-            if (!accountRes.value) {
-                return backToMain('Did not select an account');
-            }
-            const account = accountRes.value;
-            const role = roleRes.value;
+    const selectedAccount = await selectAccount();
+    if (!selectedAccount) return backToMain('No account selected');
 
-            const roles = (await account.getRoles()).unwrap();
+    const isGood = await confirm(
+        `Are you sure you want to add the role ${selectedRole.data.name} to the account ${selectedAccount.data.username}?`
+    );
 
-            if (roles.some(r => r.name === role.name)) {
-                backToMain(
-                    `Account ${account.username} already has role ${role.name}`
-                );
-            } else {
-                account.addRole(role);
-                backToMain(
-                    `Role ${role.name} added to account ${account.username}`
-                );
-            }
-        }
-    } else {
-        backToMain('No roles to add');
+    if (isGood) {
+        Permissions.RoleAccount.new({
+            role: selectedRole.id,
+            account: selectedAccount.id
+        });
+        return backToMain(
+            `Role ${selectedRole.data.name} added to account ${selectedAccount.data.username}`
+        );
     }
+
+    return backToMain('Role not added');
 };
 
 export const removeRoleFromAccount = async () => {
-    const accountRes = await selectAccount();
+    const roles = (await Permissions.Role.all(false)).unwrap();
+    const account = await selectAccount();
+    if (!account) return backToMain('No account selected');
+    const accountRoles = (
+        await Permissions.RoleAccount.fromProperty('account', account.id, false)
+    ).unwrap();
 
-    if (accountRes.isOk()) {
-        const account = accountRes.value;
+    const filtered = roles.filter(role =>
+        accountRoles.some(accountRole => accountRole.data.role === role.id)
+    );
 
-        if (!account) return backToMain('No account selected');
+    const role = await selectData(
+        filtered,
+        'Select a role to remove from the account...'
+    );
+    if (!role) return backToMain('No role selected');
 
-        const roles = (await account.getRoles()).unwrap();
-        if (!roles.length) {
-            backToMain(`Account ${account.username} has no roles`);
-        } else {
-            const role = await select<Role>(
-                'Select a role to remove',
-                roles.map(r => ({
-                    name: r.name,
-                    value: r
-                }))
-            );
+    const isGood = await confirm(
+        `Are you sure you want to remove the role ${role.data.name} from the account ${account.data.username}?`
+    );
 
-            if (role) {
-                account.removeRole(role);
-                backToMain(
-                    `Role ${role.name} removed from account ${account.username}`
-                );
-            } else {
-                backToMain('No roles to remove');
-            }
-        }
-    } else {
-        backToMain('No accounts to remove roles from');
-    }
-};
-
-export const saveRolesToJson = async () => {
-    const [roles, permissions] = await Promise.all([
-        Role.all(),
-        Role.getAllPermissions()
-    ]);
-
-    const data = {
-        roles: await Promise.all(
-            roles.unwrap().map(async role => {
-                return {
-                    role,
-                    permissions: (await role.getPermissions()).unwrap()
-                };
-            })
-        ),
-        permissions
-    };
-
-    const res = await saveJSON('roles', data);
-
-    if (res.isOk()) {
-        return backToMain('Roles saved to ./storage/jsons/roles.json');
-    }
-
-    console.error(res.error);
-    return backToMain('Error saving roles');
-};
-
-export const applyRolesFromJson = async () => {
-    const currentRoles = (await Role.all()).unwrap();
-    const currentPermissions = (await Role.getAllPermissions()).unwrap();
-
-    if (currentRoles.length || currentPermissions.length) {
-        const res = await confirm(
-            'This will overwrite all current roles and permissions in the database. Are you sure you want to continue?'
+    if (isGood) {
+        const roleAccounts = accountRoles.filter(
+            accountRole => accountRole.data.role === role.id
         );
-        if (!res) return backToMain('Roles not applied');
-    }
-
-    console.log('Loading roles from ./storage/jsons/roles.json');
-    const res = await getJSON('roles');
-    if (res.isErr()) {
-        console.error(res.error);
-        return backToMain('Error loading roles');
-    }
-
-    const data = res.value as {
-        roles: {
-            role: Role;
-            permissions: RolePermission[];
-        }[];
-        permissions: RolePermission[];
-    };
-
-    if (!data.roles || !data.permissions) {
-        return backToMain('Invalid roles data');
-    }
-
-    console.log('Applying roles to database');
-    const { roles, permissions } = data;
-    const deleted = await DB.unsafe.run(`
-        DELETE FROM Roles;
-        DELETE FROM RolePermissions;
-        DELETE FROM Permissions;
-    `);
-
-    if (deleted.isErr()) {
-        console.error(deleted.error);
-        return backToMain('Error applying roles');
-    }
-
-    // don't need await from here on out
-    for (const r of roles) {
-        DB.run('roles/new', {
-            id: r.role.id,
-            name: r.role.name,
-            description: r.role.description,
-            rank: r.role.rank
-        });
-
-        for (const p of r.permissions) {
-            DB.run('permissions/add-to-role', {
-                roleId: r.role.id,
-                permission: p.permission
-            });
-        }
-    }
-
-    for (const p of permissions) {
-        DB.unsafe.run(
-            `
-            INSERT INTO Permissions (
-                permission,
-                description
-            ) VALUES (
-                :permission,
-                :description
+        resolveAll(
+            await Promise.all(
+                roleAccounts.map(roleAccount => roleAccount.delete())
             )
-        `,
-            p
+        ).unwrap();
+        return backToMain(
+            `Role ${role.data.name} removed from account ${account.data.username}`
         );
     }
 
-    backToMain('Roles applied');
+    return backToMain('Role not removed');
 };
 
 export const roles = [
@@ -273,15 +123,5 @@ export const roles = [
         icon: '🔓',
         value: removePermissions,
         description: 'Remove permissions from a role'
-    },
-    {
-        icon: '💾',
-        value: saveRolesToJson,
-        description: 'Save roles to ./storage/jsons/roles.json'
-    },
-    {
-        icon: '📥',
-        value: applyRolesFromJson,
-        description: 'Apply roles from ./storage/jsons/roles.json'
     }
 ];

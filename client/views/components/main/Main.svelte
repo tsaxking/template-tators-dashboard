@@ -3,7 +3,6 @@
     import Navbar from './Navbar.svelte';
     import { createEventDispatcher } from 'svelte';
     import { capitalize, fromSnakeCase } from '../../../../shared/text';
-    import { Account } from '../../../models/account';
     import type { PageGroup } from '../../../utilities/general-types';
     import { getOpenPage } from '../../../utilities/page';
 

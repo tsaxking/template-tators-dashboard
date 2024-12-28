@@ -16,7 +16,15 @@ import { general } from './manager/general';
 import { serverController } from './manager/server-controller';
 import fs from 'fs';
 import path from 'path';
-import { DB } from '../server/utilities/databases';
+import { DB } from '../server/utilities/database';
+import '../server/structure/structs/account';
+import '../server/structure/structs/permissions';
+import '../server/structure/structs/session';
+import '../server/structure/structs/email';
+import '../server/structure/structs/test';
+import { Struct } from '../server/structure/structs/struct';
+import { structs } from './manager/structs';
+
 const { resolve, relative } = path;
 
 /**
@@ -310,6 +318,22 @@ export const selectDir = async (
     return data;
 };
 
+export const managerFn = async (
+    fn: () => Promise<unknown>,
+    done?: (message: string) => void
+) => {
+    try {
+        await fn();
+    } catch (e) {
+        console.error(e);
+        await select('', ['[Ok]']);
+    }
+
+    if (done) done('Task completed');
+
+    backToMain('Task completed');
+};
+
 /**
  * Returns a colorized string
  * @date 3/8/2024 - 6:49:57 AM
@@ -342,7 +366,7 @@ export const main = async () => {
 
         const map = (s: {
             icon: string;
-            value: () => Promise<void>;
+            value: () => Promise<unknown>;
             description?: string;
         }): string => {
             return `  ${s.icon} ${name(
@@ -354,7 +378,7 @@ export const main = async () => {
         const doMap = (
             data: {
                 icon: string;
-                value: () => Promise<void>;
+                value: () => Promise<unknown>;
                 description?: string;
             }[]
         ) => data.map(map);
@@ -446,6 +470,7 @@ export const main = async () => {
         ...makeObj('Statuses', statuses, icons.status),
         ...makeObj('Permissions', permissions, icons.permission),
         ...makeObj('Databases', databases, icons.database),
+        ...makeObj('Structs', structs, '🏗️'),
         {
             name: `${icons.exit} Exit`,
             value: exit
@@ -455,4 +480,11 @@ export const main = async () => {
     await fn();
 };
 
-DB.em.on('connect', main);
+DB.connect().then(async res => {
+    res.unwrap();
+
+    (await DB.init()).unwrap();
+    (await Struct.buildAll(false)).unwrap();
+
+    main();
+});

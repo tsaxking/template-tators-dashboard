@@ -1,21 +1,37 @@
 <script lang="ts">
     import { createEventDispatcher, onMount } from 'svelte';
+    import { Random } from '../../../../shared/math';
     const dispatch = createEventDispatcher();
     export let title: string;
     export let message: string = '';
-    export let id: string = 'modal-' + Math.random().toString(36);
+    export let id: string = 'modal-' + Random.uuid();
+    export let show = false;
+
+    export const close = () => {
+        jQuery(`#${id}`).modal('hide');
+    };
+
+    export const open = () => {
+        jQuery(`#${id}`).modal('show');
+    };
 
     onMount(() => {
+        if (show) {
+            open();
+        }
+
         jQuery(`#${id}`).on('hidden.bs.modal', () => {
             dispatch('hide');
+            show = false;
         });
 
         jQuery(`#${id}`).on('shown.bs.modal', () => {
             dispatch('show');
+            show = true;
         });
 
         document.querySelectorAll(`#${id} button.close-modal`).forEach(m => {
-            jQuery(m).modal('hide');
+            close();
         });
     });
 </script>
@@ -39,19 +55,21 @@
                 />
             </div>
             <div class="modal-body">
-                {#if message}
-                    {message}
-                {/if}
-                <slot />
+                <slot>
+                    {#if message}
+                        {message}
+                    {/if}
+                </slot>
             </div>
             <div class="modal-footer">
-                <button
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                    type="button"
-                    on:click="{() => dispatch('close')}">Close</button
-                >
-                <slot name="buttons" />
+                <slot name="buttons">
+                    <button
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                        type="button"
+                        on:click="{() => dispatch('close')}">Close</button
+                    >
+                </slot>
             </div>
         </div>
     </div>

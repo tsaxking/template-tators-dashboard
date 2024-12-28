@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher, onMount } from 'svelte';
-    import { Settings, type SettingsType } from '../../models/settings';
+    // import { Settings, type SettingsType } from '../../models/settings';
 
     const dispatch = createEventDispatcher();
     type Types = 'range' | 'switch' | 'select';
