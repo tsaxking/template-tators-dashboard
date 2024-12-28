@@ -5,11 +5,13 @@
     export let values: string[] = [];
     export let value: string = '';
     export let defaultValue: string | undefined = undefined;
+    export let onChange: (value: string) => void = () => {};
 
     const dispatch = createEventDispatcher();
 
     const handleChange = (event: Event) => {
         const target = event.target as HTMLSelectElement;
+        onChange(target.value);
         dispatch('change', target.value);
     };
 
@@ -33,7 +35,7 @@
             value="">{defaultValue}</option>
     {/if}
 
-    {#each options as option, i}
+    {#each options as option, i (option)}
         <option
             selected="{value == (values[i] || option)}"
             value="{values[i] || option}">{option}</option

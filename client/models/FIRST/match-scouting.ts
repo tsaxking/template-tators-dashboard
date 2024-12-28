@@ -10,8 +10,6 @@ import {
 import { socket } from '../../utilities/socket';
 import { TeamComment } from './team-comments';
 import { Color } from '../../submodules/colors/color';
-import { Account } from '../account';
-import { FIRSTMatch } from './match';
 
 type MatchScoutingEvents = {
     update: MatchScouting;
@@ -36,7 +34,7 @@ export const checkRanks: {
     groundPicks: 0,
     penalized: 3,
     spectator: 3,
-    lob: 0,
+    lob: 0
 };
 
 export const rankColor: {

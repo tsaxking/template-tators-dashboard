@@ -23,7 +23,7 @@
 // Build a countdown timer component in /view/components/bootstrap then gimme the code
 
 // const date = dateString('MM/DD/YYYY hh:mm:ss AM');
-    // let matches: FIRSTMatch[] = [];
+// let matches: FIRSTMatch[] = [];
     let strategy: Strategy | undefined;
     let red: FIRSTAlliance | undefined;
     let blue: FIRSTAlliance | undefined;
@@ -32,15 +32,15 @@
 
     // let currentTime = date();
 
-    // const getMatches = async (event: FIRSTEvent) => {
-    //     const res = await event.getMatches();
-    //     if (res.isErr()) {
-    //         return console.error(res.error);
-    //     }
-    //     loading = false;
+// const getMatches = async (event: FIRSTEvent) => {
+//     const res = await event.getMatches();
+//     if (res.isErr()) {
+//         return console.error(res.error);
+//     }
+//     loading = false;
 
-    //     matches = res.value;
-    // };
+//     matches = res.value;
+// };
 
     const newStrategy = async () => {
         if (!match)
@@ -64,7 +64,6 @@
             name
         });
     };
-
 
     const onMatchSelect = async (m: MatchInterface) => {
         match = m;
@@ -97,7 +96,7 @@
     onMount(() => {
         loading = false;
         // FIRSTEvent.on('select', getMatches);
-        // if (FIRSTEvent.current) getMatches(FIRSTEvent.current);
+    // if (FIRSTEvent.current) getMatches(FIRSTEvent.current);
 
         return () => {
         // FIRSTEvent.off('select', getMatches);

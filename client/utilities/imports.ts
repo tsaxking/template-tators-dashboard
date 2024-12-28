@@ -8,7 +8,7 @@ import '../styles/style.css';
 import './deps';
 
 // settings
-import './settings';
+// import './settings';
 import './socket';
 
 import { Chart, registerables } from 'chart.js';

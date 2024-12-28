@@ -12,7 +12,7 @@ class MatchStatement<T, R> {
 
     constructor(private readonly value: T) {}
 
-    public case(match: T, fn: (value: T) => R) {
+    public case<K extends T>(match: K, fn: (value: T) => R) {
         this.cases.push({ match, fn });
         return this;
     }

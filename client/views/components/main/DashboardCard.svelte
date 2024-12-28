@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { DashboardCard } from '../../../models/cards';
-    import { Settings } from '../../../models/settings';
+    // import { Settings } from '../../../models/settings';
     import { Keyboard } from '../../../utilities/keybinds';
 
     export let title: string;
@@ -49,7 +49,7 @@
 
     onMount(() => {
         return () => {
-            Settings.off('set', onSettings);
+            // Settings.off('set', onSettings);
             keyboard.off('Escape', toggleExpand);
         };
     });

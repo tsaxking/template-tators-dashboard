@@ -9,12 +9,13 @@ import {
     TBATeam
 } from '../../../shared/submodules/tatorscout-calculations/tba';
 import { Table } from '../../../scripts/build-table';
-import Account from '../../structure/accounts';
+// import Account from '../../structure/accounts';
 import { TeamComments } from '../../utilities/tables';
 import { RetrievedMatchScouting } from '../../utilities/tables';
 import { dateTime } from '../../../shared/clock';
 import { TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import { resolveAll } from '../../../shared/check';
+import { Account } from '../../structure/structs/account';
 
 export const router = new Route();
 
@@ -180,7 +181,7 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
     if (!eventKey) return res.sendStatus('webhook:invalid-url');
 
     const comments = await DB.all('team-comments/from-event', { eventKey });
-    const accounts = (await Account.getAll()).unwrap();
+    const accounts = (await Account.Account.all(false)).unwrap();
 
     if (comments.isErr()) return res.sendStatus('webhook:invalid-url');
 
@@ -194,7 +195,8 @@ router.post('/event/:eventKey/comments', auth, async (req, res) => {
             delete data.matchScoutingId;
             delete data.eventKey;
             data.account =
-                accounts.find(a => a.id === c.accountId)?.username || 'Unknown';
+                accounts.find(a => a.id === c.accountId)?.data.username ||
+                'Unknown';
             delete data.accountId;
 
             data.date = dateTime(new Date(data.time || Date.now()));
@@ -276,9 +278,7 @@ router.post('/event/:eventKey/summary', auth, async (req, res) => {
 });
 
 router.post('/accounts/all', auth, async (req, res) => {
-    const accounts = (await Account.getAll()).unwrap();
+    const accounts = (await Account.Account.all(false)).unwrap();
 
-    res.json(
-        resolveAll(await Promise.all(accounts.map(a => a.safe()))).unwrap()
-    );
+    res.json(accounts.map(a => Account.safe(a)));
 });

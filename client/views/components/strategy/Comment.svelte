@@ -37,7 +37,7 @@
             'Auto Starting Location',
             'Auto Routine',
             'Main Teleop Role',
-            'Endgame',
+            'Endgame'
         ];
 
         const red = teams.slice(0, 3);
@@ -62,7 +62,6 @@ Blue Alliance:
     ${blue[2].number} - ${blue[2].name}
         ${templates.join(':\n        ')}:`;
         } else {
-
             str = `Blue Alliance:
     ${blue[0].number} - ${blue[0].name}
         ${templates.join(':\n        ')}:

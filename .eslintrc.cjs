@@ -36,8 +36,11 @@ module.exports = {
             'warn',
             { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
         ],
+
+        '@typescript-eslint/no-namespace': 'off',
+
         semi: ['error', 'always'],
-        quotes: ['warn', 'single'],
+        // quotes: ['warn', 'single'],
         'array-callback-return': 'error',
         'constructor-super': 'error',
         'for-direction': 'error',
