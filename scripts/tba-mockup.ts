@@ -287,7 +287,7 @@ const populateEvent = async () => {
     ).unwrap();
 
     await prompt(
-        `Please put the csv files in the folder and press [ENTER] when ready. Name them as follows: ./csv/${eventKey}.teams.csv and ./csv/1/0${eventKey}.matches.csv`
+        `Please put the csv files in the folder and press [ENTER] when ready. Name them as follows: ./csv/${eventKey}.teams.csv and ./csv/1/0${eventKey}.matches.csv. Make them here: https://docs.google.com/spreadsheets/d/1YrGMOyuECdMjizRmta3KZqF4TIVD_vO_XTrzqm0GTvQ/edit?gid=1123440159#gid=1123440159`
     );
 
     console.log('Populating teams...');
@@ -311,5 +311,3 @@ const test = async () => {
 };
 
 DB.connect().then(() => populateEvent());
-
-// Need to use this sheet: https://docs.google.com/spreadsheets/d/1YrGMOyuECdMjizRmta3KZqF4TIVD_vO_XTrzqm0GTvQ/edit?gid=1123440159#gid=1123440159
