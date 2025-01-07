@@ -11,171 +11,186 @@ import { TBA } from '../server/utilities/tba/tba';
 import { DB } from '../server/utilities/databases';
 import { prompt } from './prompt';
 import { uuid } from '../server/utilities/uuid';
+import { resolveAll, Result } from '../shared/check';
 
 const pathname = (filename: string) => path.join(__dirname, './csv', filename);
 
 const populateTeams = (eventKey: string) => {
-    const teams: TBATeam[] = [];
-    fs.createReadStream(pathname(`${eventKey}.teams.csv`))
-        .pipe(csv()) // this does work
-        .on('data', data => {
-            const team = z
-                .object({
-                    'Team Number': z.string(),
-                    Name: z.string()
-                })
-                .parse(data);
+    return new Promise<void>((res, rej) => {
+        const promises: Promise<Result<unknown>>[] = [];
+        const teams: TBATeam[] = [];
+        fs.createReadStream(pathname(`${eventKey}.teams.csv`))
+            .pipe(csv()) // this does work
+            .on('data', data => {
+                const team = z
+                    .object({
+                        'Team Number': z.string(),
+                        Name: z.string()
+                    })
+                    .parse(data);
+    
+                const tbaTeam: TBATeam = {
+                    key: `frc${team['Team Number']}`,
+                    team_number: parseInt(team['Team Number']),
+                    nickname: team['Name'],
+                    name: team['Name'],
+                    city: '???',
+                    state_prov: '???',
+                    country: '???',
+                    address: '???',
+                    postal_code: '???',
+                    gmaps_place_id: '???',
+                    gmaps_url: '???',
+                    lat: 0,
+                    lng: 0,
+                    location_name: '???',
+                    motto: '???',
+                    website: '???',
+                    rookie_year: 0,
+                    home_championship: {
+                        key: '???',
+                        year: 0,
+                        event_code: '???',
+                        division_keys: []
+                    }
+                };
+    
+                teams.push(tbaTeam);
+    
+                promises.push(DB.run('teams/new', {
+                    eventKey,
+                    number: tbaTeam.team_number,
+                    watchPriority: 0
+                }));
+            })
+            .on('end', async () => {
+                console.log('Creating tba team override...');
+                (
+                    await DB.run('tba/new', {
+                        override: true,
+                        url: `/event/${eventKey}/teams`,
+                        response: JSON.stringify(teams),
+                        updated: Date.now(),
+                        update: 1
+                    })
+                ).unwrap();
+    
+                console.log('Creating tba team/simple override...');
+                (
+                    await DB.run('tba/new', {
+                        override: true,
+                        url: `/event/${eventKey}/teams/simple`,
+                        response: JSON.stringify(teams),
+                        updated: Date.now(),
+                        update: 1
+                    })
+                ).unwrap();
 
-            const tbaTeam: TBATeam = {
-                key: `frc${team['Team Number']}`,
-                team_number: parseInt(team['Team Number']),
-                nickname: team['Name'],
-                name: team['Name'],
-                city: '???',
-                state_prov: '???',
-                country: '???',
-                address: '???',
-                postal_code: '???',
-                gmaps_place_id: '???',
-                gmaps_url: '???',
-                lat: 0,
-                lng: 0,
-                location_name: '???',
-                motto: '???',
-                website: '???',
-                rookie_year: 0,
-                home_championship: {
-                    key: '???',
-                    year: 0,
-                    event_code: '???',
-                    division_keys: []
-                }
-            };
-
-            teams.push(tbaTeam);
-
-            DB.run('teams/new', {
-                eventKey,
-                number: tbaTeam.team_number,
-                watchPriority: 0
+                const result = resolveAll(await Promise.all(promises));
+                if (result.isErr()) return rej(result.error);
+                res();
             });
-        })
-        .on('end', async () => {
-            console.log('Creating tba team override...');
-            (
-                await DB.run('tba/new', {
-                    override: true,
-                    url: `/event/${eventKey}/teams`,
-                    response: JSON.stringify(teams),
-                    updated: Date.now(),
-                    update: 1
-                })
-            ).unwrap();
-
-            console.log('Creating tba team/simple override...');
-            (
-                await DB.run('tba/new', {
-                    override: true,
-                    url: `/event/${eventKey}/teams/simple`,
-                    response: JSON.stringify(teams),
-                    updated: Date.now(),
-                    update: 1
-                })
-            ).unwrap();
-        });
+    });
 };
 
 const populateMatches = (eventKey: string) => {
-    const matches: TBAMatch[] = [];
-    fs.createReadStream(pathname(`${eventKey}.matches.csv`))
-        .pipe(csv()) // this does work
-        .on('data', data => {
-            const match = z
-                .object({
-                    'Comp Level': z.enum(['qm', 'qf', 'sf', 'f']),
-                    'Set Number': z.string(),
-                    'Match Number': z.string(),
-                    'Red 1': z.string(), // just the number, not frc####
-                    'Red 2': z.string(),
-                    'Red 3': z.string(),
-                    'Blue 1': z.string(),
-                    'Blue 2': z.string(),
-                    'Blue 3': z.string(),
-                    'Red Score': z.string(),
-                    'Blue Score': z.string(),
-                    Time: z.string()
-                })
-                .parse(data);
-
-            const tbaMatch: TBAMatch = {
-                key: `${eventKey}_${match['Comp Level']}${match['Set Number']}m${match['Match Number']}`,
-                comp_level: match['Comp Level'],
-                set_number: parseInt(match['Set Number']),
-                match_number: parseInt(match['Match Number']),
-                alliances: {
-                    red: {
-                        team_keys: [
-                            `frc${match['Red 1']}`,
-                            `frc${match['Red 2']}`,
-                            `frc${match['Red 3']}`
-                        ],
-                        score: parseInt(match['Red Score'])
+    return new Promise<void>((res, rej) => {
+        const promises: Promise<Result<unknown>>[] = [];
+        const matches: TBAMatch[] = [];
+        fs.createReadStream(pathname(`${eventKey}.matches.csv`))
+            .pipe(csv()) // this does work
+            .on('data', data => {
+                const match = z
+                    .object({
+                        'Comp Level': z.enum(['qm', 'qf', 'sf', 'f']),
+                        'Set Number': z.string(),
+                        'Match Number': z.string(),
+                        'Red 1': z.string(), // just the number, not frc####
+                        'Red 2': z.string(),
+                        'Red 3': z.string(),
+                        'Blue 1': z.string(),
+                        'Blue 2': z.string(),
+                        'Blue 3': z.string(),
+                        'Red Score': z.string(),
+                        'Blue Score': z.string(),
+                        Time: z.string()
+                    })
+                    .parse(data);
+    
+                const tbaMatch: TBAMatch = {
+                    key: `${eventKey}_${match['Comp Level']}${match['Set Number']}m${match['Match Number']}`,
+                    comp_level: match['Comp Level'],
+                    set_number: parseInt(match['Set Number']),
+                    match_number: parseInt(match['Match Number']),
+                    alliances: {
+                        red: {
+                            team_keys: [
+                                `frc${match['Red 1']}`,
+                                `frc${match['Red 2']}`,
+                                `frc${match['Red 3']}`
+                            ],
+                            score: parseInt(match['Red Score'])
+                        },
+                        blue: {
+                            team_keys: [
+                                `frc${match['Blue 1']}`,
+                                `frc${match['Blue 2']}`,
+                                `frc${match['Blue 3']}`
+                            ],
+                            score: parseInt(match['Blue Score'])
+                        }
                     },
-                    blue: {
-                        team_keys: [
-                            `frc${match['Blue 1']}`,
-                            `frc${match['Blue 2']}`,
-                            `frc${match['Blue 3']}`
-                        ],
-                        score: parseInt(match['Blue Score'])
-                    }
-                },
-                winning_alliance:
-                    match['Red Score'] > match['Blue Score'] ? 'red' : 'blue',
-                event_key: eventKey,
-                time: new Date(match['Time']).getTime(),
-                actual_time: new Date(match['Time']).getTime(),
-                predicted_time: new Date(match['Time']).getTime(),
-                post_result_time: new Date(match['Time']).getTime(),
-                score_breakdown: {
-                    red: {},
-                    blue: {}
-                },
-                videos: []
-            };
+                    winning_alliance:
+                        match['Red Score'] > match['Blue Score'] ? 'red' : 'blue',
+                    event_key: eventKey,
+                    time: new Date(match['Time']).getTime(),
+                    actual_time: new Date(match['Time']).getTime(),
+                    predicted_time: new Date(match['Time']).getTime(),
+                    post_result_time: new Date(match['Time']).getTime(),
+                    score_breakdown: {
+                        red: {},
+                        blue: {}
+                    },
+                    videos: []
+                };
+    
+                matches.push(tbaMatch);
+    
+                promises.push(DB.run('matches/new', {
+                    compLevel: tbaMatch.comp_level,
+                    matchNumber: tbaMatch.match_number,
+                    eventKey: eventKey,
+                    id: uuid()
+                }));
+            })
+            .on('end', async () => {
+                console.log('Creating tba match override...');
+                (
+                    await DB.run('tba/new', {
+                        override: true,
+                        url: `/event/${eventKey}/matches`,
+                        response: JSON.stringify(matches),
+                        updated: Date.now(),
+                        update: 1
+                    })
+                ).unwrap();
+    
+                console.log('Creating tba match/simple override...');
+                (
+                    await DB.run('tba/new', {
+                        override: true,
+                        url: `/event/${eventKey}/matches/simple`,
+                        response: JSON.stringify(matches),
+                        updated: Date.now(),
+                        update: 1
+                    })
+                ).unwrap();
 
-            matches.push(tbaMatch);
-
-            DB.run('matches/new', {
-                compLevel: tbaMatch.comp_level,
-                matchNumber: tbaMatch.match_number,
-                eventKey: eventKey,
-                id: uuid()
+                const result = resolveAll(await Promise.all(promises));
+                if (result.isErr()) return rej(result.error);
+                res();
             });
-        })
-        .on('end', async () => {
-            console.log('Creating tba match override...');
-            (
-                await DB.run('tba/new', {
-                    override: true,
-                    url: `/event/${eventKey}/matches`,
-                    response: JSON.stringify(matches),
-                    updated: Date.now(),
-                    update: 1
-                })
-            ).unwrap();
-
-            console.log('Creating tba match/simple override...');
-            (
-                await DB.run('tba/new', {
-                    override: true,
-                    url: `/event/${eventKey}/matches/simple`,
-                    response: JSON.stringify(matches),
-                    updated: Date.now(),
-                    update: 1
-                })
-            ).unwrap();
-        });
+    });
 };
 
 const populateEvent = async () => {
@@ -291,14 +306,17 @@ const populateEvent = async () => {
     );
 
     console.log('Populating teams...');
-    populateTeams(eventKey);
+    await populateTeams(eventKey);
     console.log('Populating matches...');
-    populateMatches(eventKey);
+    await populateMatches(eventKey);
+
+    console.log('Event creation complete!');
+    await test(eventKey);
+    process.exit(0);
 };
 
-const test = async () => {
+const test = async (eventKey: string) => {
     console.clear();
-    const eventKey = '2025test';
     const event = await TBA.get<TBAEvent>(`/event/${eventKey}`);
     if (event.isErr()) return console.error(event.error);
     console.log(event.value);
