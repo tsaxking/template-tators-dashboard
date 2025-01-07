@@ -61,8 +61,7 @@
                 let alliance: 'red' | 'blue' = 'red';
                 if (foundM) {
                     const [, , , b1, b2, b3] = teamsFromMatch(foundM);
-                    if ([b1, b2, b3].find(r => team.number === r))
-                        alliance = 'red';
+                    if ([b1, b2, b3].find(r => team.number === r)) alliance = 'red';
                 }
 
                 const velocities = Trace.velocity.map(m.trace);
@@ -96,9 +95,7 @@
                                 0
                             ) / eventSummary.length,
                             // Max Auto Score
-                            Math.max(
-                                ...eventSummary.map(e => e.score.auto.total)
-                            ),
+                            Math.max(...eventSummary.map(e => e.score.auto.total)),
                             // Average Teleop Score
                             eventSummary.reduce(
                                 (acc, cur) => acc + cur.score.teleop.total,
