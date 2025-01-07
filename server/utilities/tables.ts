@@ -468,6 +468,7 @@ export type TBARequests = {
     response: string | undefined;
     updated: number;
     update: number;
+    override: boolean;
 };
 
 export type Checklists = {
@@ -872,6 +873,7 @@ export type Insert_tba_new = {
     response: string | undefined;
     updated: number;
     update: number;
+    override: boolean;
 };
 
 export type Insert_discord_insert = {
