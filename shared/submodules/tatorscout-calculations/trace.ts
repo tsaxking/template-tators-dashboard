@@ -10,7 +10,7 @@ import { $Math } from '../../math';
  * @export
  * @typedef {Action2025}
  */
-export type Action2025 = 'cl1' | 'cl2' | 'cl3' | 'cl4' | 'pcr' | 'net' | 'dpc' | 'shc';
+export type Action2025 = 'cl1' | 'cl2' | 'cl3' | 'cl4' | 'prc' | 'net' | 'dpc' | 'shc';
 /**
  * Description placeholder
  * @date 1/25/2024 - 4:58:49 PM
@@ -31,12 +31,12 @@ export type Action2023 = 'cne' | 'cbe' | 'bal' | 'pck';
 export type Zones2025 =
     | 'blue-barge'
     | 'blue-reef'
-    | 'blue-pcr'
+    | 'blue-prc'
     | 'blue-src'
     | 'blue-zone'
     | 'red-barge'
     | 'red-reef'
-    | 'red-pcr'
+    | 'red-prc'
     | 'red-src'
     | 'red-zone';
 
@@ -57,7 +57,7 @@ export const actions = {
     cl2: 'coralL2',
     cl3: 'coralL3',
     cl4: 'coralL4',
-    pcr: 'processor',
+    prc: 'processor',
     net: 'net',
     dpc: 'deepclimb',
     shc: 'shallowclimb',
@@ -554,7 +554,7 @@ export class Trace {
                             cl2: 4,
                             cl3: 6,
                             cl4: 7,
-                            pcr: 6,
+                            prc: 6,
                             net: 4,
                             mobility: 3
                         },
@@ -563,7 +563,7 @@ export class Trace {
                             cl2: 3,
                             cl3: 4,
                             cl4: 5,
-                            pcr: 6,
+                            prc: 6,
                             net: 4
                         },
                         endgame: {
@@ -584,7 +584,7 @@ export class Trace {
                         cl2: 0,
                         cl3: 0,
                         cl4: 0,
-                        pcr: 0,
+                        prc: 0,
                         net: 0,
                         mobility: 0,
                         total: 0
@@ -594,7 +594,7 @@ export class Trace {
                         cl2: 0,
                         cl3: 0,
                         cl4: 0,
-                        pcr: 0,
+                        prc: 0,
                         net: 0,
                         total: 0
                     },
@@ -616,7 +616,7 @@ export class Trace {
                         if (p[3] === 'cl3') score.auto.cl3 += auto.cl3;
                         if (p[3] === 'cl4') score.auto.cl4 += auto.cl4;
                         if (p[3] === 'net') score.auto.net += auto.net;
-                        if (p[3] === 'pcr') score.auto.pcr += auto.pcr;
+                        if (p[3] === 'prc') score.auto.prc += auto.prc;
                         if (!isInside([p[1], p[2]], autoZone))
                             score.auto.mobility = auto.mobility;
                     } else {
@@ -625,7 +625,7 @@ export class Trace {
                         if (p[3] === 'cl3') score.teleop.cl3 += teleop.cl3;
                         if (p[3] === 'cl4') score.teleop.cl4 += teleop.cl4;
                         if (p[3] === 'net') score.teleop.net += teleop.net;
-                        if (p[3] === 'pcr') score.teleop.pcr += teleop.pcr;
+                        if (p[3] === 'prc') score.teleop.prc += teleop.prc;
                         if (p[3] === 'dpc') score.endgame.dpc += endgame.dpc;
                         if (p[3] === 'shc') score.endgame.shc += endgame.shc;
                     }
@@ -649,9 +649,9 @@ export class Trace {
                     score.endgame.park = endgame.park;
 
                 score.auto.total =
-                    score.auto.cl1 + score.auto.cl2 + score.auto.cl3 + score.auto.cl4 + score.auto.pcr + score.auto.net + score.auto.mobility;
+                    score.auto.cl1 + score.auto.cl2 + score.auto.cl3 + score.auto.cl4 + score.auto.prc + score.auto.net + score.auto.mobility;
                 score.teleop.total =
-                    score.teleop.cl1 + score.teleop.cl2 + score.teleop.cl3 + score.teleop.cl4 + score.teleop.pcr + score.teleop.net;
+                    score.teleop.cl1 + score.teleop.cl2 + score.teleop.cl3 + score.teleop.cl4 + score.teleop.prc + score.teleop.net;
                 score.endgame.total = 
                     score.endgame.dpc + score.endgame.shc + score.endgame.park;
                 score.total =
@@ -720,7 +720,7 @@ export class Trace {
                             labels: ['Coral', 'Algae','Mobility','Total'],
                             data: [
                                 traceData.map(t => t.auto.cl1+t.auto.cl2+t.auto.cl3+t.auto.cl4),
-                                traceData.map(t => t.auto.pcr+t.auto.net),
+                                traceData.map(t => t.auto.prc+t.auto.net),
                                 traceData.map(t => t.auto.mobility),
                                 traceData.map(t => t.auto.total)
                             ].map($Math.average)
@@ -730,7 +730,7 @@ export class Trace {
                             labels: ['Coral', 'Algae', 'Total'],
                             data: [
                                 traceData.map(t => t.teleop.cl1+t.teleop.cl2+t.teleop.cl3+t.teleop.cl4),
-                                traceData.map(t => t.teleop.pcr+t.teleop.net),
+                                traceData.map(t => t.teleop.prc+t.teleop.net),
                                 traceData.map(t => t.teleop.total)
                             ].map($Math.average)
                         },
