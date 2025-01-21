@@ -30,16 +30,20 @@ export type Action2024 = 'spk' | 'amp' | 'src' | 'trp' | 'clb' | 'nte' | 'lob';
 export type Action2023 = 'cne' | 'cbe' | 'bal' | 'pck';
 
 export type Zones2025 =
+    | 'blue-auto'
     | 'blue-barge'
     | 'blue-reef'
     | 'blue-prc'
-    | 'blue-src'
     | 'blue-zone'
+    | 'red-auto'
     | 'red-barge'
     | 'red-reef'
     | 'red-prc'
-    | 'red-src'
-    | 'red-zone';
+    | 'red-zone'
+    | 'sta1'
+    | 'sta2'
+    | 'sta3'
+    | 'sta4';
 
 export type Zones2024 =
     | 'blue-auto'
