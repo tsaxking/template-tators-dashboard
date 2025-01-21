@@ -563,6 +563,28 @@ export class Trace {
                             park: 1,
                             trp: 5
                         }
+                    },
+                    2025: {
+                        auto: {
+                            cl1: 3,
+                            cl2: 4,
+                            cl3: 6,
+                            cl4: 7,
+                            brg: 4,
+                            prc: 6,
+                            mobility: 3,
+                        },
+                        teleop: {
+                            cl1: 2,
+                            cl2: 3,
+                            cl3: 4,
+                            cl4: 5,
+                            brg: 4,
+                            prc: 6,
+                            shc: 6,
+                            dpc: 12,
+                            park: 2,
+                        }
                     }
                 } as const;
             },
@@ -633,7 +655,92 @@ export class Trace {
                     score.auto.total + score.teleop.total + score.endgame.total;
 
                 return score;
-            }
+            },
+            parse2025: (trace: TraceArray, alliance: 'red' | 'blue') => {
+                const { auto, teleop } = Trace.score.yearBreakdown[2025];
+
+                const score = {
+                    auto: {
+                        cl1: 0,
+                        cl2: 0,
+                        cl3: 0,
+                        cl4: 0,
+                        brg: 0,
+                        prc: 0,
+                        mobility: 0,
+                        total: 0
+                    },
+                    teleop: {
+                        cl1: 0,
+                        cl2: 0,
+                        cl3: 0,
+                        cl4: 0,
+                        brg: 0,
+                        prc: 0,
+                        shc: 0,
+                        dpc: 0,
+                        park: 0,
+                        total: 0
+                    },
+                    total: 0
+                };
+
+                const autoZone = all2025.zones[alliance];
+
+                for (const p of trace) {
+                    if (p[0] <= 65) {
+                        if (p[3] === 'cl1') score.auto.cl1 += auto.cl1;
+                        if (p[3] === 'cl2') score.auto.cl2 += auto.cl2;
+                        if (p[3] === 'cl3') score.auto.cl3 += auto.cl3;
+                        if (p[3] === 'cl4') score.auto.cl4 += auto.cl4;
+                        if (p[3] === 'brg') score.auto.brg += auto.brg;
+                        if (p[3] === 'prc') score.auto.prc += auto.prc;
+                        if (!isInside([p[1], p[2]], autoZone))
+                            score.auto.mobility = auto.mobility;
+                    } else {
+                        if (p[3] === 'cl1') score.teleop.cl1 += teleop.cl1;
+                        if (p[3] === 'cl2') score.teleop.cl2 += teleop.cl2;
+                        if (p[3] === 'cl3') score.teleop.cl3 += teleop.cl3;
+                        if (p[3] === 'cl4') score.teleop.cl4 += teleop.cl4;
+                        if (p[3] === 'brg') score.teleop.brg += teleop.brg;
+                        if (p[3] === 'prc') score.teleop.prc += teleop.prc;
+                        if (p[3] === 'shc') score.teleop.shc += teleop.shc;
+                        if (p[3] === 'dpc') score.teleop.dpc += teleop.dpc;
+                    }
+                }
+
+                const parkZone = all2025.barges[alliance];
+
+                const noClimb = trace.every(p => p[3] !== 'clb');
+
+                if (
+                    noClimb &&
+                    trace.length &&
+                    isInside(
+                        [
+                            trace[trace.length - 1][1],
+                            trace[trace.length - 1][2]
+                        ],
+                        parkZone
+                    )
+                )
+                    score.teleop.park = teleop.park;
+
+                score.auto.total = Object.values(score.auto).reduce(
+                    (a, b) => a + b
+                );
+
+                score.teleop.total = Object.values(score.teleop).reduce(
+                    (a, b) => a + b
+                );
+
+                // score.endgame.total = score.endgame.clb + score.endgame.park;
+
+                score.total =
+                    score.auto.total + score.teleop.total;
+
+                return score;
+            },
         };
     }
 
@@ -755,7 +862,119 @@ export class Trace {
                         }
                     ];
                 }
-            }
+            },
+            2025: {
+                getAlliance: (trace: TraceArray) => {
+                    if (!trace || !trace.length) return 'red'; // default to red
+                    const initPoint: Point2D = [trace[0][1], trace[0][2]];
+                    if (isInside(initPoint, all2024.zones.red)) {
+                        return 'red';
+                    } else {
+                        return 'blue';
+                    }
+                },
+                climbTimes: (trace: TraceArray) => {
+                    const alliance = Trace.yearInfo[2024].getAlliance(trace);
+                    const stage = all2024.stages[alliance];
+
+                    const times: number[] = [];
+
+                    let time = 0;
+                    for (const p of trace) {
+                        if (isInside([p[1], p[2]], stage)) {
+                            time++;
+                        } else {
+                            time = 0;
+                        }
+
+                        if (['clb', 'trp'].includes(p[3] as Action2024)) {
+                            times.push(time);
+                            time = 0;
+                        }
+                    }
+
+                    return times;
+                },
+                mustGroundPick: (trace: TraceArray) => {
+                    return (
+                        trace.filter(Trace.filterAction('spk')).length >
+                        trace.filter(Trace.filterAction('src')).length + 1
+                    );
+                },
+                summarize: (
+                    trace: { trace: TraceArray; alliance: 'red' | 'blue' }[]
+                ): {
+                    title: string;
+                    labels: string[];
+                    data: number[];
+                }[] => {
+                    const traceData = trace.map(t =>
+                        Trace.score.parse2025(t.trace, t.alliance)
+                    );
+                    return [
+                        {
+                            title: 'Auto Points',
+                            labels: [
+                                'Coral',
+                                'Algae',
+                                'Mobility',
+                                'Total',
+                            ],
+                            data: [
+                                traceData.map(t => t.auto.cl1 + t.auto.cl2 + t.auto.cl3 + t.auto.cl4),
+                                traceData.map(t => t.auto.brg + t.auto.prc),
+                                traceData.map(t => t.auto.mobility),
+                                traceData.map(t => t.auto.total),
+                            ].map($Math.average)
+                        },
+                        {
+                            title: 'Teleop Points',
+                            labels: [
+                                'Coral',
+                                'Algae',
+                                'Shallow Climb',
+                                'Deep Climb',
+                                'Park',
+                                'Total'
+                            ],
+                            data: [
+                                traceData.map(t => t.teleop.cl1 + t.teleop.cl2 + t.teleop.cl3 + t.teleop.cl4),
+                                traceData.map(t => t.teleop.brg + t.teleop.prc),
+                                traceData.map(t => t.teleop.shc),
+                                traceData.map(t => t.teleop.dpc),
+                                traceData.map(t => t.teleop.park),
+                                traceData.map(t => t.teleop.total)
+                            ].map($Math.average)
+                        },
+                        {
+                            title: 'Total Points',
+                            labels: ['Total'],
+                            data: [traceData.map(t => t.total)].map(
+                                $Math.average
+                            )
+                        },
+                        {
+                            title: 'Average Velocity',
+                            labels: ['Velocity'],
+                            data: [
+                                Trace.velocity.average(
+                                    trace.flatMap(p => p.trace)
+                                )
+                            ]
+                        },
+                        {
+                            title: 'Seconds Not Moving',
+                            labels: ['Seconds'],
+                            data: [
+                                Trace.secondsNotMoving(
+                                    trace.flatMap(p => p.trace),
+                                    false
+                                )
+                            ]
+                        }
+                    ];
+                }
+            },
         } as const;
     }
 
