@@ -1,4 +1,5 @@
-import { all as all2025, zones } from './2024-areas';
+import { all as all2024, zones as zones2024 } from './2024-areas';
+import { all as all2025, zones as zones2025 } from './2025-areas';
 import { isInside } from '../calculations/src/polygon';
 import { Point2D } from '../calculations/src/linear-algebra/point';
 import { $Math } from '../../math';
@@ -10,7 +11,7 @@ import { $Math } from '../../math';
  * @export
  * @typedef {Action2025}
  */
-export type Action2025 = 'cl1' | 'cl2' | 'cl3' | 'cl4' | 'prc' | 'net' | 'dpc' | 'shc';
+export type Action2025 = 'cl1' | 'cl2' | 'cl3' | 'cl4' | 'prc' | 'brg' | 'dpc' | 'shc';
 /**
  * Description placeholder
  * @date 1/25/2024 - 4:58:49 PM
@@ -58,7 +59,7 @@ export const actions = {
     cl3: 'coralL3',
     cl4: 'coralL4',
     prc: 'processor',
-    net: 'net',
+    brg: 'barge',
     dpc: 'deepclimb',
     shc: 'shallowclimb',
     spk: 'speaker',
@@ -548,92 +549,68 @@ export class Trace {
         return {
             get yearBreakdown() {
                 return {
-                    2025: {
+                    2024: {
                         auto: {
-                            cl1: 3,
-                            cl2: 4,
-                            cl3: 6,
-                            cl4: 7,
-                            prc: 6,
-                            net: 4,
-                            mobility: 3
+                            spk: 5,
+                            amp: 2,
+                            mobility: 2
                         },
                         teleop: {
-                            cl1: 2,
-                            cl2: 3,
-                            cl3: 4,
-                            cl4: 5,
-                            prc: 6,
-                            net: 4
-                        },
-                        endgame: {
-                            dpc: 12,
-                            shc: 6,
-                            park: 2,
+                            spk: 2,
+                            lob: 0,
+                            amp: 1,
+                            clb: 3,
+                            park: 1,
+                            trp: 5
                         }
                     }
                 } as const;
             },
-
-            parse2025: (trace: TraceArray, alliance: 'red' | 'blue') => {
-                const { auto, teleop, endgame } = Trace.score.yearBreakdown[2025];
+            parse2024: (trace: TraceArray, alliance: 'red' | 'blue') => {
+                const { auto, teleop } = Trace.score.yearBreakdown[2024];
 
                 const score = {
                     auto: {
-                        cl1: 0,
-                        cl2: 0,
-                        cl3: 0,
-                        cl4: 0,
-                        prc: 0,
-                        net: 0,
+                        spk: 0,
+                        amp: 0,
                         mobility: 0,
+                        lob: 0,
                         total: 0
                     },
                     teleop: {
-                        cl1: 0,
-                        cl2: 0,
-                        cl3: 0,
-                        cl4: 0,
-                        prc: 0,
-                        net: 0,
+                        spk: 0,
+                        amp: 0,
+                        trp: 0,
+                        lob: 0,
                         total: 0
                     },
                     endgame: {
-                        dpc: 0,
-                        shc: 0,
+                        clb: 0,
                         park: 0,
                         total: 0
                     },
                     total: 0
                 };
 
-                const autoZone = all2025.autoZone[alliance];
+                const autoZone = all2024.autoZone[alliance];
 
                 for (const p of trace) {
                     if (p[0] <= 65) {
-                        if (p[3] === 'cl1') score.auto.cl1 += auto.cl1;
-                        if (p[3] === 'cl2') score.auto.cl2 += auto.cl2;
-                        if (p[3] === 'cl3') score.auto.cl3 += auto.cl3;
-                        if (p[3] === 'cl4') score.auto.cl4 += auto.cl4;
-                        if (p[3] === 'net') score.auto.net += auto.net;
-                        if (p[3] === 'prc') score.auto.prc += auto.prc;
+                        if (p[3] === 'spk') score.auto.spk += auto.spk;
+                        if (p[3] === 'amp') score.auto.amp += auto.amp;
                         if (!isInside([p[1], p[2]], autoZone))
                             score.auto.mobility = auto.mobility;
                     } else {
-                        if (p[3] === 'cl1') score.teleop.cl1 += teleop.cl1;
-                        if (p[3] === 'cl2') score.teleop.cl2 += teleop.cl2;
-                        if (p[3] === 'cl3') score.teleop.cl3 += teleop.cl3;
-                        if (p[3] === 'cl4') score.teleop.cl4 += teleop.cl4;
-                        if (p[3] === 'net') score.teleop.net += teleop.net;
-                        if (p[3] === 'prc') score.teleop.prc += teleop.prc;
-                        if (p[3] === 'dpc') score.endgame.dpc += endgame.dpc;
-                        if (p[3] === 'shc') score.endgame.shc += endgame.shc;
+                        if (p[3] === 'spk') score.teleop.spk += teleop.spk;
+                        if (p[3] === 'amp') score.teleop.amp += teleop.amp;
+                        if (p[3] === 'clb') score.endgame.clb += teleop.clb;
+                        if (p[3] === 'trp') score.teleop.trp += teleop.trp;
                     }
                 }
 
-                const parkZone = all2025.stages[alliance];
+                const parkZone = all2024.stages[alliance];
 
-                const noClimb = trace.every(p => p[3] !== 'dpc', 'shc');
+                const noClimb = trace.every(p => p[3] !== 'clb');
                 if (
                     noClimb &&
                     trace.length &&
@@ -645,15 +622,13 @@ export class Trace {
                         parkZone
                     )
                 )
-
-                    score.endgame.park = endgame.park;
+                    score.endgame.park = teleop.park;
 
                 score.auto.total =
-                    score.auto.cl1 + score.auto.cl2 + score.auto.cl3 + score.auto.cl4 + score.auto.prc + score.auto.net + score.auto.mobility;
+                    score.auto.spk + score.auto.amp + score.auto.mobility;
                 score.teleop.total =
-                    score.teleop.cl1 + score.teleop.cl2 + score.teleop.cl3 + score.teleop.cl4 + score.teleop.prc + score.teleop.net;
-                score.endgame.total = 
-                    score.endgame.dpc + score.endgame.shc + score.endgame.park;
+                    score.teleop.spk + score.teleop.amp + score.teleop.trp;
+                score.endgame.total = score.endgame.clb + score.endgame.park;
                 score.total =
                     score.auto.total + score.teleop.total + score.endgame.total;
 
@@ -664,19 +639,19 @@ export class Trace {
 
     static get yearInfo() {
         return {
-            2025: {
+            2024: {
                 getAlliance: (trace: TraceArray) => {
                     if (!trace || !trace.length) return 'red'; // default to red
                     const initPoint: Point2D = [trace[0][1], trace[0][2]];
-                    if (isInside(initPoint, all2025.zones.red)) {
+                    if (isInside(initPoint, all2024.zones.red)) {
                         return 'red';
                     } else {
                         return 'blue';
                     }
                 },
                 climbTimes: (trace: TraceArray) => {
-                    const alliance = Trace.yearInfo[2025].getAlliance(trace);
-                    const stage = all2025.stages[alliance];
+                    const alliance = Trace.yearInfo[2024].getAlliance(trace);
+                    const stage = all2024.stages[alliance];
 
                     const times: number[] = [];
 
@@ -687,7 +662,8 @@ export class Trace {
                         } else {
                             time = 0;
                         }
-                        if (['dpc', 'shc'].includes(p[3] as Action2025)) {
+
+                        if (['clb', 'trp'].includes(p[3] as Action2024)) {
                             times.push(time);
                             time = 0;
                         }
@@ -697,10 +673,7 @@ export class Trace {
                 },
                 mustGroundPick: (trace: TraceArray) => {
                     return (
-                        trace.filter(Trace.filterAction('cl1')).length +
-                        trace.filter(Trace.filterAction('cl2')).length +
-                        trace.filter(Trace.filterAction('cl3')).length +
-                        trace.filter(Trace.filterAction('cl4')).length >
+                        trace.filter(Trace.filterAction('spk')).length >
                         trace.filter(Trace.filterAction('src')).length + 1
                     );
                 },
@@ -712,33 +685,44 @@ export class Trace {
                     data: number[];
                 }[] => {
                     const traceData = trace.map(t =>
-                        Trace.score.parse2025(t.trace, t.alliance)
+                        Trace.score.parse2024(t.trace, t.alliance)
                     );
                     return [
                         {
                             title: 'Auto Points',
-                            labels: ['Coral', 'Algae','Mobility','Total'],
+                            labels: [
+                                'Speaker',
+                                // 'Amp',
+                                'Mobility'
+                            ],
                             data: [
-                                traceData.map(t => t.auto.cl1+t.auto.cl2+t.auto.cl3+t.auto.cl4),
-                                traceData.map(t => t.auto.prc+t.auto.net),
-                                traceData.map(t => t.auto.mobility),
-                                traceData.map(t => t.auto.total)
+                                traceData.map(t => t.auto.spk),
+                                // traceData.map(t => t.auto.amp),
+                                traceData.map(t => t.auto.mobility)
                             ].map($Math.average)
                         },
                         {
                             title: 'Teleop Points',
-                            labels: ['Coral', 'Algae', 'Total'],
+                            labels: ['Speaker', 'Amp', 'Trap', 'Total'],
                             data: [
-                                traceData.map(t => t.teleop.cl1+t.teleop.cl2+t.teleop.cl3+t.teleop.cl4),
-                                traceData.map(t => t.teleop.prc+t.teleop.net),
+                                traceData.map(t => t.teleop.spk),
+                                traceData.map(t => t.teleop.amp),
+                                traceData.map(t => t.teleop.trp),
                                 traceData.map(t => t.teleop.total)
+                            ].map($Math.average)
+                        },
+                        {
+                            title: 'Total Lobs',
+                            labels: ['Speaker', 'Lob'],
+                            data: [
+                                traceData.map(t => t.teleop.lob)
                             ].map($Math.average)
                         },
                         {
                             title: 'Endgame Points',
                             labels: ['Climb', 'Park', 'Total'],
                             data: [
-                                traceData.map(t => t.endgame.dpc + t.endgame.shc),
+                                traceData.map(t => t.endgame.clb),
                                 traceData.map(t => t.endgame.park),
                                 traceData.map(t => t.endgame.total)
                             ].map($Math.average)
@@ -775,7 +759,7 @@ export class Trace {
         } as const;
     }
 
-    static builtYears = [2025];
+    static builtYears = [2024];
 }
 
 export type Match = {
