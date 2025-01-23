@@ -6,6 +6,30 @@
  * @typedef {YearTBAMatch}
  */
 export type YearTBAMatch = {
+    2025: {
+        actual_time: number;
+        alliances: {
+            blue: {
+                dq_team_keys: undefined[];
+                score: number;
+                surrogate_team_keys: undefined[];
+                team_keys: string[];
+            };
+            red: {
+                dq_team_keys: undefined[];
+                score: number;
+                surrogate_team_keys: undefined[];
+                team_keys: string[];
+            };
+        };
+        comp_level: string;
+        event_key: string;
+        key: string;
+        match_number: number;
+        post_result_time: number;
+        predicted_time: number;
+        score_breakdown: null;
+    }
     2024: {
         actual_time: number;
         alliances: {
