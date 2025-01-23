@@ -36,7 +36,7 @@ export const processors: AreaMap = {
 };
 
 export const reefs: AreaMap = {
-    red: [
+    blue: [
         [0.268, 0.361],
         [0.332, 0.432],
         [0.333, 0.58],
@@ -44,7 +44,7 @@ export const reefs: AreaMap = {
         [0.204, 0.575],
         [0.205, 0.434]
     ],
-    blue: [
+    red: [
         [0.736, 0.352],
         [0.798, 0.428],
         [0.798, 0.575],
