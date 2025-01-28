@@ -1,6 +1,6 @@
 <script lang="ts">
-    export let size: 'sm' | 'lg' = 'sm';
-    export let vertical: boolean = false;
+export let size: 'sm' | 'lg' = 'sm';
+export let vertical: boolean = false;
 </script>
 
 <div

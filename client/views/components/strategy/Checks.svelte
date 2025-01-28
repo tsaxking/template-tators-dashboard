@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { Check } from '../../../models/FIRST/strategy';
+import { Check } from '../../../models/FIRST/strategy';
 
-    export let checks: Check | undefined;
+export let checks: Check | undefined;
 </script>
 
 {#if checks}
