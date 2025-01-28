@@ -1,6 +1,6 @@
 import {
     Action,
-    Action2024,
+    Action2025,
     P,
     Trace as T
 } from '../../shared/submodules/tatorscout-calculations/trace';
@@ -175,7 +175,7 @@ export class Heatmap {
     }
 }
 
-const t = new Trace<Action2024>([], {
-    actions: ['amp', 'spk'],
+const t = new Trace<Action2025>([], {
+    actions: ['cl1', 'cl2', 'cl3', 'cl4', 'brg', 'prc'],
     drawTrace: true
 });

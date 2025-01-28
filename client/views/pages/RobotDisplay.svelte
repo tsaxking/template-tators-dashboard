@@ -8,8 +8,8 @@ import VelocityHistogram from '../components/robot-display/VelocityHistogram.sve
 import { type TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
 import PitScouting from '../components/robot-display/PitScouting.svelte';
 import DashboardCard from '../components/main/DashboardCard.svelte';
-import EventSummaryChart from '../components/robot-display/EventSummaryChart.svelte';
-import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart.svelte';
+// import EventSummaryChart from '../components/robot-display/EventSummaryChart.svelte';
+// import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart.svelte';
 import ActionHeatmap from '../components/robot-display/ActionHeatmap.svelte';
 import TeamCommentSummary from '../components/robot-display/TeamCommentSummary.svelte';
 import { MatchScouting } from '../../models/FIRST/match-scouting';
@@ -96,7 +96,7 @@ MatchScouting.on('new', m => {
         >
             <HorizontalMatchViewer preScouting="{false}" {team} />
         </DashboardCard>
-        <DashboardCard
+        <!-- <DashboardCard
             id="event-summary-chart"
             expandable="{true}"
             scroll="{true}"
@@ -111,7 +111,7 @@ MatchScouting.on('new', m => {
             title="Matches Summary"
         >
             <MatchesSummaryChart {team} />
-        </DashboardCard>
+        </DashboardCard> -->
         <DashboardCard id="team-progress" expandable="{true}" title="Progress">
             <Progress {team} />
         </DashboardCard>
