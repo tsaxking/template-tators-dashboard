@@ -1,10 +1,10 @@
 import '../../utilities/imports';
 
-import PitDisplay from '../../views/dashboards/Pit.svelte';
+import Dashboard from '../../views/dashboards/2025.svelte';
 import { FIRSTYear } from '../../models/FIRST/year';
 import '../../models/FIRST/model-builder';
 
-new PitDisplay({
+new Dashboard({
     target: document.body
 });
 

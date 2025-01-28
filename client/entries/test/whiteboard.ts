@@ -15,7 +15,7 @@ new App({
     target: document.body,
     props: {
         whiteboard: wb,
-        year: 2024
+        year: 2025
     }
 });
 
