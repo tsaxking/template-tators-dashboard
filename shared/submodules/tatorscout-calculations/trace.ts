@@ -899,19 +899,13 @@ export class Trace {
                             time = 0;
                         }
 
-                        if (['clb', 'trp'].includes(p[3] as Action2024)) {
+                        if (['shc', 'dpc'].includes(p[3] as Action2024)) {
                             times.push(time);
                             time = 0;
                         }
                     }
 
                     return times;
-                },
-                mustGroundPick: (trace: TraceArray) => {
-                    return (
-                        trace.filter(Trace.filterAction('spk')).length >
-                        trace.filter(Trace.filterAction('src')).length + 1
-                    );
                 },
                 summarize: (
                     trace: { trace: TraceArray; alliance: 'red' | 'blue' }[]
