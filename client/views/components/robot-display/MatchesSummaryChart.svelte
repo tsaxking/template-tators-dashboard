@@ -66,6 +66,7 @@ const getEventSummary = async (team?: FIRSTTeam) => {
         });
 
         data = {
+            // if you are here because you searched old terms, ignore this file. we don't use this graph anymore.
             labels: [
                 'Avg Spk',
                 'Max Spk',

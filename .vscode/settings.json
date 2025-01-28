@@ -15,5 +15,12 @@
     "parameterTypes.enabled": true,
     "propertyDeclarationTypes.enabled": true,
     // "variableTypes.enabled": true,
-    "eslint.validate": ["javascript", "typescript", "svelte"]
+    "eslint.validate": [
+        "javascript",
+        "typescript",
+        "svelte"
+    ],
+    "[svelte]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }
