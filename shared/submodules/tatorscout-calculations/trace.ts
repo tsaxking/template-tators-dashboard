@@ -982,7 +982,7 @@ export class Trace {
         } as const;
     }
 
-    static builtYears = [2024, 2025];
+    static builtYears = [2024];
 }
 
 export type Match = {
