@@ -17,9 +17,9 @@
         requiredPermission?: Permission;
     }[] = [
         {
-            link: '/dashboard/2024',
-            name: '2024 Tator Scout Dashboard',
-            description: 'Scout data for the 2024 Tator team.',
+            link: '/dashboard/2025',
+            name: '2025 Tator Scout Dashboard',
+            description: 'Scout data for the 2025 Tator team.',
             color: 'primary',
             textColor: 'light',
             linkColor: 'light'
@@ -54,9 +54,9 @@
             requiredPermission: 'developer'
         },
         {
-            link: '/dashboard/2023',
-            name: '2023 Tator Scout Dashboard',
-            description: 'Scout data for the 2023 Tator team. (for developers)',
+            link: '/dashboard/2024',
+            name: '2024 Tator Scout Dashboard',
+            description: 'Scout data for the 2024 Tator team. (for developers)',
             color: 'info',
             textColor: 'light',
             linkColor: 'light',
