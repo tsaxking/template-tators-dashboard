@@ -1,54 +1,51 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { FIRSTWhiteboard } from '../../../models/FIRST/whiteboard';
-    import { Canvas } from '../../../models/canvas/canvas';
+import { onMount } from 'svelte';
+import { FIRSTWhiteboard } from '../../../models/FIRST/whiteboard';
+import { Canvas } from '../../../models/canvas/canvas';
 
-    export let whiteboard: FIRSTWhiteboard;
-    export let year: number;
+export let whiteboard: FIRSTWhiteboard;
+export let year: number;
 
-    let name = whiteboard.name;
-    let currentPen = 'black';
-    let canvasEl: HTMLCanvasElement;
-    let currentCanvas: Canvas | undefined;
+let name = whiteboard.name;
+let currentPen = 'black';
+let canvasEl: HTMLCanvasElement;
+let currentCanvas: Canvas | undefined;
 
-    $: changeWhiteboard(whiteboard);
+$: changeWhiteboard(whiteboard);
 
-    const changePen = (pen: string) => {
-        whiteboard.board.setColor(pen);
-        currentPen = pen;
-    };
+const changePen = (pen: string) => {
+    whiteboard.board.setColor(pen);
+    currentPen = pen;
+};
 
-    const changeWhiteboard = (whiteboard: FIRSTWhiteboard) => {
-        if (currentCanvas) currentCanvas.animating = false;
-        if (!canvasEl) return;
-        const ctx = canvasEl.getContext('2d');
-        if (!ctx) throw new Error('Could not get 2d context');
+const changeWhiteboard = (whiteboard: FIRSTWhiteboard) => {
+    if (currentCanvas) currentCanvas.animating = false;
+    if (!canvasEl) return;
+    const ctx = canvasEl.getContext('2d');
+    if (!ctx) throw new Error('Could not get 2d context');
 
-        const canvas = whiteboard.buildCanvas(ctx, year);
+    const canvas = whiteboard.buildCanvas(ctx, year);
 
-        canvas.width = 1000;
-        canvas.height = 500;
-        if (whiteboard.board.states.length === 0) {
-            whiteboard.board.clear();
-        } else {
-            whiteboard.board.getCurrentState()?.setListeners();
-        }
-        canvas.adaptable = true;
-        canvas.animate();
-        currentCanvas = canvas;
-    };
+    canvas.width = 1000;
+    canvas.height = 500;
+    if (whiteboard.board.states.length === 0) {
+        whiteboard.board.clear();
+    } else {
+        whiteboard.board.getCurrentState()?.setListeners();
+    }
+    canvas.adaptable = true;
+    canvas.animate();
+    currentCanvas = canvas;
+};
 
-    onMount(() => {
-        if (whiteboard) changeWhiteboard(whiteboard);
-    });
+onMount(() => {
+    if (whiteboard) changeWhiteboard(whiteboard);
+});
 </script>
 
 <div class="container-fluid">
     <div class="row mb-3">
-        <div
-            style:width="100vw"
-            style:position="relative"
-            style:height="50vw">
+        <div style:width="100vw" style:position="relative" style:height="50vw">
             <canvas
                 bind:this="{canvasEl}"
                 on:click|preventDefault
@@ -67,7 +64,7 @@
                 on:resize|preventDefault
                 on:select|preventDefault
                 on:selectstart|preventDefault
-            />
+            ></canvas>
 
             <div
                 style:position="absolute"
@@ -76,9 +73,7 @@
                 class="d-flex"
             >
                 <!-- Pens -->
-                <div
-                    class="btn-group"
-                    role="group">
+                <div class="btn-group" role="group">
                     <button
                         class="btn"
                         class:btn-dark="{currentPen === 'black'}"
@@ -109,9 +104,7 @@
                 </div>
 
                 <!-- Functions -->
-                <div
-                    class="btn-group"
-                    role="group">
+                <div class="btn-group" role="group">
                     <button
                         class="btn btn-warning"
                         type="button"
@@ -129,9 +122,7 @@
                 </div>
 
                 <!-- Save/clear -->
-                <div
-                    class="btn-group"
-                    role="group">
+                <div class="btn-group" role="group">
                     <button
                         class="btn btn-success"
                         type="button"

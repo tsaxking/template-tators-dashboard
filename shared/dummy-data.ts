@@ -78,7 +78,21 @@ const initPoints: Point2D[] = [
     [0.75, 0.7]
 ];
 
-const actions: Action[] = ['spk', 'amp', 'src', 'trp', 'clb'];
+const actions: Action[] = [
+    'spk',
+    'amp',
+    'src',
+    'trp',
+    'clb',
+    'cl1',
+    'cl2',
+    'cl3',
+    'cl4',
+    'prc',
+    'brg',
+    'dpc',
+    'shc'
+];
 
 export const generateTrace = (num = 1) => {
     class Tick {

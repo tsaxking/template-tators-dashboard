@@ -1,36 +1,36 @@
 <script lang="ts">
-    import { prompt } from '../../utilities/notifications';
-    import { ServerRequest } from '../../utilities/requests';
-    import { capitalize, fromCamelCase } from '../../../shared/text';
+import { prompt } from '../../utilities/notifications';
+import { ServerRequest } from '../../utilities/requests';
+import { capitalize, fromCamelCase } from '../../../shared/text';
 
-    let key: string = window.localStorage.getItem('webhook-key') || '';
-    let code: string | undefined;
+let key: string = window.localStorage.getItem('webhook-key') || '';
+let code: string | undefined;
 
-    const fns = {
-        runWebhook: async (path: string) => {
-            const paramRegex = /:([a-zA-Z0-9]+)/g;
-            const params = path.match(paramRegex);
+const fns = {
+    runWebhook: async (path: string) => {
+        const paramRegex = /:([a-zA-Z0-9]+)/g;
+        const params = path.match(paramRegex);
 
-            for (const param of params) {
-                const data = await prompt(
-                    'Enter value for ' + capitalize(fromCamelCase(param.slice(1)))
-                );
-                if (!data) return;
-                path = path.replace(param, data);
-            }
-
-            const res = await ServerRequest.post('/api/webhooks' + path, null, {
-                headers: {
-                    'x-auth-key': key || ''
-                }
-            });
-
-            if (res.isOk()) code = JSON.stringify(res.value, null, 4);
-            else code = res.error.message;
+        for (const param of params) {
+            const data = await prompt(
+                'Enter value for ' + capitalize(fromCamelCase(param.slice(1)))
+            );
+            if (!data) return;
+            path = path.replace(param, data);
         }
-    };
 
-    $: window.localStorage.setItem('webhook-key', key);
+        const res = await ServerRequest.post('/api/webhooks' + path, null, {
+            headers: {
+                'x-auth-key': key || ''
+            }
+        });
+
+        if (res.isOk()) code = JSON.stringify(res.value, null, 4);
+        else code = res.error.message;
+    }
+};
+
+$: window.localStorage.setItem('webhook-key', key);
 </script>
 
 <div class="container">

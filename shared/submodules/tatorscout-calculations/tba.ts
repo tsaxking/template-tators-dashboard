@@ -29,7 +29,7 @@ export type YearTBAMatch = {
         post_result_time: number;
         predicted_time: number;
         score_breakdown: null;
-    }
+    };
     2024: {
         actual_time: number;
         alliances: {
