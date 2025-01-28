@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { FIRSTTeam } from '../../../models/FIRST/team';
+import { FIRSTTeam } from '../../../models/FIRST/team';
 
-    export let team: FIRSTTeam;
+export let team: FIRSTTeam;
 </script>
 
 <div class="container-fluid">
@@ -16,18 +16,16 @@
                 <dd>
                     {team?.tba.city
                         ? team?.tba.city +
-                            ', ' +
-                            team?.tba.state_prov +
-                            ', ' +
-                            team?.tba.country
+                          ', ' +
+                          team?.tba.state_prov +
+                          ', ' +
+                          team?.tba.country
                         : ''}
                 </dd>
                 <dt>Website</dt>
                 <dd>
-                    <a
-                        href="{team?.tba.website}"
-                        target="_blank"
-                    >{team?.tba.website || ''}</a
+                    <a href="{team?.tba.website}" target="_blank"
+                        >{team?.tba.website || ''}</a
                     >
                 </dd>
             </dl>

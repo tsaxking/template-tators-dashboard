@@ -1,55 +1,55 @@
 <script lang="ts">
-    import { Bar } from 'svelte-chartjs';
-    import { FIRSTEvent } from '../../models/FIRST/event';
-    import { FIRSTTeam } from '../../models/FIRST/team';
-    import { Color } from '../../submodules/colors/color';
-    import { onMount } from 'svelte';
+import { Bar } from 'svelte-chartjs';
+import { FIRSTEvent } from '../../models/FIRST/event';
+import { FIRSTTeam } from '../../models/FIRST/team';
+import { Color } from '../../submodules/colors/color';
+import { onMount } from 'svelte';
 
-    const colors = Array.from({ length: 10 }, () =>
-        Color.random().toString('rgba')
-    );
+const colors = Array.from({ length: 10 }, () =>
+    Color.random().toString('rgba')
+);
 
-    export let event: FIRSTEvent;
-    export let loading: boolean;
+export let event: FIRSTEvent;
+export let loading: boolean;
 
-    let data: {
-        title: string;
-        labels: string[];
-        data: {
-            [key: number]: number[];
-        };
-    }[] = [];
-
-    let filteredTeams: number[] = [];
-    let teams: FIRSTTeam[] = [];
-
-    const pullData = async (e?: FIRSTEvent) => {
-        if (!e) return;
-        const [eventSummary, teamsRes] = await Promise.all([
-            e.getEventSummary(),
-            e.getTeams()
-        ]);
-        if (eventSummary.isErr()) return console.error(eventSummary.error);
-        if (teamsRes.isErr()) return console.error(teamsRes.error);
-        data = eventSummary.value;
-        teams = teamsRes.value;
-        filteredTeams = teams.map(t => t.number);
-        loading = false;
+let data: {
+    title: string;
+    labels: string[];
+    data: {
+        [key: number]: number[];
     };
+}[] = [];
 
-    onMount(() => {
-        pullData(event);
-        return () => {
-            data = [];
-            teams = [];
-            filteredTeams = [];
-            loading = true;
-        };
-    });
+let filteredTeams: number[] = [];
+let teams: FIRSTTeam[] = [];
 
-    FIRSTEvent.on('select', (e: FIRSTEvent) => {
-        pullData(e);
-    });
+const pullData = async (e?: FIRSTEvent) => {
+    if (!e) return;
+    const [eventSummary, teamsRes] = await Promise.all([
+        e.getEventSummary(),
+        e.getTeams()
+    ]);
+    if (eventSummary.isErr()) return console.error(eventSummary.error);
+    if (teamsRes.isErr()) return console.error(teamsRes.error);
+    data = eventSummary.value;
+    teams = teamsRes.value;
+    filteredTeams = teams.map(t => t.number);
+    loading = false;
+};
+
+onMount(() => {
+    pullData(event);
+    return () => {
+        data = [];
+        teams = [];
+        filteredTeams = [];
+        loading = true;
+    };
+});
+
+FIRSTEvent.on('select', (e: FIRSTEvent) => {
+    pullData(e);
+});
 </script>
 
 <div class="container-fluid">
@@ -64,9 +64,7 @@
                         value="{team.number}"
                         bind:group="{filteredTeams}"
                     />
-                    <label
-                        class="form-check"
-                        for="flexCheckDefault">
+                    <label class="form-check" for="flexCheckDefault">
                         {team.number}
                     </label>
                 </div>
