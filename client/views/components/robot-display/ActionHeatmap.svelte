@@ -38,7 +38,7 @@ const container = new Container();
 let traceArray: TraceArray = [];
 
 // stored globally so we don't have to keep requesting it
-const img = new Img('/public/pictures/2024field.png', {
+const img = new Img('/public/pictures/2025field.png', {
     x: 0,
     y: 0,
     width: 1,

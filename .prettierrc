@@ -15,6 +15,6 @@
     "singleQuote": true,
     "svelteAllowShorthand": true,
     "svelteSortOrder": "scripts-markup-options-styles",
-    "svelteIndentScriptAndStyle": false,
+    "svelteIndentScriptAndStyle": true,
     "svelteStrictMode": true
 }
