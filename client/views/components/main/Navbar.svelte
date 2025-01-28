@@ -1,66 +1,64 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { capitalize, fromSnakeCase } from '../../../../shared/text';
-    import ThemeSwitch from '../ThemeSwitch.svelte';
-    import EventSelect from './GlobalEventSelect.svelte';
-    export let title: string;
-    export let navItems: string[] = [];
-    import { Account } from '../../../models/account';
-    import { Modal } from '../../../utilities/modals';
-    import Settings from '../../pages/Settings.svelte';
-    import { AccountNotification } from '../../../models/account-notifications';
-    import AccountNotifications from './AccountNotifications.svelte';
+import { onMount } from 'svelte';
+import { capitalize, fromSnakeCase } from '../../../../shared/text';
+import ThemeSwitch from '../ThemeSwitch.svelte';
+import EventSelect from './GlobalEventSelect.svelte';
+export let title: string;
+export let navItems: string[] = [];
+import { Account } from '../../../models/account';
+import { Modal } from '../../../utilities/modals';
+import Settings from '../../pages/Settings.svelte';
+import { AccountNotification } from '../../../models/account-notifications';
+import AccountNotifications from './AccountNotifications.svelte';
 
-    export let active: string = '';
+export let active: string = '';
 
-    let account: Account = Account.guest;
-    let notifications: AccountNotification[] = [];
-    let showNotifications = false;
-    let unread: number;
+let account: Account = Account.guest;
+let notifications: AccountNotification[] = [];
+let showNotifications = false;
+let unread: number;
 
-    $: unread = notifications.filter(n => !n.read).length;
+$: unread = notifications.filter(n => !n.read).length;
 
-    export let accountLinks: (string | null)[] = [];
+export let accountLinks: (string | null)[] = [];
 
-    const openSettings = () => {
-        const m = new Modal();
-        const body = document.createElement('div');
-        new Settings({
-            target: body,
-            props: {
-                settings: []
-            }
-        });
-
-        m.setTitle('Settings');
-        m.setBody(body);
-        m.show();
-    };
-
-    const initAccount = async () => {
-        const a = await Account.getAccount();
-        if (a.isOk() && a.value) {
-            account = a.value;
-            const n = await a.value.getNotifications();
-            if (n.isOk()) {
-                notifications = n.value;
-            }
+const openSettings = () => {
+    const m = new Modal();
+    const body = document.createElement('div');
+    new Settings({
+        target: body,
+        props: {
+            settings: []
         }
-    };
-
-    onMount(() => {
-        initAccount();
-        jQuery('#report-issue').tooltip();
     });
+
+    m.setTitle('Settings');
+    m.setBody(body);
+    m.show();
+};
+
+const initAccount = async () => {
+    const a = await Account.getAccount();
+    if (a.isOk() && a.value) {
+        account = a.value;
+        const n = await a.value.getNotifications();
+        if (n.isOk()) {
+            notifications = n.value;
+        }
+    }
+};
+
+onMount(() => {
+    initAccount();
+    jQuery('#report-issue').tooltip();
+});
 </script>
 
 <nav
     id="top-navbar"
     class="navbar navbar-expand-lg fixed-top shadow text-light bg-dark d-flex justify-content-between"
 >
-    <div
-        style:height="42px"
-        class="d-inline-flex p-0">
+    <div style:height="42px" class="d-inline-flex p-0">
         <button
             class="btn btn-dark border-0"
             aria-controls="sidebar-nav"
@@ -68,7 +66,7 @@
             data-bs-toggle="offcanvas"
             type="button"
         >
-            <i class="bi bi-layout-sidebar" />
+            <i class="bi bi-layout-sidebar"></i>
         </button>
         <a
             class="ps-3 pt-2 navbar-brand fw-bold no-select h-100 align-middle text-light"
@@ -77,9 +75,7 @@
     </div>
 
     <div class="d-inline-flex p-0">
-        <div
-            id="nav-items"
-            class="collapse navbar-collapse bg-dark rounded">
+        <div id="nav-items" class="collapse navbar-collapse bg-dark rounded">
             <ul class="navbar-nav mr-auto">
                 {#each navItems as item}
                     <li class="nav-item">
@@ -129,7 +125,8 @@
             >
                 <i class="material-icons"> notifications </i>
                 {#if !!unread}
-                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
+                    <span
+                        class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
                     >
                         {unread}
                     </span>
@@ -152,10 +149,8 @@
                 {#each accountLinks as link}
                     {#if link}
                         <li>
-                            <a
-                                class="dropdown-item"
-                                href="{link}"
-                            >{capitalize(fromSnakeCase(link, '-'))}</a
+                            <a class="dropdown-item" href="{link}"
+                                >{capitalize(fromSnakeCase(link, '-'))}</a
                             >
                         </li>
                     {:else}
@@ -169,10 +164,8 @@
                 <hr class="dropdown-divider">
             </li> -->
                 <li class="p-1">
-                    <a
-                        class="dropdown-item"
-                        href="/account/sign-out"
-                    >Sign Out</a
+                    <a class="dropdown-item" href="/account/sign-out"
+                        >Sign Out</a
                     >
                 </li>
             </ul>
@@ -185,7 +178,7 @@
             data-bs-toggle="collapse"
             type="button"
         >
-            <i class="bi bi-box-arrow-up-left" />
+            <i class="bi bi-box-arrow-up-left"></i>
         </button>
     </div>
 </nav>

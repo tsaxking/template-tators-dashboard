@@ -1,17 +1,17 @@
 <script lang="ts">
-    import { FIRSTTeam } from '../../../models/FIRST/team';
-    import TeamSelect from './TeamSelect.svelte';
-    import { createEventDispatcher } from 'svelte';
+import { FIRSTTeam } from '../../../models/FIRST/team';
+import TeamSelect from './TeamSelect.svelte';
+import { createEventDispatcher } from 'svelte';
 
-    export let teams: [
-        FIRSTTeam | undefined,
-        FIRSTTeam | undefined,
-        FIRSTTeam | undefined
-    ] = [undefined, undefined, undefined];
+export let teams: [
+    FIRSTTeam | undefined,
+    FIRSTTeam | undefined,
+    FIRSTTeam | undefined
+] = [undefined, undefined, undefined];
 
-    const dispatch = createEventDispatcher();
+const dispatch = createEventDispatcher();
 
-    const handleChange = () => dispatch('change', teams);
+const handleChange = () => dispatch('change', teams);
 </script>
 
 <TeamSelect

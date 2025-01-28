@@ -11,7 +11,15 @@ import { $Math } from '../../math';
  * @export
  * @typedef {Action2025}
  */
-export type Action2025 = 'cl1' | 'cl2' | 'cl3' | 'cl4' | 'prc' | 'brg' | 'dpc' | 'shc';
+export type Action2025 =
+    | 'cl1'
+    | 'cl2'
+    | 'cl3'
+    | 'cl4'
+    | 'prc'
+    | 'brg'
+    | 'dpc'
+    | 'shc';
 /**
  * Description placeholder
  * @date 1/25/2024 - 4:58:49 PM
@@ -576,7 +584,7 @@ export class Trace {
                             cl4: 7,
                             brg: 4,
                             prc: 6,
-                            mobility: 3,
+                            mobility: 3
                         },
                         teleop: {
                             cl1: 2,
@@ -587,7 +595,7 @@ export class Trace {
                             prc: 6,
                             shc: 6,
                             dpc: 12,
-                            park: 2,
+                            park: 2
                         }
                     }
                 } as const;
@@ -740,11 +748,10 @@ export class Trace {
 
                 // score.endgame.total = score.endgame.clb + score.endgame.park;
 
-                score.total =
-                    score.auto.total + score.teleop.total;
+                score.total = score.auto.total + score.teleop.total;
 
                 return score;
-            },
+            }
         };
     }
 
@@ -825,9 +832,9 @@ export class Trace {
                         {
                             title: 'Total Lobs',
                             labels: ['Speaker', 'Lob'],
-                            data: [
-                                traceData.map(t => t.teleop.lob)
-                            ].map($Math.average)
+                            data: [traceData.map(t => t.teleop.lob)].map(
+                                $Math.average
+                            )
                         },
                         {
                             title: 'Endgame Points',
@@ -918,17 +925,18 @@ export class Trace {
                     return [
                         {
                             title: 'Auto Points',
-                            labels: [
-                                'Coral',
-                                'Algae',
-                                'Mobility',
-                                'Total',
-                            ],
+                            labels: ['Coral', 'Algae', 'Mobility', 'Total'],
                             data: [
-                                traceData.map(t => t.auto.cl1 + t.auto.cl2 + t.auto.cl3 + t.auto.cl4),
+                                traceData.map(
+                                    t =>
+                                        t.auto.cl1 +
+                                        t.auto.cl2 +
+                                        t.auto.cl3 +
+                                        t.auto.cl4
+                                ),
                                 traceData.map(t => t.auto.brg + t.auto.prc),
                                 traceData.map(t => t.auto.mobility),
-                                traceData.map(t => t.auto.total),
+                                traceData.map(t => t.auto.total)
                             ].map($Math.average)
                         },
                         {
@@ -942,7 +950,13 @@ export class Trace {
                                 'Total'
                             ],
                             data: [
-                                traceData.map(t => t.teleop.cl1 + t.teleop.cl2 + t.teleop.cl3 + t.teleop.cl4),
+                                traceData.map(
+                                    t =>
+                                        t.teleop.cl1 +
+                                        t.teleop.cl2 +
+                                        t.teleop.cl3 +
+                                        t.teleop.cl4
+                                ),
                                 traceData.map(t => t.teleop.brg + t.teleop.prc),
                                 traceData.map(t => t.teleop.shc),
                                 traceData.map(t => t.teleop.dpc),
@@ -978,7 +992,7 @@ export class Trace {
                         }
                     ];
                 }
-            },
+            }
         } as const;
     }
 
