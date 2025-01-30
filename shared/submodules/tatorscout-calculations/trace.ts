@@ -694,6 +694,12 @@ export class Trace {
                         park: 0,
                         total: 0
                     },
+                    endgame: {
+                        shc: 0,
+                        dpc: 0,
+                        park: 0,
+                        total: 0
+                    },
                     total: 0
                 };
 
