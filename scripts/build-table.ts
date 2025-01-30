@@ -128,6 +128,538 @@ export class Table {
 
     public static get yearInfo() {
         return {
+            2025: {
+                teamGeneral: async (
+                    teamNumber: number,
+                    eventKey: string
+                ): Promise<Result<RowSection>> => {
+                    return attemptAsync(async () => {
+                        const headers: string[] = [
+                            'Team Number',
+                            'Team Name',
+                            'Rank',
+                            'Rank Points'
+                        ];
+
+                        const [team, event] = await Promise.all([
+                            TBA.get<TBATeam>('/team/frc' + teamNumber),
+                            TBA.get<TBATeamEventStatus>(
+                                '/team/frc' +
+                                    teamNumber +
+                                    '/event/' +
+                                    eventKey +
+                                    '/status'
+                            )
+                        ]);
+
+                        if (team.isErr()) throw team.error;
+                        if (event.isErr()) throw event.error;
+
+                        return {
+                            headers,
+                            data: [
+                                teamNumber,
+                                team.value?.nickname || '',
+                                event.value?.qual?.ranking?.rank || 0,
+                                event.value?.qual?.ranking?.sort_orders?.[0] ||
+                                    0
+                            ]
+                        };
+                    });
+                },
+                robotGeneral: async (
+                    teamNumber: number,
+                    eventKey: string
+                ): Promise<Result<RowSection>> => {
+                    return attemptAsync(async () => {
+                        const headers: string[] = [
+                            'Average Velocity',
+                            'Checks',
+                            'Weight',
+                            'Height',
+                            'Width',
+                            'Length'
+                        ];
+
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
+                        if (res.isErr()) throw res.error;
+                        const matches = res.value;
+
+                        const avg = Trace.velocity.average(
+                            matches.map(m => m.trace).flat()
+                        );
+
+                        const pitScouting = await DB.all(
+                            'scouting-questions/answer-from-team',
+                            {
+                                teamNumber,
+                                eventKey
+                            }
+                        );
+
+                        if (pitScouting.isErr()) throw pitScouting.error;
+
+                        const weight =
+                            pitScouting.value.find(p =>
+                                /weight/i.test(p.question)
+                            )?.answer || '[]';
+                        const height =
+                            pitScouting.value.find(p =>
+                                /height/i.test(p.question)
+                            )?.answer || '[]';
+                        const width =
+                            pitScouting.value.find(p =>
+                                /width/i.test(p.question)
+                            )?.answer || '[]';
+                        const length =
+                            pitScouting.value.find(p =>
+                                /length/i.test(p.question)
+                            )?.answer || '[]';
+
+                        const checks = matches.reduce((acc, cur) => {
+                            return (
+                                acc +
+                                ' ' +
+                                (JSON.parse(cur.checks) as string[]).join(' ')
+                            );
+                        }, '');
+
+                        return {
+                            headers,
+                            data: [
+                                avg,
+                                checks,
+                                (JSON.parse(weight) as string[]).join(','),
+                                (JSON.parse(height) as string[]).join(','),
+                                (JSON.parse(width) as string[]).join(','),
+                                (JSON.parse(length) as string[]).join(',')
+                            ]
+                        };
+                    });
+                },
+                matchGeneral: async (
+                    teamNumber: number,
+                    eventKey: string
+                ): Promise<Result<RowSection>> => {
+                    return attemptAsync(async () => {
+                        const headers: string[] = [
+                            'Average Score Contribution',
+                            'Max Score Contribution',
+                            'Average Auto Score',
+                            'Max Auto Score',
+                            'Average Teleop Score',
+                            'Max Teleop Score',
+                            'Average Endgame Score',
+                            'Max Endgame Score',
+                            'Average Coral Level 4 per Match',
+                            'Average Coral Level 3 per Match',
+                            'Average Coral Level 2 per Match',
+                            'Average Coral Level 1 per Match',
+                            'Average Processor per Match',
+                            'Average Barge per Match'
+                        ];
+
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
+                        if (res.isErr()) throw res.error;
+                        const matches = res.value;
+
+                        const tbaMatches = await TBA.get<TBAMatch[]>(
+                            '/event/' + eventKey + '/matches'
+                        );
+
+                        if (tbaMatches.isErr()) throw tbaMatches.error;
+                        if (!tbaMatches.value)
+                            throw new Error('No matches found');
+
+                        const scoresRes = matches.map(m => {
+                            return attempt(() => {
+                                const match = tbaMatches.value?.find(
+                                    match =>
+                                        match.match_number === m.matchNumber &&
+                                        match.comp_level === m.compLevel
+                                );
+
+                                if (!match) throw new Error('Match not found');
+
+                                const [r1, r2, r3, b1, b2, b3] =
+                                    teamsFromMatch(match);
+
+                                let alliance: 'red' | 'blue';
+                                if ([r1, r2, r3].includes(teamNumber))
+                                    alliance = 'red';
+                                else if ([b1, b2, b3].includes(teamNumber))
+                                    alliance = 'blue';
+                                else throw new Error('Team not found in match');
+
+                                const trace = m.trace;
+
+                                return Trace.score.parse2025(trace, alliance);
+                            });
+                        });
+
+                        const scores = scoresRes
+                            .map(s => (s.isOk() ? s.value : null))
+                            .filter(Boolean);
+
+                        return {
+                            headers,
+                            data: [
+                                // average score contribution
+                                scores.reduce((a, b) => a + b.total, 0) /
+                                    scores.length,
+                                // max score contribution
+                                Math.max(...scores.map(s => s.total)),
+                                // average auto score
+                                scores.reduce((a, b) => a + b.auto.total, 0) /
+                                    scores.length,
+                                // max auto score
+                                Math.max(...scores.map(s => s.auto.total)),
+                                // average teleop score
+                                scores.reduce((a, b) => a + b.teleop.total, 0) /
+                                    scores.length,
+                                // max teleop score
+                                Math.max(...scores.map(s => s.teleop.total)),
+                                // average endgame score
+                                scores.reduce(
+                                    (a, b) => a + b.endgame.total,
+                                    0
+                                ) / scores.length,
+                                // max endgame score
+                                Math.max(...scores.map(s => s.endgame.total)),
+                                // average coral level 4
+                                scores.reduce((a, b) => a + b.teleop.cl4, 0) /
+                                    scores.length,
+                                // average coral level 3
+                                scores.reduce((a, b) => a + b.teleop.cl3, 0) /
+                                    scores.length,
+                                // average coral level 2
+                                scores.reduce((a, b) => a + b.teleop.cl2, 0) /
+                                    scores.length,
+                                // average coral level 1
+                                scores.reduce((a, b) => a + b.teleop.cl1, 0) /
+                                    scores.length,
+                                // average processor
+                                scores.reduce((a, b) => a + b.teleop.prc, 0) /
+                                    scores.length,
+                                // average barge
+                                scores.reduce((a, b) => a + b.teleop.brg, 0) /
+                                    scores.length
+                            ]
+                        };
+                    });
+                },
+                autoBreakdown: async (
+                    teamNumber: number,
+                    eventKey: string
+                ): Promise<Result<RowSection>> => {
+                    return attemptAsync(async () => {
+                        const headers: string[] = [
+                            'Average Coral Level 4',
+                            'Average Coral Level 3',
+                            'Average Coral Level 2',
+                            'Average Coral Level 1',
+                            'Max Overall Coral',
+                            'Max Processor',
+                            'Max Barge',
+                            'Average Mobility'
+                        ];
+
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
+                        if (res.isErr()) throw res.error;
+                        const matches = res.value;
+
+                        const tbaMatches = await TBA.get<TBAMatch[]>(
+                            '/event/' + eventKey + '/matches'
+                        );
+
+                        if (tbaMatches.isErr()) throw tbaMatches.error;
+                        if (!tbaMatches.value)
+                            throw new Error('No matches found');
+
+                        const scoresRes = matches.map(m => {
+                            return attempt(() => {
+                                const match = tbaMatches.value?.find(
+                                    match =>
+                                        match.match_number === m.matchNumber &&
+                                        match.comp_level === m.compLevel
+                                );
+
+                                if (!match) throw new Error('Match not found');
+
+                                const [r1, r2, r3, b1, b2, b3] =
+                                    teamsFromMatch(match);
+
+                                let alliance: 'red' | 'blue';
+                                if ([r1, r2, r3].includes(teamNumber))
+                                    alliance = 'red';
+                                else if ([b1, b2, b3].includes(teamNumber))
+                                    alliance = 'blue';
+                                else throw new Error('Team not found in match');
+
+                                const trace = m.trace;
+
+                                return Trace.score.parse2025(trace, alliance)
+                                    .auto;
+                            });
+                        });
+
+                        const scores = scoresRes
+                            .map(s => (s.isOk() ? s.value : null))
+                            .filter(Boolean);
+
+                        return {
+                            headers,
+                            data: [
+                                // average coral level 4
+                                scores.reduce((a, b) => a + b.cl4, 0) /
+                                    scores.length,
+                                // average coral level 3
+                                scores.reduce((a, b) => a + b.cl3, 0) /
+                                    scores.length,
+                                // average coral level 2
+                                scores.reduce((a, b) => a + b.cl2, 0) /
+                                    scores.length,
+                                // average coral level 1
+                                scores.reduce((a, b) => a + b.cl1, 0) /
+                                    scores.length,
+                                // max coral overall
+                                Math.max(...scores.map(s => s.cl4 + s.cl3 + s.cl2 + s.cl1)),
+                                // max processor
+                                Math.max(...scores.map(s => s.prc)),
+                                // max barge
+                                Math.max(...scores.map(s => s.brg)),
+                                // average mobility
+                                scores.reduce((a, b) => a + b.mobility, 0) /
+                                    scores.length
+                            ]
+                        };
+                    });
+                },
+                teleBreakdown: async (
+                    teamNumber: number,
+                    eventKey: string
+                ): Promise<Result<RowSection>> => {
+                    return attemptAsync(async () => {
+                        const headers: string[] = [
+                            'Average Coral Level 4',
+                            'Average Coral Level 3',
+                            'Average Coral Level 2',
+                            'Average Coral Level 1',
+                            'Average Overall Coral',
+                            'Average Processor',
+                            'Max Processor',
+                            'Average Barge',
+                            'Max Barge',
+                            'Average Shallow Climb',
+                            'Average Deep Climb'
+                        ];
+
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
+                        if (res.isErr()) throw res.error;
+                        const matches = res.value;
+
+                        const tbaMatches = await TBA.get<TBAMatch[]>(
+                            '/event/' + eventKey + '/matches'
+                        );
+
+                        if (tbaMatches.isErr()) throw tbaMatches.error;
+                        if (!tbaMatches.value)
+                            throw new Error('No matches found');
+
+                        const scoresRes = matches.map(m => {
+                            return attempt(() => {
+                                const match = tbaMatches.value?.find(
+                                    match =>
+                                        match.match_number === m.matchNumber &&
+                                        match.comp_level === m.compLevel
+                                );
+
+                                if (!match) throw new Error('Match not found');
+
+                                const [r1, r2, r3, b1, b2, b3] =
+                                    teamsFromMatch(match);
+
+                                let alliance: 'red' | 'blue';
+                                if ([r1, r2, r3].includes(teamNumber))
+                                    alliance = 'red';
+                                else if ([b1, b2, b3].includes(teamNumber))
+                                    alliance = 'blue';
+                                else throw new Error('Team not found in match');
+
+                                const trace = m.trace;
+
+                                return Trace.score.parse2025(trace, alliance)
+                                    .teleop;
+                            });
+                        });
+                        const scores = scoresRes
+                            .map(s => (s.isOk() ? s.value : null))
+                            .filter(Boolean);
+                        return {
+                            headers,
+                            data: [
+                                // average coral level 4
+                                scores.reduce((a, b) => a + b.cl4, 0) /
+                                    scores.length,
+                                // average coral level 3
+                                scores.reduce((a, b) => a + b.cl3, 0) /
+                                    scores.length,
+                                // average coral level 2
+                                scores.reduce((a, b) => a + b.cl2, 0) /
+                                    scores.length,
+                                // average coral level 1
+                                scores.reduce((a, b) => a + b.cl1, 0) /
+                                    scores.length,
+                                // average overall coral
+                                scores.reduce(
+                                    (a, b) => a + b.cl4 + b.cl3 + b.cl2 + b.cl1,
+                                    0
+                                ) / scores.length,
+                                // average processor
+                                scores.reduce((a, b) => a + b.prc, 0) /
+                                    scores.length,
+                                // max processor
+                                Math.max(...scores.map(s => s.prc)),
+                                // average barge
+                                scores.reduce((a, b) => a + b.brg, 0) /
+                                    scores.length,
+                                // max barge
+                                Math.max(...scores.map(s => s.brg)),
+                                // average shallow climb
+                                scores.reduce((a, b) => a + b.shc, 0) /
+                                    scores.length,
+                                // average deep climb
+                                scores.reduce((a, b) => a + b.dpc, 0) /
+                                    scores.length
+                            ]
+                        };
+                    });
+                },
+                endgameBreakdown: async (
+                    teamNumber: number,
+                    eventKey: string
+                ): Promise<Result<RowSection>> => {
+                    return attemptAsync(async () => {
+                        const headers: string[] = [
+                            'Average Shallow Climb',
+                            'Average Deep Climb',
+                            'Max Shallow Climb',
+                            'Max Deep Climb',
+                            // 'Average Shallow Climb Time',
+                            // 'Average Deep Climb Time',
+                            // 'Max Shallow Climb Time',
+                            // 'Max Deep Climb Time',
+                            'Parked'
+                        ];
+
+                        const res = await getMatchScouting(
+                            teamNumber,
+                            eventKey
+                        );
+                        if (res.isErr()) throw res.error;
+                        const matches = res.value;
+
+                        const tbaMatches = await TBA.get<TBAMatch[]>(
+                            '/event/' + eventKey + '/matches'
+                        );
+
+                        if (tbaMatches.isErr()) throw tbaMatches.error;
+                        if (!tbaMatches.value)
+                            throw new Error('No matches found');
+
+                        const scoresRes = matches.map(m => {
+                            return attempt(() => {
+                                const match = tbaMatches.value?.find(
+                                    match =>
+                                        match.match_number === m.matchNumber &&
+                                        match.comp_level === m.compLevel
+                                );
+
+                                if (!match) throw new Error('Match not found');
+
+                                const [r1, r2, r3, b1, b2, b3] =
+                                    teamsFromMatch(match);
+
+                                let alliance: 'red' | 'blue';
+                                if ([r1, r2, r3].includes(teamNumber))
+                                    alliance = 'red';
+                                else if ([b1, b2, b3].includes(teamNumber))
+                                    alliance = 'blue';
+                                else throw new Error('Team not found in match');
+
+                                const trace = m.trace;
+
+                                return Trace.score.parse2025(trace, alliance)
+                                    .endgame;
+                            });
+                        });
+
+                        const scores = scoresRes
+                            .map(s => (s.isOk() ? s.value : null))
+                            .filter(Boolean);
+
+                        const climbTimes = matches
+                            .map(m => Trace.yearInfo[2025].climbTimes(m.trace))
+                            .flat();
+
+                        return {
+                            headers,
+                            data: [
+                                // average shallow climb
+                                scores.reduce((a, b) => a + b.shc, 0) /
+                                    scores.length,
+                                // average deep climb
+                                scores.reduce((a, b) => a + b.dpc, 0) /
+                                    scores.length,
+                                // max shallow climb
+                                Math.max(...scores.map(s => s.shc)),
+                                // max deep climb
+                                Math.max(...scores.map(s => s.dpc)),
+                                // average shallow climb time
+                                scores.reduce((a, b) => a + b.park, 0) /
+                                    scores.length,
+                                // average climb times
+                                // no clue how this worked in 2024, though i don't think we ever used it.
+                                // climbTimes.reduce((a, b) => a + b, 0) /
+                                //     climbTimes.length,
+                                // Math.max(...climbTimes)
+                                // parked
+                                scores.reduce((a, b) => a + b.park, 0) /
+                                    scores.length
+                            ]
+                        };
+                    });
+                }
+                // checks: async (teamNumber: number, eventKey: string) => {
+                //     return attemptAsync(async () => {
+                //         const scouting = await getMatchScouting(teamNumber, eventKey);
+                //         if (scouting.isErr()) throw scouting.error;
+
+                //         const checks = scouting.value.map(s => JSON.parse(s.checks)).flat() as string[];
+
+                //         return {
+                //             headers: [
+                //                 'Checks'
+                //             ],
+                //             data: [
+                //                 checks.join(' ')
+                //             ]
+                //         }
+                //     });
+                // }
+            },
             2024: {
                 teamGeneral: async (
                     teamNumber: number,
