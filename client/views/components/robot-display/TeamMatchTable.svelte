@@ -28,8 +28,7 @@
         ]);
 
         if (matchesRes.isErr()) return console.error(matchesRes.error);
-        if (matchScoutingRes.isErr())
-            return console.error(matchScoutingRes.error);
+        if (matchScoutingRes.isErr()) return console.error(matchScoutingRes.error);
 
         matches = (
             await Promise.all(
