@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import path from 'path';
 import csv from 'csv-parser';
 import fs from 'fs';
@@ -20,8 +21,8 @@ const populateTeams = (eventKey: string) => {
         const promises: Promise<Result<unknown>>[] = [];
         const teams: TBATeam[] = [];
         fs.createReadStream(pathname(`${eventKey}.teams.csv`))
-            .pipe(csv()) // this does work
-            .on('data', data => {
+            .pipe(csv() as any) // this does work
+            .on('data', (data: unknown) => {
                 const team = z
                     .object({
                         'Team Number': z.string(),
@@ -98,8 +99,8 @@ const populateMatches = (eventKey: string) => {
         const promises: Promise<Result<unknown>>[] = [];
         const matches: TBAMatch[] = [];
         fs.createReadStream(pathname(`${eventKey}.matches.csv`))
-            .pipe(csv()) // this does work
-            .on('data', data => {
+            .pipe(csv() as any) // this does work
+            .on('data', (data: unknown) => {
                 const match = z
                     .object({
                         'Comp Level': z.enum(['qm', 'qf', 'sf', 'f']),
