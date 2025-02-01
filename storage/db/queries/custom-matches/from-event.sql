@@ -1,0 +1,1 @@
+SELECT * FROM CustomMatches WHERE eventKey = :eventKey;

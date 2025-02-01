@@ -1,0 +1,1 @@
+UPDATE Events SET flipX = :flipX, flipY = :flipY WHERE eventKey = :eventKey;
