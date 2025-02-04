@@ -2,13 +2,16 @@ INSERT INTO TBARequests (
     url,
     response,
     updated,
-    update
+    update,
+    override
 ) VALUES (
     :url,
     :response,
     :updated,
-    :update
+    :update,
+    :override
 ) ON CONFLICT (url) DO UPDATE SET
     response = :response,
     updated = :updated,
-    update = :update
+    update = :update,
+    override = :override;

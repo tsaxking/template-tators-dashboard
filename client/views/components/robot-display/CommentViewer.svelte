@@ -1,101 +1,101 @@
 <script lang="ts">
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import { TeamComment } from '../../../models/FIRST/team-comments';
-import { FIRSTEvent } from '../../../models/FIRST/event';
-import '../../../utilities/text';
-import { fuzzySearch } from '../../../utilities/text';
-import { alert, prompt, select } from '../../../utilities/notifications';
-import { dateTime } from '../../../../shared/clock';
-import { Account } from '../../../models/account';
+    import { FIRSTTeam } from '../../../models/FIRST/team';
+    import { TeamComment } from '../../../models/FIRST/team-comments';
+    import { FIRSTEvent } from '../../../models/FIRST/event';
+    import '../../../utilities/text';
+    import { fuzzySearch } from '../../../utilities/text';
+    import { alert, prompt, select } from '../../../utilities/notifications';
+    import { dateTime } from '../../../../shared/clock';
+    import { Account } from '../../../models/account';
 
-type C = {
-    comment: string;
-    type: string;
-    time: number;
-    account?: string;
-    matchNumber?: number;
-    compLevel?: string;
-};
+    type C = {
+        comment: string;
+        type: string;
+        time: number;
+        account?: string;
+        matchNumber?: number;
+        compLevel?: string;
+    };
 
-export let team: FIRSTTeam | undefined = undefined;
-export let comments: TeamComment[] = [];
-let parsed: C[] = [];
-let filteredComments: C[] = [];
+    export let team: FIRSTTeam | undefined = undefined;
+    export let comments: TeamComment[] = [];
+    let parsed: C[] = [];
+    let filteredComments: C[] = [];
 
-export let canAdd: boolean = true;
+    export let canAdd: boolean = true;
 
-let search = '';
+    let search = '';
 
-const parse = async (c: TeamComment[]) => {
-    const accounts = await Account.get(c.map(c => c.accountId));
+    const parse = async (c: TeamComment[]) => {
+        const accounts = await Account.get(c.map(c => c.accountId));
 
-    parsed = (
-        await Promise.all(
-            c.map(async (c, i) => {
-                const match = await c.getMatchScouting();
-                const obj: C = {
-                    comment: c.comment,
-                    type: c.type,
-                    time: c.time,
-                    account: accounts[i]?.name || c.accountId
-                };
-                if (match.isErr()) return obj;
+        parsed = (
+            await Promise.all(
+                c.map(async (c, i) => {
+                    const match = await c.getMatchScouting();
+                    const obj: C = {
+                        comment: c.comment,
+                        type: c.type,
+                        time: c.time,
+                        account: accounts[i]?.name || c.accountId
+                    };
+                    if (match.isErr()) return obj;
 
-                if (match.value) {
-                    obj.matchNumber = match.value.matchNumber;
-                    obj.compLevel = match.value.compLevel;
+                    if (match.value) {
+                        obj.matchNumber = match.value.matchNumber;
+                        obj.compLevel = match.value.compLevel;
+                        return obj;
+                    }
                     return obj;
-                }
-                return obj;
-            })
+                })
+            )
         )
-    )
-        .sort((a, b) => +b.time - +a.time)
-        .filter(
-            (c, i, a) =>
-                a.findIndex(
-                    _c => _c.comment === c.comment && c.time === _c.time
-                ) === i
+            .sort((a, b) => +b.time - +a.time)
+            .filter(
+                (c, i, a) =>
+                    a.findIndex(
+                        _c => _c.comment === c.comment && c.time === _c.time
+                    ) === i
+            );
+    };
+    const addComment = async () => {
+        if (!team) return alert('No team selected');
+        const types = [
+            'General',
+            'Defensive',
+            'Offensive',
+            'Auto',
+            'Teleop',
+            'Endgame'
+        ];
+        const type = await select('Select Comment Type', types);
+
+        if (type === -1) return;
+
+        const comment = await prompt(`Enter your ${types[type]} comment`);
+
+        if (comment === null) return;
+
+        team.addComment(types[type], comment);
+    };
+    const filterComments = (search: string, comments: C[]) => {
+        if (search === '') return comments;
+        const s = search.toLowerCase();
+        const filtered = fuzzySearch(
+            s,
+            comments.map(c => c.comment + ' ' + c.type + ' ' + c.account)
         );
-};
-const addComment = async () => {
-    if (!team) return alert('No team selected');
-    const types = [
-        'General',
-        'Defensive',
-        'Offensive',
-        'Auto',
-        'Teleop',
-        'Endgame'
-    ];
-    const type = await select('Select Comment Type', types);
+        return comments.filter((_, i) => filtered.includes(i));
+    };
+    const onSet = (comments: C[]) => {
+        jQuery(() => {
+            jQuery('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    };
 
-    if (type === -1) return;
-
-    const comment = await prompt(`Enter your ${types[type]} comment`);
-
-    if (comment === null) return;
-
-    team.addComment(types[type], comment);
-};
-const filterComments = (search: string, comments: C[]) => {
-    if (search === '') return comments;
-    const s = search.toLowerCase();
-    const filtered = fuzzySearch(
-        s,
-        comments.map(c => c.comment + ' ' + c.type + ' ' + c.account)
-    );
-    return comments.filter((_, i) => filtered.includes(i));
-};
-const onSet = (comments: C[]) => {
-    jQuery(() => {
-        jQuery('[data-bs-toggle="tooltip"]').tooltip();
-    });
-};
-
-$: filteredComments = filterComments(search, parsed);
-$: onSet(filteredComments);
-$: parse(comments);
+    $: filteredComments = filterComments(search, parsed);
+    $: onSet(filteredComments);
+    $: parse(comments);
 </script>
 
 <div class="container">
