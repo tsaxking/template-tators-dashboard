@@ -16,16 +16,6 @@ import { attemptAsync, Result } from '../../../shared/check';
 const { TBA_KEY } = env;
 
 /**
- * Type definition for TBAOptions
- * @date 1/10/2024 - 9:34:20 PM
- *
- * @typedef {TBAOptions}
- */
-type TBAOptions = {
-    cached?: boolean; // default: true
-};
-
-/**
  * Main class for interacting with the TBA API
  * @date 1/10/2024 - 9:34:20 PM
  *
@@ -57,10 +47,7 @@ export class TBA {
      * @param {?TBAOptions} [options]
      * @returns {Promise<T | null>}
      */
-    public static async get<T>(
-        path: string,
-        options?: TBAOptions
-    ): Promise<Result<T | null>> {
+    public static async get<T>(path: string): Promise<Result<T | null>> {
         return attemptAsync(async () => {
             if (!TBA_KEY) {
                 throw new Error(
@@ -70,27 +57,31 @@ export class TBA {
 
             if (!path.startsWith('/')) path = '/' + path;
 
-            // if (options?.cached) {
-            //     const cached = await DB.get('tba/from-url', {
-            //         url: path
-            //     });
+            const cached = await DB.get('tba/from-url', {
+                url: path
+            });
 
-            //     if (cached.isOk() && cached.value && cached.value.response) {
-            //         try {
-            //             return JSON.parse(cached.value.response) as T;
-            //         } catch (e) {
-            //             error('Error parsing cached TBA response:', e);
-            //             return null;
-            //         }
-            //     }
-            // }
+            if (cached.isErr()) console.error(cached.error);
+
+            if (cached.isOk() && cached.value && cached.value.response) {
+                try {
+                    const parsed = JSON.parse(cached.value.response) as T;
+                    if (cached.value.override) return parsed;
+                    if (cached.value.updated + 1000 * 60 > Date.now()) {
+                        return parsed;
+                    }
+                } catch (e) {
+                    error('Error parsing cached TBA response:', e);
+                    return null;
+                }
+            }
 
             return new Promise<T | null>((resolve, reject) => {
                 const t = setTimeout(() => {
                     reject('Request to TBA API timed out!');
                 }, 1000 * 10);
 
-                fetch(`${TBA.baseURL}/${path}`, {
+                fetch(`${TBA.baseURL}${path}`, {
                     method: 'GET',
                     headers: {
                         'X-TBA-Auth-Key': TBA_KEY,
@@ -101,12 +92,13 @@ export class TBA {
                     .then(json => {
                         clearTimeout(t);
                         // cache response, this will also update the cache if it already exists (using ON CONFLICT sql)
-                        // DB.run('tba/new', {
-                        //     url: path,
-                        //     response: JSON.stringify(json),
-                        //     updated: Date.now(),
-                        //     update: options?.cached ? 1 : 0
-                        // });
+                        DB.run('tba/new', {
+                            url: path,
+                            response: JSON.stringify(json),
+                            updated: Date.now(),
+                            update: 1,
+                            override: false
+                        });
                         resolve(json as T);
                     })
                     .catch(e => {

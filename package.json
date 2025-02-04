@@ -41,12 +41,12 @@
         "@typescript-eslint/eslint-plugin": "^6.19.0",
         "@typescript-eslint/parser": "^6.19.0",
         "callsite": "^1.0.0",
+        "chart.js": "^4.4.1",
         "concurrently": "^8.2.2",
         "esbuild": "^0.20.1",
         "esbuild-sass-plugin": "^3.2.0",
         "eslint": "^8.57.0",
         "eslint-plugin-svelte": "^2.43.0",
-        "chart.js": "^4.4.1",
         "prettier": "^3.2.2",
         "prettier-plugin-svelte": "^3.1.2",
         "svelte": "^4.2.19",
@@ -78,6 +78,7 @@
         "cliffy": "^2.5.1",
         "compress-images": "^1.9.9",
         "cors": "^2.8.5",
+        "csv-parser": "^3.1.0",
         "deep-email-validator": "^0.1.21",
         "directory-tree": "^3.5.1",
         "discord.js": "^14.15.2",
@@ -104,11 +105,12 @@
         "prompts": "^2.4.2",
         "socket.io": "^4.7.4",
         "socket.io-client": "^4.7.4",
-        "systeminformation": "^5.22.11",
         "svelte-chartjs": "^3.1.5",
+        "systeminformation": "^5.22.11",
         "test": "^3.3.0",
         "ts-node": "^10.9.2",
         "uuid": "^9.0.1",
-        "webcam-easy": "^1.1.1"
+        "webcam-easy": "^1.1.1",
+        "zod": "^3.24.1"
     }
 }
