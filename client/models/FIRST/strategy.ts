@@ -187,6 +187,7 @@ type CheckEvents = {
 };
 
 export class Check extends EventEmitter<CheckEvents> {
+    // not touching for 2025 because we are not using checks
     public static readonly checks = [
         'Start: Amp',
         'Start: Center',

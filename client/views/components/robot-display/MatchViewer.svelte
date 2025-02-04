@@ -42,10 +42,10 @@
 
     const icons = {
         // spk: new Icon('speaker'),
-    // amp: new Icon('campaign'),
-    // src: new Icon('back_hand'),
-    // clb: new Icon('dry_cleaning'),
-    // trp: new Icon('place_item')
+        // amp: new Icon('campaign'),
+        // src: new Icon('back_hand'),
+        // clb: new Icon('dry_cleaning'),
+        // trp: new Icon('place_item')
         spk: new Img('/public/pictures/icons/spk.png'),
         amp: new Img('/public/pictures/icons/amp.png'),
         src: new Img('/public/pictures/icons/src.png'),
@@ -54,6 +54,16 @@
     };
 
     const actionColors = {
+        // 2025
+        cl1: Color.fromBootstrap('success'),
+        cl2: Color.fromBootstrap('primary'),
+        cl3: Color.fromBootstrap('warning'),
+        cl4: Color.fromBootstrap('danger'),
+        prc: Color.fromBootstrap('info'),
+        brg: Color.fromBootstrap('light'),
+        shc: Color.fromBootstrap('dark'),
+        dpc: Color.fromBootstrap('secondary'),
+
         // 2024
         spk: Color.fromBootstrap('success'),
         amp: Color.fromBootstrap('primary'),
@@ -141,7 +151,7 @@
                         color: color.clone(),
                         textColor:
                             color.detectContrast(Color.fromBootstrap('dark')) >
-                                color.detectContrast(Color.fromBootstrap('light'))
+                            color.detectContrast(Color.fromBootstrap('light'))
                                 ? Color.fromBootstrap('dark')
                                 : Color.fromBootstrap('light')
                     });
@@ -260,11 +270,9 @@
             {/each}
         </p>
         <div class="w-100 aspect-ratio-2x1 mb-2">
-            <canvas
-                bind:this="{canvasEl}"
-                id="canvas" />
+            <canvas bind:this="{canvasEl}" id="canvas"></canvas>
         </div>
-        <div id="match-slider-{id}" />
+        <div id="match-slider-{id}"></div>
         <hr class="m-2" />
     </div>
     <div class="row mb-3">
@@ -274,10 +282,7 @@
     </div>
     <div class="row mb-3">
         <h5 class="text-center">Comments</h5>
-        <CommentViewer
-            canAdd="{false}"
-            {comments}
-            {team} />
+        <CommentViewer canAdd="{false}" {comments} {team} />
     </div>
     <div class="row mb-3">
         <h5 class="text-center">Checks</h5>

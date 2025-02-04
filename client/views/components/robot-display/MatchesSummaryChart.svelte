@@ -15,7 +15,7 @@
         datasets: {
             label: string;
             data: number[];
-        // backgroundColor: string;
+            // backgroundColor: string;
         }[];
     } = {
         labels: [],
@@ -41,12 +41,12 @@
 
         if (matches.isOk()) {
             // for development
-        // DELETE THIS IN PRODUCTION
-        // Object.assign(matches, {
-        //     value: new Array(10).fill(0).map(() => ({
-        //         trace: generateTrace()
-        //     }))
-        // });
+            // DELETE THIS IN PRODUCTION
+            // Object.assign(matches, {
+            //     value: new Array(10).fill(0).map(() => ({
+            //         trace: generateTrace()
+            //     }))
+            // });
 
             const matchData = matches.value;
 
@@ -54,18 +54,20 @@
                 const foundM = tbaMatches.value.data.find(
                     _m =>
                         m.matchNumber === _m.match_number &&
-                            m.compLevel === _m.comp_level
+                        m.compLevel === _m.comp_level
                 );
 
                 let alliance: 'red' | 'blue' = 'red';
                 if (foundM) {
                     const [, , , b1, b2, b3] = teamsFromMatch(foundM);
-                    if ([b1, b2, b3].find(r => team.number === r)) alliance = 'red';
+                    if ([b1, b2, b3].find(r => team.number === r))
+                        alliance = 'red';
                 }
                 return Trace.score.parse2024(m.trace, alliance);
             });
 
             data = {
+                // if you are here because you searched old terms, ignore this file. we don't use this graph anymore.
                 labels: [
                     'Avg Spk',
                     'Max Spk',
@@ -103,14 +105,18 @@
                                 0
                             ) / eventSummary.length,
                             // Max Teleop Speaker
-                            Math.max(...eventSummary.map(val => val.teleop.spk)),
+                            Math.max(
+                                ...eventSummary.map(val => val.teleop.spk)
+                            ),
                             // Average Teleop Amp
                             eventSummary.reduce(
                                 (acc, val) => acc + val.teleop.amp,
                                 0
                             ) / eventSummary.length,
                             // Max Teleop Amp
-                            Math.max(...eventSummary.map(val => val.teleop.amp)),
+                            Math.max(
+                                ...eventSummary.map(val => val.teleop.amp)
+                            ),
                             // Average Teleop Trap
                             eventSummary.reduce(
                                 (acc, val) => acc + val.teleop.trp,

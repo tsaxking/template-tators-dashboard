@@ -43,9 +43,9 @@
             name: 'scouting',
             pages: [
                 // {
-            //     name: 'create-scouting-questions',
-            //     icon: 'fact_check'
-            // },
+                //     name: 'create-scouting-questions',
+                //     icon: 'fact_check'
+                // },
                 {
                     name: 'scouting-checklist',
                     icon: 'checklist',
@@ -75,13 +75,13 @@
     const domain = 'tatorscout.org';
 
     const navItems: string[] = [
-    // 'app'
+        // 'app'
     ];
 
     const accountLinks: string[] = [
-    // 'account',
-    // 'contact',
-    // null
+        // 'account',
+        // 'contact',
+        // null
     ];
 
     let currentEvent: FIRSTEvent | null = null;
@@ -103,57 +103,27 @@
         active = e.detail;
     }}"
 >
-    <Page
-        {active}
-        {domain}
-        loading="{false}"
-        title="event-summary">
+    <Page {active} {domain} loading="{false}" title="event-summary">
         {#if currentEvent}
-            <EventSummary
-                event="{currentEvent}"
-                bind:loading />
+            <EventSummary event="{currentEvent}" bind:loading />
         {/if}
     </Page>
-    <Page
-        {active}
-        {domain}
-        loading="{false}"
-        title="matches">
+    <Page {active} {domain} loading="{false}" title="matches">
         <MatchSchedule bind:loading />
     </Page>
-    <Page
-        {active}
-        {domain}
-        loading="{false}"
-        title="robot-display">
+    <Page {active} {domain} loading="{false}" title="robot-display">
         <RobotDisplay bind:loading />
     </Page>
-    <Page
-        {active}
-        {domain}
-        loading="{false}"
-        title="answer-scouting-questions">
+    <Page {active} {domain} loading="{false}" title="answer-scouting-questions">
         <AnswerPitScouting bind:loading />
     </Page>
-    <Page
-        {active}
-        {domain}
-        loading="{false}"
-        title="scouting-checklist">
+    <Page {active} {domain} loading="{false}" title="scouting-checklist">
         <Checklist bind:loading />
     </Page>
-    <Page
-        {active}
-        {domain}
-        loading="{false}"
-        title="quiz">
+    <Page {active} {domain} loading="{false}" title="quiz">
         <Quiz bind:loading />
     </Page>
-    <Page
-        {active}
-        {domain}
-        loading="{false}"
-        title="strategy">
+    <Page {active} {domain} loading="{false}" title="strategy">
         <Strategy bind:loading />
     </Page>
 </Main>

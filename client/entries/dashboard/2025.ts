@@ -1,6 +1,6 @@
 import '../../utilities/imports';
 
-import Dashboard from '../../views/dashboards/2024.svelte';
+import Dashboard from '../../views/dashboards/2025.svelte';
 import { FIRSTYear } from '../../models/FIRST/year';
 import '../../models/FIRST/model-builder';
 

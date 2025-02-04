@@ -8,4 +8,4 @@ new PitDisplay({
     target: document.body
 });
 
-FIRSTYear.select(2024);
+FIRSTYear.select(2025);

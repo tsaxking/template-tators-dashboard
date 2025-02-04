@@ -1,36 +1,30 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
+import { createEventDispatcher } from 'svelte';
 
-    export let options: string[] = [];
-    export let values: string[] = [];
-    export let value: string = '';
-    export let defaultValue: string | undefined = undefined;
+export let options: string[] = [];
+export let values: string[] = [];
+export let value: string = '';
+export let defaultValue: string | undefined = undefined;
 
-    const dispatch = createEventDispatcher();
+const dispatch = createEventDispatcher();
 
-    const handleChange = (event: Event) => {
-        const target = event.target as HTMLSelectElement;
-        dispatch('change', target.value);
-    };
+const handleChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    dispatch('change', target.value);
+};
 
-    $: {
-        if (values.length) {
-            if (values.length !== options.length) {
-                throw new Error('Values and options must be the same length');
-            }
+$: {
+    if (values.length) {
+        if (values.length !== options.length) {
+            throw new Error('Values and options must be the same length');
         }
     }
+}
 </script>
 
-<select
-    class="form-select"
-    bind:value
-    on:change="{handleChange}">
+<select class="form-select" bind:value on:change="{handleChange}">
     {#if defaultValue}
-        <option
-            disabled
-            selected="{!value}"
-            value="">{defaultValue}</option>
+        <option disabled selected="{!value}" value="">{defaultValue}</option>
     {/if}
 
     {#each options as option, i}

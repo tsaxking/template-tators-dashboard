@@ -111,9 +111,7 @@
         </div>
         <div class="col-lg-4 col-sm-6 mb-2">
             {#if canAdd}
-                <button
-                    class="btn btn-primary w-100"
-                    on:click="{addComment}">
+                <button class="btn btn-primary w-100" on:click="{addComment}">
                     <i class="material-icons">add</i>
                 </button>
             {/if}
