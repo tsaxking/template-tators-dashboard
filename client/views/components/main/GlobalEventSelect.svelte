@@ -53,7 +53,7 @@
                 if (e) return new FIRSTEvent(e).select();
             }
 
-            const e = events.find(e => e.key === '2024cabl');
+            const e = events.find(e);
             if (e) new FIRSTEvent(e).select();
             else new FIRSTEvent(events[0]).select();
         }
@@ -73,8 +73,4 @@
     };
 </script>
 
-<Select
-    bind:options
-    bind:value
-    bind:values
-    on:change="{handleChange}" />
+<Select bind:options bind:value bind:values on:change="{handleChange}" />

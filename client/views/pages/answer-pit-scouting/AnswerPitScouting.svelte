@@ -1,62 +1,62 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { Section } from '../../../models/FIRST/question-scouting/section';
-    import NavTabs from '../../components/bootstrap/NavTabs.svelte';
-    import S from './Section.svelte';
-    import { FIRSTEvent } from '../../../models/FIRST/event';
-    import { FIRSTTeam } from '../../../models/FIRST/team';
-    import GlobalTeamSelect from '../../components/main/GlobalTeamSelect.svelte';
+import { onMount } from 'svelte';
+import { Section } from '../../../models/FIRST/question-scouting/section';
+import NavTabs from '../../components/bootstrap/NavTabs.svelte';
+import S from './Section.svelte';
+import { FIRSTEvent } from '../../../models/FIRST/event';
+import { FIRSTTeam } from '../../../models/FIRST/team';
+import GlobalTeamSelect from '../../components/main/GlobalTeamSelect.svelte';
 
-    export let loading: boolean;
-    export let sections: Section[] = [];
-    let team: FIRSTTeam | undefined = undefined;
+export let loading: boolean;
+export let sections: Section[] = [];
+let team: FIRSTTeam | undefined = undefined;
 
-    const init = async () => {
-        sections = await Section.all();
-        team = FIRSTTeam.current;
-        loading = false;
-    };
+const init = async () => {
+    sections = await Section.all();
+    team = FIRSTTeam.current;
+    loading = false;
+};
 
-    onMount(() => {
-        init();
-        return () => (loading = true);
-    });
+onMount(() => {
+    init();
+    return () => (loading = true);
+});
 
-    Section.on('new', s => {
-        sections = [...sections, s];
-    });
+Section.on('new', s => {
+    sections = [...sections, s];
+});
 
-    let open: Section | undefined = undefined;
+let open: Section | undefined = undefined;
 
-    let tabs: string[] = [],
-        active: string = '';
-    $: {
-        setSections(sections, active);
-    }
+let tabs: string[] = [],
+    active: string = '';
+$: {
+    setSections(sections, active);
+}
 
-    Section.on('new', async s => {
-        sections = await Section.all();
-    });
+Section.on('new', async s => {
+    sections = await Section.all();
+});
 
-    Section.on('update', async () => {
-        sections = await Section.all();
-    });
+Section.on('update', async () => {
+    sections = await Section.all();
+});
 
-    FIRSTEvent.on('select', async () => {
-        sections = await Section.all();
-        const s = sections[0];
-        if (s) active = s.name;
-    });
+FIRSTEvent.on('select', async () => {
+    sections = await Section.all();
+    const s = sections[0];
+    if (s) active = s.name;
+});
 
-    FIRSTTeam.on('select', t => {
-        team = t;
-        setSections(sections, active);
-    });
+FIRSTTeam.on('select', t => {
+    team = t;
+    setSections(sections, active);
+});
 
-    const setSections = (sections: Section[], active: string) => {
-        tabs = sections.map(s => s.name);
-        open = sections.find(s => s.name === active);
-    };
+const setSections = (sections: Section[], active: string) => {
+    tabs = sections.map(s => s.name);
+    open = sections.find(s => s.name === active);
+};
 // save: async () => {
 //     if (!team) return alert('Please select a team');
 //     if (!open) return alert('Please select a section');
@@ -108,9 +108,7 @@
             </div> -->
         </div>
         <div class="row mb-3">
-            <S
-                {team}
-                bind:section="{open}" />
+            <S {team} bind:section="{open}" />
         </div>
     {/if}
 </div>

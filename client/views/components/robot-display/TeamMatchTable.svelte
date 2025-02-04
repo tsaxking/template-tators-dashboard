@@ -2,7 +2,10 @@
     import { dateTime } from '../../../../shared/clock';
     import { FIRSTEvent } from '../../../models/FIRST/event';
     import { FIRSTMatch } from '../../../models/FIRST/match';
-    import { MatchScouting, rankColor } from '../../../models/FIRST/match-scouting';
+    import {
+        MatchScouting,
+        rankColor
+    } from '../../../models/FIRST/match-scouting';
     import { FIRSTTeam } from '../../../models/FIRST/team';
     import { Modal } from '../../../utilities/modals';
     import MatchViewer from './MatchViewer.svelte';
@@ -28,7 +31,8 @@
         ]);
 
         if (matchesRes.isErr()) return console.error(matchesRes.error);
-        if (matchScoutingRes.isErr()) return console.error(matchScoutingRes.error);
+        if (matchScoutingRes.isErr())
+            return console.error(matchScoutingRes.error);
 
         matches = (
             await Promise.all(
@@ -53,7 +57,7 @@
                 scouting: matchScoutingRes.value.find(
                     s =>
                         s.matchNumber === m.match.number &&
-                            s.compLevel === m.match.compLevel
+                        s.compLevel === m.match.compLevel
                 )
             }));
 
@@ -154,7 +158,7 @@
                             </i>
                         </td>
                     {:else}
-                        <td />
+                        <td></td>
                     {/if}
                 </tr>
             {/each}

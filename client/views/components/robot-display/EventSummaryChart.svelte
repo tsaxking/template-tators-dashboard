@@ -16,7 +16,7 @@
         datasets: {
             label: string;
             data: number[];
-        // backgroundColor: string;
+            // backgroundColor: string;
         }[];
     } = {
         labels: [],
@@ -42,12 +42,12 @@
 
         if (matches.isOk()) {
             // for development
-        // DELETE THIS IN PRODUCTION
-        // Object.assign(matches, {
-        //     value: new Array(10).fill(0).map(() => ({
-        //         trace: generateTrace()
-        //     }))
-        // });
+            // DELETE THIS IN PRODUCTION
+            // Object.assign(matches, {
+            //     value: new Array(10).fill(0).map(() => ({
+            //         trace: generateTrace()
+            //     }))
+            // });
 
             const matchData = matches.value;
 
@@ -55,13 +55,14 @@
                 const foundM = tbaMatches.value.data.find(
                     _m =>
                         m.matchNumber === _m.match_number &&
-                            m.compLevel === _m.comp_level
+                        m.compLevel === _m.comp_level
                 );
 
                 let alliance: 'red' | 'blue' = 'red';
                 if (foundM) {
                     const [, , , b1, b2, b3] = teamsFromMatch(foundM);
-                    if ([b1, b2, b3].find(r => team.number === r)) alliance = 'red';
+                    if ([b1, b2, b3].find(r => team.number === r))
+                        alliance = 'red';
                 }
 
                 const velocities = Trace.velocity.map(m.trace);
@@ -95,7 +96,9 @@
                                 0
                             ) / eventSummary.length,
                             // Max Auto Score
-                            Math.max(...eventSummary.map(e => e.score.auto.total)),
+                            Math.max(
+                                ...eventSummary.map(e => e.score.auto.total)
+                            ),
                             // Average Teleop Score
                             eventSummary.reduce(
                                 (acc, cur) => acc + cur.score.teleop.total,

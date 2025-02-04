@@ -4,10 +4,10 @@
     import { onMount } from 'svelte';
     import { alert, prompt, select } from '../../../utilities/notifications';
     import { FIRSTAlliance } from '../../../models/FIRST/alliance';
-    import Alliance from '../../components/strategy/2024Alliance.svelte';
+    import Alliance from '../../components/strategy/2025Alliance.svelte';
     import { type MatchInterface } from '../../../models/FIRST/interfaces/match';
     // import { dateString } from '../../../../shared/clock';
-// import { Loop } from '../../../../shared/loop';
+    // import { Loop } from '../../../../shared/loop';
     import Checks from '../../components/strategy/Checks.svelte';
     import Comment from '../../components/strategy/Comment.svelte';
     import MatchSelect from '../../components/main/MatchSelect.svelte';
@@ -17,13 +17,13 @@
     export let loading: boolean;
 
     // move ../Strategy.svelte into this director
-// Use that Strategy.svelte in pit and main dashboard, so you don't have to write the code twice
-// Move RobotCard into view/components/strategy
-// Utilize the components folder and separate the components into their own files
-// Build a countdown timer component in /view/components/bootstrap then gimme the code
+    // Use that Strategy.svelte in pit and main dashboard, so you don't have to write the code twice
+    // Move RobotCard into view/components/strategy
+    // Utilize the components folder and separate the components into their own files
+    // Build a countdown timer component in /view/components/bootstrap then gimme the code
 
-// const date = dateString('MM/DD/YYYY hh:mm:ss AM');
-// let matches: FIRSTMatch[] = [];
+    // const date = dateString('MM/DD/YYYY hh:mm:ss AM');
+    // let matches: FIRSTMatch[] = [];
     let strategy: Strategy | undefined;
     let red: FIRSTAlliance | undefined;
     let blue: FIRSTAlliance | undefined;
@@ -32,15 +32,15 @@
 
     // let currentTime = date();
 
-// const getMatches = async (event: FIRSTEvent) => {
-//     const res = await event.getMatches();
-//     if (res.isErr()) {
-//         return console.error(res.error);
-//     }
-//     loading = false;
+    // const getMatches = async (event: FIRSTEvent) => {
+    //     const res = await event.getMatches();
+    //     if (res.isErr()) {
+    //         return console.error(res.error);
+    //     }
+    //     loading = false;
 
-//     matches = res.value;
-// };
+    //     matches = res.value;
+    // };
 
     const newStrategy = async () => {
         if (!match)
@@ -50,7 +50,7 @@
         let name = await prompt('Strategy Name');
         if (!name) return;
         // use prompt to get the strategy name
-    // use Strategy.new();
+        // use Strategy.new();
         const info = await match.getInfo();
         if (info.isErr()) {
             return console.error(info.error);
@@ -96,15 +96,15 @@
     onMount(() => {
         loading = false;
         // FIRSTEvent.on('select', getMatches);
-    // if (FIRSTEvent.current) getMatches(FIRSTEvent.current);
+        // if (FIRSTEvent.current) getMatches(FIRSTEvent.current);
 
         return () => {
-        // FIRSTEvent.off('select', getMatches);
+            // FIRSTEvent.off('select', getMatches);
         };
     });
 </script>
 
-<div class="d-flex flex-row mb-3" />
+<div class="d-flex flex-row mb-3"></div>
 
 <div class="container-fluid">
     <div class="row mb-3">

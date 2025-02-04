@@ -8,8 +8,8 @@
     import { type TraceArray } from '../../../shared/submodules/tatorscout-calculations/trace';
     import PitScouting from '../components/robot-display/PitScouting.svelte';
     import DashboardCard from '../components/main/DashboardCard.svelte';
-    import EventSummaryChart from '../components/robot-display/EventSummaryChart.svelte';
-    import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart.svelte';
+    // import EventSummaryChart from '../components/robot-display/EventSummaryChart.svelte';
+    // import MatchesSummaryChart from '../components/robot-display/MatchesSummaryChart.svelte';
     import ActionHeatmap from '../components/robot-display/ActionHeatmap.svelte';
     import TeamCommentSummary from '../components/robot-display/TeamCommentSummary.svelte';
     import { MatchScouting } from '../../models/FIRST/match-scouting';
@@ -74,10 +74,7 @@
     </div>
     <hr />
     <div class="row">
-        <DashboardCard
-            id="tba-summary"
-            expandable="{true}"
-            title="Summary">
+        <DashboardCard id="tba-summary" expandable="{true}" title="Summary">
             <TbaSummary {team} />
         </DashboardCard>
         <DashboardCard
@@ -88,13 +85,8 @@
         >
             <TeamCommentSummary {team} />
         </DashboardCard>
-        <DashboardCard
-            id="team-pictures"
-            scroll="{true}"
-            title="Pictures">
-            <TeamPictures
-                {team}
-                upload="{true}" />
+        <DashboardCard id="team-pictures" scroll="{true}" title="Pictures">
+            <TeamPictures {team} upload="{true}" />
         </DashboardCard>
         <DashboardCard
             id="horizontal-match-viewer"
@@ -102,11 +94,9 @@
             scroll="{true}"
             title="Match Viewer"
         >
-            <HorizontalMatchViewer
-                preScouting="{false}"
-                {team} />
+            <HorizontalMatchViewer preScouting="{false}" {team} />
         </DashboardCard>
-        <DashboardCard
+        <!-- <DashboardCard
             id="event-summary-chart"
             expandable="{true}"
             scroll="{true}"
@@ -121,13 +111,10 @@
             title="Matches Summary"
         >
             <MatchesSummaryChart {team} />
-        </DashboardCard>
-        <DashboardCard
-            id="team-progress"
-            expandable="{true}"
-            title="Progress">
+        </DashboardCard> -->
+        <!-- <DashboardCard id="team-progress" expandable="{true}" title="Progress">
             <Progress {team} />
-        </DashboardCard>
+        </DashboardCard> -->
         <DashboardCard
             id="team-match-table"
             expandable="{true}"
@@ -181,9 +168,7 @@
             scroll="{true}"
             title="Pre Scouting"
         >
-            <HorizontalMatchViewer
-                preScouting="{true}"
-                {team} />
+            <HorizontalMatchViewer preScouting="{true}" {team} />
         </DashboardCard>
     </div>
 </div>

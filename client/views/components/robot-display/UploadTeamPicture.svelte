@@ -54,10 +54,7 @@
 </script>
 
 <div bind:this="{me}">
-    <button
-        class="btn btn-primary"
-        type="button"
-        on:click="{open}"
-    >Upload Pictures</button
+    <button class="btn btn-primary" type="button" on:click="{open}"
+        >Upload Pictures</button
     >
 </div>

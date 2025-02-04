@@ -11,7 +11,10 @@
         type TraceArray,
         actions
     } from '../../../../shared/submodules/tatorscout-calculations/trace';
-    import { type BootstrapColor, Color } from '../../../submodules/colors/color';
+    import {
+        type BootstrapColor,
+        Color
+    } from '../../../submodules/colors/color';
     import { capitalize } from '../../../../shared/text';
 
     const colors: BootstrapColor[] = [
@@ -38,7 +41,7 @@
     let traceArray: TraceArray = [];
 
     // stored globally so we don't have to keep requesting it
-    const img = new Img('/public/pictures/2024field.png', {
+    const img = new Img('/public/pictures/2025field.png', {
         x: 0,
         y: 0,
         width: 1,
@@ -85,11 +88,11 @@
                         const match = matches.find(
                             match =>
                                 match.number === m.matchNumber &&
-                                    match.compLevel === m.compLevel
+                                match.compLevel === m.compLevel
                         );
                         // if on red alliance, do x = 1 - x
 
-                    // not doing .indexOf because I don't know if the caches are the same, they likely are but I don't want to assume
+                        // not doing .indexOf because I don't know if the caches are the same, they likely are but I don't want to assume
                         let trace = m.trace.slice();
 
                         const teams = await match?.getTeams();
@@ -105,7 +108,12 @@
                             ) > 2
                         ) {
                             // we don't want to modify the original trace, so we make a copy
-                            trace = m.trace.map(p => [p[0], 1 - p[1], p[2], p[3]]);
+                            trace = m.trace.map(p => [
+                                p[0],
+                                1 - p[1],
+                                p[2],
+                                p[3]
+                            ]);
                         }
                         return {
                             ...m,
@@ -142,8 +150,8 @@
     const filter = (trace: TraceArray) => {
         container.filter(
             (c, i) =>
-                checks.filter(Boolean).find(c => c.key === trace[i][3])?.enabled ??
-                    true
+                checks.filter(Boolean).find(c => c.key === trace[i][3])
+                    ?.enabled ?? true
         );
     };
 
@@ -153,10 +161,7 @@
 
 <div class="container-fluid">
     <div class="row mb-1">
-        <div
-            class="btn-group"
-            aria-label="Select actions"
-            role="group">
+        <div class="btn-group" aria-label="Select actions" role="group">
             {#each checks as check (check)}
                 <input
                     id="action-{check.key}"
@@ -183,9 +188,7 @@
             {/each}
         </div>
     </div>
-    <div
-        style:height="300px"
-        class="row canvas-container">
-        <canvas bind:this="{canvas}" />
+    <div style:height="300px" class="row canvas-container">
+        <canvas bind:this="{canvas}"></canvas>
     </div>
 </div>

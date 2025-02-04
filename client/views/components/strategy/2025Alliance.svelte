@@ -21,23 +21,50 @@
 
     $: [team1, team2, team3] = alliance.teams;
 
+    // type DataArr = {
+    //     auto: {
+    //         spk: number[];
+    //         amp: number[];
+    //         mobility: number[];
+    //         total: number[];
+    //     };
+    //     teleop: {
+    //         spk: number[];
+    //         amp: number[];
+    //         trp: number[];
+    //         total: number[];
+    //     };
+    //     endgame: {
+    //         clb: number[];
+    //         park: number[];
+    //         total: number[];
+    //     };
+    //     total: number[];
+    // };
+
     type DataArr = {
         auto: {
-            spk: number[];
-            amp: number[];
+            cl1: number[];
+            cl2: number[];
+            cl3: number[];
+            cl4: number[];
+            prc: number[];
+            brg: number[];
             mobility: number[];
             total: number[];
         };
         teleop: {
-            spk: number[];
-            amp: number[];
-            trp: number[];
+            cl1: number[];
+            cl2: number[];
+            cl3: number[];
+            cl4: number[];
+            prc: number[];
+            brg: number[];
             total: number[];
         };
         endgame: {
-            clb: number[];
-            park: number[];
-            total: number[];
+            shc: number[];
+            dpc: number[];
         };
         total: number[];
     };
@@ -88,21 +115,27 @@
                 );
 
                 return data
-                    .map(d => Trace.score.parse2024(d.trace, d.alliance))
+                    .map(d => Trace.score.parse2025(d.trace, d.alliance))
                     .reduce((acc, data) => {
-                        acc.auto.spk.push(data.auto.spk);
-                        acc.auto.amp.push(data.auto.amp);
+                        acc.auto.cl1.push(data.auto.cl1);
+                        acc.auto.cl2.push(data.auto.cl2);
+                        acc.auto.cl3.push(data.auto.cl3);
+                        acc.auto.cl4.push(data.auto.cl4);
+                        acc.auto.prc.push(data.auto.prc);
+                        acc.auto.brg.push(data.auto.brg);
                         acc.auto.mobility.push(data.auto.mobility);
                         acc.auto.total.push(data.auto.total);
 
-                        acc.teleop.spk.push(data.teleop.spk);
-                        acc.teleop.amp.push(data.teleop.amp);
-                        acc.teleop.trp.push(data.teleop.trp);
+                        acc.teleop.cl1.push(data.teleop.cl1);
+                        acc.teleop.cl2.push(data.teleop.cl2);
+                        acc.teleop.cl3.push(data.teleop.cl3);
+                        acc.teleop.cl4.push(data.teleop.cl4);
+                        acc.teleop.prc.push(data.teleop.prc);
+                        acc.teleop.brg.push(data.teleop.brg);
                         acc.teleop.total.push(data.teleop.total);
 
-                        acc.endgame.clb.push(data.endgame.clb);
-                        acc.endgame.park.push(data.endgame.park);
-                        acc.endgame.total.push(data.endgame.total);
+                        acc.endgame.shc.push(data.endgame.shc);
+                        acc.endgame.dpc.push(data.endgame.dpc);
 
                         acc.total.push(data.total);
 
@@ -131,21 +164,27 @@
         buildDefaultArr: (): DataArr => {
             return {
                 auto: {
-                    spk: [],
-                    amp: [],
+                    cl1: [],
+                    cl2: [],
+                    cl3: [],
+                    cl4: [],
+                    prc: [],
+                    brg: [],
                     mobility: [],
                     total: []
                 },
                 teleop: {
-                    spk: [],
-                    amp: [],
-                    trp: [],
+                    cl1: [],
+                    cl2: [],
+                    cl3: [],
+                    cl4: [],
+                    prc: [],
+                    brg: [],
                     total: []
                 },
                 endgame: {
-                    clb: [],
-                    park: [],
-                    total: []
+                    shc: [],
+                    dpc: []
                 },
                 total: []
             };
@@ -176,20 +215,56 @@
                 labels: ['Auto', 'Teleop', 'Endgame', 'Total'],
                 datasets: [
                     {
-                        label: 'Speaker',
+                        label: 'Coral Level 1',
                         data: [
-                            M.sum(allianceInfo.map(a => M.average(a.auto.spk))),
+                            M.sum(allianceInfo.map(a => M.average(a.auto.cl1))),
                             M.sum(
-                                allianceInfo.map(a => M.average(a.teleop.spk))
+                                allianceInfo.map(a => M.average(a.teleop.cl1))
                             )
                         ]
                     },
                     {
-                        label: 'Amplifier',
+                        label: 'Coral Level 2',
                         data: [
-                            M.sum(allianceInfo.map(a => M.average(a.auto.amp))),
+                            M.sum(allianceInfo.map(a => M.average(a.auto.cl2))),
                             M.sum(
-                                allianceInfo.map(a => M.average(a.teleop.amp))
+                                allianceInfo.map(a => M.average(a.teleop.cl2))
+                            )
+                        ]
+                    },
+                    {
+                        label: 'Coral Level 3',
+                        data: [
+                            M.sum(allianceInfo.map(a => M.average(a.auto.cl3))),
+                            M.sum(
+                                allianceInfo.map(a => M.average(a.teleop.cl3))
+                            )
+                        ]
+                    },
+                    {
+                        label: 'Coral Level 4',
+                        data: [
+                            M.sum(allianceInfo.map(a => M.average(a.auto.cl4))),
+                            M.sum(
+                                allianceInfo.map(a => M.average(a.teleop.cl4))
+                            )
+                        ]
+                    },
+                    {
+                        label: 'Processor',
+                        data: [
+                            M.sum(allianceInfo.map(a => M.average(a.auto.prc))),
+                            M.sum(
+                                allianceInfo.map(a => M.average(a.teleop.prc))
+                            )
+                        ]
+                    },
+                    {
+                        label: 'Barge',
+                        data: [
+                            M.sum(allianceInfo.map(a => M.average(a.auto.brg))),
+                            M.sum(
+                                allianceInfo.map(a => M.average(a.teleop.brg))
                             )
                         ]
                     },
@@ -238,24 +313,68 @@
                 labels: ['Auto', 'Teleop', 'Endgame', 'Total'],
                 datasets: [
                     {
-                        label: 'Speaker',
+                        label: 'Coral Level 1',
                         data: [
                             M.sum(
-                                allianceInfo.map(a => Math.max(...a.auto.spk))
+                                allianceInfo.map(a => Math.max(...a.auto.cl1))
                             ),
                             M.sum(
-                                allianceInfo.map(a => Math.max(...a.teleop.spk))
+                                allianceInfo.map(a => Math.max(...a.teleop.cl1))
                             )
                         ]
                     },
                     {
-                        label: 'Amplifier',
+                        label: 'Coral Level 2',
                         data: [
                             M.sum(
-                                allianceInfo.map(a => Math.max(...a.auto.amp))
+                                allianceInfo.map(a => Math.max(...a.auto.cl2))
                             ),
                             M.sum(
-                                allianceInfo.map(a => Math.max(...a.teleop.amp))
+                                allianceInfo.map(a => Math.max(...a.teleop.cl2))
+                            )
+                        ]
+                    },
+                    {
+                        label: 'Coral Level 3',
+                        data: [
+                            M.sum(
+                                allianceInfo.map(a => Math.max(...a.auto.cl3))
+                            ),
+                            M.sum(
+                                allianceInfo.map(a => Math.max(...a.teleop.cl3))
+                            )
+                        ]
+                    },
+                    {
+                        label: 'Coral Level 4',
+                        data: [
+                            M.sum(
+                                allianceInfo.map(a => Math.max(...a.auto.cl4))
+                            ),
+                            M.sum(
+                                allianceInfo.map(a => Math.max(...a.teleop.cl4))
+                            )
+                        ]
+                    },
+                    {
+                        label: 'Processor',
+                        data: [
+                            M.sum(
+                                allianceInfo.map(a => Math.max(...a.auto.prc))
+                            ),
+                            M.sum(
+                                allianceInfo.map(a => Math.max(...a.teleop.prc))
+                            )
+                        ]
+                    },
+                    {
+                        label: 'Barge',
+                        data: [
+                            M.sum(
+                                allianceInfo.map(a => Math.max(...a.auto.brg))
+                            ),
+                            M.sum(
+                                allianceInfo.map(a => Math.max(...a.teleop.brg))
                             )
                         ]
                     },
