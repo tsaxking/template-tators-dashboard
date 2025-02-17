@@ -150,3 +150,5 @@ dist
 
 backup.iv
 .backup
+
+.DS_Store
