@@ -1,0 +1,46 @@
+services:
+  db:
+    env_file:
+      - .env
+    image: postgres
+    restart: always
+    healthcheck:
+      test: /usr/bin/pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}
+      interval: 5s
+      timeout: 10s
+      retries: 120
+    ports:
+      - ${DATABASE_PORT}:5432
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_HOSTNAME: postgresdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  # pull from registry
+  app:
+    image: tators-dashboard:latest
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # build from dockerfile
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - ${PORT}:3000
+  #   depends_on:
+  #     - db
+
+volumes:
+  db-data:
