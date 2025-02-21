@@ -76,7 +76,6 @@
         "cli-progress": "^3.12.0",
         "cli-select": "^1.1.2",
         "cliffy": "^2.5.1",
-        "compress-images": "^1.9.9",
         "cors": "^2.8.5",
         "csv-parser": "^3.1.0",
         "deep-email-validator": "^0.1.21",
