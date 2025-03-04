@@ -355,7 +355,7 @@ router.post<{
     canEdit,
     validate({
         name: 'string',
-        multiple: 'boolean'
+        multiple: ['boolean', 'number']
     }),
     (req, res) => {
         const { name, multiple } = req.body;
