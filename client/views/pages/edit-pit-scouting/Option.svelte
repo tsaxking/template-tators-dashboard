@@ -1,8 +1,8 @@
 <script lang="ts">
-import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
 
-const d = createEventDispatcher();
-export let text: string = '';
+    const d = createEventDispatcher();
+    export let text: string = '';
 </script>
 
 <div class="card">

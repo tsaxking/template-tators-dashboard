@@ -432,7 +432,11 @@ export class Table {
                                 scores.reduce((a, b) => a + b.cl1, 0) /
                                     scores.length,
                                 // max coral overall
-                                Math.max(...scores.map(s => s.cl4 + s.cl3 + s.cl2 + s.cl1)),
+                                Math.max(
+                                    ...scores.map(
+                                        s => s.cl4 + s.cl3 + s.cl2 + s.cl1
+                                    )
+                                ),
                                 // max processor
                                 Math.max(...scores.map(s => s.prc)),
                                 // max barge

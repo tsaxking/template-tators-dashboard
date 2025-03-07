@@ -9,7 +9,7 @@
     $: comment = strategy.comment;
 
     const update = () => {
-        // if (before === comment) comment = strategy.comment;
+    // if (before === comment) comment = strategy.comment;
     };
 
     const submit = (comment: string) => {

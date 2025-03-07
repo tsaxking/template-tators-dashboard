@@ -151,7 +151,7 @@
                         color: color.clone(),
                         textColor:
                             color.detectContrast(Color.fromBootstrap('dark')) >
-                            color.detectContrast(Color.fromBootstrap('light'))
+                                color.detectContrast(Color.fromBootstrap('light'))
                                 ? Color.fromBootstrap('dark')
                                 : Color.fromBootstrap('light')
                     });
@@ -270,9 +270,11 @@
             {/each}
         </p>
         <div class="w-100 aspect-ratio-2x1 mb-2">
-            <canvas bind:this="{canvasEl}" id="canvas"></canvas>
+            <canvas
+                bind:this="{canvasEl}"
+                id="canvas" />
         </div>
-        <div id="match-slider-{id}"></div>
+        <div id="match-slider-{id}" />
         <hr class="m-2" />
     </div>
     <div class="row mb-3">
@@ -282,7 +284,10 @@
     </div>
     <div class="row mb-3">
         <h5 class="text-center">Comments</h5>
-        <CommentViewer canAdd="{false}" {comments} {team} />
+        <CommentViewer
+            canAdd="{false}"
+            {comments}
+            {team} />
     </div>
     <div class="row mb-3">
         <h5 class="text-center">Checks</h5>

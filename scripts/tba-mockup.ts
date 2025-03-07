@@ -29,7 +29,7 @@ const populateTeams = (eventKey: string) => {
                         Name: z.string()
                     })
                     .parse(data);
-    
+
                 const tbaTeam: TBATeam = {
                     key: `frc${team['Team Number']}`,
                     team_number: parseInt(team['Team Number']),
@@ -55,14 +55,16 @@ const populateTeams = (eventKey: string) => {
                         division_keys: []
                     }
                 };
-    
+
                 teams.push(tbaTeam);
-    
-                promises.push(DB.run('teams/new', {
-                    eventKey,
-                    number: tbaTeam.team_number,
-                    watchPriority: 0
-                }));
+
+                promises.push(
+                    DB.run('teams/new', {
+                        eventKey,
+                        number: tbaTeam.team_number,
+                        watchPriority: 0
+                    })
+                );
             })
             .on('end', async () => {
                 console.log('Creating tba team override...');
@@ -75,7 +77,7 @@ const populateTeams = (eventKey: string) => {
                         update: 1
                     })
                 ).unwrap();
-    
+
                 console.log('Creating tba team/simple override...');
                 (
                     await DB.run('tba/new', {
@@ -117,7 +119,7 @@ const populateMatches = (eventKey: string) => {
                         Time: z.string()
                     })
                     .parse(data);
-    
+
                 const tbaMatch: TBAMatch = {
                     key: `${eventKey}_${match['Comp Level']}${match['Set Number']}m${match['Match Number']}`,
                     comp_level: match['Comp Level'],
@@ -142,7 +144,9 @@ const populateMatches = (eventKey: string) => {
                         }
                     },
                     winning_alliance:
-                        match['Red Score'] > match['Blue Score'] ? 'red' : 'blue',
+                        match['Red Score'] > match['Blue Score']
+                            ? 'red'
+                            : 'blue',
                     event_key: eventKey,
                     time: new Date(match['Time']).getTime(),
                     actual_time: new Date(match['Time']).getTime(),
@@ -154,15 +158,17 @@ const populateMatches = (eventKey: string) => {
                     },
                     videos: []
                 };
-    
+
                 matches.push(tbaMatch);
-    
-                promises.push(DB.run('matches/new', {
-                    compLevel: tbaMatch.comp_level,
-                    matchNumber: tbaMatch.match_number,
-                    eventKey: eventKey,
-                    id: uuid()
-                }));
+
+                promises.push(
+                    DB.run('matches/new', {
+                        compLevel: tbaMatch.comp_level,
+                        matchNumber: tbaMatch.match_number,
+                        eventKey: eventKey,
+                        id: uuid()
+                    })
+                );
             })
             .on('end', async () => {
                 console.log('Creating tba match override...');
@@ -175,7 +181,7 @@ const populateMatches = (eventKey: string) => {
                         update: 1
                     })
                 ).unwrap();
-    
+
                 console.log('Creating tba match/simple override...');
                 (
                     await DB.run('tba/new', {

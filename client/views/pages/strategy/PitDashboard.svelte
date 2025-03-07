@@ -72,7 +72,9 @@
     const updateClosestMatch = (now: number) => {
         closestMatchIndex = matchScouting.reduce((closest, current, index) => {
             if (!current.match) return closest;
-            const currentDiff = Math.abs(current.match.tba.predicted_time - now);
+            const currentDiff = Math.abs(
+                current.match.tba.predicted_time - now
+            );
             const closestDiff = Math.abs(
                 matchScouting[closest]?.match?.tba.predicted_time ?? 0 - now
             );
@@ -290,23 +292,23 @@
 </div>
 
 <style>
-.vh-display {
-    height: calc(100vh - var(--topNavbarHeight)) !important;
-}
-.bg-gray-light {
-    background-color: rgba(200, 200, 200, 0.7);
-}
-.loading {
-    position: fixed;
-    top: var(--topNavbarHeight);
-    left: 0;
-    width: 100%;
-    height: calc(100vh - var(--topNavbarHeight)) !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(33, 37, 41, 1);
-    color: #fff;
-    z-index: 9999;
-}
+    .vh-display {
+        height: calc(100vh - var(--topNavbarHeight)) !important;
+    }
+    .bg-gray-light {
+        background-color: rgba(200, 200, 200, 0.7);
+    }
+    .loading {
+        position: fixed;
+        top: var(--topNavbarHeight);
+        left: 0;
+        width: 100%;
+        height: calc(100vh - var(--topNavbarHeight)) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(33, 37, 41, 1);
+        color: #fff;
+        z-index: 9999;
+    }
 </style>

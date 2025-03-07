@@ -1,66 +1,70 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { Question } from '../../../models/FIRST/question-scouting/question';
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import { FIRSTEvent } from '../../../models/FIRST/event';
-import { Answer } from '../../../models/FIRST/question-scouting/answer';
-import { dateTime } from '../../../../shared/clock';
-// import { createEventDispatcher } from 'svelte';
+    import { onMount } from 'svelte';
+    import { Question } from '../../../models/FIRST/question-scouting/question';
+    import { FIRSTTeam } from '../../../models/FIRST/team';
+    import { FIRSTEvent } from '../../../models/FIRST/event';
+    import { Answer } from '../../../models/FIRST/question-scouting/answer';
+    import { dateTime } from '../../../../shared/clock';
+    // import { createEventDispatcher } from 'svelte';
 
-export let question: Question;
-export let value: string[] = [];
-export let team: FIRSTTeam | undefined = undefined;
-let answer: Answer | undefined = undefined;
+    export let question: Question;
+    export let value: string[] = [];
+    export let team: FIRSTTeam | undefined = undefined;
+    let answer: Answer | undefined = undefined;
 
-let changed = true,
-    disabled = false,
-    me: HTMLDivElement;
+    let changed = true,
+        disabled = false,
+        me: HTMLDivElement;
 
-// TODO: Restructure all of these functions to make more sense
+    // TODO: Restructure all of these functions to make more sense
 
-const fns = {
-    // submits the answer to the server
-    saveValue: async () => {
-        if (!team) return;
-        const result = await question.saveAnswer(team, value);
-        if (result.isOk()) changed = false;
-    },
-    // sets the changed variable to true
-    change: () => {
-        changed = true;
-    },
-    // gets the value of the question, if it exists
-    getValue: async (team: FIRSTTeam | undefined, question: Question) => {
-        if (!team) return;
-        const answer = await question.getAnswer(team, team.event);
-        if (answer.isOk()) {
-            if (answer.value) {
-                value = answer.value.answer;
-                changed = false;
-            } else {
-                value = [];
-                changed = true;
+    const fns = {
+        // submits the answer to the server
+        saveValue: async () => {
+            if (!team) return;
+            const result = await question.saveAnswer(team, value);
+            if (result.isOk()) changed = false;
+        },
+        // sets the changed variable to true
+        change: () => {
+            changed = true;
+        },
+        // gets the value of the question, if it exists
+        getValue: async (team: FIRSTTeam | undefined, question: Question) => {
+            if (!team) return;
+            const answer = await question.getAnswer(team, team.event);
+            if (answer.isOk()) {
+                if (answer.value) {
+                    value = answer.value.answer;
+                    changed = false;
+                } else {
+                    value = [];
+                    changed = true;
+                }
             }
+        },
+        // sets the disabled variable to true if the team is undefined
+        setDisable: (team: FIRSTTeam | undefined) => {
+            disabled = !team;
         }
-    },
-    // sets the disabled variable to true if the team is undefined
-    setDisable: (team: FIRSTTeam | undefined) => {
-        disabled = !team;
-    }
-};
+    };
 
-FIRSTTeam.on('select', t => {
-    team = t;
-});
+    FIRSTTeam.on('select', t => {
+        team = t;
+    });
 
-$: fns.getValue(team, question);
-$: fns.setDisable(team);
+    $: fns.getValue(team, question);
+    $: fns.setDisable(team);
 
 // const dispatch = createEventDispatcher();
 </script>
 
-<div bind:this="{me}" class="mb-3">
-    <label class="mb-3" for="q-{question.id}">
+<div
+    bind:this="{me}"
+    class="mb-3">
+    <label
+        class="mb-3"
+        for="q-{question.id}">
         {question.question}
     </label>
 
@@ -91,7 +95,7 @@ $: fns.setDisable(team);
                             fns.saveValue();
                         }}"
                         on:input="{fns.change}"
-                    ></textarea>
+                    />
                 {:else if question.type === 'number'}
                     <input
                         id="q-{question.id}"
@@ -224,8 +228,7 @@ $: fns.setDisable(team);
                     </div>
                 {/if}
             </div>
-            <div
-                class="col-lg-1 col-md-2 col-sm-3 col-4 d-flex justify-content-between align-items-center"
+            <div class="col-lg-1 col-md-2 col-sm-3 col-4 d-flex justify-content-between align-items-center"
             >
                 {#if disabled}
                     <i

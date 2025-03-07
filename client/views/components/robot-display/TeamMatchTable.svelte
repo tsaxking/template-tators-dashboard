@@ -57,7 +57,7 @@
                 scouting: matchScoutingRes.value.find(
                     s =>
                         s.matchNumber === m.match.number &&
-                        s.compLevel === m.match.compLevel
+                            s.compLevel === m.match.compLevel
                 )
             }));
 
@@ -158,7 +158,7 @@
                             </i>
                         </td>
                     {:else}
-                        <td></td>
+                        <td />
                     {/if}
                 </tr>
             {/each}

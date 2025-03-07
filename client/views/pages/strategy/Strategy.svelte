@@ -99,12 +99,12 @@
         // if (FIRSTEvent.current) getMatches(FIRSTEvent.current);
 
         return () => {
-            // FIRSTEvent.off('select', getMatches);
+        // FIRSTEvent.off('select', getMatches);
         };
     });
 </script>
 
-<div class="d-flex flex-row mb-3"></div>
+<div class="d-flex flex-row mb-3" />
 
 <div class="container-fluid">
     <div class="row mb-3">

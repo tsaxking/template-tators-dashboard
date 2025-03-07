@@ -64,7 +64,9 @@
                         value="{team.number}"
                         bind:group="{filteredTeams}"
                     />
-                    <label class="form-check" for="flexCheckDefault">
+                    <label
+                        class="form-check"
+                        for="flexCheckDefault">
                         {team.number}
                     </label>
                 </div>

@@ -1,77 +1,83 @@
 <script lang="ts">
-import { type RolePermission } from '../../../shared/db-types';
-import { Role } from '../../models/roles';
-import RemovableBadge from '../components/main/RemovableBadge.svelte';
-import { onMount } from 'svelte';
-import { alert, confirm, select } from '../../utilities/notifications';
+    import { type RolePermission } from '../../../shared/db-types';
+    import { Role } from '../../models/roles';
+    import RemovableBadge from '../components/main/RemovableBadge.svelte';
+    import { onMount } from 'svelte';
+    import { alert, confirm, select } from '../../utilities/notifications';
 
-let roles: Role[] = [];
-let permissions: RolePermission[] = [];
+    let roles: Role[] = [];
+    let permissions: RolePermission[] = [];
 
-let table: HTMLTableElement;
+    let table: HTMLTableElement;
 
-const getRoles = async () => {
-    const res = await Role.all(true);
-    if (res.isOk()) {
-        // console.log('Roles', res.value);
-        roles = res.value;
-    }
+    const getRoles = async () => {
+        const res = await Role.all(true);
+        if (res.isOk()) {
+            // console.log('Roles', res.value);
+            roles = res.value;
+        }
 
-    set();
-};
-const set = () => {
+        set();
+    };
+    const set = () => {
     // if (table) {
-    //     table.querySelectorAll('.tt').forEach(el=> {
-    //         jQuery(el).tooltip();
-    //     });
-    // }
-};
-const addPermission = async (role: Role) => {
-    const current = role.permissions.map(p => p.permission);
-    const addable = permissions.filter(p => !current.includes(p.permission));
-    if (!addable.length) {
-        return alert('No permissions to add');
-    }
+        //     table.querySelectorAll('.tt').forEach(el=> {
+        //         jQuery(el).tooltip();
+        //     });
+        // }
+    };
+    const addPermission = async (role: Role) => {
+        const current = role.permissions.map(p => p.permission);
+        const addable = permissions.filter(
+            p => !current.includes(p.permission)
+        );
+        if (!addable.length) {
+            return alert('No permissions to add');
+        }
 
-    console.log('Add permission to role', role, addable);
+        console.log('Add permission to role', role, addable);
 
-    const p = await select(
-        'Add permission',
-        addable.map(p => p.permission)
-    );
+        const p = await select(
+            'Add permission',
+            addable.map(p => p.permission)
+        );
 
-    console.log(p);
+        console.log(p);
 
-    if (p >= 0) {
-        role.addPermission(addable[p]);
-    }
-};
-const deleteRole = async (role: Role) => {
-    const good = await confirm('Are you sure you want to delete this role?');
-    if (good) {
-        await role.delete();
-    }
-};
-const getPermissions = async () => {
-    const perms = await Role.getAllPermissions();
-    if (perms.isOk()) {
-        permissions = perms.value;
-    }
-};
-const init = () => {
-    getRoles();
-    getPermissions();
-};
+        if (p >= 0) {
+            role.addPermission(addable[p]);
+        }
+    };
+    const deleteRole = async (role: Role) => {
+        const good = await confirm(
+            'Are you sure you want to delete this role?'
+        );
+        if (good) {
+            await role.delete();
+        }
+    };
+    const getPermissions = async () => {
+        const perms = await Role.getAllPermissions();
+        if (perms.isOk()) {
+            permissions = perms.value;
+        }
+    };
+    const init = () => {
+        getRoles();
+        getPermissions();
+    };
 
-Role.on('new', getRoles);
-Role.on('update', getRoles);
-Role.on('delete', getRoles);
+    Role.on('new', getRoles);
+    Role.on('update', getRoles);
+    Role.on('delete', getRoles);
 
-onMount(init);
+    onMount(init);
 </script>
 
 <div class="table-responsive">
-    <table bind:this="{table}" class="table">
+    <table
+        bind:this="{table}"
+        class="table">
         <thead>
             <tr>
                 <th>Name</th>
