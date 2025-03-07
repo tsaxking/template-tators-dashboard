@@ -18,6 +18,40 @@ router.get('/*', (req, res, next) => {
     next();
 });
 
+router.get<{
+    pass: string;
+    user: string;
+}>('/test-hash', validate({
+    pass: 'string',
+    user: 'string',
+}), async (req, res) => {
+    if (req.headers.get('X-Auth-Key') !== process.env.HASH_SERVER_AUTH) {
+        return res.json({
+            success: false,
+            reason: 'Unauthorized',
+            error: true,
+        });
+    }
+
+    const { pass, user } = req.body;
+
+    const account = (await Account.fromUsername(user)).unwrap() || (await Account.fromEmail(user)).unwrap();
+
+    if (!account) return res.json({
+        success: false,
+        reason: 'Account not found',
+        error: true,
+    });
+
+    const hash = Account.hash(pass, account.salt);
+
+    res.json({
+        success: hash === account.key,
+        reason: 'Hash test',
+        error: false,
+    });
+});
+
 const redirect = (req: Req, res: Res, next: Next) => {
     if (!req.session.accountId) return next();
 
