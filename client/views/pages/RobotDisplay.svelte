@@ -74,7 +74,10 @@
     </div>
     <hr />
     <div class="row">
-        <DashboardCard id="tba-summary" expandable="{true}" title="Summary">
+        <DashboardCard
+            id="tba-summary"
+            expandable="{true}"
+            title="Summary">
             <TbaSummary {team} />
         </DashboardCard>
         <DashboardCard
@@ -85,8 +88,13 @@
         >
             <TeamCommentSummary {team} />
         </DashboardCard>
-        <DashboardCard id="team-pictures" scroll="{true}" title="Pictures">
-            <TeamPictures {team} upload="{true}" />
+        <DashboardCard
+            id="team-pictures"
+            scroll="{true}"
+            title="Pictures">
+            <TeamPictures
+                {team}
+                upload="{true}" />
         </DashboardCard>
         <DashboardCard
             id="horizontal-match-viewer"
@@ -94,7 +102,9 @@
             scroll="{true}"
             title="Match Viewer"
         >
-            <HorizontalMatchViewer preScouting="{false}" {team} />
+            <HorizontalMatchViewer
+                preScouting="{false}"
+                {team} />
         </DashboardCard>
         <!-- <DashboardCard
             id="event-summary-chart"
@@ -168,7 +178,9 @@
             scroll="{true}"
             title="Pre Scouting"
         >
-            <HorizontalMatchViewer preScouting="{true}" {team} />
+            <HorizontalMatchViewer
+                preScouting="{true}"
+                {team} />
         </DashboardCard>
     </div>
 </div>

@@ -40,6 +40,6 @@ import { Email, EmailType } from '../server/utilities/email';
 
 const main = async () => {
     console.log('Email match status is currently disabled.');
-}
+};
 
 main();

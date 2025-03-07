@@ -1,33 +1,33 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { AccountNotification } from '../../../models/account-notifications';
-import Notification from './Notification.svelte';
+    import { onMount } from 'svelte';
+    import { AccountNotification } from '../../../models/account-notifications';
+    import Notification from './Notification.svelte';
 
-export let notifications: AccountNotification[] = [];
+    export let notifications: AccountNotification[] = [];
 
-const update = () => {
-    notifications = notifications;
-};
-
-const newNotif = (notif: AccountNotification) => {
-    notifications = [notif, ...notifications];
-};
-
-const deleteNotif = (notif: AccountNotification) => {
-    notifications = notifications.filter(n => n.id !== notif.id);
-};
-
-onMount(() => {
-    AccountNotification.on('new', newNotif);
-    AccountNotification.on('read', update);
-    AccountNotification.on('delete', deleteNotif);
-
-    return () => {
-        AccountNotification.off('new', newNotif);
-        AccountNotification.off('read', update);
-        AccountNotification.off('delete', deleteNotif);
+    const update = () => {
+        notifications = notifications;
     };
-});
+
+    const newNotif = (notif: AccountNotification) => {
+        notifications = [notif, ...notifications];
+    };
+
+    const deleteNotif = (notif: AccountNotification) => {
+        notifications = notifications.filter(n => n.id !== notif.id);
+    };
+
+    onMount(() => {
+        AccountNotification.on('new', newNotif);
+        AccountNotification.on('read', update);
+        AccountNotification.on('delete', deleteNotif);
+
+        return () => {
+            AccountNotification.off('new', newNotif);
+            AccountNotification.off('read', update);
+            AccountNotification.off('delete', deleteNotif);
+        };
+    });
 </script>
 
 <div

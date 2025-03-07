@@ -81,7 +81,7 @@
                                 matchData.find(
                                     s =>
                                         s.matchNumber === m.number &&
-                                        s.compLevel === m.compLevel
+                                            s.compLevel === m.compLevel
                                 )?.trace || []
                         };
                     })
@@ -160,7 +160,7 @@
     ];
 
     $: fns.getAllianceData(team1, team2, team3);
-    //pull matches, match# + comp level, pull alliance
+//pull matches, match# + comp level, pull alliance
 </script>
 
 <div class="card bg-dark text-white">

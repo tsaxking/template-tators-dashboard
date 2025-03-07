@@ -474,7 +474,7 @@ export default class Account<
             ':',
             ';',
             '"',
-            "'",
+            '\'',
             '<',
             '>',
             '?',

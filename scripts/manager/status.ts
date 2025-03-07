@@ -208,7 +208,7 @@ export const selectStatusCode = async (): Promise<number> => {
                     value: 417
                 },
                 {
-                    name: "418 I'm a teapot",
+                    name: '418 I\'m a teapot',
                     value: 418
                 },
                 {

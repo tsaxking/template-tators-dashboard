@@ -94,7 +94,7 @@
                                                         res.value.find(
                                                             a =>
                                                                 a.questionId ===
-                                                                q.id
+                                                                    q.id
                                                         )?.answer[0] || ''
                                                     );
                                                 case 'checkbox':
@@ -102,7 +102,7 @@
                                                         .filter(
                                                             a =>
                                                                 a.questionId ===
-                                                                q.id
+                                                                    q.id
                                                         )
                                                         .map(a => a.answer[0])
                                                         .join(', ');
@@ -110,7 +110,7 @@
                                                     return res.value.find(
                                                         a =>
                                                             a.questionId ===
-                                                            q.id
+                                                                q.id
                                                     )?.answer[0] === 'true'
                                                         ? 'Yes'
                                                         : 'No';
@@ -123,7 +123,7 @@
                                                 res.value.find(
                                                     a =>
                                                         a.questionId === q.id &&
-                                                        a.teamNumber ===
+                                                            a.teamNumber ===
                                                             t.number
                                                 )?.accountId || ''
                                             ]?.name || 'Unknown'
@@ -148,7 +148,9 @@
             {#each section.groups as group (group.name)}
                 <thead>
                     <tr>
-                        <th class="text-center" colspan="3">{group.name}</th>
+                        <th
+                            class="text-center"
+                            colspan="3">{group.name}</th>
                     </tr>
                 </thead>
                 <tbody>

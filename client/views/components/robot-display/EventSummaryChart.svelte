@@ -16,7 +16,7 @@
         datasets: {
             label: string;
             data: number[];
-            // backgroundColor: string;
+        // backgroundColor: string;
         }[];
     } = {
         labels: [],
@@ -55,7 +55,7 @@
                 const foundM = tbaMatches.value.data.find(
                     _m =>
                         m.matchNumber === _m.match_number &&
-                        m.compLevel === _m.comp_level
+                            m.compLevel === _m.comp_level
                 );
 
                 let alliance: 'red' | 'blue' = 'red';

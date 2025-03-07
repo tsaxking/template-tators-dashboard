@@ -88,7 +88,7 @@
                         const match = matches.find(
                             match =>
                                 match.number === m.matchNumber &&
-                                match.compLevel === m.compLevel
+                                    match.compLevel === m.compLevel
                         );
                         // if on red alliance, do x = 1 - x
 
@@ -161,7 +161,10 @@
 
 <div class="container-fluid">
     <div class="row mb-1">
-        <div class="btn-group" aria-label="Select actions" role="group">
+        <div
+            class="btn-group"
+            aria-label="Select actions"
+            role="group">
             {#each checks as check (check)}
                 <input
                     id="action-{check.key}"
@@ -188,7 +191,9 @@
             {/each}
         </div>
     </div>
-    <div style:height="300px" class="row canvas-container">
-        <canvas bind:this="{canvas}"></canvas>
+    <div
+        style:height="300px"
+        class="row canvas-container">
+        <canvas bind:this="{canvas}" />
     </div>
 </div>

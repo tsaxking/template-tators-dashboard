@@ -1,38 +1,38 @@
 <script lang="ts">
-import { FIRSTTeam } from '../../../models/FIRST/team';
-import { Modal } from '../../../utilities/modals';
-import Carousel from '../bootstrap/Carousel.svelte';
-import UploadTeamPicture from './UploadTeamPicture.svelte';
+    import { FIRSTTeam } from '../../../models/FIRST/team';
+    import { Modal } from '../../../utilities/modals';
+    import Carousel from '../bootstrap/Carousel.svelte';
+    import UploadTeamPicture from './UploadTeamPicture.svelte';
 
-type P = {
-    name?: string;
-    description?: string;
-    url: string;
-};
+    type P = {
+        name?: string;
+        description?: string;
+        url: string;
+    };
 
-export let team: FIRSTTeam | undefined = undefined;
-export let upload = false;
-export let pictures: P[] = [];
+    export let team: FIRSTTeam | undefined = undefined;
+    export let upload = false;
+    export let pictures: P[] = [];
 
-const setPictures = async (team?: FIRSTTeam) => {
-    if (!team) return (pictures = []);
-    pictures = [];
-    await team.event.cacheTeamPictures();
-    // after the cache is updated, we know the pictures are up to date
-    const pics = await team.getPictures();
-    if (pics.isErr()) return console.error(pics.error);
-    pictures = pics.value.map(p => ({
-        url: '/uploads/' + p.picture
-    }));
-};
+    const setPictures = async (team?: FIRSTTeam) => {
+        if (!team) return (pictures = []);
+        pictures = [];
+        await team.event.cacheTeamPictures();
+        // after the cache is updated, we know the pictures are up to date
+        const pics = await team.getPictures();
+        if (pics.isErr()) return console.error(pics.error);
+        pictures = pics.value.map(p => ({
+            url: '/uploads/' + p.picture
+        }));
+    };
 
-$: if (team) {
-    setPictures(team);
-
-    team.on('new-picture', () => {
+    $: if (team) {
         setPictures(team);
-    });
-}
+
+        team.on('new-picture', () => {
+            setPictures(team);
+        });
+    }
 </script>
 
 <div class="container-fluid">
@@ -75,11 +75,11 @@ $: if (team) {
 </div>
 
 <style>
-.team-picture {
-    max-width: 100%;
-    max-height: 100%;
-    min-width: 75px;
+    .team-picture {
+        max-width: 100%;
+        max-height: 100%;
+        min-width: 75px;
 
-    margin: 0 auto;
-}
+        margin: 0 auto;
+    }
 </style>
