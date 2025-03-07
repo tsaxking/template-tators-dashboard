@@ -1,0 +1,4 @@
+{
+    "ignore": ["/dist/*", "/public/templates/entries/*"],
+    "ext": "ts,svelte,css,scss,sass,html"
+}

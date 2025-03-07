@@ -1,0 +1,1 @@
+UPDATE Checklists SET archived = 1 WHERE id = :id;
